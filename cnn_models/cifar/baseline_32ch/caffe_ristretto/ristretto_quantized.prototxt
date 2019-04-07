@@ -1,0 +1,272 @@
+layer {
+  name: "train-data"
+  type: "Data"
+  top: "data"
+  top: "label"
+  include {
+    phase: TRAIN
+  }
+  data_param {
+    source: "/home/Programme/DIGITS/digits/jobs/20180427-112016-5ede/train_db"
+    batch_size: 64
+    backend: LMDB
+  }
+  input_param {
+    shape {
+      dim: 1
+      dim: 1
+      dim: 32
+      dim: 32
+    }
+  }
+}
+layer {
+  name: "val-data"
+  type: "Data"
+  top: "data"
+  top: "label"
+  include {
+    phase: TEST
+  }
+  data_param {
+    source: "/home/Programme/DIGITS/digits/jobs/20180427-112016-5ede/val_db"
+    batch_size: 32
+    backend: LMDB
+  }
+  input_param {
+    shape {
+      dim: 1
+      dim: 1
+      dim: 32
+      dim: 32
+    }
+  }
+}
+layer {
+  name: "scale"
+  type: "Power"
+  bottom: "data"
+  top: "scaled"
+  power_param {
+    scale: 0.0078125
+  }
+}
+layer {
+  name: "conv1"
+  type: "ConvolutionRistretto"
+  bottom: "scaled"
+  top: "conv1"
+  param {
+    lr_mult: 1
+  }
+  param {
+    lr_mult: 2
+  }
+  convolution_param {
+    num_output: 32
+    pad: 1
+    kernel_size: 3
+    stride: 1
+    weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+  quantization_param {
+    bw_layer_in: 8
+    bw_layer_out: 8
+    bw_params: 8
+    fl_layer_in: 5
+    fl_layer_out: 5
+    fl_params: 5
+  }
+}
+layer {
+  name: "relu1"
+  type: "ReLU"
+  bottom: "conv1"
+  top: "conv1"
+}
+layer {
+  name: "pool1"
+  type: "Pooling"
+  bottom: "conv1"
+  top: "pool1"
+  pooling_param {
+    pool: MAX
+    kernel_size: 2
+    stride: 2
+  }
+}
+layer {
+  name: "conv2"
+  type: "ConvolutionRistretto"
+  bottom: "pool1"
+  top: "conv2"
+  param {
+    lr_mult: 1
+  }
+  param {
+    lr_mult: 2
+  }
+  convolution_param {
+    num_output: 32
+    pad: 1
+    kernel_size: 3
+    stride: 1
+    weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+  quantization_param {
+    bw_layer_in: 8
+    bw_layer_out: 8
+    bw_params: 8
+    fl_layer_in: 5
+    fl_layer_out: 3
+    fl_params: 7
+  }
+}
+layer {
+  name: "drop2"
+  type: "Dropout"
+  bottom: "conv2"
+  top: "conv2"
+  dropout_param {
+    dropout_ratio: 0.3
+  }
+}
+layer {
+  name: "relu2"
+  type: "ReLU"
+  bottom: "conv2"
+  top: "conv2"
+}
+layer {
+  name: "pool2"
+  type: "Pooling"
+  bottom: "conv2"
+  top: "pool2"
+  pooling_param {
+    pool: MAX
+    kernel_size: 2
+    stride: 2
+  }
+}
+layer {
+  name: "conv3"
+  type: "ConvolutionRistretto"
+  bottom: "pool2"
+  top: "conv3"
+  param {
+    lr_mult: 1
+  }
+  param {
+    lr_mult: 2
+  }
+  convolution_param {
+    num_output: 32
+    kernel_size: 1
+    stride: 1
+    weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+  quantization_param {
+    bw_layer_in: 8
+    bw_layer_out: 8
+    bw_params: 8
+    fl_layer_in: 3
+    fl_layer_out: 3
+    fl_params: 7
+  }
+}
+layer {
+  name: "drop3"
+  type: "Dropout"
+  bottom: "conv3"
+  top: "conv3"
+  dropout_param {
+    dropout_ratio: 0.4
+  }
+}
+layer {
+  name: "relu3"
+  type: "ReLU"
+  bottom: "conv3"
+  top: "conv3"
+}
+layer {
+  name: "conv4"
+  type: "ConvolutionRistretto"
+  bottom: "conv3"
+  top: "conv4"
+  convolution_param {
+    num_output: 10
+    kernel_size: 1
+    weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+  quantization_param {
+    bw_layer_in: 8
+    bw_layer_out: 8
+    bw_params: 8
+    fl_layer_in: 3
+    fl_layer_out: 2
+    fl_params: 6
+  }
+}
+layer {
+  name: "drop4"
+  type: "Dropout"
+  bottom: "conv4"
+  top: "conv4"
+  dropout_param {
+    dropout_ratio: 0.5
+  }
+}
+layer {
+  name: "relu4"
+  type: "ReLU"
+  bottom: "conv4"
+  top: "conv4"
+}
+layer {
+  name: "pool4"
+  type: "Pooling"
+  bottom: "conv4"
+  top: "pool4"
+  pooling_param {
+    pool: AVE
+    global_pooling: true
+  }
+}
+layer {
+  name: "loss"
+  type: "SoftmaxWithLoss"
+  bottom: "pool4"
+  bottom: "label"
+  top: "loss"
+}
+layer {
+  name: "accuracy"
+  type: "Accuracy"
+  bottom: "pool4"
+  bottom: "label"
+  top: "accuracy"
+  include {
+    phase: TEST
+  }
+}
