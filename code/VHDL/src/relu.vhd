@@ -11,7 +11,8 @@ entity relu is
 	generic (
 		C_INT_WIDTH 	: integer range 1 to 16 := 8;
 		C_FRAC_WIDTH 	: integer range 0 to 16 := 8;
-		-- 0: normal ReLU (if x<0 then y=0), 1: Leaky ReLU (if x<0 then y=0.125*x)
+		-- 0: normal ReLU (if x<0: then y=0)
+		-- 1: leaky ReLU (if x<0: then y=0.125*x)
 		C_LEAKY			: std_logic := '0'
 	);
 	port ( 
@@ -37,27 +38,45 @@ begin
 	------------------------------------------
 	-- Process: ReLU
 	------------------------------------------
-	process(isl_clk)
-	begin
-		if rising_edge(isl_clk) then
-			if (isl_ce = '1') then
-				if (isl_valid = '1') then
-					if (islv_data(C_INT_WIDTH+C_FRAC_WIDTH-1) = '0') then
-						oslv_data <= islv_data;
-					else
-						if (C_LEAKY = '0') then
+	-- use generate statement instead of if-else in process
+	-- it is more code, but needs less ressources
+	gen_relu : if C_LEAKY = '0' generate
+		process(isl_clk)
+		begin
+			if rising_edge(isl_clk) then
+				if isl_ce = '1' then
+					if isl_valid = '1' then
+						if islv_data(C_INT_WIDTH+C_FRAC_WIDTH-1) = '0' then
+							oslv_data <= islv_data;
+						else
 							oslv_data <= (others => '0');
+						end if;
+					end if;
+					sl_output_valid <= isl_valid;
+				end if;
+			end if;
+		end process;
+	end generate gen_relu;
+
+	gen_leaky_relu : if C_LEAKY = '1' generate
+		process(isl_clk)
+		begin
+			if rising_edge(isl_clk) then
+				if isl_ce = '1' then
+					if isl_valid = '1' then
+						if islv_data(C_INT_WIDTH+C_FRAC_WIDTH-1) = '0' then
+							oslv_data <= islv_data;
 						else
 							oslv_data <= to_slv(resize(
 								to_sfixed(islv_data & '0', C_INT_WIDTH-1, -C_FRAC_WIDTH-1),
 								C_INT_WIDTH+2, -C_FRAC_WIDTH+3, fixed_saturate, fixed_round));
 						end if;
 					end if;
+					sl_output_valid <= isl_valid;
 				end if;
-				sl_output_valid <= isl_valid;
 			end if;
-		end if;
-	end process;
+		end process;
+	end generate gen_leaky_relu;
 
 	osl_valid <= sl_output_valid;
 end behavioral;
