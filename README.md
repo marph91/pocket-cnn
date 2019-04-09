@@ -17,7 +17,7 @@ One of:
 ## Testing
 - Add more unit tests for cocotb and vunit.
 - Find a good way to run all cocotb tests with changing generics and summary at the end. See https://github.com/potentialventures/cocotb/issues/756 and https://dornerworks.com/blog/setting-vhdl-generics-fpga-verification-made-easy-cocotb.
-- Configure modelsim as second simulator.
+- Use a second simulator, f. e. modelsim or nvc.
 - Use jenkins or similar CI.
 
 ## HDL
