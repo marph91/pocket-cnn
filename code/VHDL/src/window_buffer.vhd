@@ -31,17 +31,17 @@ architecture behavior of window_buffer is
 	------------------------------------------
 	-- Signal Declarations
 	------------------------------------------
-	signal int_ch_cnt			: integer range 0 to C_CH-1 := 0;
+	signal int_ch_cnt : integer range 0 to C_CH-1 := 0;
     
-	signal sl_valid_out 		: std_logic := '0';
-	signal slv_data_out 		: std_logic_vector(C_WINDOW_SIZE*C_WINDOW_SIZE*C_DATA_WIDTH-1 downto 0);
+	signal sl_valid_out : std_logic := '0';
+	signal slv_data_out : std_logic_vector(C_WINDOW_SIZE*C_WINDOW_SIZE*C_DATA_WIDTH-1 downto 0);
     
 	--debug
 	type t_2d_array is array (natural range <>, natural range <>) of std_logic_vector(C_DATA_WIDTH - 1 downto 0);
-	signal a_win		: t_2d_array(0 to C_WINDOW_SIZE*C_WINDOW_SIZE - 1, 0 to C_CH - 1);
+	signal a_win : t_2d_array(0 to C_WINDOW_SIZE*C_WINDOW_SIZE - 1, 0 to C_CH - 1);
 
 begin
-	proc_shift_data : process (isl_clk) is
+	proc_shift_data : process (isl_clk)
 	begin
 		if rising_edge(isl_clk) then 
 			-- isl_valid has higher priority than isl_repeat!
@@ -83,7 +83,7 @@ begin
 		end if;
 	end process proc_shift_data;
 
-	proc_window_buffer : process (isl_clk) is   
+	proc_window_buffer : process (isl_clk)   
 	begin 
 		if rising_edge(isl_clk) then
 			if isl_ce = '1' then

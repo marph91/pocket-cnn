@@ -8,11 +8,11 @@ library ieee;
 -----------------------------------------------------------------------------------------------------------------------
 entity max_buf is
 	generic (
-		C_CH 			: integer range 1 to 512 := 16;
+		C_CH 					: integer range 1 to 512 := 16;
 		C_POOL_DIM		: integer range 2 to 3 := 2;
-		C_STRIDE		: integer range 1 to 3 := 2;
-		C_WIDTH			: integer range 1 to 512 := 34;
-		C_HEIGHT		: integer range 1 to 512 := 16;
+		C_STRIDE			: integer range 1 to 3 := 2;
+		C_WIDTH				: integer range 1 to 512 := 34;
+		C_HEIGHT			: integer range 1 to 512 := 16;
 		C_INT_WIDTH 	: integer range 1 to 16 := 8;
 		C_FRAC_WIDTH 	: integer range 0 to 16 := 8
 	);
@@ -34,48 +34,42 @@ end max_buf;
 -- Architecture Section
 -----------------------------------------------------------------------------------------------------------------------
 architecture behavioral of max_buf is
-
-	-- constants
-	constant C_DATA_WIDTH 		: integer range 1 to C_INT_WIDTH+C_FRAC_WIDTH := C_INT_WIDTH+C_FRAC_WIDTH;
+	constant C_DATA_WIDTH : integer range 1 to C_INT_WIDTH+C_FRAC_WIDTH := C_INT_WIDTH+C_FRAC_WIDTH;
 
 	------------------------------------------
-    -- Signal Declarations
-    ------------------------------------------
+	-- Signal Declarations
+	------------------------------------------
 	-- counter
-	signal int_ch_in_cnt 			: integer range 0 to C_CH-1 := 0;
-	signal int_ch_out_cnt 			: integer range 0 to C_CH-1 := 0;
-	signal int_row 				: integer range 0 to C_HEIGHT := 0;
-	signal int_col 				: integer range 0 to C_WIDTH := 0;
-	signal int_pixel_in_cnt		: integer range 0 to C_HEIGHT*C_WIDTH := 0;
-	signal int_pixel_out_cnt	: integer range 0 to C_HEIGHT*C_WIDTH := 0;
+	signal int_ch_in_cnt : integer range 0 to C_CH-1 := 0;
+	signal int_ch_out_cnt : integer range 0 to C_CH-1 := 0;
+	signal int_row : integer range 0 to C_HEIGHT := 0;
+	signal int_col : integer range 0 to C_WIDTH := 0;
+	signal int_pixel_in_cnt : integer range 0 to C_HEIGHT*C_WIDTH := 0;
+	signal int_pixel_out_cnt : integer range 0 to C_HEIGHT*C_WIDTH := 0;
 
 	-- for line buffer
-	signal sl_lb_output_valid 	: std_logic := '0';
-	signal slv_lb_data_out 		: std_logic_vector(C_POOL_DIM*C_DATA_WIDTH - 1 downto 0) := (others => '0');
+	signal sl_lb_output_valid : std_logic := '0';
+	signal slv_lb_data_out : std_logic_vector(C_POOL_DIM*C_DATA_WIDTH - 1 downto 0) := (others => '0');
 
 	-- for window buffer
-	signal sl_wb_repeat 		: std_logic := '0';
-	signal sl_wb_output_valid 	: std_logic := '0';
-	signal slv_wb_data_out 		: std_logic_vector(C_POOL_DIM*C_POOL_DIM*C_DATA_WIDTH - 1 downto 0) := (others => '0');
+	signal sl_wb_repeat : std_logic := '0';
+	signal sl_wb_output_valid : std_logic := '0';
+	signal slv_wb_data_out : std_logic_vector(C_POOL_DIM*C_POOL_DIM*C_DATA_WIDTH - 1 downto 0) := (others => '0');
 
 	-- for FSM
 	type states is (FILL, STRIDE, LOAD, LOAD2, CALC);
-	signal state 				: states := FILL;
-	signal sl_filled			: std_logic := '0';
-	signal sl_output_valid		: std_logic := '0';
--- 	signal sl_output_valid_delay	: std_logic := '0';
+	signal state : states := FILL;
+	signal sl_filled : std_logic := '0';
+	signal sl_output_valid : std_logic := '0';
 
 	--for maxpool
-	signal sl_max_input_valid 	: std_logic := '0';
--- 	signal sl_max_input_valid_delay 	: std_logic := '0';
-	signal slv_max_data_in	 	: std_logic_vector(C_POOL_DIM*C_POOL_DIM*C_DATA_WIDTH - 1 downto 0);-- := (others => '0');
-	signal sl_max_output_valid 	: std_logic := '0';
--- 	signal sl_max_output_valid_delay 	: std_logic := '0';
-	signal slv_max_data_out 	: std_logic_vector(C_DATA_WIDTH - 1 downto 0) := (others => '0');
+	signal sl_max_input_valid : std_logic := '0';
+	signal slv_max_data_in : std_logic_vector(C_POOL_DIM*C_POOL_DIM*C_DATA_WIDTH - 1 downto 0);-- := (others => '0');
+	signal sl_max_output_valid : std_logic := '0';
+	signal slv_max_data_out : std_logic_vector(C_DATA_WIDTH - 1 downto 0) := (others => '0');
 	
-	signal slv_data_out			: std_logic_vector(C_DATA_WIDTH-1 downto 0);
--- 	signal slv_result			: std_logic_vector(C_DATA_WIDTH-1 downto 0);
-	signal sl_rdy 				: std_logic := '0';
+	signal slv_data_out : std_logic_vector(C_DATA_WIDTH-1 downto 0);
+	signal sl_rdy : std_logic := '0';
 	
 	-- debug
 	type t_wb_dout_array is array (natural range <>, natural range <>) of std_logic_vector(C_DATA_WIDTH - 1 downto 0);
@@ -87,18 +81,18 @@ begin
 	-----------------------------------
 	line_buffer : entity work.line_buffer
 	generic map(
-		C_DATA_WIDTH		=> C_DATA_WIDTH,
-		C_CH				=> C_CH,
-		C_WIDTH		=> C_WIDTH,
-		C_WINDOW_SIZE 	=> C_POOL_DIM
+		C_DATA_WIDTH	=> C_DATA_WIDTH,
+		C_CH					=> C_CH,
+		C_WIDTH				=> C_WIDTH,
+		C_WINDOW_SIZE => C_POOL_DIM
 	)
 	port map(
-		isl_clk 	=> isl_clk,
+		isl_clk 		=> isl_clk,
 		isl_reset 	=> isl_rst_n,
-		isl_ce 		=> isl_ce,
+		isl_ce 			=> isl_ce,
 		isl_valid 	=> isl_valid,
 		islv_data 	=> islv_data,
-		osl_valid	=> sl_lb_output_valid,
+		osl_valid		=> sl_lb_output_valid,
 		oslv_data 	=> slv_lb_data_out
 	);
 
@@ -108,18 +102,18 @@ begin
 	window_buffer_max : entity work.window_buffer
 	generic map(
 		C_DATA_WIDTH 	=> C_DATA_WIDTH,
-		C_CH			=> C_CH,
+		C_CH					=> C_CH,
 		C_WINDOW_SIZE	=> C_POOL_DIM
 	)
 	port map(
-		isl_clk		=> isl_clk,
+		isl_clk			=> isl_clk,
 		isl_reset 	=> isl_rst_n,
-		isl_ce 		=> isl_ce,
+		isl_ce 			=> isl_ce,
 		isl_repeat	=> sl_wb_repeat,
-		isl_valid	=> sl_lb_output_valid,
-		islv_data	=> slv_lb_data_out,
-		osl_valid	=> sl_wb_output_valid,
-		oslv_data	=> slv_wb_data_out
+		isl_valid		=> sl_lb_output_valid,
+		islv_data		=> slv_lb_data_out,
+		osl_valid		=> sl_wb_output_valid,
+		oslv_data		=> slv_wb_data_out
 	);
 
 	-----------------------------------
@@ -144,29 +138,29 @@ begin
 	-------------------------------------------------------
 	-- Process: Counter
 	-------------------------------------------------------
-	proc_cnt : process (isl_clk) is
+	proc_cnt : process (isl_clk)
 	begin
-		if (rising_edge(isl_clk)) then
-			if (isl_rst_n = '0') then
+		if rising_edge(isl_clk) then
+			if isl_rst_n = '0' then
 				int_pixel_in_cnt <= 0;
 				int_pixel_out_cnt <= 0;
-			elsif (isl_start = '1') then
+			elsif isl_start = '1' then
 				-- have to be resetted at start because of odd kernels (3x3+2) -> image dimensions arent fitting kernel stride
 				int_pixel_in_cnt <= 0;
 				int_pixel_out_cnt <= 0;
 				int_row <= 0;
 				int_col <= 0;
-			elsif (isl_ce = '1') then
-				if (isl_valid = '1') then
-					if (int_ch_in_cnt < C_CH-1) then
+			elsif isl_ce = '1' then
+				if isl_valid = '1' then
+					if int_ch_in_cnt < C_CH-1 then
 						int_ch_in_cnt <= int_ch_in_cnt+1;
 					else
 						int_ch_in_cnt <= 0;
-						if (int_col < C_WIDTH-1) then
+						if int_col < C_WIDTH-1 then
 							int_col <= int_col+1;
 						else
 							int_col <= 0;
-							if (int_row < C_HEIGHT-1) then
+							if int_row < C_HEIGHT-1 then
 								int_row <= int_row+1;
 							else
 								int_row <= 0;
@@ -176,8 +170,8 @@ begin
 					end if;
 				end if;
 
-				if (sl_output_valid = '1') then
-					if (int_ch_out_cnt < C_CH-1) then
+				if sl_output_valid = '1' then
+					if int_ch_out_cnt < C_CH-1 then
 						int_ch_out_cnt <= int_ch_out_cnt+1;
 					else
 						int_ch_out_cnt <= 0;
@@ -191,30 +185,30 @@ begin
 	-------------------------------------------------------
 	-- Process: States
 	-------------------------------------------------------
-	proc_states : process (isl_clk) is
+	proc_states : process (isl_clk)
 	begin
-		if (rising_edge(isl_clk)) then
-			if (isl_rst_n = '0') then
+		if rising_edge(isl_clk) then
+			if isl_rst_n = '0' then
 				state <= FILL;
-			elsif (isl_start = '1') then
+			elsif isl_start = '1' then
 				state <= FILL;
-			elsif (isl_ce = '1') then
+			elsif isl_ce = '1' then
 				case state is 
 
 					when FILL => 
-						if ((int_pixel_in_cnt = (C_POOL_DIM-1)*C_WIDTH+C_POOL_DIM-1)) then
+						if (int_pixel_in_cnt = (C_POOL_DIM-1)*C_WIDTH+C_POOL_DIM-1) then
 							state <= LOAD;
 						end if;
 
 					when STRIDE =>
-						if ((int_row+1-C_POOL_DIM+C_STRIDE) mod C_STRIDE = 0 and 	-- every C_STRIDE row (C_POOL_DIM+C_STRIDE offset)
+						if (int_row+1-C_POOL_DIM+C_STRIDE) mod C_STRIDE = 0 and 	-- every C_STRIDE row (C_POOL_DIM+C_STRIDE offset)
 							((int_col+1-C_POOL_DIM+C_STRIDE) mod C_STRIDE = 0) and 	-- every C_STRIDE col (C_POOL_DIM+C_STRIDE offset)
-							((int_col+1) > C_POOL_DIM-1)) then						-- shift window at end/start of line
+							((int_col+1) > C_POOL_DIM-1) then												-- shift window at end/start of line
 								state <= LOAD;
 						end if;
 
 					when LOAD => 
-						if (isl_valid = '1') then
+						if isl_valid = '1' then
 							state <= LOAD2;
 						end if;
 
@@ -222,7 +216,7 @@ begin
 						state <= CALC;
 
 					when CALC =>
-						if (sl_max_output_valid = '0' and sl_output_valid = '1') then
+						if sl_max_output_valid = '0' and sl_output_valid = '1' then
 							state <= STRIDE;
 						end if;
 
@@ -239,7 +233,7 @@ begin
 	-------------------------------------------------------
 	proc_data : process (isl_clk) is
 	begin
-		if (rising_edge(isl_clk)) then
+		if rising_edge(isl_clk) then
 			-- pragma translate_off
 			for i in 0 to C_POOL_DIM-1 loop
 				for j in 0 to C_POOL_DIM-1 loop
@@ -259,10 +253,10 @@ begin
 	-------------------------------------------------------
 	proc_actions : process (isl_clk) is
 	begin 
-		if (rising_edge(isl_clk)) then 
-			if (isl_rst_n = '0') then
+		if rising_edge(isl_clk) then 
+			if isl_rst_n = '0' then
 				sl_output_valid <= '0';
-			elsif (isl_ce = '1') then
+			elsif isl_ce = '1' then
 				case state is 
 					when FILL =>
 						sl_rdy <= '1';
@@ -282,7 +276,7 @@ begin
 				end case;
 			end if;
 
-			if (sl_rdy = '1' and isl_valid = '1') then
+			if sl_rdy = '1' and isl_valid = '1' then
 				sl_rdy <= '0';
 			end if;
 		end if;
@@ -290,5 +284,5 @@ begin
 
 	oslv_data <= slv_data_out;
 	osl_valid <= sl_output_valid;
-	osl_rdy <= sl_rdy and isl_get when (int_pixel_in_cnt < C_WIDTH*C_HEIGHT) else '0';
+	osl_rdy <= sl_rdy and isl_get when int_pixel_in_cnt < C_WIDTH*C_HEIGHT else '0';
 end behavioral;

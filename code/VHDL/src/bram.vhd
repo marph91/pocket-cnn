@@ -11,18 +11,18 @@ library util;
 -----------------------------------------------------------------------------------------------------------------------
 entity bram is
 	generic(
-		C_DATA_WIDTH      : integer range 1 to 32*10 := 8;
-		C_ADDR_WIDTH      : integer range 1 to log2(1024*1024);
-		C_SIZE            : integer range 1 to 1024*1024;
-		C_OUTPUT_REG      : integer range 0 to 1 := 0;
-		STR_INIT          : string := ""
+		C_DATA_WIDTH	: integer range 1 to 32*10 := 8;
+		C_ADDR_WIDTH	: integer range 1 to log2(1024*1024);
+		C_SIZE      	: integer range 1 to 1024*1024;
+		C_OUTPUT_REG	: integer range 0 to 1 := 0;
+		STR_INIT    	: string := ""
 	);
 	port(
-		isl_clk		: in  std_logic;
-		isl_en		: in  std_logic;
-		isl_we		: in  std_logic;
-		islv_addr	: in  std_logic_vector(C_ADDR_WIDTH - 1 downto 0);
-		islv_data	: in  std_logic_vector(C_DATA_WIDTH - 1 downto 0);
+		isl_clk		: in std_logic;
+		isl_en		: in std_logic;
+		isl_we		: in std_logic;
+		islv_addr	: in std_logic_vector(C_ADDR_WIDTH - 1 downto 0);
+		islv_data	: in std_logic_vector(C_DATA_WIDTH - 1 downto 0);
 		oslv_data	: out std_logic_vector(C_DATA_WIDTH - 1 downto 0) := (others => '0')
 	);
 end bram;

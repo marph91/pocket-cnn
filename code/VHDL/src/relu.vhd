@@ -13,7 +13,7 @@ entity relu is
 		C_FRAC_WIDTH 	: integer range 0 to 16 := 8;
 		-- 0: normal ReLU (if x<0: then y=0)
 		-- 1: leaky ReLU (if x<0: then y=0.125*x)
-		C_LEAKY			: std_logic := '0'
+		C_LEAKY			  : std_logic := '0'
 	);
 	port ( 
 		isl_clk 		: in std_logic;

@@ -27,7 +27,6 @@ end pool_max;
 -- Architecture Section
 -----------------------------------------------------------------------------------------------------------------------
 architecture behavioral of pool_max is
-
 	------------------------------------------
 	-- Function: compare two numbers
 	------------------------------------------
@@ -39,37 +38,32 @@ architecture behavioral of pool_max is
 			return B;
 		end if;
 	end f_max2;
-	
+
 	------------------------------------------
 	-- Signal Declarations
 	------------------------------------------
-	signal sl_input_valid_delay : std_logic := '0';
-	signal sl_input_valid_delay2 : std_logic := '0';
-	signal sl_input_valid_delay3 : std_logic := '0';
-	signal slv_data_in			: std_logic_vector(C_POOL_DIM*C_POOL_DIM*(C_INT_WIDTH+C_FRAC_WIDTH)-1 downto 0);
-	signal slv_data_tmp			: std_logic_vector(C_INT_WIDTH+C_FRAC_WIDTH-1 downto 0);
-	signal slv_data_delay		: std_logic_vector(C_INT_WIDTH+C_FRAC_WIDTH-1 downto 0);
-	signal slv_data_out			: std_logic_vector(C_INT_WIDTH+C_FRAC_WIDTH-1 downto 0);
-	signal sl_output_valid 		: std_logic := '0';
+	signal sl_input_valid_d1 : std_logic := '0';
+	signal slv_data_in : std_logic_vector(C_POOL_DIM*C_POOL_DIM*(C_INT_WIDTH+C_FRAC_WIDTH)-1 downto 0);
+	signal slv_data_tmp : std_logic_vector(C_INT_WIDTH+C_FRAC_WIDTH-1 downto 0);
+	signal slv_data_delay : std_logic_vector(C_INT_WIDTH+C_FRAC_WIDTH-1 downto 0);
+	signal slv_data_out : std_logic_vector(C_INT_WIDTH+C_FRAC_WIDTH-1 downto 0);
+	signal sl_output_valid : std_logic := '0';
 	
 	type t_1d_sfix_array is array (natural range <>) of sfixed(C_INT_WIDTH-1 downto -C_FRAC_WIDTH);
-	signal a_max_tmp 			: t_1d_sfix_array(0 to C_POOL_DIM-1);
+	signal a_max_tmp : t_1d_sfix_array(0 to C_POOL_DIM-1);
 
 begin
-	------------------------------------------
-	-- Process: maximum pooling
-	------------------------------------------
 	process(isl_clk)
-	variable v_a_current_max			: t_1d_sfix_array(0 to C_POOL_DIM-1);
-	variable v_sfix_current_max_tmp 	: sfixed(C_INT_WIDTH-1 downto -C_FRAC_WIDTH);
-	variable v_sfix_A 					: sfixed(C_INT_WIDTH-1 downto -C_FRAC_WIDTH);
-	variable v_sfix_B 					: sfixed(C_INT_WIDTH-1 downto -C_FRAC_WIDTH);
+		variable v_a_current_max : t_1d_sfix_array(0 to C_POOL_DIM-1);
+		variable v_sfix_current_max_tmp : sfixed(C_INT_WIDTH-1 downto -C_FRAC_WIDTH);
+		variable v_sfix_A : sfixed(C_INT_WIDTH-1 downto -C_FRAC_WIDTH);
+		variable v_sfix_B : sfixed(C_INT_WIDTH-1 downto -C_FRAC_WIDTH);
 	begin
 		if rising_edge(isl_clk) then
-			if (isl_ce = '1') then
+			if isl_ce = '1' then
 				-- Stage 1: 2x compare / 1x compare
 				-- Stage 2: 2x compare / 1x compare
-				-- Gesamt: 3x3 maxpool / 2x2 maxpool
+				-- Summary: 3x3 maxpool / 2x2 maxpool
 
 				-- Stage 1
 				for j in 0 to C_POOL_DIM-1 loop
@@ -90,8 +84,8 @@ begin
 				end loop;
 				slv_data_out <= to_slv(v_sfix_current_max_tmp);
 
-				sl_input_valid_delay <= isl_valid;
-				sl_output_valid <= sl_input_valid_delay;
+				sl_input_valid_d1 <= isl_valid;
+				sl_output_valid <= sl_input_valid_d1;
 			end if;
 		end if;
 	end process;

@@ -1,36 +1,44 @@
 library ieee;
   use ieee.std_logic_1164.all;
   use ieee.numeric_std.all;
-
 library util;
   use util.math.all;
-    
+
+-----------------------------------------------------------------------------------------------------------------------
+-- Entity Section
+-----------------------------------------------------------------------------------------------------------------------
 entity bram_tdp is
   generic(
-    C_DATA_WIDTH_A : integer := 4;
-    C_ADDR_WIDTH_A : integer := 10;
-    C_SIZE_A : integer := 1024;
+    C_DATA_WIDTH_A  : integer := 4;
+    C_ADDR_WIDTH_A  : integer := 10;
+    C_SIZE_A        : integer := 1024;
     
-    C_DATA_WIDTH_B : integer := 16;
-    C_ADDR_WIDTH_B : integer := 8;
-    C_SIZE_B : integer := 256
+    C_DATA_WIDTH_B  : integer := 16;
+    C_ADDR_WIDTH_B  : integer := 8;
+    C_SIZE_B        : integer := 256
   );
   port(
-    isl_clk_a : in std_logic;
-    isl_en_a : in std_logic;
-    isl_we_a : in std_logic;
+    isl_clk_a   : in std_logic;
+    isl_en_a    : in std_logic;
+    isl_we_a    : in std_logic;
     islv_addr_a : in std_logic_vector(C_ADDR_WIDTH_A - 1 downto 0);
     oslv_data_a : out std_logic_vector(C_DATA_WIDTH_A - 1 downto 0);
 
-    isl_clk_b : in std_logic;
-    isl_en_b : in std_logic;
-    isl_we_b : in std_logic;
+    isl_clk_b   : in std_logic;
+    isl_en_b    : in std_logic;
+    isl_we_b    : in std_logic;
     islv_addr_b : in std_logic_vector(C_ADDR_WIDTH_B - 1 downto 0);
     islv_data_b : in std_logic_vector(C_DATA_WIDTH_B - 1 downto 0)
   );
 end bram_tdp;
 
+-----------------------------------------------------------------------------------------------------------------------
+-- Architecture Section
+-----------------------------------------------------------------------------------------------------------------------
 architecture behavioral of bram_tdp is
+  ------------------------------------------
+	-- Signal Declarations
+	------------------------------------------
   constant C_MIN_WIDTH : integer := util.math.min(C_DATA_WIDTH_A, C_DATA_WIDTH_B);
   constant C_MAX_WIDTH : integer := util.math.max(C_DATA_WIDTH_A, C_DATA_WIDTH_B);
   constant C_MAX_SIZE : integer := util.math.max(C_SIZE_A, C_SIZE_B);
@@ -70,5 +78,4 @@ begin
   end process;
   
   oslv_data_a <= slv_data_out_a;
-    
 end behavioral;

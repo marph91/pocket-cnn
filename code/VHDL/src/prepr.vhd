@@ -13,13 +13,13 @@ entity prepr is
 	generic (
 		C_INT_WIDTH 	: integer range 1 to 16 := 8;
 		C_FRAC_WIDTH 	: integer range 0 to 16 := 8;
-		C_SHIFT			: integer range 0 to 32 := 6
+		C_SHIFT				: integer range 0 to 32 := 6
 	);
 	port (
-		isl_valid		: in std_logic;
-		islv_data		: in std_logic_vector(C_INT_WIDTH+C_FRAC_WIDTH-1 downto 0);
-		oslv_data		: out std_logic_vector(C_INT_WIDTH+C_FRAC_WIDTH-1 downto 0);
-		osl_valid		: out std_logic
+		isl_valid : in std_logic;
+		islv_data : in std_logic_vector(C_INT_WIDTH+C_FRAC_WIDTH-1 downto 0);
+		oslv_data : out std_logic_vector(C_INT_WIDTH+C_FRAC_WIDTH-1 downto 0);
+		osl_valid : out std_logic
 	);
 end prepr;
 

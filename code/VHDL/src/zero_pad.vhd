@@ -7,10 +7,10 @@ library ieee;
 entity zero_pad is
 	generic (
 		C_DATA_WIDTH	: integer range 1 to 16 := 8;
-		C_CH			: integer range 1 to 512 := 16;
-		C_WIDTH			: integer range 1 to 512 := 32;
-		C_HEIGHT		: integer range 1 to 512 := 32;
-		C_PAD_TOP	 	: integer range 0 to 1 := 1;
+		C_CH					: integer range 1 to 512 := 16;
+		C_WIDTH				: integer range 1 to 512 := 32;
+		C_HEIGHT			: integer range 1 to 512 := 32;
+		C_PAD_TOP	 		: integer range 0 to 1 := 1;
 		C_PAD_BOTTOM 	: integer range 0 to 1 := 1;
 		C_PAD_LEFT 		: integer range 0 to 1 := 1;
 		C_PAD_RIGHT 	: integer range 0 to 1 := 1
@@ -34,35 +34,35 @@ end entity;
 -----------------------------------------------------------------------------------------------------------------------
 architecture behavioral of zero_pad is
   
-	constant C_WIDTH_OUT 	: integer range 1 to C_WIDTH + C_PAD_LEFT + C_PAD_RIGHT := C_WIDTH + C_PAD_LEFT + C_PAD_RIGHT;
-	constant C_HEIGHT_OUT 	: integer range 1 to C_HEIGHT + C_PAD_TOP + C_PAD_BOTTOM := C_HEIGHT + C_PAD_TOP + C_PAD_BOTTOM; 
+	constant C_WIDTH_OUT : integer range 1 to C_WIDTH + C_PAD_LEFT + C_PAD_RIGHT := C_WIDTH + C_PAD_LEFT + C_PAD_RIGHT;
+	constant C_HEIGHT_OUT : integer range 1 to C_HEIGHT + C_PAD_TOP + C_PAD_BOTTOM := C_HEIGHT + C_PAD_TOP + C_PAD_BOTTOM; 
 
 	------------------------------------------
 	-- Signal Declarations
 	------------------------------------------
 	-- counter
-	signal int_ch 			: integer range 0 to C_CH := 0;
-	signal int_ch_out 		: integer range 0 to C_CH := 0;
-	signal int_row 			: integer range 0 to C_HEIGHT := 0;
-	signal int_col 			: integer range 0 to C_WIDTH := 0;
-	signal int_data_in_cnt	: integer range 0 to C_HEIGHT*C_WIDTH := 0;
+	signal int_ch : integer range 0 to C_CH := 0;
+	signal int_ch_out : integer range 0 to C_CH := 0;
+	signal int_row : integer range 0 to C_HEIGHT := 0;
+	signal int_col : integer range 0 to C_WIDTH := 0;
+	signal int_data_in_cnt : integer range 0 to C_HEIGHT*C_WIDTH := 0;
 	signal int_data_out_cnt	: integer range 0 to C_HEIGHT_OUT*C_WIDTH_OUT := 0;
 
 	signal int_pixel_to_pad	: integer range 0 to (C_WIDTH_OUT + C_PAD_LEFT)*C_CH+1 := 0;
-	signal int_burst		: integer range 0 to C_CH := 0;
+	signal int_burst : integer range 0 to C_CH := 0;
 
-	signal sl_output_valid	: std_logic := '0';
-	signal slv_data_out		: std_logic_vector(C_DATA_WIDTH - 1 downto 0);
-	signal sl_rdy			: std_logic := '0';
+	signal sl_output_valid : std_logic := '0';
+	signal slv_data_out : std_logic_vector(C_DATA_WIDTH - 1 downto 0);
+	signal sl_rdy : std_logic := '0';
   
 begin
 	-------------------------------------------------------
 	-- Process: Counter
 	-------------------------------------------------------
 	-- TODO: int_pixel_to_pad arent pixel, but pixel*channel
-	proc_cnt : process (isl_clk) is
+	proc_cnt : process (isl_clk)
 	begin
-		if (rising_edge(isl_clk)) then
+		if rising_edge(isl_clk) then
 			if isl_rst_n = '0' then
 				int_data_out_cnt <= 0;
 				int_data_in_cnt <= 0;
@@ -74,7 +74,7 @@ begin
 				int_row <= 0;
 				int_col <= 0;
 -- 				int_ch_out <= 0;
-			elsif (isl_valid = '1') then
+			elsif isl_valid = '1' then
 				if int_ch < C_CH-1 then
 				    int_ch <= int_ch+1;
 				else
@@ -98,7 +98,7 @@ begin
 						int_col <= int_col+1;
 					end if;
 				end if;
-			elsif (sl_output_valid = '1') then
+			elsif sl_output_valid = '1' then
 				if int_pixel_to_pad > 0 then
 					int_pixel_to_pad <= int_pixel_to_pad-1;
 				end if;
@@ -124,16 +124,16 @@ begin
 -- 				int_burst <= 0;
 -- 				sl_output_valid <= '0';
 			elsif isl_ce = '1' then
-				if (isl_valid = '1') then
+				if isl_valid = '1' then
 					slv_data_out <= islv_data;
 					sl_output_valid <= '1';
-				elsif (int_pixel_to_pad /= 0) then
+				elsif int_pixel_to_pad /= 0 then
 					sl_rdy <= '0';
 					slv_data_out <= (others => '0');
-					if (isl_get = '1' and sl_output_valid = '0') then
+					if isl_get = '1' and sl_output_valid = '0' then
 						sl_output_valid <= '1';
 						int_burst <= C_CH-1;
-					elsif (int_burst > 0) then
+					elsif int_burst > 0 then
 						sl_output_valid <= '1';
 						int_burst <= int_burst-1;
 					else

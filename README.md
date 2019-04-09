@@ -25,5 +25,5 @@ One of:
 - Add more layers, f. e. fully connected layer.
 
 ## CNN Frameworks
-- Fix pytorch saving and loading. The extra layers always have to be in a relative directory when loading the model. Currently the files are duplicated.
+- Fix pytorch saving and loading. The extra layers always have to be in a relative directory when loading the model due to pickle. See https://pytorch.org/docs/stable/notes/serialization.html. Currently the files are duplicated.
 - Add tensorflow support. Currently the quantization we need, is not available at this framework. See https://www.tensorflow.org/api_docs/python/tf/quantization/quantize.

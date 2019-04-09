@@ -9,10 +9,10 @@ library util;
 -----------------------------------------------------------------------------------------------------------------------
 entity line_buffer is
   generic(
-    C_DATA_WIDTH       	: integer range 1 to 64 := 8;
-    C_CH                : integer range 1 to 1024 := 16;
-    C_WIDTH             : integer range 1 to 2048 := 20;
-    C_WINDOW_SIZE       : integer range 1 to 2048 := 3
+    C_DATA_WIDTH  : integer range 1 to 64 := 8;
+    C_CH          : integer range 1 to 1024 := 16;
+    C_WIDTH       : integer range 1 to 2048 := 20;
+    C_WINDOW_SIZE : integer range 1 to 2048 := 3
   );
   port(
     isl_clk   : in  std_logic;

@@ -8,16 +8,16 @@ library ieee;
 entity channel_buffer is
     generic(
 		C_DATA_WIDTH	: integer range 1 to 32;
-		C_CH			: integer range 1 to 512
+		C_CH					: integer range 1 to 512
 	);
 	port(
 		isl_clk   	: in std_logic;
 		isl_reset 	: in std_logic;
-		isl_ce		: in std_logic;
+		isl_ce			: in std_logic;
 		isl_repeat 	: in std_logic;
 		isl_valid 	: in std_logic;
-		islv_data	: in std_logic_vector(C_DATA_WIDTH-1 downto 0); --Pixel
-		oslv_data	: out std_logic_vector(C_DATA_WIDTH-1 downto 0);
+		islv_data		: in std_logic_vector(C_DATA_WIDTH-1 downto 0);
+		oslv_data		: out std_logic_vector(C_DATA_WIDTH-1 downto 0);
 		osl_valid 	: out std_logic
     );
 end channel_buffer;
@@ -26,27 +26,19 @@ end channel_buffer;
 -- Architecture Section
 -----------------------------------------------------------------------------------------------------------------------
 architecture behavior of channel_buffer is
+	------------------------------------------
+	-- Signal Declarations
+	------------------------------------------
+	signal sl_valid_out : std_logic := '0';
+	signal sl_repeat : std_logic := '0';
+	signal int_ch_in_cnt : integer range 0 to C_CH-1 := 0;
+	signal int_ch_out_cnt : integer range 0 to C_CH-1 := 0;
 
-    ------------------------------------------
-    -- Signal Declarations
-    ------------------------------------------
-    
-    signal sl_valid_out 		: std_logic := '0';
-    signal sl_repeat			: std_logic := '0';
-    signal int_ch_in_cnt		: integer range 0 to C_CH-1 := 0;
-    signal int_ch_out_cnt		: integer range 0 to C_CH-1 := 0;
-    
---     signal slv_data_out 		: std_logic_vector(C_DATA_WIDTH-1 downto 0);
-    
-	-- debug
 	type t_1d_array is array (natural range <>) of std_logic_vector(C_DATA_WIDTH - 1 downto 0);
---	type t_wb_din_array is array (natural range <>) of std_logic_vector(C_DATA_WIDTH - 1 downto 0); 
+	-- type t_wb_din_array is array (natural range <>) of std_logic_vector(C_DATA_WIDTH - 1 downto 0); 
 	signal a_ch	: t_1d_array(0 to C_CH - 1);
 
 begin
-	-------------------------------------------------------
-	-- Process: Data
-	-------------------------------------------------------
 	proc_data : process (isl_clk) is
 	begin
 		if (rising_edge(isl_clk)) then 
@@ -65,9 +57,6 @@ begin
 		end if;
 	end process proc_data;
 
-	-------------------------------------------------------
-	-- Process: Channel Buffer
-	-------------------------------------------------------
 	proc_channel_buffer : process (isl_clk) is   
 	begin 
 		if rising_edge(isl_clk) then  

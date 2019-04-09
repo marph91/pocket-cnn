@@ -14,7 +14,7 @@ package body math is
 
   -- compute the binary logarithm
   function log2(x : natural) return integer is
-    variable i  : integer := 0;   
+    variable i : integer := 0;   
   begin 
     if x = 0 then
       return 0;
