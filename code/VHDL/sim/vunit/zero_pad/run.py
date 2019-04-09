@@ -22,6 +22,7 @@ def create_test_suite(ui):
 
     ui.add_array_util()
     lib = ui.add_library("lib", allow_duplicate=True)
+    # TODO: remove absolute path -> problem when running single test vs al tests
     lib.add_source_files(join("/home/workspace/opencnn/code/VHDL/src/zero_pad.vhd"))
     lib.add_source_files(join(root, "src", "*.vhd"))
 

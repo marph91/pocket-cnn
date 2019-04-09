@@ -64,7 +64,7 @@ begin
     islv_addr => std_logic_vector(usig_addr_cnt),
     islv_data => slv_bram_data_in,
     oslv_data => slv_bram_data_out
-  ); 
+  );
 
   -- incoming data is written to BRAM and also output
   slv_bram_data_in(C_DATA_WIDTH - 1 downto 0) <= islv_data;

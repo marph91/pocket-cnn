@@ -31,9 +31,9 @@ entity bram_tdp is
 end bram_tdp;
 
 architecture behavioral of bram_tdp is
-  constant C_MIN_WIDTH : integer := min(C_DATA_WIDTH_A, C_DATA_WIDTH_B);
-  constant C_MAX_WIDTH : integer := max(C_DATA_WIDTH_A, C_DATA_WIDTH_B);
-  constant C_MAX_SIZE : integer := max(C_SIZE_A, C_SIZE_B);
+  constant C_MIN_WIDTH : integer := util.math.min(C_DATA_WIDTH_A, C_DATA_WIDTH_B);
+  constant C_MAX_WIDTH : integer := util.math.max(C_DATA_WIDTH_A, C_DATA_WIDTH_B);
+  constant C_MAX_SIZE : integer := util.math.max(C_SIZE_A, C_SIZE_B);
   constant C_RATIO : integer := C_MAX_WIDTH / C_MIN_WIDTH;
 
   type t_ram is array (0 to C_MAX_SIZE - 1) of std_logic_vector(C_MIN_WIDTH - 1 downto 0);

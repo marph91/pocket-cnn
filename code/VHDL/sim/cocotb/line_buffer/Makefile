@@ -1,5 +1,6 @@
 CWD=$(shell pwd)
 
+# TODO: remove absolute path -> problem when running ghdl
 VHDL_DIR=/home/workspace/opencnn/code/VHDL/src
 COCOTB_ROOT=/home/prog/cocotb
 # suppress most of the cocotb log

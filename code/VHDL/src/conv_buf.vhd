@@ -109,10 +109,6 @@ architecture behavioral of conv_buf is
 	signal slv_sum				: std_logic_vector(C_DATA_WIDTH_DATA-1 downto 0);
 	
 	signal slv_data_out			: std_logic_vector(C_DATA_WIDTH_DATA-1 downto 0);
--- 	signal slv_result			: std_logic_vector(C_DATA_WIDTH_DATA-1 downto 0);
-
--- 	signal slv_data_out_burst 	: std_logic_vector(C_DATA_WIDTH_DATA-1 downto 0);
--- 	signal sl_output_valid_burst	: std_logic := '0';
 
 	signal sl_rdy 				: std_logic := '0';
 
@@ -158,7 +154,7 @@ begin
 	port map (
 		isl_clk => isl_clk,
 		isl_en => sl_bram_get_weights,
-		isl_we => '0', --read only, just write during init
+		isl_we => '0', -- only write during init
 		islv_addr => std_logic_vector(usig_addr_cnt_b),
 		islv_data => (others => '0'),
 		oslv_data => slv_ram_data_b
@@ -168,7 +164,7 @@ begin
 -- 	attribute shreg_extract of work.bram : entity is "no";
 
 	sl_lb_input_valid <= isl_valid; -- for FSM, probably replaceable
-	gen_scalar : if (C_CONV_DIM = 1) generate
+	gen_scalar : if C_CONV_DIM = 1 generate
 		-----------------------------------
 		-- Channel Buffer
 		-----------------------------------
