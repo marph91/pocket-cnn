@@ -13,11 +13,11 @@ entity tb_zero_pad is
     C_WIDTH : integer := 6;
     C_HEIGHT : integer := 6;
     C_CH : integer := 3
-    );
+  );
 end entity;
 
 architecture tb of tb_zero_pad is
-  constant C_CLK_PERIOD : time := 10 ns; -- 100 MHz
+  constant C_CLK_PERIOD : time := 10 ns;
   constant C_DATA_WIDTH : integer := 8;
 
   signal sl_clk : std_logic := '0';
@@ -33,6 +33,30 @@ architecture tb of tb_zero_pad is
   shared variable data_ref : array_t;
   signal data_check_done, stimuli_done : boolean := false;
 begin
+  dut : entity work.zero_pad
+  generic map (
+    C_DATA_WIDTH  => C_DATA_WIDTH,
+    C_CH          => C_CH,
+    C_WIDTH       => C_WIDTH,
+    C_HEIGHT      => C_HEIGHT,
+    C_PAD_TOP     => 1,
+    C_PAD_BOTTOM  => 1,
+    C_PAD_LEFT    => 1,
+    C_PAD_RIGHT   => 1
+    )
+  port map (
+    isl_clk     => sl_clk,
+    isl_rst_n   => '1',
+    isl_ce      => '1',
+    isl_get     => sl_get,
+    isl_start   => sl_start,
+    isl_valid   => sl_valid_in,
+    islv_data   => slv_data_in,
+    osl_valid   => sl_valid_out,
+    oslv_data   => slv_data_out,
+    osl_rdy     => sl_rdy
+  );
+  
   main : process
     procedure run_test is
     begin
@@ -57,18 +81,18 @@ begin
   end process;
 
   clk_process : process
-	begin
-		sl_clk <= '1';
-		wait for C_CLK_PERIOD/2;
-		sl_clk <= '0';
-		wait for C_CLK_PERIOD/2;
-	end process;
-  
+  begin
+    sl_clk <= '1';
+    wait for C_CLK_PERIOD/2;
+    sl_clk <= '0';
+    wait for C_CLK_PERIOD/2;
+  end process;
+
   stimuli_process : process
   begin
     wait until rising_edge(sl_clk) and sl_start = '1';
     stimuli_done <= false;
-    
+
     report ("Sending image of size " &
             to_string(data_src.width/C_CH) & "x" &
             to_string(data_src.height) & "x" &
@@ -113,28 +137,4 @@ begin
             to_string(C_CH));
     data_check_done <= true;
   end process;
-
-  dut : entity work.zero_pad
-    generic map (
-      C_DATA_WIDTH	=> C_DATA_WIDTH,
-      C_CH			    => C_CH,
-      C_WIDTH			  => C_WIDTH,
-      C_HEIGHT	  	=> C_HEIGHT,
-      C_PAD_TOP	 	  => 1,
-      C_PAD_BOTTOM 	=> 1,
-      C_PAD_LEFT 		=> 1,
-      C_PAD_RIGHT 	=> 1
-      )
-    port map (
-      isl_clk     => sl_clk,
-      isl_rst_n   => '1',
-      isl_ce      => '1',
-      isl_get     => sl_get,
-      isl_start   => sl_start,
-      isl_valid   => sl_valid_in,
-      islv_data   => slv_data_in,
-      osl_valid   => sl_valid_out,
-      oslv_data   => slv_data_out,
-      osl_rdy     => sl_rdy
-      );
 end architecture;

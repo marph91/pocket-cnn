@@ -14,11 +14,11 @@ entity tb_pool_max is
     C_POOL_DIM : integer := 6;
     C_INT_WIDTH : integer := 6;
     C_FRAC_WIDTH : integer := 3
-    );
+  );
 end entity;
 
 architecture tb of tb_pool_max is
-  constant C_CLK_PERIOD : time := 10 ns; -- 100 MHz
+  constant C_CLK_PERIOD : time := 10 ns;
   constant C_DATA_WIDTH : integer := C_INT_WIDTH + C_FRAC_WIDTH;
 
   signal sl_clk : std_logic := '0';
@@ -34,6 +34,22 @@ architecture tb of tb_pool_max is
 
   signal data_check_done, stimuli_done : boolean := false;
 begin
+  dut : entity work.pool_max
+  generic map (
+    C_POOL_DIM    => C_POOL_DIM,
+    C_INT_WIDTH   => C_INT_WIDTH,
+    C_FRAC_WIDTH  => C_FRAC_WIDTH
+  )
+  port map (
+    isl_clk   => sl_clk,
+    isl_rst_n => '1',
+    isl_ce    => '1',
+    isl_valid => sl_valid_in,
+    islv_data => slv_data_in,
+    oslv_data => slv_data_out,
+    osl_valid => sl_valid_out
+  );
+  
   main : process
     procedure run_test is
     begin
@@ -58,18 +74,18 @@ begin
   end process;
 
   clk_process : process
-	begin
-		sl_clk <= '1';
-		wait for C_CLK_PERIOD/2;
-		sl_clk <= '0';
-		wait for C_CLK_PERIOD/2;
-	end process;
-  
+  begin
+    sl_clk <= '1';
+    wait for C_CLK_PERIOD/2;
+    sl_clk <= '0';
+    wait for C_CLK_PERIOD/2;
+  end process;
+
   stimuli_process : process
   begin
     wait until rising_edge(sl_clk) and sl_start = '1';
     stimuli_done <= false;
-    
+
     report ("Sending image of size " &
             to_string(C_POOL_DIM) & "x" &
             to_string(C_POOL_DIM));
@@ -97,20 +113,4 @@ begin
     report ("Done checking");
     data_check_done <= true;
   end process;
-
-  dut : entity work.pool_max
-    generic map (
-      C_POOL_DIM 		=> C_POOL_DIM,
-      C_INT_WIDTH 	=> C_INT_WIDTH,
-      C_FRAC_WIDTH 	=> C_FRAC_WIDTH
-    )
-    port map ( 
-      isl_clk 	=> sl_clk,
-      isl_rst_n	=> '1',
-      isl_ce		=> '1',
-      isl_valid	=> sl_valid_in,
-      islv_data	=> slv_data_in,
-      oslv_data	=> slv_data_out,
-      osl_valid	=> sl_valid_out
-    );
 end architecture;

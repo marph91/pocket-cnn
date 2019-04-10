@@ -15,11 +15,11 @@ entity tb_relu is
     C_LEAKY : std_logic := '0';
     C_INT_WIDTH : integer := 4;
     C_FRAC_WIDTH : integer := 4
-    );
+  );
 end entity;
 
 architecture tb of tb_relu is
-  constant C_CLK_PERIOD : time := 10 ns; -- 100 MHz
+  constant C_CLK_PERIOD : time := 10 ns;
   constant C_DATA_WIDTH : integer := C_INT_WIDTH + C_FRAC_WIDTH;
 
   signal sl_clk : std_logic := '0';
@@ -35,6 +35,21 @@ architecture tb of tb_relu is
 
   signal data_check_done, stimuli_done : boolean := false;
 begin
+  dut : entity work.relu
+  generic map (
+    C_INT_WIDTH   => C_INT_WIDTH,
+    C_FRAC_WIDTH  => C_FRAC_WIDTH,
+    C_LEAKY       => C_LEAKY
+  )
+  port map (
+    isl_clk       => sl_clk,
+    isl_ce        => '1',
+    isl_valid     => sl_valid_in,
+    islv_data     => slv_data_in,
+    oslv_data     => slv_data_out,
+    osl_valid     => sl_valid_out
+  );
+  
   main : process
     procedure run_test is
     begin
@@ -59,13 +74,13 @@ begin
   end process;
 
   clk_process : process
-	begin
-		sl_clk <= '1';
-		wait for C_CLK_PERIOD/2;
-		sl_clk <= '0';
-		wait for C_CLK_PERIOD/2;
-	end process;
-  
+  begin
+    sl_clk <= '1';
+    wait for C_CLK_PERIOD/2;
+    sl_clk <= '0';
+    wait for C_CLK_PERIOD/2;
+  end process;
+
   stimuli_process : process
   begin
     wait until rising_edge(sl_clk) and sl_start = '1';
@@ -86,7 +101,7 @@ begin
   begin
     wait until rising_edge(sl_clk) and sl_start = '1';
     data_check_done <= false;
-    
+
     for x in 0 to sample_cnt-1 loop
       wait until rising_edge(sl_clk) and sl_valid_out = '1';
       report (to_string(slv_data_out) & " " & to_string(data_ref.get(x)));
@@ -96,19 +111,4 @@ begin
     report ("Done checking");
     data_check_done <= true;
   end process;
-
-  dut : entity work.relu
-		generic map (
-			C_INT_WIDTH 	=> C_INT_WIDTH,
-			C_FRAC_WIDTH 	=> C_FRAC_WIDTH,
-			C_LEAKY			  => C_LEAKY
-		)
-		port map (
-			isl_clk 		  => sl_clk,
-			isl_ce			  => '1',
-			isl_valid 		=> sl_valid_in,
-			islv_data		  => slv_data_in,
-			oslv_data 		=> slv_data_out,
-			osl_valid 		=> sl_valid_out
-		);
 end architecture;

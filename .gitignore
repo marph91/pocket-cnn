@@ -12,6 +12,7 @@ code/python_tools/cnn_pytorch/mem_init/**
 code/python_tools/datasets/imglist.txt
 code/python_tools/datasets/tmp/**
 code/VHDL/src/cnn_parameter.vhd
+code/VHDL/src/top.vhd
 code/VHDL/sim/cocotb/*/*/**
 code/VHDL/sim/vunit/vunit_out/**
 code/VHDL/sim/vunit/*/vunit_out/**

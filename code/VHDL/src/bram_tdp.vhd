@@ -12,7 +12,7 @@ entity bram_tdp is
     C_DATA_WIDTH_A  : integer := 4;
     C_ADDR_WIDTH_A  : integer := 10;
     C_SIZE_A        : integer := 1024;
-    
+
     C_DATA_WIDTH_B  : integer := 16;
     C_ADDR_WIDTH_B  : integer := 8;
     C_SIZE_B        : integer := 256
@@ -37,8 +37,8 @@ end bram_tdp;
 -----------------------------------------------------------------------------------------------------------------------
 architecture behavioral of bram_tdp is
   ------------------------------------------
-	-- Signal Declarations
-	------------------------------------------
+  -- Signal Declarations
+  ------------------------------------------
   constant C_MIN_WIDTH : integer := util.math.min(C_DATA_WIDTH_A, C_DATA_WIDTH_B);
   constant C_MAX_WIDTH : integer := util.math.max(C_DATA_WIDTH_A, C_DATA_WIDTH_B);
   constant C_MAX_SIZE : integer := util.math.max(C_SIZE_A, C_SIZE_B);
@@ -62,7 +62,7 @@ begin
       slv_data_out_a <= slv_read_a;
     end if;
   end process;
-  
+
   -- writing to port b
   process(isl_clk_b)
   begin
@@ -76,6 +76,6 @@ begin
       end loop;
     end if;
   end process;
-  
+
   oslv_data_a <= slv_data_out_a;
 end behavioral;

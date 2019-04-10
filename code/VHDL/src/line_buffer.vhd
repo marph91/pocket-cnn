@@ -46,10 +46,10 @@ architecture behavioral of line_buffer is
   signal slv_bram_data_in : std_logic_vector(C_BRAM_DATA_WIDTH - 1 downto 0);
   signal slv_bram_data_out : std_logic_vector(C_BRAM_DATA_WIDTH - 1 downto 0);
 
-begin 
+begin
   ------------------------------------------
   -- Component Instantiations
-  ------------------------------------------   
+  ------------------------------------------
   bram_buffer : entity work.bram
   generic map(
     C_DATA_WIDTH  => C_BRAM_DATA_WIDTH,
@@ -73,16 +73,16 @@ begin
   -- move data one line "down"
   gen_bram_lb_connect:
   for i in 0 to (C_WINDOW_SIZE - 3) generate
-    slv_bram_data_in((C_DATA_WIDTH - 1) + (i + 1) * C_DATA_WIDTH downto (i + 1) * C_DATA_WIDTH) 
+    slv_bram_data_in((C_DATA_WIDTH - 1) + (i + 1) * C_DATA_WIDTH downto (i + 1) * C_DATA_WIDTH)
       <= slv_bram_data_out((C_DATA_WIDTH - 1) + i * C_DATA_WIDTH downto i * C_DATA_WIDTH);
   end generate gen_bram_lb_connect;
 
-  proc_counter : process(isl_clk)
-  begin  
+  proc_counter : process (isl_clk)
+  begin
     if rising_edge(isl_clk) then
       if isl_reset = '0' then
         usig_addr_cnt <= (others => '0');
-      else        
+      else
         if isl_ce = '1' then
           if isl_valid = '1' then
             if usig_addr_cnt < C_BRAM_SIZE - 2 then
@@ -94,19 +94,19 @@ begin
         end if;
       end if;
     end if;
-  end process proc_counter;     
+  end process proc_counter;
 
   proc_output_assign : process (isl_clk)
-  begin   
+  begin
     if rising_edge(isl_clk) then
       if isl_reset = '0' then
         sl_valid_out <= '0';
-      else        
-        if isl_ce = '1' then             
+      else
+        if isl_ce = '1' then
           if isl_valid = '1' then
             slv_data_out(C_DATA_WIDTH - 1 downto 0) <= islv_data;
             for i in 1 to C_WINDOW_SIZE - 1 loop
-              slv_data_out((i + 1) * C_DATA_WIDTH - 1 downto i * C_DATA_WIDTH) 
+              slv_data_out((i + 1) * C_DATA_WIDTH - 1 downto i * C_DATA_WIDTH)
                 <= slv_bram_data_out(i * C_DATA_WIDTH - 1 downto (i - 1) * C_DATA_WIDTH);
             end loop;
           end if;

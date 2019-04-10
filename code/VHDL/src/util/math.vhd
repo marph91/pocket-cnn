@@ -1,5 +1,5 @@
 -----------------------------------------------------------------------------------------------------------------------
--- Package declaration 
+-- Package declaration
 -----------------------------------------------------------------------------------------------------------------------
 package math is
   function log2(x : natural) return integer;
@@ -8,14 +8,14 @@ package math is
 end package math;
 
 -----------------------------------------------------------------------------------------------------------------------
--- Package body 
+-- Package body
 -----------------------------------------------------------------------------------------------------------------------
 package body math is
 
   -- compute the binary logarithm
   function log2(x : natural) return integer is
-    variable i : integer := 0;   
-  begin 
+    variable i : integer := 0;
+  begin
     if x = 0 then
       return 0;
     else

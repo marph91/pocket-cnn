@@ -13,10 +13,10 @@ entity tb_pool_ave is
     tb_path : string;
     C_INT_WIDTH : integer := 3;
     C_FRAC_WIDTH : integer := 3;
-		C_WIDTH : integer := 3;
+    C_WIDTH : integer := 3;
     C_HEIGHT : integer := 3;
     C_POOL_CH : integer := 3
-    );
+  );
 end entity;
 
 architecture tb of tb_pool_ave is
@@ -36,6 +36,25 @@ architecture tb of tb_pool_ave is
 
   signal data_check_done, stimuli_done : boolean := false;
 begin
+  dut : entity work.pool_ave
+  generic map (
+    C_INT_WIDTH   => C_INT_WIDTH,
+    C_FRAC_WIDTH  => C_FRAC_WIDTH,
+    C_POOL_CH     => C_POOL_CH,
+    C_WIDTH       => C_WIDTH,
+    C_HEIGHT      => C_HEIGHT
+  )
+  port map (
+    isl_clk   => sl_clk,
+    isl_rst_n => '1',
+    isl_ce    => '1',
+    isl_start => sl_start,
+    isl_valid => sl_valid_in,
+    islv_data => slv_data_in,
+    oslv_data => slv_data_out,
+    osl_valid => sl_valid_out
+  );
+
   main : process
     procedure run_test is
     begin
@@ -60,18 +79,18 @@ begin
   end process;
 
   clk_process : process
-	begin
-		sl_clk <= '1';
-		wait for C_CLK_PERIOD/2;
-		sl_clk <= '0';
-		wait for C_CLK_PERIOD/2;
-	end process;
-  
+  begin
+    sl_clk <= '1';
+    wait for C_CLK_PERIOD/2;
+    sl_clk <= '0';
+    wait for C_CLK_PERIOD/2;
+  end process;
+
   stimuli_process : process
   begin
     wait until rising_edge(sl_clk) and sl_start = '1';
     stimuli_done <= false;
-    
+
     report ("Sending image of size " &
             to_string(C_WIDTH) & "x" &
             to_string(C_HEIGHT) & "x" &
@@ -106,23 +125,4 @@ begin
     report ("Done checking");
     data_check_done <= true;
   end process;
-
-  dut : entity work.pool_ave
-	generic map (
-		C_INT_WIDTH 	=> C_INT_WIDTH,
-		C_FRAC_WIDTH 	=> C_FRAC_WIDTH,
-		C_POOL_CH	  	=> C_POOL_CH,
-		C_WIDTH 		  => C_WIDTH,
-		C_HEIGHT		  => C_HEIGHT
-	)
-	port map (
-		isl_clk 		  => sl_clk,
-		isl_rst_n 		=> '1',
-		isl_ce			  => '1',
-		isl_start		  => sl_start,
-		isl_valid 		=> sl_valid_in,
-		islv_data		  => slv_data_in,
-		oslv_data 		=> slv_data_out,
-		osl_valid 		=> sl_valid_out
-	);
 end architecture;
