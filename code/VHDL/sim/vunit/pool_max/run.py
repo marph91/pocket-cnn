@@ -25,9 +25,11 @@ def create_test_suite(ui):
     root = dirname(__file__)
 
     ui.add_array_util()
+    util = ui.add_library("util", allow_duplicate=True)
+    util.add_source_files("/home/workspace/opencnn/code/VHDL/src/util/math.vhd")
     lib = ui.add_library("lib", allow_duplicate=True)
-    lib.add_source_files(join("/home/workspace/opencnn/code/VHDL/src/pool_max.vhd"))
-    lib.add_source_files(join(root, "src", "*.vhd"))
+    lib.add_source_files("/home/workspace/opencnn/code/VHDL/src/pool_max.vhd")
+    lib.add_source_files(join("src", "*.vhd"))
 
     tb_pool_max = lib.entity("tb_pool_max")
     for pool_dim in [2, 3]:
@@ -36,6 +38,7 @@ def create_test_suite(ui):
         tb_pool_max.add_config(name="dim=%d" % (pool_dim),
                                 generics=dict(C_POOL_DIM=pool_dim, C_INT_WIDTH=int_bits, C_FRAC_WIDTH=frac_bits),
                                 pre_config=create_stimuli(root, pool_dim, int_bits, frac_bits))
+
 
 if __name__ == '__main__':
     ui = VUnit.from_argv()

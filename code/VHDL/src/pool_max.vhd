@@ -2,6 +2,8 @@ library ieee;
   use ieee.std_logic_1164.all;
   use ieee.numeric_std.all;
   use ieee.fixed_pkg.all;
+library util;
+  use util.math.all;
 
 -----------------------------------------------------------------------------------------------------------------------
 -- Entity Section
@@ -27,17 +29,7 @@ end pool_max;
 -- Architecture Section
 -----------------------------------------------------------------------------------------------------------------------
 architecture behavioral of pool_max is
-  ------------------------------------------
-  -- Function: compare two numbers
-  ------------------------------------------
-  function f_max2 (A : sfixed; B : sfixed) return sfixed is
-  begin
-    if (A > B) then
-      return A;
-    else
-      return B;
-    end if;
-  end f_max2;
+  
 
   ------------------------------------------
   -- Signal Declarations
@@ -72,7 +64,7 @@ begin
           for i in 1 to C_POOL_DIM-1 loop
             v_sfix_A := to_sfixed(islv_data(((i+1)+j*C_POOL_DIM)*(C_INT_WIDTH+C_FRAC_WIDTH)-1 downto
               (i+j*C_POOL_DIM)*(C_INT_WIDTH+C_FRAC_WIDTH)), C_INT_WIDTH-1, -C_FRAC_WIDTH);
-            v_a_current_max(j) := f_max2(v_sfix_A, v_a_current_max(j));
+            v_a_current_max(j) := max(v_sfix_A, v_a_current_max(j));
           end loop;
         end loop;
         a_max_tmp <= v_a_current_max;
@@ -80,7 +72,7 @@ begin
         -- Stage 2
         v_sfix_current_max_tmp := a_max_tmp(0);
         for j in 1 to C_POOL_DIM-1 loop
-          v_sfix_current_max_tmp := f_max2(a_max_tmp(j), v_sfix_current_max_tmp);
+          v_sfix_current_max_tmp := max(a_max_tmp(j), v_sfix_current_max_tmp);
         end loop;
         slv_data_out <= to_slv(v_sfix_current_max_tmp);
 
