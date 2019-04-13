@@ -193,7 +193,7 @@ begin
     isl_clk     => isl_clk,
     isl_rst_n     => isl_rst_n,
     isl_ce      => isl_ce,
-    isl_get     => '1',--slv_rdy(3+1),
+    isl_get     => slv_rdy(3+1),--'1',
     isl_start   => isl_start,
     isl_valid     => sl_output_valid(3-1),
     islv_data   => a_data_out(3-1),
