@@ -44,9 +44,9 @@ architecture behavioral of top is
       -- stride conv just useful if no pooling layer in pe (either reduce image dimensions in conv OR pool)
       -- ite to protect from division by 0
       if (C_STRIDE_POOL(i-1) > 0) then
-        v_a_size(i) := ((v_a_size(i-1)+2*C_PAD(i-1)-(C_WIN_CONV(i-1)-C_STRIDE_CONV(i-1)))/C_STRIDE_CONV(i-1)-(C_WIN_POOL(i-1)-C_STRIDE_POOL(i-1)))/C_STRIDE_POOL(i-1);
+        v_a_size(i) := ((v_a_size(i-1)+2*C_PAD(i-1)-(C_CONV_KSIZE(i-1)-C_CONV_STRIDE(i-1)))/C_CONV_STRIDE(i-1)-(C_WIN_POOL(i-1)-C_STRIDE_POOL(i-1)))/C_STRIDE_POOL(i-1);
       else
-        v_a_size(i) := (v_a_size(i-1)+2*C_PAD(i-1)-(C_WIN_CONV(i-1)-C_STRIDE_CONV(i-1)))/C_STRIDE_CONV(i-1);
+        v_a_size(i) := (v_a_size(i-1)+2*C_PAD(i-1)-(C_CONV_KSIZE(i-1)-C_CONV_STRIDE(i-1)))/C_CONV_STRIDE(i-1);
       end if;
     end loop;
     return v_a_size;
@@ -103,8 +103,8 @@ begin
     C_HEIGHT    => C_HEIGHT(1),
     C_CH_IN  => C_CH(1-1),
     C_CH_OUT => C_CH(1),
-    C_WIN_SIZE_CONV => C_WIN_CONV(1),
-    C_STRIDE_CONV => C_STRIDE_CONV(1),
+    C_CONV_KSIZE => C_CONV_KSIZE(1),
+    C_CONV_STRIDE => C_CONV_STRIDE(1),
     C_WIN_SIZE_POOL => C_WIN_POOL(1),
     C_STRIDE_POOL => C_STRIDE_POOL(1),
     C_PAD     => C_PAD(1),
@@ -141,8 +141,8 @@ begin
     C_HEIGHT    => C_HEIGHT(2),
     C_CH_IN  => C_CH(2-1),
     C_CH_OUT => C_CH(2),
-    C_WIN_SIZE_CONV => C_WIN_CONV(2),
-    C_STRIDE_CONV => C_STRIDE_CONV(2),
+    C_CONV_KSIZE => C_CONV_KSIZE(2),
+    C_CONV_STRIDE => C_CONV_STRIDE(2),
     C_WIN_SIZE_POOL => C_WIN_POOL(2),
     C_STRIDE_POOL => C_STRIDE_POOL(2),
     C_PAD     => C_PAD(2),
@@ -179,8 +179,8 @@ begin
     C_HEIGHT    => C_HEIGHT(3),
     C_CH_IN  => C_CH(3-1),
     C_CH_OUT => C_CH(3),
-    C_WIN_SIZE_CONV => C_WIN_CONV(3),
-    C_STRIDE_CONV => C_STRIDE_CONV(3),
+    C_CONV_KSIZE => C_CONV_KSIZE(3),
+    C_CONV_STRIDE => C_CONV_STRIDE(3),
     C_WIN_SIZE_POOL => C_WIN_POOL(3),
     C_STRIDE_POOL => C_STRIDE_POOL(3),
     C_PAD     => C_PAD(3),
@@ -217,8 +217,8 @@ begin
     C_HEIGHT    => C_HEIGHT(4),
     C_CH_IN  => C_CH(4-1),
     C_CH_OUT => C_CH(4),
-    C_WIN_SIZE_CONV => C_WIN_CONV(4),
-    C_STRIDE_CONV => C_STRIDE_CONV(4),
+    C_CONV_KSIZE => C_CONV_KSIZE(4),
+    C_CONV_STRIDE => C_CONV_STRIDE(4),
     C_WIN_SIZE_POOL => C_WIN_POOL(4),
     C_STRIDE_POOL => C_STRIDE_POOL(4),
     C_PAD     => C_PAD(4),
@@ -265,7 +265,7 @@ begin
   --------------------------------------------------------------
   -- Process: Generate finish signal for interrupt
   --------------------------------------------------------------
-  finish_proc : process (isl_clk) is
+  finish_proc : process(isl_clk) is
   begin
     if (rising_edge(isl_clk)) then
       if (sl_output_valid(C_PE+1) = '1') then

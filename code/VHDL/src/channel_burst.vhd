@@ -44,7 +44,7 @@ architecture behavior of channel_burst is
   signal a_ch : t_1d_array(0 to C_CH);
 
 begin
-  proc_data : process (isl_clk)
+  proc_data : process(isl_clk)
   begin
     if (rising_edge(isl_clk)) then
       -- to 0 to C_CH, that isl_valid = '1' and int_ch_to_burst > 1 can be handled at the same time
@@ -67,7 +67,7 @@ begin
     end if;
   end process proc_data;
 
-  proc_cnt : process (isl_clk)
+  proc_cnt : process(isl_clk)
   begin
     if rising_edge(isl_clk) then
       slv_data_in <= islv_data;

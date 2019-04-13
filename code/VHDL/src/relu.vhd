@@ -41,7 +41,7 @@ begin
   -- use generate statement instead of if-else in process
   -- it is more code, but needs less ressources
   gen_relu : if C_LEAKY = '0' generate
-    process (isl_clk)
+    process(isl_clk)
     begin
       if rising_edge(isl_clk) then
         if isl_ce = '1' then
@@ -59,7 +59,7 @@ begin
   end generate gen_relu;
 
   gen_leaky_relu : if C_LEAKY = '1' generate
-    process (isl_clk)
+    process(isl_clk)
     begin
       if rising_edge(isl_clk) then
         if isl_ce = '1' then

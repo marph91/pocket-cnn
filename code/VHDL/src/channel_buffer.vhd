@@ -39,7 +39,7 @@ architecture behavior of channel_buffer is
   signal a_ch : t_1d_array(0 to C_CH - 1);
 
 begin
-  proc_data : process (isl_clk)
+  proc_data : process(isl_clk)
   begin
     if rising_edge(isl_clk) then
       if isl_valid = '1' then
@@ -57,7 +57,7 @@ begin
     end if;
   end process proc_data;
 
-  proc_channel_buffer : process (isl_clk) is
+  proc_channel_buffer : process(isl_clk) is
   begin
     if rising_edge(isl_clk) then
       if isl_ce = '1' then

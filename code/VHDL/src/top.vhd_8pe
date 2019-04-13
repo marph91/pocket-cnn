@@ -41,10 +41,10 @@ architecture behavioral of top is
     for i in 2 to C_PE loop
       -- stride conv just useful if no pooling layer in pe (either reduce image dimensions in conv OR pool)
       -- ite to protect from division by 0
-      if (C_STRIDE_POOL(i-1) > 0) then
-        v_a_size(i) := ((v_a_size(i-1)+2*C_PAD(i-1)-(C_WIN_CONV(i-1)-C_STRIDE_CONV(i-1)))/C_STRIDE_CONV(i-1)-(C_WIN_POOL(i-1)-C_STRIDE_POOL(i-1)))/C_STRIDE_POOL(i-1);
+      if (C_POOL_STRIDE(i-1) > 0) then
+        v_a_size(i) := ((v_a_size(i-1)+2*C_PAD(i-1)-(C_CONV_KSIZE(i-1)-C_CONV_STRIDE(i-1)))/C_CONV_STRIDE(i-1)-(C_WIN_POOL(i-1)-C_POOL_STRIDE(i-1)))/C_POOL_STRIDE(i-1);
       else
-        v_a_size(i) := (v_a_size(i-1)+2*C_PAD(i-1)-(C_WIN_CONV(i-1)-C_STRIDE_CONV(i-1)))/C_STRIDE_CONV(i-1);
+        v_a_size(i) := (v_a_size(i-1)+2*C_PAD(i-1)-(C_CONV_KSIZE(i-1)-C_CONV_STRIDE(i-1)))/C_CONV_STRIDE(i-1);
       end if;
     end loop;
     return v_a_size;
@@ -101,10 +101,10 @@ begin
     C_HEIGHT    => C_HEIGHT(1),
     C_CH_IN  => C_CH(1-1),
     C_CH_OUT => C_CH(1),
-    C_WIN_SIZE_CONV => C_WIN_CONV(1),
-    C_STRIDE_CONV => C_STRIDE_CONV(1),
+    C_CONV_KSIZE => C_CONV_KSIZE(1),
+    C_CONV_STRIDE => C_CONV_STRIDE(1),
     C_WIN_SIZE_POOL => C_WIN_POOL(1),
-    C_STRIDE_POOL => C_STRIDE_POOL(1),
+    C_POOL_STRIDE => C_POOL_STRIDE(1),
     C_PAD     => C_PAD(1),
     C_RELU      => C_RELU(1),
     C_LEAKY     => C_LEAKY_RELU(1),
@@ -139,10 +139,10 @@ begin
     C_HEIGHT    => C_HEIGHT(2),
     C_CH_IN  => C_CH(2-1),
     C_CH_OUT => C_CH(2),
-    C_WIN_SIZE_CONV => C_WIN_CONV(2),
-    C_STRIDE_CONV => C_STRIDE_CONV(2),
+    C_CONV_KSIZE => C_CONV_KSIZE(2),
+    C_CONV_STRIDE => C_CONV_STRIDE(2),
     C_WIN_SIZE_POOL => C_WIN_POOL(2),
-    C_STRIDE_POOL => C_STRIDE_POOL(2),
+    C_POOL_STRIDE => C_POOL_STRIDE(2),
     C_PAD     => C_PAD(2),
     C_RELU      => C_RELU(2),
     C_LEAKY     => C_LEAKY_RELU(2),
@@ -177,10 +177,10 @@ begin
     C_HEIGHT    => C_HEIGHT(3),
     C_CH_IN  => C_CH(3-1),
     C_CH_OUT => C_CH(3),
-    C_WIN_SIZE_CONV => C_WIN_CONV(3),
-    C_STRIDE_CONV => C_STRIDE_CONV(3),
+    C_CONV_KSIZE => C_CONV_KSIZE(3),
+    C_CONV_STRIDE => C_CONV_STRIDE(3),
     C_WIN_SIZE_POOL => C_WIN_POOL(3),
-    C_STRIDE_POOL => C_STRIDE_POOL(3),
+    C_POOL_STRIDE => C_POOL_STRIDE(3),
     C_PAD     => C_PAD(3),
     C_RELU      => C_RELU(3),
     C_LEAKY     => C_LEAKY_RELU(3),
@@ -215,10 +215,10 @@ begin
     C_HEIGHT    => C_HEIGHT(4),
     C_CH_IN  => C_CH(4-1),
     C_CH_OUT => C_CH(4),
-    C_WIN_SIZE_CONV => C_WIN_CONV(4),
-    C_STRIDE_CONV => C_STRIDE_CONV(4),
+    C_CONV_KSIZE => C_CONV_KSIZE(4),
+    C_CONV_STRIDE => C_CONV_STRIDE(4),
     C_WIN_SIZE_POOL => C_WIN_POOL(4),
-    C_STRIDE_POOL => C_STRIDE_POOL(4),
+    C_POOL_STRIDE => C_POOL_STRIDE(4),
     C_PAD     => C_PAD(4),
     C_RELU      => C_RELU(4),
     C_LEAKY     => C_LEAKY_RELU(4),
@@ -253,10 +253,10 @@ begin
     C_HEIGHT    => C_HEIGHT(5),
     C_CH_IN  => C_CH(5-1),
     C_CH_OUT => C_CH(5),
-    C_WIN_SIZE_CONV => C_WIN_CONV(5),
-    C_STRIDE_CONV => C_STRIDE_CONV(5),
+    C_CONV_KSIZE => C_CONV_KSIZE(5),
+    C_CONV_STRIDE => C_CONV_STRIDE(5),
     C_WIN_SIZE_POOL => C_WIN_POOL(5),
-    C_STRIDE_POOL => C_STRIDE_POOL(5),
+    C_POOL_STRIDE => C_POOL_STRIDE(5),
     C_PAD     => C_PAD(5),
     C_RELU      => C_RELU(5),
     C_LEAKY     => C_LEAKY_RELU(5),
@@ -291,10 +291,10 @@ begin
     C_HEIGHT    => C_HEIGHT(6),
     C_CH_IN  => C_CH(6-1),
     C_CH_OUT => C_CH(6),
-    C_WIN_SIZE_CONV => C_WIN_CONV(6),
-    C_STRIDE_CONV => C_STRIDE_CONV(6),
+    C_CONV_KSIZE => C_CONV_KSIZE(6),
+    C_CONV_STRIDE => C_CONV_STRIDE(6),
     C_WIN_SIZE_POOL => C_WIN_POOL(6),
-    C_STRIDE_POOL => C_STRIDE_POOL(6),
+    C_POOL_STRIDE => C_POOL_STRIDE(6),
     C_PAD     => C_PAD(6),
     C_RELU      => C_RELU(6),
     C_LEAKY     => C_LEAKY_RELU(6),
@@ -329,10 +329,10 @@ begin
     C_HEIGHT    => C_HEIGHT(7),
     C_CH_IN  => C_CH(7-1),
     C_CH_OUT => C_CH(7),
-    C_WIN_SIZE_CONV => C_WIN_CONV(7),
-    C_STRIDE_CONV => C_STRIDE_CONV(7),
+    C_CONV_KSIZE => C_CONV_KSIZE(7),
+    C_CONV_STRIDE => C_CONV_STRIDE(7),
     C_WIN_SIZE_POOL => C_WIN_POOL(7),
-    C_STRIDE_POOL => C_STRIDE_POOL(7),
+    C_POOL_STRIDE => C_POOL_STRIDE(7),
     C_PAD     => C_PAD(7),
     C_RELU      => C_RELU(7),
     C_LEAKY     => C_LEAKY_RELU(7),
@@ -367,10 +367,10 @@ begin
     C_HEIGHT    => C_HEIGHT(8),
     C_CH_IN  => C_CH(8-1),
     C_CH_OUT => C_CH(8),
-    C_WIN_SIZE_CONV => C_WIN_CONV(8),
-    C_STRIDE_CONV => C_STRIDE_CONV(8),
+    C_CONV_KSIZE => C_CONV_KSIZE(8),
+    C_CONV_STRIDE => C_CONV_STRIDE(8),
     C_WIN_SIZE_POOL => C_WIN_POOL(8),
-    C_STRIDE_POOL => C_STRIDE_POOL(8),
+    C_POOL_STRIDE => C_POOL_STRIDE(8),
     C_PAD     => C_PAD(8),
     C_RELU      => C_RELU(8),
     C_LEAKY     => C_LEAKY_RELU(8),
@@ -415,7 +415,7 @@ begin
   --------------------------------------------------------------
   -- Process: Generate finish signal for interrupt
   --------------------------------------------------------------
-  finish_proc : process (isl_clk) is
+  finish_proc : process(isl_clk) is
   begin
     if (rising_edge(isl_clk)) then
       if (sl_output_valid(C_PE+1) = '1') then

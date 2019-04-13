@@ -138,7 +138,7 @@ begin
   -------------------------------------------------------
   -- Process: Counter
   -------------------------------------------------------
-  proc_cnt : process (isl_clk)
+  proc_cnt : process(isl_clk)
   begin
     if rising_edge(isl_clk) then
       if isl_rst_n = '0' then
@@ -185,7 +185,7 @@ begin
   -------------------------------------------------------
   -- Process: States
   -------------------------------------------------------
-  proc_states : process (isl_clk)
+  proc_states : process(isl_clk)
   begin
     if rising_edge(isl_clk) then
       if isl_rst_n = '0' then
@@ -231,7 +231,7 @@ begin
   -------------------------------------------------------
   -- Process: Data shift
   -------------------------------------------------------
-  proc_data : process (isl_clk) is
+  proc_data : process(isl_clk) is
   begin
     if rising_edge(isl_clk) then
       -- pragma translate_off
@@ -251,7 +251,7 @@ begin
   -------------------------------------------------------
   -- Process: State actions
   -------------------------------------------------------
-  proc_actions : process (isl_clk) is
+  proc_actions : process(isl_clk) is
   begin
     if rising_edge(isl_clk) then
       if isl_rst_n = '0' then

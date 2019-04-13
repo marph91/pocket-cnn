@@ -87,7 +87,7 @@ def run_test(dut):
                    dut.C_DATA_WIDTH_WEIGHTS.value.integer -
                    dut.C_FRAC_WIDTH_WEIGHTS.value.integer,
                    dut.C_FRAC_WIDTH_WEIGHTS.value.integer,
-                   dut.C_CONV_DIM.value.integer)
+                   dut.C_CONV_KSIZE.value.integer)
 
     # setup monitor, software model and scoreboard
     output_mon = ConvMonitor("output", gen, dut.osl_valid, dut.oslv_data)

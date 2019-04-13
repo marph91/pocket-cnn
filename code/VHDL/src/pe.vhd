@@ -20,10 +20,10 @@ entity pe is
     C_HEIGHT        : integer range 1 to 512 := 16;
     C_CH_IN         : integer range 1 to 512 := 1;
     C_CH_OUT        : integer range 1 to 512 := 16;
-    C_WIN_SIZE_CONV : integer range 1 to 3 := 3;
-    C_STRIDE_CONV   : integer range 1 to 3 := 3;
+    C_CONV_KSIZE    : integer range 1 to 3 := 3;
+    C_CONV_STRIDE   : integer range 1 to 3 := 3;
     C_WIN_SIZE_POOL : integer range 0 to 3 := 2;
-    C_STRIDE_POOL   : integer range 0 to 3 := 2;
+    C_POOL_STRIDE   : integer range 0 to 3 := 2;
     C_PAD           : integer range 0 to 1 := 0;
     C_RELU          : std_logic := '0';
     C_LEAKY         : std_logic := '0';
@@ -55,8 +55,8 @@ architecture behavioral of pe is
   function f_set_pad_bot return integer is
     variable v_pad : integer range 0 to 1 := 0;
   begin
-    if (C_PAD > 0) and (C_PAD >= C_WIN_SIZE_CONV - C_STRIDE_CONV) then
-      v_pad := C_PAD - (C_WIN_SIZE_CONV - C_STRIDE_CONV);
+    if (C_PAD > 0) and (C_PAD >= C_CONV_KSIZE - C_CONV_STRIDE) then
+      v_pad := C_PAD - (C_CONV_KSIZE - C_CONV_STRIDE);
     else
       v_pad := C_PAD;
     end if;
@@ -173,8 +173,8 @@ begin
     C_DATA_WIDTH_WEIGHTS  => C_DATA_WIDTH_WEIGHTS,
     C_FRAC_WIDTH_WEIGHTS  => C_FRAC_WIDTH_WEIGHTS,
 
-    C_CONV_DIM  => C_WIN_SIZE_CONV,
-    C_STRIDE    => C_STRIDE_CONV,
+    C_KSIZE  => C_CONV_KSIZE,
+    C_STRIDE    => C_CONV_STRIDE,
     C_CH_IN     => C_CH_IN,
     C_CH_OUT    => C_CH_OUT,
     C_WIDTH     => C_WIDTH+2*C_PAD,
@@ -260,10 +260,10 @@ begin
       C_FRAC_WIDTH  => C_FRAC_WIDTH_OUT,
 
       C_POOL_DIM  => C_WIN_SIZE_POOL,
-      C_STRIDE    => C_STRIDE_POOL,
+      C_STRIDE    => C_POOL_STRIDE,
       C_CH        => C_CH_OUT,
-      C_WIDTH     => (C_WIDTH+2*C_PAD-(C_WIN_SIZE_CONV-C_STRIDE_CONV))/C_STRIDE_CONV,
-      C_HEIGHT    => (C_HEIGHT+2*C_PAD-(C_WIN_SIZE_CONV-C_STRIDE_CONV))/C_STRIDE_CONV
+      C_WIDTH     => (C_WIDTH+2*C_PAD-(C_CONV_KSIZE-C_CONV_STRIDE))/C_CONV_STRIDE,
+      C_HEIGHT    => (C_HEIGHT+2*C_PAD-(C_CONV_KSIZE-C_CONV_STRIDE))/C_CONV_STRIDE
     )
     port map (
       isl_clk   => isl_clk,

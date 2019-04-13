@@ -37,10 +37,10 @@ package cnn_parameter is\n\
 \n\n\ttype t_pad_array is array (1 to C_PE) of integer range 0 to 1;\n\
 \tconstant C_PAD: t_pad_array := (" + ", ".join(map(str, param["pad"])) + ");\n\n\
 \ttype t_win_array is array (1 to C_PE) of integer range 0 to 3;\n\
-\tconstant C_WIN_CONV: t_win_array := (" + ", ".join(map(str, param["conv_kernel"])) + ");\n\
-\tconstant C_STRIDE_CONV: t_win_array := (" + ", ".join(map(str, param["conv_stride"])) + ");\n\
+\tconstant C_CONV_KSIZE: t_win_array := (" + ", ".join(map(str, param["conv_kernel"])) + ");\n\
+\tconstant C_CONV_STRIDE: t_win_array := (" + ", ".join(map(str, param["conv_stride"])) + ");\n\
 \tconstant C_WIN_POOL: t_win_array := (" + ", ".join(map(str, param["pool_kernel"])) + ");\n\
-\tconstant C_STRIDE_POOL: t_win_array := (" + ", ".join(map(str, param["pool_stride"])) + ");\n\n\
+\tconstant C_POOL_STRIDE: t_win_array := (" + ", ".join(map(str, param["pool_stride"])) + ");\n\n\
 \ttype t_ch_array is array (0 to C_PE) of integer range 1 to 512;\n\
 \tconstant C_CH: t_ch_array := (" + ", ".join(map(str, param["channel"])) + ");\n\n\
 \t-- 0 - bitwidth data, 1 - bitwidth frac data in, 2 - bitwidth frac data out\

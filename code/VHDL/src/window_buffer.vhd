@@ -41,7 +41,7 @@ architecture behavior of window_buffer is
   signal a_win : t_2d_array(0 to C_WINDOW_SIZE*C_WINDOW_SIZE - 1, 0 to C_CH - 1);
 
 begin
-  proc_shift_data : process (isl_clk)
+  proc_shift_data : process(isl_clk)
   begin
     if rising_edge(isl_clk) then
       -- isl_valid has higher priority than isl_repeat!
@@ -83,7 +83,7 @@ begin
     end if;
   end process proc_shift_data;
 
-  proc_window_buffer : process (isl_clk)
+  proc_window_buffer : process(isl_clk)
   begin
     if rising_edge(isl_clk) then
       if isl_ce = '1' then

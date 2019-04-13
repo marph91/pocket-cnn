@@ -17,7 +17,7 @@ entity conv_buf is
     C_DATA_WIDTH_WEIGHTS  : integer range 1 to 16 := 4;
     C_FRAC_WIDTH_WEIGHTS  : integer range 0 to 16 := 3;
 
-    C_CONV_DIM  : integer range 1 to 3 := 3;
+    C_KSIZE  : integer range 1 to 3 := 3;
     C_STRIDE    : integer range 1 to 3 := 1;
     C_CH_IN     : integer range 1 to 512 := 1;
     C_CH_OUT    : integer range 1 to 512 := 16;
@@ -59,7 +59,7 @@ architecture behavioral of conv_buf is
 
   -- for BRAM
   signal sl_bram_get_weights : std_logic := '0';
-  constant C_BRAM_DATA_WIDTH : integer range 1 to C_DATA_WIDTH_WEIGHTS*(C_CONV_DIM*C_CONV_DIM) := C_DATA_WIDTH_WEIGHTS*(C_CONV_DIM*C_CONV_DIM);
+  constant C_BRAM_DATA_WIDTH : integer range 1 to C_DATA_WIDTH_WEIGHTS*(C_KSIZE*C_KSIZE) := C_DATA_WIDTH_WEIGHTS*(C_KSIZE*C_KSIZE);
   constant C_BRAM_SIZE : integer range 1 to C_CH_IN*C_CH_OUT := C_CH_IN*C_CH_OUT;
   signal usig_addr_cnt : unsigned(log2(C_BRAM_SIZE - 1) - 1 downto 0) := (others => '0');
   constant C_BRAM_ADDR_WIDTH : integer range 1 to usig_addr_cnt'LENGTH := usig_addr_cnt'LENGTH;
@@ -74,12 +74,12 @@ architecture behavioral of conv_buf is
   signal sl_lb_input_valid : std_logic := '0';
   signal slv_lb_data_in : std_logic_vector(C_DATA_WIDTH_DATA - 1 downto 0);
   signal sl_lb_output_valid : std_logic := '0';
-  signal slv_lb_data_out : std_logic_vector(C_CONV_DIM*C_DATA_WIDTH_DATA - 1 downto 0);
+  signal slv_lb_data_out : std_logic_vector(C_KSIZE*C_DATA_WIDTH_DATA - 1 downto 0);
 
   -- for window buffer
   signal sl_repeat : std_logic := '0';
   signal sl_wb_output_valid : std_logic := '0';
-  signal slv_wb_data_out : std_logic_vector(C_CONV_DIM*C_CONV_DIM*C_DATA_WIDTH_DATA - 1 downto 0);
+  signal slv_wb_data_out : std_logic_vector(C_KSIZE*C_KSIZE*C_DATA_WIDTH_DATA - 1 downto 0);
 
   -- for FSM
   type states is (FILL, LOAD, LOAD2, LOAD3, CALC, STRIDE);
@@ -92,7 +92,7 @@ architecture behavioral of conv_buf is
   -- +log2(C_CH_IN)-1 weil ueber alle C_CH_IN summiert wird -> Datenbreite erweitern, damit kein saturate angewendet werden muss
   -- 6 bit int mehr um FIXED_SATURATE zu sparen und trotzdem ueberlauf zu vermeiden
   -- new bitwidth = log2(C_CH_IN*(2^old bitwidth-1)) = log2(C_CH_IN) + old bitwidth -> new bw = lb(64) + 8 = 14
-  constant C_DW_SUM : integer range 0 to 32 := C_DATA_WIDTH_DATA+C_DATA_WIDTH_WEIGHTS+1+log2(C_CONV_DIM-1)+log2(C_CONV_DIM-1)+log2(C_CH_IN);
+  constant C_DW_SUM : integer range 0 to 32 := C_DATA_WIDTH_DATA+C_DATA_WIDTH_WEIGHTS+1+log2(C_KSIZE-1)+log2(C_KSIZE-1)+log2(C_CH_IN);
   signal sfix_sum_tmp : sfixed(C_DW_SUM-C_FRAC_WIDTH_IN-C_FRAC_WIDTH_WEIGHTS-1 downto -C_FRAC_WIDTH_IN-C_FRAC_WIDTH_WEIGHTS) := (others => '0');
   -- 1 bit larger than sfix_sum_tmp
   signal sfix_sum_tmp_bias : sfixed(C_DW_SUM-C_FRAC_WIDTH_IN-C_FRAC_WIDTH_WEIGHTS downto -C_FRAC_WIDTH_IN-C_FRAC_WIDTH_WEIGHTS) := (others => '0');
@@ -101,7 +101,7 @@ architecture behavioral of conv_buf is
   signal sl_conv_rdy : std_logic := '0';
   signal sl_conv_input_valid : std_logic := '0';
   signal sl_conv_input_valid_delay : std_logic := '0';
-  signal slv_conv_data_in : std_logic_vector(C_CONV_DIM*C_CONV_DIM*C_DATA_WIDTH_DATA - 1 downto 0);
+  signal slv_conv_data_in : std_logic_vector(C_KSIZE*C_KSIZE*C_DATA_WIDTH_DATA - 1 downto 0);
   signal slv_conv_data_out : std_logic_vector(C_DW_SUM-log2(C_CH_IN)-1 downto 0);
   signal sl_conv_output_valid : std_logic := '0';
   signal sl_conv_output_valid_delay : std_logic := '0';
@@ -114,7 +114,7 @@ architecture behavioral of conv_buf is
   -- debug
   type t_2d_array is array (natural range <>, natural range <>) of std_logic_vector(C_DATA_WIDTH_DATA - 1 downto 0);
   type t_1d_array is array (natural range <>) of std_logic_vector(C_DATA_WIDTH_DATA - 1 downto 0);
-  signal a_conv_data_in : t_2d_array(0 to C_CONV_DIM - 1,0 to C_CONV_DIM - 1);
+  signal a_conv_data_in : t_2d_array(0 to C_KSIZE - 1,0 to C_KSIZE - 1);
   signal a_data_out : t_1d_array(0 to C_CH_OUT - 1);
   signal a_sum_tmp : t_1d_array(0 to C_CH_IN - 1) := (others => (others => '0'));
 
@@ -160,7 +160,7 @@ begin
   );
 
   sl_lb_input_valid <= isl_valid; -- for FSM, probably replaceable
-  gen_scalar : if C_CONV_DIM = 1 generate
+  gen_scalar : if C_KSIZE = 1 generate
     -----------------------------------
     -- Channel Buffer
     -----------------------------------
@@ -181,7 +181,7 @@ begin
     );
   end generate;
 
-  gen_kernel : if (C_CONV_DIM > 1) generate
+  gen_kernel : if C_KSIZE > 1 generate
     -----------------------------------
     -- Line Buffer
     -----------------------------------
@@ -190,7 +190,7 @@ begin
       C_DATA_WIDTH  => C_DATA_WIDTH_DATA,
       C_CH          => C_CH_IN,
       C_WIDTH       => C_WIDTH,
-      C_WINDOW_SIZE => C_CONV_DIM
+      C_WINDOW_SIZE => C_KSIZE
     )
     port map(
       isl_clk   => isl_clk,
@@ -209,7 +209,7 @@ begin
     generic map(
       C_DATA_WIDTH  => C_DATA_WIDTH_DATA,
       C_CH          => C_CH_IN,
-      C_WINDOW_SIZE => C_CONV_DIM
+      C_WINDOW_SIZE => C_KSIZE
     )
     port map(
       isl_clk     => isl_clk,
@@ -232,7 +232,7 @@ begin
     C_FRAC_WIDTH_IN       => C_FRAC_WIDTH_IN,
     C_DATA_WIDTH_WEIGHTS  => C_DATA_WIDTH_WEIGHTS,
     C_FRAC_WIDTH_WEIGHTS  => C_FRAC_WIDTH_WEIGHTS,
-    C_CONV_DIM            => C_CONV_DIM
+    C_KSIZE            => C_KSIZE
   )
   port map (
     isl_clk       => isl_clk,
@@ -248,7 +248,7 @@ begin
   -------------------------------------------------------
   -- Process: Counter
   -------------------------------------------------------
-  proc_cnt : process (isl_clk)
+  proc_cnt : process(isl_clk)
   begin
     if rising_edge(isl_clk) then
       if isl_rst_n = '0' then
@@ -311,7 +311,7 @@ begin
   -------------------------------------------------------
   -- Process: States
   -------------------------------------------------------
-  proc_states : process (isl_clk)
+  proc_states : process(isl_clk)
   begin
     if rising_edge(isl_clk) then
       if isl_rst_n = '0' then
@@ -322,12 +322,12 @@ begin
         case state is
 
           when FILL =>
-            if int_pixel_in_cnt = (C_CONV_DIM-1)*C_WIDTH+C_CONV_DIM-1 then
+            if int_pixel_in_cnt = (C_KSIZE-1)*C_WIDTH+C_KSIZE-1 then
               state <= LOAD;
             end if;
 
           when LOAD =>
-            if C_CONV_DIM = 1 then
+            if C_KSIZE = 1 then
               if (isl_valid = '1') and ((int_ch_in_cnt+1) mod C_CH_IN = 0) then
                 state <= LOAD2;
               end if;
@@ -350,14 +350,14 @@ begin
                 state <= STRIDE;
             elsif sl_conv_input_valid = '0' and
               sl_conv_input_valid_delay = '1' and
-              ((int_col /= 0) or (C_CONV_DIM = 1)) then
+              ((int_col /= 0) or (C_KSIZE = 1)) then
                 state <= LOAD;
             end if;
 
           when STRIDE =>
-            if (int_row+1-C_CONV_DIM+C_STRIDE) mod C_STRIDE = 0 and   -- every C_STRIDE row (C_CONV_DIM+C_STRIDE offset)
-              ((int_col+1-C_CONV_DIM+C_STRIDE) mod C_STRIDE = 0) and  -- every C_STRIDE col (C_CONV_DIM+C_STRIDE offset)
-              ((int_col+1) > C_CONV_DIM-1) then                       -- shift window at end/start of line
+            if (int_row+1-C_KSIZE+C_STRIDE) mod C_STRIDE = 0 and   -- every C_STRIDE row (C_KSIZE+C_STRIDE offset)
+              ((int_col+1-C_KSIZE+C_STRIDE) mod C_STRIDE = 0) and  -- every C_STRIDE col (C_KSIZE+C_STRIDE offset)
+              ((int_col+1) > C_KSIZE-1) then                       -- shift window at end/start of line
                 state <= LOAD;
             end if;
 
@@ -372,7 +372,7 @@ begin
   -------------------------------------------------------
   -- Process: Data shift
   -------------------------------------------------------
-  proc_data : process (isl_clk)
+  proc_data : process(isl_clk)
   variable v_sfix_sum_tmp : sfixed(C_DW_SUM-C_FRAC_WIDTH_IN-C_FRAC_WIDTH_WEIGHTS-1 downto -C_FRAC_WIDTH_IN-C_FRAC_WIDTH_WEIGHTS) := (others => '0');-- resize(to_sfixed(slv_ram_data_b, C_DATA_WIDTH_WEIGHTS-C_FRAC_WIDTH_WEIGHTS-1, -C_FRAC_WIDTH_WEIGHTS), C_DW_SUM-C_FRAC_WIDTH_IN-C_FRAC_WIDTH_WEIGHTS-1, -C_FRAC_WIDTH_IN-C_FRAC_WIDTH_WEIGHTS); --(others => '0');
   begin
     if rising_edge(isl_clk) then
@@ -409,9 +409,9 @@ begin
       slv_conv_data_in <= slv_wb_data_out;
 
       -- pragma translate_off
-      for i in 0 to C_CONV_DIM-1 loop
-        for j in 0 to C_CONV_DIM-1 loop
-          a_conv_data_in(j, i) <= slv_wb_data_out(((i+j*C_CONV_DIM)+1)*C_DATA_WIDTH_DATA-1 downto ((i+j*C_CONV_DIM))*C_DATA_WIDTH_DATA);
+      for i in 0 to C_KSIZE-1 loop
+        for j in 0 to C_KSIZE-1 loop
+          a_conv_data_in(j, i) <= slv_wb_data_out(((i+j*C_KSIZE)+1)*C_DATA_WIDTH_DATA-1 downto ((i+j*C_KSIZE))*C_DATA_WIDTH_DATA);
         end loop;
       end loop;
       -- pragma translate_on
@@ -421,7 +421,7 @@ begin
   -------------------------------------------------------
   -- Process: State actions
   -------------------------------------------------------
-  proc_actions : process (isl_clk)
+  proc_actions : process(isl_clk)
   begin
     if rising_edge(isl_clk) then
       sl_conv_input_valid_delay <= sl_conv_input_valid;
@@ -482,7 +482,7 @@ begin
   -------------------------------------------------------
   -- Process: Support signals
   -------------------------------------------------------
-  proc_support : process (isl_clk)
+  proc_support : process(isl_clk)
   begin
     if rising_edge(isl_clk) then
       if C_CH_IN = 1 then

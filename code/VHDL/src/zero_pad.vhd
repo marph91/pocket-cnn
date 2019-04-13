@@ -60,7 +60,7 @@ begin
   -- Process: Counter
   -------------------------------------------------------
   -- TODO: int_pixel_to_pad arent pixel, but pixel*channel
-  proc_cnt : process (isl_clk)
+  proc_cnt : process(isl_clk)
   begin
     if rising_edge(isl_clk) then
       if isl_rst_n = '0' then
@@ -115,7 +115,7 @@ begin
   -------------------------------------------------------
   -- Process: Padding
   -------------------------------------------------------
-  proc_pad: process (isl_clk)
+  proc_pad: process(isl_clk)
   begin
     if rising_edge(isl_clk) then
       if isl_start = '1' then

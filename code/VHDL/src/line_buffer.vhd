@@ -77,7 +77,7 @@ begin
       <= slv_bram_data_out((C_DATA_WIDTH - 1) + i * C_DATA_WIDTH downto i * C_DATA_WIDTH);
   end generate gen_bram_lb_connect;
 
-  proc_counter : process (isl_clk)
+  proc_counter : process(isl_clk)
   begin
     if rising_edge(isl_clk) then
       if isl_reset = '0' then
@@ -96,7 +96,7 @@ begin
     end if;
   end process proc_counter;
 
-  proc_output_assign : process (isl_clk)
+  proc_output_assign : process(isl_clk)
   begin
     if rising_edge(isl_clk) then
       if isl_reset = '0' then

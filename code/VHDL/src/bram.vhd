@@ -72,7 +72,7 @@ architecture behavioral of bram is
   signal slv_data : bit_vector(C_DATA_WIDTH - 1 downto 0) := (others => '0');
 
 begin
-  process (isl_clk)
+  process(isl_clk)
   begin
     if rising_edge(isl_clk) then
       if isl_en = '1' then
@@ -89,7 +89,7 @@ begin
   end generate;
 
   gen_reg : if C_OUTPUT_REG = 1 generate
-    process (isl_clk)
+    process(isl_clk)
     begin
       if rising_edge(isl_clk) then
         if isl_en = '1' then
