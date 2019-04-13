@@ -1,22 +1,21 @@
-import os
 from os.path import join, dirname
-from vunit import VUnit
 
-from random import randint
 import numpy as np
+from vunit import VUnit
 
 import fixfloat
 
 
-def relu(x, leaky=0):
-    out = x if x >= 0 else x * leaky * 0.125
+def relu(val, leaky=0):
+    out = val if val >= 0 else val * leaky * 0.125
     # convert to int, because only int is supported at image2d.get
     return str(int(fixfloat.float2fixed(out, 8, 0), 2))
 
 
 def create_stimuli(root, sample_cnt=1):
     a_in = np.random.randint(-128, high=127, size=(sample_cnt), dtype=np.int8)
-    np.savetxt(join(root, "src", "input.csv"), a_in, delimiter=", ", fmt='%3d')
+    np.savetxt(join(root, "src", "input.csv"), a_in, delimiter=", ",
+               fmt="%3d")
 
     a_out = []
     a_out_leaky = []
@@ -34,17 +33,23 @@ def create_test_suite(ui):
 
     ui.add_array_util()
     lib = ui.add_library("lib", allow_duplicate=True)
-    lib.add_source_files(join("/home/workspace/opencnn/code/VHDL/src/relu.vhd"))
+    lib.add_source_files("/home/workspace/opencnn/code/VHDL/src/relu.vhd")
     lib.add_source_files(join(root, "src", "*.vhd"))
 
     tb_relu = lib.entity("tb_relu")
     sample_cnt = 10
     for leaky in [0, 1]:
+        generics = {"sample_cnt": 10,
+                    "ref_file": "output" + "_leaky" * leaky + ".csv",
+                    "C_LEAKY": "'%d'" % leaky,
+                    "C_INT_WIDTH": 8, "C_FRAC_WIDTH": 0}
         tb_relu.add_config(name="leaky=%d,samples=%d" % (leaky, sample_cnt),
-                            generics=dict(sample_cnt=10, ref_file="output" + "_leaky"*leaky + ".csv", C_LEAKY="'" + str(leaky) + "'", C_INT_WIDTH=8, C_FRAC_WIDTH=0),
-                            pre_config=create_stimuli(root, sample_cnt=sample_cnt))
+                           generics=generics,
+                           pre_config=create_stimuli(root,
+                                                     sample_cnt=sample_cnt))
 
-if __name__ == '__main__':
-    ui = VUnit.from_argv()
-    create_test_suite(ui)
-    ui.main()
+
+if __name__ == "__main__":
+    UI = VUnit.from_argv()
+    create_test_suite(UI)
+    UI.main()
