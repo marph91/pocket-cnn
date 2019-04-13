@@ -12,7 +12,7 @@ end tb_top;
 
 architecture behavioral of tb_top is
 
-  constant C_DATA_WIDTH     : integer := 8;--C_INT_WIDTH+C_FRAC_WIDTH;
+  constant C_DATA_WIDTH     : integer := 8;
 
   component top is
     port (

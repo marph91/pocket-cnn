@@ -17,8 +17,8 @@ entity top is
     isl_get   	: in std_logic;
     isl_start 	: in std_logic;
     isl_valid 	: in std_logic;
-    islv_data 	: in std_logic_vector(C_DATA_WIDTH_DATA-1 downto 0);
-    oslv_data 	: out std_logic_vector(C_DATA_WIDTH_DATA-1 downto 0);
+    islv_data 	: in std_logic_vector(C_DATA_TOTAL_BITS-1 downto 0);
+    oslv_data 	: out std_logic_vector(C_DATA_TOTAL_BITS-1 downto 0);
     osl_valid 	: out std_logic;
     osl_rdy   	: out std_logic;
     osl_finish  : out std_logic
@@ -50,15 +50,15 @@ architecture behavioral of top is
     return v_a_size;
   end f_calc_size;
 
-  constant C_WIDTH : t_img_size_array := f_calc_size(C_WIDTH_IN);
-  constant C_HEIGHT : t_img_size_array := f_calc_size(C_HEIGHT_IN);
+  constant C_IMG_WIDTH : t_img_size_array := f_calc_size(C_IMG_WIDTH_IN);
+  constant C_IMG_HEIGHT : t_img_size_array := f_calc_size(C_IMG_HEIGHT_IN);
 
   ------------------------------------------
   -- Signal Declarations
   ------------------------------------------
   signal sl_output_valid : std_logic_vector(0 to C_PE+1) := (others => '0');
 
-  type t_data_array is array (0 to C_PE+1) of std_logic_vector(C_DATA_WIDTH_DATA-1 downto 0);
+  type t_data_array is array (0 to C_PE+1) of std_logic_vector(C_DATA_TOTAL_BITS-1 downto 0);
   signal a_data_out : t_data_array := (others => (others => '0'));
 
   -- C_PE+1 == isl_get
@@ -74,8 +74,8 @@ begin
   -----------------------------------
   prepr : entity work.prepr
   generic map (
-    C_INT_WIDTH   => C_BITWIDTH(1, 0) - C_BITWIDTH(1, 1),
-    C_FRAC_WIDTH  => C_BITWIDTH(1, 1),
+    C_INT_BITS   => C_BITWIDTH(1, 0) - C_BITWIDTH(1, 1),
+    C_FRAC_BITS  => C_BITWIDTH(1, 1),
     C_SHIFT       => log2(C_SCALE)
   )
   port map (
@@ -92,14 +92,14 @@ begin
     -----------------------------------
     stage : entity work.pe
     generic map (
-      C_DATA_WIDTH_DATA     => C_BITWIDTH(i, 0),
-      C_FRAC_WIDTH_IN       => C_BITWIDTH(i, 1),
-      C_FRAC_WIDTH_OUT      => C_BITWIDTH(i, 2),
-      C_DATA_WIDTH_WEIGHTS  => C_BITWIDTH(i, 3),
-      C_FRAC_WIDTH_WEIGHTS  => C_BITWIDTH(i, 4),
+      C_DATA_TOTAL_BITS     => C_BITWIDTH(i, 0),
+      C_DATA_FRAC_BITS_IN       => C_BITWIDTH(i, 1),
+      C_DATA_FRAC_BITS_OUT      => C_BITWIDTH(i, 2),
+      C_WEIGHTS_TOTAL_BITS  => C_BITWIDTH(i, 3),
+      C_WEIGHTS_FRAC_BITS  => C_BITWIDTH(i, 4),
 
-      C_WIDTH         => C_WIDTH(i),
-      C_HEIGHT        => C_HEIGHT(i),
+      C_IMG_WIDTH         => C_IMG_WIDTH(i),
+      C_IMG_HEIGHT        => C_IMG_HEIGHT(i),
       C_CH_IN         => C_CH(i-1),
       C_CH_OUT        => C_CH(i),
       C_CONV_KSIZE => C_CONV_KSIZE(i),
@@ -109,8 +109,8 @@ begin
       C_PAD           => C_PAD(i),
       C_RELU          => C_RELU(i),
       C_LEAKY         => C_LEAKY_RELU(i),
-      STR_W_INIT      => STR_W_INIT(i),
-      STR_B_INIT      => STR_B_INIT(i)
+      STR_WEIGHTS_INIT      => STR_WEIGHTS_INIT(i),
+      STR_BIAS_INIT      => STR_BIAS_INIT(i)
     )
     port map (
       isl_clk   => isl_clk,
@@ -131,11 +131,11 @@ begin
   -----------------------------------
   ave : entity work.pool_ave
   generic map (
-    C_INT_WIDTH   => C_BITWIDTH(C_PE, 0)-C_BITWIDTH(C_PE, 2),
-    C_FRAC_WIDTH  => C_BITWIDTH(C_PE, 2),
+    C_INT_BITS   => C_BITWIDTH(C_PE, 0)-C_BITWIDTH(C_PE, 2),
+    C_FRAC_BITS  => C_BITWIDTH(C_PE, 2),
     C_POOL_CH     => C_CH(C_PE),
-    C_WIDTH       => C_WIDTH(C_PE),
-    C_HEIGHT      => C_HEIGHT(C_PE)
+    C_IMG_WIDTH       => C_IMG_WIDTH(C_PE),
+    C_IMG_HEIGHT      => C_IMG_HEIGHT(C_PE)
   )
   port map (
     isl_clk   => isl_clk,

@@ -9,7 +9,7 @@ library util;
 entity tb_cnn_axi is
   generic (
     -- Users to add parameters here
-    C_DATA_WIDTH_DATA : integer range 1 to 16 := 8;
+    C_DATA_TOTAL_BITS : integer range 1 to 16 := 8;
     C_IMG_WIDTH       : integer range 1 to 512 := 24;
     C_IMG_HEIGHT      : integer range 1 to 512 := 48;
 
@@ -23,7 +23,7 @@ architecture behavioral of tb_cnn_axi is
 
   component cnn_axi_v1_0 is
     generic (
-      C_DATA_WIDTH : integer range 1 to 16 := C_DATA_WIDTH_DATA;
+      C_DATA_WIDTH : integer range 1 to 16 := C_DATA_TOTAL_BITS;
       C_IMG_WIDTH  : integer range 1 to 512  := C_IMG_WIDTH;
       C_IMG_HEIGHT : integer range 1 to 512    := C_IMG_HEIGHT;
 
@@ -168,7 +168,7 @@ begin
   variable rand_range   : real := 1.0;
   file file_pointer     : text;
   variable inline       : line;
-  variable pixel        : bit_vector(C_DATA_WIDTH_DATA*4-1 downto 0);
+  variable pixel        : bit_vector(C_DATA_TOTAL_BITS*4-1 downto 0);
   begin
     sl_rst_n <= '0';
     wait for 10*C_CLK_PERIOD_AXI;

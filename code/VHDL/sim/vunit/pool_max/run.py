@@ -36,8 +36,8 @@ def create_test_suite(ui):
     for pool_dim in [2, 3]:
         int_bits, frac_bits = random_bw(max_bw=16)
         # print("dim=%d,q%d.%d" % (pool_dim, int_bits, frac_bits))
-        generics = {"C_POOL_DIM": pool_dim, "C_INT_WIDTH": int_bits,
-                    "C_FRAC_WIDTH": frac_bits}
+        generics = {"C_POOL_DIM": pool_dim, "C_INT_BITS": int_bits,
+                    "C_FRAC_BITS": frac_bits}
         tb_pool_max.add_config(name="dim=%d" % (pool_dim),
                                generics=generics,
                                pre_config=create_stimuli(root, pool_dim,

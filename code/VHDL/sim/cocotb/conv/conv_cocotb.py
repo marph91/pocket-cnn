@@ -79,14 +79,14 @@ def run_test(dut):
     generics = namedtuple("generics", ["bits_data", "int_data", "frac_data",
                                        "bits_weight", "int_weight",
                                        "frac_weight", "dim"])
-    gen = generics(dut.C_DATA_WIDTH_DATA.value.integer,
-                   dut.C_DATA_WIDTH_DATA.value.integer -
-                   dut.C_FRAC_WIDTH_IN.value.integer,
-                   dut.C_FRAC_WIDTH_IN.value.integer,
-                   dut.C_DATA_WIDTH_WEIGHTS.value.integer,
-                   dut.C_DATA_WIDTH_WEIGHTS.value.integer -
-                   dut.C_FRAC_WIDTH_WEIGHTS.value.integer,
-                   dut.C_FRAC_WIDTH_WEIGHTS.value.integer,
+    gen = generics(dut.C_DATA_TOTAL_BITS.value.integer,
+                   dut.C_DATA_TOTAL_BITS.value.integer -
+                   dut.C_DATA_FRAC_BITS_IN.value.integer,
+                   dut.C_DATA_FRAC_BITS_IN.value.integer,
+                   dut.C_WEIGHTS_TOTAL_BITS.value.integer,
+                   dut.C_WEIGHTS_TOTAL_BITS.value.integer -
+                   dut.C_WEIGHTS_FRAC_BITS.value.integer,
+                   dut.C_WEIGHTS_FRAC_BITS.value.integer,
                    dut.C_CONV_KSIZE.value.integer)
 
     # setup monitor, software model and scoreboard

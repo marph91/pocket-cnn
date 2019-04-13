@@ -65,7 +65,7 @@ def run_test(dut):
     # setup monitor, software model and scoreboard
     output_mon = LineBufferMonitor("output", dut)
     line_buffer = LineBufferModel(dut.C_CH.value.integer,
-                                  dut.C_WIDTH.value.integer,
+                                  dut.C_IMG_WIDTH.value.integer,
                                   dut.C_WINDOW_SIZE.value.integer)
     scoreboard = Scoreboard(dut)
     scoreboard.add_interface(output_mon, line_buffer.expected_output)

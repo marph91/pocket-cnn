@@ -8,8 +8,8 @@ entity zero_pad is
   generic (
     C_DATA_WIDTH  : integer range 1 to 16 := 8;
     C_CH          : integer range 1 to 512 := 16;
-    C_WIDTH       : integer range 1 to 512 := 32;
-    C_HEIGHT      : integer range 1 to 512 := 32;
+    C_IMG_WIDTH       : integer range 1 to 512 := 32;
+    C_IMG_HEIGHT      : integer range 1 to 512 := 32;
     C_PAD_TOP     : integer range 0 to 1 := 1;
     C_PAD_BOTTOM  : integer range 0 to 1 := 1;
     C_PAD_LEFT    : integer range 0 to 1 := 1;
@@ -34,8 +34,8 @@ end entity;
 -----------------------------------------------------------------------------------------------------------------------
 architecture behavioral of zero_pad is
 
-  constant C_WIDTH_OUT : integer range 1 to C_WIDTH + C_PAD_LEFT + C_PAD_RIGHT := C_WIDTH + C_PAD_LEFT + C_PAD_RIGHT;
-  constant C_HEIGHT_OUT : integer range 1 to C_HEIGHT + C_PAD_TOP + C_PAD_BOTTOM := C_HEIGHT + C_PAD_TOP + C_PAD_BOTTOM;
+  constant C_IMG_WIDTH_OUT : integer range 1 to C_IMG_WIDTH + C_PAD_LEFT + C_PAD_RIGHT := C_IMG_WIDTH + C_PAD_LEFT + C_PAD_RIGHT;
+  constant C_IMG_HEIGHT_OUT : integer range 1 to C_IMG_HEIGHT + C_PAD_TOP + C_PAD_BOTTOM := C_IMG_HEIGHT + C_PAD_TOP + C_PAD_BOTTOM;
 
   ------------------------------------------
   -- Signal Declarations
@@ -43,12 +43,12 @@ architecture behavioral of zero_pad is
   -- counter
   signal int_ch : integer range 0 to C_CH := 0;
   signal int_ch_out : integer range 0 to C_CH := 0;
-  signal int_row : integer range 0 to C_HEIGHT := 0;
-  signal int_col : integer range 0 to C_WIDTH := 0;
-  signal int_data_in_cnt : integer range 0 to C_HEIGHT*C_WIDTH := 0;
-  signal int_data_out_cnt : integer range 0 to C_HEIGHT_OUT*C_WIDTH_OUT := 0;
+  signal int_row : integer range 0 to C_IMG_HEIGHT := 0;
+  signal int_col : integer range 0 to C_IMG_WIDTH := 0;
+  signal int_data_in_cnt : integer range 0 to C_IMG_HEIGHT*C_IMG_WIDTH := 0;
+  signal int_data_out_cnt : integer range 0 to C_IMG_HEIGHT_OUT*C_IMG_WIDTH_OUT := 0;
 
-  signal int_pixel_to_pad : integer range 0 to (C_WIDTH_OUT + C_PAD_LEFT)*C_CH+1 := 0;
+  signal int_pixel_to_pad : integer range 0 to (C_IMG_WIDTH_OUT + C_PAD_LEFT)*C_CH+1 := 0;
   signal int_burst : integer range 0 to C_CH := 0;
 
   signal sl_output_valid : std_logic := '0';
@@ -67,7 +67,7 @@ begin
         int_data_out_cnt <= 0;
         int_data_in_cnt <= 0;
       elsif isl_start = '1' then
-        int_pixel_to_pad <= (C_WIDTH_OUT + C_PAD_LEFT)*C_CH;
+        int_pixel_to_pad <= (C_IMG_WIDTH_OUT + C_PAD_LEFT)*C_CH;
         int_data_out_cnt <= 0;
         int_data_in_cnt <= 0;
         -- prevent problems with STRIDE /= KERNEL_SIZE at multiple images
@@ -80,13 +80,13 @@ begin
         else
           int_ch <= 0;
           int_data_in_cnt <= int_data_in_cnt+1;
-          if int_col = C_WIDTH-1 then
+          if int_col = C_IMG_WIDTH-1 then
             int_col <= 0;
             int_pixel_to_pad <= (C_PAD_RIGHT + C_PAD_LEFT)*C_CH+1; -- +1, because if output_valid=1 one gets subtracted immediately
-            if int_row = C_HEIGHT-1 then
+            if int_row = C_IMG_HEIGHT-1 then
               int_row <= 0;
               if C_PAD_BOTTOM > 0 then
-                int_pixel_to_pad <= (C_WIDTH_OUT + C_PAD_RIGHT)*C_CH+1;
+                int_pixel_to_pad <= (C_IMG_WIDTH_OUT + C_PAD_RIGHT)*C_CH+1;
               else
                 -- overwrites int_pixel_to_pad from previous int_col ite
                 int_pixel_to_pad <= 0;

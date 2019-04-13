@@ -11,7 +11,7 @@ entity line_buffer is
   generic(
     C_DATA_WIDTH  : integer range 1 to 64 := 8;
     C_CH          : integer range 1 to 1024 := 16;
-    C_WIDTH       : integer range 1 to 2048 := 20;
+    C_IMG_WIDTH       : integer range 1 to 2048 := 20;
     C_WINDOW_SIZE : integer range 1 to 2048 := 3
   );
   port(
@@ -30,7 +30,7 @@ end line_buffer;
 -----------------------------------------------------------------------------------------------------------------------
 architecture behavioral of line_buffer is
   constant C_OUTPUT_REG : integer range 0 to 1 := 1;
-  constant C_BRAM_SIZE : integer range 1 to C_WIDTH*C_CH := C_WIDTH*C_CH - C_OUTPUT_REG;
+  constant C_BRAM_SIZE : integer range 1 to C_IMG_WIDTH*C_CH := C_IMG_WIDTH*C_CH - C_OUTPUT_REG;
   constant C_BRAM_DATA_WIDTH : integer range 0 to (C_WINDOW_SIZE-1)*C_DATA_WIDTH := (C_WINDOW_SIZE - 1) * C_DATA_WIDTH;
 
   ------------------------------------------

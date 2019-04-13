@@ -11,10 +11,10 @@ library util;
 -----------------------------------------------------------------------------------------------------------------------
 entity conv is
   generic (
-    C_DATA_WIDTH_DATA     : integer range 1 to 16 := 8;
-    C_FRAC_WIDTH_IN       : integer range 0 to 16 := 4;
-    C_DATA_WIDTH_WEIGHTS  : integer range 1 to 16 := 8;
-    C_FRAC_WIDTH_WEIGHTS  : integer range 0 to 16 := 4;
+    C_DATA_TOTAL_BITS     : integer range 1 to 16 := 8;
+    C_DATA_FRAC_BITS_IN       : integer range 0 to 16 := 4;
+    C_WEIGHTS_TOTAL_BITS  : integer range 1 to 16 := 8;
+    C_WEIGHTS_FRAC_BITS  : integer range 0 to 16 := 4;
     C_KSIZE            : integer range 1 to 3 := 3
   );
   port (
@@ -22,9 +22,9 @@ entity conv is
     isl_rst_n     : in std_logic;
     isl_ce        : in std_logic;
     isl_valid     : in std_logic;
-    islv_data     : in std_logic_vector(C_KSIZE*C_KSIZE*C_DATA_WIDTH_DATA-1 downto 0);
-    islv_weights  : in std_logic_vector(C_KSIZE*C_KSIZE*C_DATA_WIDTH_WEIGHTS-1 downto 0);
-    oslv_data     : out std_logic_vector(C_DATA_WIDTH_DATA+C_DATA_WIDTH_WEIGHTS+log2(C_KSIZE-1)*2 downto 0);
+    islv_data     : in std_logic_vector(C_KSIZE*C_KSIZE*C_DATA_TOTAL_BITS-1 downto 0);
+    islv_weights  : in std_logic_vector(C_KSIZE*C_KSIZE*C_WEIGHTS_TOTAL_BITS-1 downto 0);
+    oslv_data     : out std_logic_vector(C_DATA_TOTAL_BITS+C_WEIGHTS_TOTAL_BITS+log2(C_KSIZE-1)*2 downto 0);
     osl_valid     : out std_logic
     );
 end conv;
@@ -33,18 +33,18 @@ end conv;
 -- Architecture Section
 -----------------------------------------------------------------------------------------------------------------------
 architecture behavioral of conv is
-  constant C_INT_WIDTH_DATA : integer range 0 to 16 := C_DATA_WIDTH_DATA-C_FRAC_WIDTH_IN;
+  constant C_INT_BITS_DATA : integer range 0 to 16 := C_DATA_TOTAL_BITS-C_DATA_FRAC_BITS_IN;
 
   ------------------------------------------
   -- Signal Declarations
   ------------------------------------------
   signal slv_stage : std_logic_vector(2 to 6) := (others => '0');
 
-  type t_1d_sfix_array is array (natural range <>) of sfixed(C_INT_WIDTH_DATA-1 downto -C_FRAC_WIDTH_IN);
+  type t_1d_sfix_array is array (natural range <>) of sfixed(C_INT_BITS_DATA-1 downto -C_DATA_FRAC_BITS_IN);
   signal a_sfix_data : t_1d_sfix_array(0 to C_KSIZE*C_KSIZE-1);
 
   -- full signal bitwidth after multiplication
-  type t_1d_sfix_mult_array is array (natural range <>) of sfixed(C_INT_WIDTH_DATA+C_DATA_WIDTH_WEIGHTS-C_FRAC_WIDTH_WEIGHTS-1 downto -C_FRAC_WIDTH_IN-C_FRAC_WIDTH_WEIGHTS);
+  type t_1d_sfix_mult_array is array (natural range <>) of sfixed(C_INT_BITS_DATA+C_WEIGHTS_TOTAL_BITS-C_WEIGHTS_FRAC_BITS-1 downto -C_DATA_FRAC_BITS_IN-C_WEIGHTS_FRAC_BITS);
   signal a_data_mult : t_1d_sfix_mult_array(0 to C_KSIZE*C_KSIZE-1);
   attribute use_dsp : string;
   attribute use_dsp of a_data_mult : signal is "yes";
@@ -53,18 +53,18 @@ architecture behavioral of conv is
   -- add bits to avoid using FIXED_SATURATE and avoid overflow
   -- new bitwidth = log2((C_KSIZE-1)*(2^old bitwidth-1)) -> new bw = lb(2*(2^12-1)) = 13
   -- C_KSIZE-1 additions, +1 for bias addition
-  constant C_INTW_SUM1 : integer range 0 to 16 := C_INT_WIDTH_DATA+C_DATA_WIDTH_WEIGHTS-C_FRAC_WIDTH_WEIGHTS+1+log2(C_KSIZE-1);
-  type t_1d_sfix_add_array is array (natural range <>) of sfixed(C_INTW_SUM1-1 downto -C_FRAC_WIDTH_IN-C_FRAC_WIDTH_WEIGHTS);
+  constant C_INTW_SUM1 : integer range 0 to 16 := C_INT_BITS_DATA+C_WEIGHTS_TOTAL_BITS-C_WEIGHTS_FRAC_BITS+1+log2(C_KSIZE-1);
+  type t_1d_sfix_add_array is array (natural range <>) of sfixed(C_INTW_SUM1-1 downto -C_DATA_FRAC_BITS_IN-C_WEIGHTS_FRAC_BITS);
   signal a_data_mult_resized : t_1d_sfix_add_array(0 to C_KSIZE*C_KSIZE-1);
   signal a_data_tmp : t_1d_sfix_add_array(0 to C_KSIZE-1);
 
-  type t_1d_sfix_weights_array is array (natural range <>) of sfixed(C_DATA_WIDTH_WEIGHTS-C_FRAC_WIDTH_WEIGHTS-1 downto -C_FRAC_WIDTH_WEIGHTS);
+  type t_1d_sfix_weights_array is array (natural range <>) of sfixed(C_WEIGHTS_TOTAL_BITS-C_WEIGHTS_FRAC_BITS-1 downto -C_WEIGHTS_FRAC_BITS);
   signal a_sfix_weights : t_1d_sfix_weights_array(0 to C_KSIZE*C_KSIZE-1);
 
   constant C_INTW_SUM2 : integer range 0 to 16 := C_INTW_SUM1+log2(C_KSIZE-1); -- C_KSIZE-1 additions
-  signal sfix_data_conv : sfixed(C_INTW_SUM2-1 downto -C_FRAC_WIDTH_IN-C_FRAC_WIDTH_WEIGHTS);
+  signal sfix_data_conv : sfixed(C_INTW_SUM2-1 downto -C_DATA_FRAC_BITS_IN-C_WEIGHTS_FRAC_BITS);
 
-  signal slv_data_out : std_logic_vector(C_INTW_SUM2+C_FRAC_WIDTH_IN+C_FRAC_WIDTH_WEIGHTS-1 downto 0);
+  signal slv_data_out : std_logic_vector(C_INTW_SUM2+C_DATA_FRAC_BITS_IN+C_WEIGHTS_FRAC_BITS-1 downto 0);
   signal sl_output_valid : std_logic := '0';
 
 begin
@@ -73,7 +73,7 @@ begin
   -------------------------------------------------------
   process(isl_clk)
     variable v_sfix_conv_res : t_1d_sfix_add_array(0 to C_KSIZE-1);
-    variable v_sfix_data_out : sfixed(C_INTW_SUM2-1 downto -C_FRAC_WIDTH_IN-C_FRAC_WIDTH_WEIGHTS) := (others => '0');
+    variable v_sfix_data_out : sfixed(C_INTW_SUM2-1 downto -C_DATA_FRAC_BITS_IN-C_WEIGHTS_FRAC_BITS) := (others => '0');
   begin
     if rising_edge(isl_clk) then
       if isl_ce = '1' then
@@ -92,10 +92,10 @@ begin
         if isl_valid = '1' then
           for j in 0 to C_KSIZE-1 loop
             for i in 0 to C_KSIZE-1 loop
-              a_sfix_data(i+j*C_KSIZE) <= to_sfixed(islv_data(((i+1)+j*C_KSIZE)*C_DATA_WIDTH_DATA-1 downto
-                (i+j*C_KSIZE)*C_DATA_WIDTH_DATA),C_INT_WIDTH_DATA-1, -C_FRAC_WIDTH_IN);
-              a_sfix_weights(i+j*C_KSIZE) <= to_sfixed(islv_weights(((i+1)+j*C_KSIZE)*C_DATA_WIDTH_WEIGHTS-1 downto
-                (i+j*C_KSIZE)*C_DATA_WIDTH_WEIGHTS), C_DATA_WIDTH_WEIGHTS-C_FRAC_WIDTH_WEIGHTS-1, -C_FRAC_WIDTH_WEIGHTS);
+              a_sfix_data(i+j*C_KSIZE) <= to_sfixed(islv_data(((i+1)+j*C_KSIZE)*C_DATA_TOTAL_BITS-1 downto
+                (i+j*C_KSIZE)*C_DATA_TOTAL_BITS),C_INT_BITS_DATA-1, -C_DATA_FRAC_BITS_IN);
+              a_sfix_weights(i+j*C_KSIZE) <= to_sfixed(islv_weights(((i+1)+j*C_KSIZE)*C_WEIGHTS_TOTAL_BITS-1 downto
+                (i+j*C_KSIZE)*C_WEIGHTS_TOTAL_BITS), C_WEIGHTS_TOTAL_BITS-C_WEIGHTS_FRAC_BITS-1, -C_WEIGHTS_FRAC_BITS);
             end loop;
           end loop;
         end if;
@@ -118,7 +118,7 @@ begin
             for i in 0 to C_KSIZE-1 loop
               a_data_mult_resized(i+j*C_KSIZE) <= resize(
                 a_data_mult_pipe(i+j*C_KSIZE),
-                C_INTW_SUM1-1, -C_FRAC_WIDTH_IN-C_FRAC_WIDTH_WEIGHTS, fixed_wrap, fixed_truncate);
+                C_INTW_SUM1-1, -C_DATA_FRAC_BITS_IN-C_WEIGHTS_FRAC_BITS, fixed_wrap, fixed_truncate);
             end loop;
           end loop;
         end if;
@@ -130,7 +130,7 @@ begin
               v_sfix_conv_res(j) := resize(
                 v_sfix_conv_res(j) +
                 a_data_mult_resized(i+j*C_KSIZE),
-                C_INTW_SUM1-1, -C_FRAC_WIDTH_IN-C_FRAC_WIDTH_WEIGHTS, fixed_wrap, fixed_truncate);
+                C_INTW_SUM1-1, -C_DATA_FRAC_BITS_IN-C_WEIGHTS_FRAC_BITS, fixed_wrap, fixed_truncate);
             end loop;
           end loop;
           a_data_tmp <= v_sfix_conv_res;
@@ -141,7 +141,7 @@ begin
           for j in 0 to C_KSIZE-1 loop
             v_sfix_data_out := resize(
               v_sfix_data_out + a_data_tmp(j),
-              C_INTW_SUM2-1, -C_FRAC_WIDTH_IN-C_FRAC_WIDTH_WEIGHTS, fixed_wrap, fixed_truncate);
+              C_INTW_SUM2-1, -C_DATA_FRAC_BITS_IN-C_WEIGHTS_FRAC_BITS, fixed_wrap, fixed_truncate);
           end loop;
           slv_data_out <= to_slv(v_sfix_data_out);
         end if;

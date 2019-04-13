@@ -11,10 +11,10 @@ entity max_buf is
     C_CH          : integer range 1 to 512 := 16;
     C_POOL_DIM    : integer range 2 to 3 := 2;
     C_STRIDE      : integer range 1 to 3 := 2;
-    C_WIDTH       : integer range 1 to 512 := 34;
-    C_HEIGHT      : integer range 1 to 512 := 16;
-    C_INT_WIDTH   : integer range 1 to 16 := 8;
-    C_FRAC_WIDTH  : integer range 0 to 16 := 8
+    C_IMG_WIDTH       : integer range 1 to 512 := 34;
+    C_IMG_HEIGHT      : integer range 1 to 512 := 16;
+    C_INT_BITS   : integer range 1 to 16 := 8;
+    C_FRAC_BITS  : integer range 0 to 16 := 8
   );
   port (
     isl_clk   : in std_logic;
@@ -23,8 +23,8 @@ entity max_buf is
     isl_get   : in std_logic;
     isl_start : in std_logic;
     isl_valid : in std_logic;
-    islv_data : in std_logic_vector(C_INT_WIDTH+C_FRAC_WIDTH-1 downto 0);
-    oslv_data : out std_logic_vector(C_INT_WIDTH+C_FRAC_WIDTH-1 downto 0);
+    islv_data : in std_logic_vector(C_INT_BITS+C_FRAC_BITS-1 downto 0);
+    oslv_data : out std_logic_vector(C_INT_BITS+C_FRAC_BITS-1 downto 0);
     osl_valid : out std_logic;
     osl_rdy   : out std_logic
   );
@@ -34,7 +34,7 @@ end max_buf;
 -- Architecture Section
 -----------------------------------------------------------------------------------------------------------------------
 architecture behavioral of max_buf is
-  constant C_DATA_WIDTH : integer range 1 to C_INT_WIDTH+C_FRAC_WIDTH := C_INT_WIDTH+C_FRAC_WIDTH;
+  constant C_DATA_WIDTH : integer range 1 to C_INT_BITS+C_FRAC_BITS := C_INT_BITS+C_FRAC_BITS;
 
   ------------------------------------------
   -- Signal Declarations
@@ -42,10 +42,10 @@ architecture behavioral of max_buf is
   -- counter
   signal int_ch_in_cnt : integer range 0 to C_CH-1 := 0;
   signal int_ch_out_cnt : integer range 0 to C_CH-1 := 0;
-  signal int_row : integer range 0 to C_HEIGHT := 0;
-  signal int_col : integer range 0 to C_WIDTH := 0;
-  signal int_pixel_in_cnt : integer range 0 to C_HEIGHT*C_WIDTH := 0;
-  signal int_pixel_out_cnt : integer range 0 to C_HEIGHT*C_WIDTH := 0;
+  signal int_row : integer range 0 to C_IMG_HEIGHT := 0;
+  signal int_col : integer range 0 to C_IMG_WIDTH := 0;
+  signal int_pixel_in_cnt : integer range 0 to C_IMG_HEIGHT*C_IMG_WIDTH := 0;
+  signal int_pixel_out_cnt : integer range 0 to C_IMG_HEIGHT*C_IMG_WIDTH := 0;
 
   -- for line buffer
   signal sl_lb_output_valid : std_logic := '0';
@@ -83,7 +83,7 @@ begin
   generic map(
     C_DATA_WIDTH  => C_DATA_WIDTH,
     C_CH          => C_CH,
-    C_WIDTH       => C_WIDTH,
+    C_IMG_WIDTH       => C_IMG_WIDTH,
     C_WINDOW_SIZE => C_POOL_DIM
   )
   port map(
@@ -122,8 +122,8 @@ begin
   max : entity work.pool_max
   generic map (
     C_POOL_DIM    => C_POOL_DIM,
-    C_INT_WIDTH   => C_INT_WIDTH,
-    C_FRAC_WIDTH  => C_FRAC_WIDTH
+    C_INT_BITS   => C_INT_BITS,
+    C_FRAC_BITS  => C_FRAC_BITS
   )
   port map (
     isl_clk   => isl_clk,
@@ -156,11 +156,11 @@ begin
             int_ch_in_cnt <= int_ch_in_cnt+1;
           else
             int_ch_in_cnt <= 0;
-            if int_col < C_WIDTH-1 then
+            if int_col < C_IMG_WIDTH-1 then
               int_col <= int_col+1;
             else
               int_col <= 0;
-              if int_row < C_HEIGHT-1 then
+              if int_row < C_IMG_HEIGHT-1 then
                 int_row <= int_row+1;
               else
                 int_row <= 0;
@@ -196,7 +196,7 @@ begin
         case state is
 
           when FILL =>
-            if int_pixel_in_cnt = (C_POOL_DIM-1)*C_WIDTH+C_POOL_DIM-1 then
+            if int_pixel_in_cnt = (C_POOL_DIM-1)*C_IMG_WIDTH+C_POOL_DIM-1 then
               state <= LOAD;
             end if;
 
@@ -284,5 +284,5 @@ begin
 
   oslv_data <= slv_data_out;
   osl_valid <= sl_output_valid;
-  osl_rdy <= sl_rdy and isl_get when int_pixel_in_cnt < C_WIDTH*C_HEIGHT else '0';
+  osl_rdy <= sl_rdy and isl_get when int_pixel_in_cnt < C_IMG_WIDTH*C_IMG_HEIGHT else '0';
 end behavioral;

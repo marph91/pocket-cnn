@@ -11,17 +11,17 @@ entity tb_pool_ave is
   generic (
     runner_cfg : string;
     tb_path : string;
-    C_INT_WIDTH : integer := 3;
-    C_FRAC_WIDTH : integer := 3;
-    C_WIDTH : integer := 3;
-    C_HEIGHT : integer := 3;
+    C_INT_BITS : integer := 3;
+    C_FRAC_BITS : integer := 3;
+    C_IMG_WIDTH : integer := 3;
+    C_IMG_HEIGHT : integer := 3;
     C_POOL_CH : integer := 3
   );
 end entity;
 
 architecture tb of tb_pool_ave is
   constant C_CLK_PERIOD : time := 10 ns; -- 100 MHz
-  constant C_DATA_WIDTH : integer := C_INT_WIDTH + C_FRAC_WIDTH;
+  constant C_DATA_WIDTH : integer := C_INT_BITS + C_FRAC_BITS;
 
   signal sl_clk : std_logic := '0';
   signal sl_valid_in : std_logic := '0';
@@ -38,11 +38,11 @@ architecture tb of tb_pool_ave is
 begin
   dut : entity work.pool_ave
   generic map (
-    C_INT_WIDTH   => C_INT_WIDTH,
-    C_FRAC_WIDTH  => C_FRAC_WIDTH,
+    C_INT_BITS   => C_INT_BITS,
+    C_FRAC_BITS  => C_FRAC_BITS,
     C_POOL_CH     => C_POOL_CH,
-    C_WIDTH       => C_WIDTH,
-    C_HEIGHT      => C_HEIGHT
+    C_IMG_WIDTH       => C_IMG_WIDTH,
+    C_IMG_HEIGHT      => C_IMG_HEIGHT
   )
   port map (
     isl_clk   => sl_clk,
@@ -92,12 +92,12 @@ begin
     stimuli_done <= false;
 
     report ("Sending image of size " &
-            to_string(C_WIDTH) & "x" &
-            to_string(C_HEIGHT) & "x" &
+            to_string(C_IMG_WIDTH) & "x" &
+            to_string(C_IMG_HEIGHT) & "x" &
             to_string(C_POOL_CH));
 
-    for y in 0 to C_HEIGHT-1 loop
-      for x in 0 to C_WIDTH-1 loop
+    for y in 0 to C_IMG_HEIGHT-1 loop
+      for x in 0 to C_IMG_WIDTH-1 loop
         wait until rising_edge(sl_clk);
         for w in 0 to C_POOL_CH-1 loop
           sl_valid_in <= '1';

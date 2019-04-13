@@ -104,6 +104,7 @@ def gen_debug(clk, dut, exp_out, outfile, cnn):
     """Collects the results of the dut and calculates differences to
     software cnn inference.
     """
+    # TODO: use monitor and scoreboard of cocotb
     test_out = [[] for _ in range(len(exp_out))]
 
     # get list of signals and their bitwidth
@@ -190,8 +191,8 @@ def run_test(dut, files=None, cnn=None):
 
     # extract bitwiths and height/width from design to support multiple
     # cnn frameworks
-    width = dut.stage1.C_WIDTH.value.integer
-    height = dut.stage1.C_HEIGHT.value.integer
+    width = dut.stage1.C_IMG_WIDTH.value.integer
+    height = dut.stage1.C_IMG_HEIGHT.value.integer
     exp_out = cnn.inference(infile, width, height)
     dut._log.info("{} result ready.".format(os.environ["CNN_FW"]))
 
@@ -241,8 +242,8 @@ def run_test(dut, files=None, cnn=None):
         # collect the data outputs of the dut
         if dut.osl_valid == 1:
             dut_out.append(fixfloat.fixed2float(
-                dut.oslv_data.value.binstr, dut.ave.C_INT_WIDTH.value.integer,
-                dut.ave.C_FRAC_WIDTH.value.integer))
+                dut.oslv_data.value.binstr, dut.ave.C_INT_BITS.value.integer,
+                dut.ave.C_FRAC_BITS.value.integer))
             dut_out_bin.append(dut.oslv_data.value.binstr)
         yield RisingEdge(dut.isl_clk)
     dut._log.info("Finished processing image.")

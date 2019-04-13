@@ -13,14 +13,14 @@ entity tb_relu is
     ref_file : string;
     sample_cnt : integer;
     C_LEAKY : std_logic := '0';
-    C_INT_WIDTH : integer := 4;
-    C_FRAC_WIDTH : integer := 4
+    C_INT_BITS : integer := 4;
+    C_FRAC_BITS : integer := 4
   );
 end entity;
 
 architecture tb of tb_relu is
   constant C_CLK_PERIOD : time := 10 ns;
-  constant C_DATA_WIDTH : integer := C_INT_WIDTH + C_FRAC_WIDTH;
+  constant C_DATA_WIDTH : integer := C_INT_BITS + C_FRAC_BITS;
 
   signal sl_clk : std_logic := '0';
   signal sl_valid_in : std_logic := '0';
@@ -37,8 +37,8 @@ architecture tb of tb_relu is
 begin
   dut : entity work.relu
   generic map (
-    C_INT_WIDTH   => C_INT_WIDTH,
-    C_FRAC_WIDTH  => C_FRAC_WIDTH,
+    C_INT_BITS   => C_INT_BITS,
+    C_FRAC_BITS  => C_FRAC_BITS,
     C_LEAKY       => C_LEAKY
   )
   port map (

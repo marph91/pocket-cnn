@@ -12,14 +12,14 @@ entity tb_pool_max is
     runner_cfg : string;
     tb_path : string;
     C_POOL_DIM : integer := 6;
-    C_INT_WIDTH : integer := 6;
-    C_FRAC_WIDTH : integer := 3
+    C_INT_BITS : integer := 6;
+    C_FRAC_BITS : integer := 3
   );
 end entity;
 
 architecture tb of tb_pool_max is
   constant C_CLK_PERIOD : time := 10 ns;
-  constant C_DATA_WIDTH : integer := C_INT_WIDTH + C_FRAC_WIDTH;
+  constant C_DATA_WIDTH : integer := C_INT_BITS + C_FRAC_BITS;
 
   signal sl_clk : std_logic := '0';
   signal sl_valid_in : std_logic := '0';
@@ -37,8 +37,8 @@ begin
   dut : entity work.pool_max
   generic map (
     C_POOL_DIM    => C_POOL_DIM,
-    C_INT_WIDTH   => C_INT_WIDTH,
-    C_FRAC_WIDTH  => C_FRAC_WIDTH
+    C_INT_BITS   => C_INT_BITS,
+    C_FRAC_BITS  => C_FRAC_BITS
   )
   port map (
     isl_clk   => sl_clk,
