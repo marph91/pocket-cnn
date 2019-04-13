@@ -8,12 +8,12 @@ library vunit_lib;
 
 entity tb_relu is
   generic (
-    runner_cfg : string;
-    tb_path : string;
-    ref_file : string;
-    sample_cnt : integer;
-    C_LEAKY : std_logic := '0';
-    C_INT_BITS : integer := 4;
+    runner_cfg  : string;
+    tb_path     : string;
+    ref_file    : string;
+    sample_cnt  : integer;
+    C_LEAKY     : std_logic := '0';
+    C_INT_BITS  : integer := 4;
     C_FRAC_BITS : integer := 4
   );
 end entity;
@@ -37,17 +37,17 @@ architecture tb of tb_relu is
 begin
   dut : entity work.relu
   generic map (
-    C_INT_BITS   => C_INT_BITS,
-    C_FRAC_BITS  => C_FRAC_BITS,
-    C_LEAKY       => C_LEAKY
+    C_INT_BITS  => C_INT_BITS,
+    C_FRAC_BITS => C_FRAC_BITS,
+    C_LEAKY     => C_LEAKY
   )
   port map (
-    isl_clk       => sl_clk,
-    isl_ce        => '1',
-    isl_valid     => sl_valid_in,
-    islv_data     => slv_data_in,
-    oslv_data     => slv_data_out,
-    osl_valid     => sl_valid_out
+    isl_clk   => sl_clk,
+    isl_ce    => '1',
+    isl_valid => sl_valid_in,
+    islv_data => slv_data_in,
+    oslv_data => slv_data_out,
+    osl_valid => sl_valid_out
   );
   
   main : process

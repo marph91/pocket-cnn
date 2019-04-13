@@ -12,20 +12,20 @@ end tb_top;
 
 architecture behavioral of tb_top is
 
-  constant C_DATA_WIDTH     : integer := 8;
+  constant C_DATA_WIDTH : integer := 8;
 
   component top is
     port (
-      isl_clk   : in std_logic;
-      isl_rst_n : in std_logic;
-      isl_ce    : in std_logic;
-      isl_get   : in std_logic;
-      isl_start : in std_logic;
-      isl_valid : in std_logic;
-      islv_data : in std_logic_vector(C_DATA_WIDTH-1 downto 0);
-      oslv_data : out std_logic_vector(C_DATA_WIDTH-1 downto 0);
-      osl_valid : out std_logic;
-      osl_rdy   : out std_logic;
+      isl_clk     : in std_logic;
+      isl_rst_n   : in std_logic;
+      isl_ce      : in std_logic;
+      isl_get     : in std_logic;
+      isl_start   : in std_logic;
+      isl_valid   : in std_logic;
+      islv_data   : in std_logic_vector(C_DATA_WIDTH-1 downto 0);
+      oslv_data   : out std_logic_vector(C_DATA_WIDTH-1 downto 0);
+      osl_valid   : out std_logic;
+      osl_rdy     : out std_logic;
       osl_finish  : out std_logic
     );
   end component;
@@ -113,7 +113,6 @@ begin
         wait for C_CLK_PERIOD;
       end loop;
       file_close(file_pointer);
-      --sl_input_valid <= '0';
       wait until sl_finish = '1';
       wait for C_CLK_PERIOD;
     end loop;

@@ -9,18 +9,18 @@ library vunit_lib;
 
 entity tb_pool_ave is
   generic (
-    runner_cfg : string;
-    tb_path : string;
-    C_INT_BITS : integer := 3;
-    C_FRAC_BITS : integer := 3;
-    C_IMG_WIDTH : integer := 3;
-    C_IMG_HEIGHT : integer := 3;
-    C_POOL_CH : integer := 3
+    runner_cfg    : string;
+    tb_path       : string;
+    C_INT_BITS    : integer := 3;
+    C_FRAC_BITS   : integer := 3;
+    C_IMG_WIDTH   : integer := 3;
+    C_IMG_HEIGHT  : integer := 3;
+    C_POOL_CH     : integer := 3
   );
 end entity;
 
 architecture tb of tb_pool_ave is
-  constant C_CLK_PERIOD : time := 10 ns; -- 100 MHz
+  constant C_CLK_PERIOD : time := 10 ns; 
   constant C_DATA_WIDTH : integer := C_INT_BITS + C_FRAC_BITS;
 
   signal sl_clk : std_logic := '0';
@@ -38,11 +38,11 @@ architecture tb of tb_pool_ave is
 begin
   dut : entity work.pool_ave
   generic map (
-    C_INT_BITS   => C_INT_BITS,
-    C_FRAC_BITS  => C_FRAC_BITS,
+    C_INT_BITS    => C_INT_BITS,
+    C_FRAC_BITS   => C_FRAC_BITS,
     C_POOL_CH     => C_POOL_CH,
-    C_IMG_WIDTH       => C_IMG_WIDTH,
-    C_IMG_HEIGHT      => C_IMG_HEIGHT
+    C_IMG_WIDTH   => C_IMG_WIDTH,
+    C_IMG_HEIGHT  => C_IMG_HEIGHT
   )
   port map (
     isl_clk   => sl_clk,
@@ -102,8 +102,6 @@ begin
         for w in 0 to C_POOL_CH-1 loop
           sl_valid_in <= '1';
           slv_data_in <= std_logic_vector(to_unsigned(data_src.get(w+(x*C_POOL_CH), y), slv_data_in'length));
-          --slv_data_in <= (others => '1');--std_logic_vector(to_unsigned(data_src.get(0, 0), slv_data_in'length));
-          --report("w=" & to_string(x) & ", h=" & to_string(y) & ", ch=" & to_string(w) & ", in_val=" & to_string(std_logic_vector(to_unsigned(data_src.get(0, 0), slv_data_in'length))));
           wait until rising_edge(sl_clk);
         end loop;
         sl_valid_in <= '0';

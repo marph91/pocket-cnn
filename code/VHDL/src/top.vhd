@@ -1,8 +1,6 @@
 library ieee;
   use ieee.std_logic_1164.all;
   use ieee.numeric_std.all;
-  use ieee.fixed_pkg.all;
-  use ieee.fixed_float_types.all;
 library util;
   use util.math.all;
 
@@ -52,8 +50,8 @@ architecture behavioral of top is
     return v_a_size;
   end f_calc_size;
 
-  constant C_IMG_WIDTH : t_img_size_array := f_calc_size(C_IMG_WIDTH_IN);
-  constant C_IMG_HEIGHT : t_img_size_array := f_calc_size(C_IMG_HEIGHT_IN);
+  constant C_IMG_WIDTH        : t_img_size_array := f_calc_size(C_IMG_WIDTH_IN);
+  constant C_IMG_HEIGHT         : t_img_size_array := f_calc_size(C_IMG_HEIGHT_IN);
 
   ------------------------------------------
   -- Signal Declarations
@@ -193,7 +191,7 @@ begin
     isl_clk     => isl_clk,
     isl_rst_n     => isl_rst_n,
     isl_ce      => isl_ce,
-    isl_get     => '1',--slv_rdy(3+1),
+    isl_get     => slv_rdy(3+1),
     isl_start   => isl_start,
     isl_valid     => sl_output_valid(3-1),
     islv_data   => a_data_out(3-1),
@@ -241,6 +239,82 @@ begin
   );
 
   -----------------------------------
+  -- Stage 5
+  -----------------------------------
+  stage5 : entity work.pe
+  generic map (
+    C_DATA_TOTAL_BITS   => C_BITWIDTH(5, 0),
+    C_DATA_FRAC_BITS_IN     => C_BITWIDTH(5, 1),
+    C_DATA_FRAC_BITS_OUT    => C_BITWIDTH(5, 2),
+    C_WEIGHTS_TOTAL_BITS  => C_BITWIDTH(5, 3),
+    C_WEIGHTS_FRAC_BITS  => C_BITWIDTH(5, 4),
+
+    C_IMG_WIDTH     => C_IMG_WIDTH(5),
+    C_IMG_HEIGHT    => C_IMG_HEIGHT(5),
+    C_CH_IN  => C_CH(5-1),
+    C_CH_OUT => C_CH(5),
+    C_CONV_KSIZE => C_CONV_KSIZE(5),
+    C_CONV_STRIDE => C_CONV_STRIDE(5),
+    C_WIN_SIZE_POOL => C_WIN_POOL(5),
+    C_POOL_STRIDE => C_POOL_STRIDE(5),
+    C_PAD     => C_PAD(5),
+    C_RELU      => C_RELU(5),
+    C_LEAKY     => C_LEAKY_RELU(5),
+    STR_WEIGHTS_INIT    => STR_WEIGHTS_INIT(5),
+    STR_BIAS_INIT    => STR_BIAS_INIT(5)
+  )
+  port map (
+    isl_clk     => isl_clk,
+    isl_rst_n     => isl_rst_n,
+    isl_ce      => isl_ce,
+    isl_get     => '1',--slv_rdy(5+1),
+    isl_start   => isl_start,
+    isl_valid     => sl_output_valid(5-1),
+    islv_data   => a_data_out(5-1),
+    oslv_data     => a_data_out(5),
+    osl_valid     => sl_output_valid(5),
+    osl_rdy     => slv_rdy(5)
+  );
+
+  -----------------------------------
+  -- Stage 6
+  -----------------------------------
+  stage6 : entity work.pe
+  generic map (
+    C_DATA_TOTAL_BITS   => C_BITWIDTH(6, 0),
+    C_DATA_FRAC_BITS_IN     => C_BITWIDTH(6, 1),
+    C_DATA_FRAC_BITS_OUT    => C_BITWIDTH(6, 2),
+    C_WEIGHTS_TOTAL_BITS  => C_BITWIDTH(6, 3),
+    C_WEIGHTS_FRAC_BITS  => C_BITWIDTH(6, 4),
+
+    C_IMG_WIDTH     => C_IMG_WIDTH(6),
+    C_IMG_HEIGHT    => C_IMG_HEIGHT(6),
+    C_CH_IN  => C_CH(6-1),
+    C_CH_OUT => C_CH(6),
+    C_CONV_KSIZE => C_CONV_KSIZE(6),
+    C_CONV_STRIDE => C_CONV_STRIDE(6),
+    C_WIN_SIZE_POOL => C_WIN_POOL(6),
+    C_POOL_STRIDE => C_POOL_STRIDE(6),
+    C_PAD     => C_PAD(6),
+    C_RELU      => C_RELU(6),
+    C_LEAKY     => C_LEAKY_RELU(6),
+    STR_WEIGHTS_INIT    => STR_WEIGHTS_INIT(6),
+    STR_BIAS_INIT    => STR_BIAS_INIT(6)
+  )
+  port map (
+    isl_clk     => isl_clk,
+    isl_rst_n     => isl_rst_n,
+    isl_ce      => isl_ce,
+    isl_get     => slv_rdy(6+1),
+    isl_start   => isl_start,
+    isl_valid     => sl_output_valid(6-1),
+    islv_data   => a_data_out(6-1),
+    oslv_data     => a_data_out(6),
+    osl_valid     => sl_output_valid(6),
+    osl_rdy     => slv_rdy(6)
+  );
+
+  -----------------------------------
   -- stage C_PE+1 (global average)
   -----------------------------------
   ave : entity work.pool_ave
@@ -271,11 +345,11 @@ begin
       if (sl_output_valid(C_PE+1) = '1') then
         int_data_out_cnt <= int_data_out_cnt+1;
       end if;
-      if (int_data_out_cnt < C_CH(C_CH'RIGHT)) then
-        sl_output_finish <= '0';
-      else
+      if (int_data_out_cnt = C_CH(C_CH'RIGHT)) then
         sl_output_finish <= '1';
         int_data_out_cnt <= 0;
+      else
+        sl_output_finish <= '0';
       end if;
     end if;
   end process;
@@ -283,5 +357,6 @@ begin
   osl_finish <= sl_output_finish;
   oslv_data <= a_data_out(C_PE+1);
   osl_valid <= sl_output_valid(C_PE+1);
-  osl_rdy <= slv_rdy(1) and isl_get and not isl_valid;-- when (int_data_in_cnt < C_CH(C_CH'RIGHT)) else '0';
+  osl_rdy <= slv_rdy(1) and isl_get and not isl_valid;--and not sl_output_valid(0)
 end behavioral;
+

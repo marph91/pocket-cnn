@@ -18,6 +18,7 @@ import fixfloat
 import tools_common as common
 import img2bin
 
+# TODO: automatize running of test cnn architectures
 # signals == blobs
 # test 1 - 4 PE; conv: 3x3+1+pad, 1x1; max: 2x2+2, 3x3+3
 # signals = [dut, dut.prepr, dut.stage1.gen_relu.relu, dut.stage1,
@@ -38,17 +39,6 @@ import img2bin
 
 DEBUG = bool(int(os.environ["DEBUG"]))
 DEBUG_DIR = os.environ["TB_ROOT"] + "/DEBUG/"
-
-
-def rst_values(dut):
-    """Reset all input values."""
-    # It isn't possible to set generics in tb. So they need to be set before
-    # elaboration (in VHDL code)
-    dut.isl_ce <= 0
-    dut.isl_get <= 0
-    dut.isl_start <= 0
-    dut.isl_valid <= 0
-    dut.islv_data <= 0
 
 
 def parse_signals(dut):
@@ -205,7 +195,11 @@ def run_test(dut, files=None, cnn=None):
     # reset/initialize values
     cnt_lines = 0
     dut.isl_rst_n <= 0
-    rst_values(dut)
+    dut.isl_ce <= 0
+    dut.isl_get <= 0
+    dut.isl_start <= 0
+    dut.isl_valid <= 0
+    dut.islv_data <= 0
     yield RisingEdge(dut.isl_clk)
     dut.isl_rst_n <= 1
     yield RisingEdge(dut.isl_clk)

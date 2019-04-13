@@ -9,10 +9,10 @@ library vunit_lib;
 
 entity tb_pool_max is
   generic (
-    runner_cfg : string;
-    tb_path : string;
-    C_POOL_DIM : integer := 6;
-    C_INT_BITS : integer := 6;
+    runner_cfg  : string;
+    tb_path     : string;
+    C_POOL_DIM  : integer := 6;
+    C_INT_BITS  : integer := 6;
     C_FRAC_BITS : integer := 3
   );
 end entity;
@@ -36,9 +36,9 @@ architecture tb of tb_pool_max is
 begin
   dut : entity work.pool_max
   generic map (
-    C_POOL_DIM    => C_POOL_DIM,
-    C_INT_BITS   => C_INT_BITS,
-    C_FRAC_BITS  => C_FRAC_BITS
+    C_POOL_DIM  => C_POOL_DIM,
+    C_INT_BITS  => C_INT_BITS,
+    C_FRAC_BITS => C_FRAC_BITS
   )
   port map (
     isl_clk   => sl_clk,

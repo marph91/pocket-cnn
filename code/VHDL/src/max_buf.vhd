@@ -11,10 +11,10 @@ entity max_buf is
     C_CH          : integer range 1 to 512 := 16;
     C_POOL_DIM    : integer range 2 to 3 := 2;
     C_STRIDE      : integer range 1 to 3 := 2;
-    C_IMG_WIDTH       : integer range 1 to 512 := 34;
-    C_IMG_HEIGHT      : integer range 1 to 512 := 16;
-    C_INT_BITS   : integer range 1 to 16 := 8;
-    C_FRAC_BITS  : integer range 0 to 16 := 8
+    C_IMG_WIDTH   : integer range 1 to 512 := 34;
+    C_IMG_HEIGHT  : integer range 1 to 512 := 16;
+    C_INT_BITS    : integer range 1 to 16 := 8;
+    C_FRAC_BITS   : integer range 0 to 16 := 8
   );
   port (
     isl_clk   : in std_logic;
@@ -83,7 +83,7 @@ begin
   generic map(
     C_DATA_WIDTH  => C_DATA_WIDTH,
     C_CH          => C_CH,
-    C_IMG_WIDTH       => C_IMG_WIDTH,
+    C_IMG_WIDTH   => C_IMG_WIDTH,
     C_WINDOW_SIZE => C_POOL_DIM
   )
   port map(
@@ -121,9 +121,9 @@ begin
   -----------------------------------
   max : entity work.pool_max
   generic map (
-    C_POOL_DIM    => C_POOL_DIM,
-    C_INT_BITS   => C_INT_BITS,
-    C_FRAC_BITS  => C_FRAC_BITS
+    C_POOL_DIM  => C_POOL_DIM,
+    C_INT_BITS  => C_INT_BITS,
+    C_FRAC_BITS => C_FRAC_BITS
   )
   port map (
     isl_clk   => isl_clk,

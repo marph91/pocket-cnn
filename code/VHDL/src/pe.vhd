@@ -52,7 +52,7 @@ architecture behavioral of pe is
   ------------------------------------------
   -- Function: calculate the padding at bottom (dependent of conv stride and kernel size)
   ------------------------------------------
-  function f_set_pad_bot return integer is
+  function f_set_pad_bottom return integer is
     variable v_pad : integer range 0 to 1 := 0;
   begin
     if (C_PAD > 0) and (C_PAD >= C_CONV_KSIZE - C_CONV_STRIDE) then
@@ -61,9 +61,9 @@ architecture behavioral of pe is
       v_pad := C_PAD;
     end if;
     return v_pad;
-  end f_set_pad_bot;
+  end f_set_pad_bottom;
 
-  constant C_PAD_BOTTOM : integer range 0 to 1 := f_set_pad_bot;
+  constant C_PAD_BOTTOM : integer range 0 to 1 := f_set_pad_bottom;
 
   ------------------------------------------
   -- Signal Declarations
