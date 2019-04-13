@@ -26,7 +26,7 @@ entity pool_ave is
     islv_data : in std_logic_vector(C_INT_WIDTH+C_FRAC_WIDTH-1 downto 0);
     oslv_data : out std_logic_vector(C_INT_WIDTH+C_FRAC_WIDTH-1 downto 0);
     osl_valid : out std_logic
-    );
+  );
 end pool_ave;
 
 -----------------------------------------------------------------------------------------------------------------------

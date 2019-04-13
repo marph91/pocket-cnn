@@ -18,8 +18,8 @@ entity pe is
 
     C_WIDTH         : integer range 1 to 512 := 36;
     C_HEIGHT        : integer range 1 to 512 := 16;
-    C_CHANNEL_IN    : integer range 1 to 512 := 1;
-    C_CHANNEL_OUT   : integer range 1 to 512 := 16;
+    C_CH_IN         : integer range 1 to 512 := 1;
+    C_CH_OUT        : integer range 1 to 512 := 16;
     C_WIN_SIZE_CONV : integer range 1 to 3 := 3;
     C_STRIDE_CONV   : integer range 1 to 3 := 3;
     C_WIN_SIZE_POOL : integer range 0 to 3 := 2;
@@ -112,7 +112,7 @@ begin
     zero_pad : entity work.zero_pad
     generic map(
       C_DATA_WIDTH  => C_DATA_WIDTH_DATA,
-      C_CH          => C_CHANNEL_IN,
+      C_CH          => C_CH_IN,
       C_WIDTH       => C_WIDTH,
       C_HEIGHT      => C_HEIGHT,
       C_PAD_TOP     => C_PAD,
@@ -134,20 +134,20 @@ begin
     );
   end generate;
 
-  gen_no_burst : if C_CHANNEL_IN = 1 generate
+  gen_no_burst : if C_CH_IN = 1 generate
     slv_conv_data_in <= slv_pad_data_out;
     sl_conv_input_valid <= sl_pad_output_valid;
     sl_conv_burst_rdy <= '1';
   end generate gen_no_burst;
 
-  gen_burst : if C_CHANNEL_IN > 1 generate
+  gen_burst : if C_CH_IN > 1 generate
     -----------------------------------
     -- Burst
     -----------------------------------
     channel_burst : entity work.channel_burst
     generic map(
       C_DATA_WIDTH  => C_DATA_WIDTH_DATA,
-      C_CH          => C_CHANNEL_IN
+      C_CH          => C_CH_IN
     )
     port map(
       isl_clk   => isl_clk,
@@ -175,8 +175,8 @@ begin
 
     C_CONV_DIM  => C_WIN_SIZE_CONV,
     C_STRIDE    => C_STRIDE_CONV,
-    C_CH_IN     => C_CHANNEL_IN,
-    C_CH_OUT    => C_CHANNEL_OUT,
+    C_CH_IN     => C_CH_IN,
+    C_CH_OUT    => C_CH_OUT,
     C_WIDTH     => C_WIDTH+2*C_PAD,
     C_HEIGHT    => C_HEIGHT+2*C_PAD,
     STR_W_INIT  => STR_W_INIT,
@@ -237,7 +237,7 @@ begin
     channel_burst : entity work.channel_burst
     generic map(
       C_DATA_WIDTH  => C_DATA_WIDTH_DATA,
-      C_CH          => C_CHANNEL_OUT
+      C_CH          => C_CH_OUT
     )
     port map(
       isl_clk   => isl_clk,
@@ -261,7 +261,7 @@ begin
 
       C_POOL_DIM  => C_WIN_SIZE_POOL,
       C_STRIDE    => C_STRIDE_POOL,
-      C_CH        => C_CHANNEL_OUT,
+      C_CH        => C_CH_OUT,
       C_WIDTH     => (C_WIDTH+2*C_PAD-(C_WIN_SIZE_CONV-C_STRIDE_CONV))/C_STRIDE_CONV,
       C_HEIGHT    => (C_HEIGHT+2*C_PAD-(C_WIN_SIZE_CONV-C_STRIDE_CONV))/C_STRIDE_CONV
     )

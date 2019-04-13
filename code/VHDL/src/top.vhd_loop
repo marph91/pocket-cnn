@@ -74,7 +74,7 @@ begin
   -----------------------------------
   prepr : entity work.prepr
   generic map (
-    C_INT_WIDTH   => C_BITWIDTH(1, 0)-C_BITWIDTH(1, 1),
+    C_INT_WIDTH   => C_BITWIDTH(1, 0) - C_BITWIDTH(1, 1),
     C_FRAC_WIDTH  => C_BITWIDTH(1, 1),
     C_SHIFT       => log2(C_SCALE)
   )
@@ -100,8 +100,8 @@ begin
 
       C_WIDTH         => C_WIDTH(i),
       C_HEIGHT        => C_HEIGHT(i),
-      C_CHANNEL_IN    => C_CH(i-1),
-      C_CHANNEL_OUT   => C_CH(i),
+      C_CH_IN         => C_CH(i-1),
+      C_CH_OUT        => C_CH(i),
       C_WIN_SIZE_CONV => C_WIN_CONV(i),
       C_STRIDE_CONV   => C_STRIDE_CONV(i),
       C_WIN_SIZE_POOL => C_WIN_POOL(i),

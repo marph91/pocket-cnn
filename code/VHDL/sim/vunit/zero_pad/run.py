@@ -12,11 +12,11 @@ def create_arrays(root, w, h, ch):
     a_rand = random_fixed_array((h, w*ch), 8, 0)
     a_in = v_float2fixedint(a_rand, 8, 0)
     np.savetxt(join(root, "src", "input.csv"), a_in, delimiter=", ",
-               fmt='%3d')
+               fmt="%3d")
 
-    a_out = np.pad(a_in, ((1, 1), (ch, ch)), 'constant', constant_values=0)
+    a_out = np.pad(a_in, ((1, 1), (ch, ch)), "constant", constant_values=0)
     np.savetxt(join(root, "src", "output.csv"), a_out, delimiter=", ",
-               fmt='%3d')
+               fmt="%3d")
 
 
 def create_test_suite(ui):

@@ -101,8 +101,8 @@ begin
 
     C_WIDTH     => C_WIDTH(1),
     C_HEIGHT    => C_HEIGHT(1),
-    C_CHANNEL_IN  => C_CH(1-1),
-    C_CHANNEL_OUT => C_CH(1),
+    C_CH_IN  => C_CH(1-1),
+    C_CH_OUT => C_CH(1),
     C_WIN_SIZE_CONV => C_WIN_CONV(1),
     C_STRIDE_CONV => C_STRIDE_CONV(1),
     C_WIN_SIZE_POOL => C_WIN_POOL(1),
@@ -139,8 +139,8 @@ begin
 
     C_WIDTH     => C_WIDTH(2),
     C_HEIGHT    => C_HEIGHT(2),
-    C_CHANNEL_IN  => C_CH(2-1),
-    C_CHANNEL_OUT => C_CH(2),
+    C_CH_IN  => C_CH(2-1),
+    C_CH_OUT => C_CH(2),
     C_WIN_SIZE_CONV => C_WIN_CONV(2),
     C_STRIDE_CONV => C_STRIDE_CONV(2),
     C_WIN_SIZE_POOL => C_WIN_POOL(2),
@@ -177,8 +177,8 @@ begin
 
     C_WIDTH     => C_WIDTH(3),
     C_HEIGHT    => C_HEIGHT(3),
-    C_CHANNEL_IN  => C_CH(3-1),
-    C_CHANNEL_OUT => C_CH(3),
+    C_CH_IN  => C_CH(3-1),
+    C_CH_OUT => C_CH(3),
     C_WIN_SIZE_CONV => C_WIN_CONV(3),
     C_STRIDE_CONV => C_STRIDE_CONV(3),
     C_WIN_SIZE_POOL => C_WIN_POOL(3),
@@ -215,8 +215,8 @@ begin
 
     C_WIDTH     => C_WIDTH(4),
     C_HEIGHT    => C_HEIGHT(4),
-    C_CHANNEL_IN  => C_CH(4-1),
-    C_CHANNEL_OUT => C_CH(4),
+    C_CH_IN  => C_CH(4-1),
+    C_CH_OUT => C_CH(4),
     C_WIN_SIZE_CONV => C_WIN_CONV(4),
     C_STRIDE_CONV => C_STRIDE_CONV(4),
     C_WIN_SIZE_POOL => C_WIN_POOL(4),
