@@ -66,7 +66,7 @@ class LinearQuant(nn.Module):
             return output
 
     def __repr__(self):
-        return '{}(bw_layer={}, fl_layer={}, bw_params={}, fl_params={}, overflow_rate={:.3f}, counter={})'.format(
+        return "{}(bw_layer={}, fl_layer={}, bw_params={}, fl_params={}, overflow_rate={:.3f}, counter={})".format(
             self.__class__.__name__, self.bw_layer, self.fl_layer, self.bw_params, self.fl_params, self.overflow_rate, self.counter)
 
 
@@ -76,19 +76,19 @@ def duplicate_model_with_quant(model, bw_param, bits, overflow_rate=0.0, counter
         l = OrderedDict()
         # TODO: find better way than add layer and then remove them
         # add quantization of scaled values as first layer
-        quant_layer = LinearQuant('0_prepr_quant', [None, None], bw_layer=bits, fl_layer=bits-3, counter=0)
-        l['0_prepr_quant'] = quant_layer
+        quant_layer = LinearQuant("0_prepr_quant", [None, None], bw_layer=bits, fl_layer=bits-3, counter=0)
+        l["0_prepr_quant"] = quant_layer
         for k, v in model._modules.items():
             if isinstance(v, nn.Conv2d):
                 l[k] = v
-                quant_layer = LinearQuant('{}_quant'.format(k), bw_param.pop(), bw_layer=bits, overflow_rate=overflow_rate, counter=counter)
-                l['{}_quant'.format(k)] = quant_layer
+                quant_layer = LinearQuant("{}_quant".format(k), bw_param.pop(), bw_layer=bits, overflow_rate=overflow_rate, counter=counter)
+                l["{}_quant".format(k)] = quant_layer
             elif isinstance(v, nn.AdaptiveAvgPool2d):
                 # TODO: add quantization layer after nn.AdaptiveAvgPool2d with same bitwidths as last conv layer
                 # not possible, because fl gets calculated later -> difference to caffe
                 l[k] = v
-                quant_layer = LinearQuant('{}_quant'.format(k), [None, None], bw_layer=bits, overflow_rate=overflow_rate, counter=counter)
-                l['{}_quant'.format(k)] = quant_layer
+                quant_layer = LinearQuant("{}_quant".format(k), [None, None], bw_layer=bits, overflow_rate=overflow_rate, counter=counter)
+                l["{}_quant".format(k)] = quant_layer
             else:
                 l[k] = duplicate_model_with_quant(v, bw_param, bits, overflow_rate, counter)
         m = nn.Sequential(l)

@@ -8,5 +8,5 @@ for f in $files; do
     expand -t 2 "$f" | sponge "$f"
 
     # remove trailing whitespaces
-    sed -i 's/[[:space:]]*$//' "$f"
+    sed -i "s/[[:space:]]*$//" "$f"
 done
