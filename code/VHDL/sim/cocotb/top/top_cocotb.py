@@ -16,7 +16,6 @@ import cnn_frameworks
 
 import fixfloat
 import tools_common as common
-import img2bin
 
 # TODO: automatize running of test cnn architectures
 # signals == blobs
@@ -189,8 +188,6 @@ def run_test(dut, files=None, cnn=None):
     if DEBUG is True:
         # neglect last layer of exp_out (softmax), it gets calculated on PS
         cocotb.fork(gen_debug(dut.isl_clk, dut, exp_out[0:-1], outfile, cnn))
-        # create input data for FPGA (not necessary for simulation)
-        img2bin.img2bin(exp_out[1], DEBUG_DIR, 1)
 
     # reset/initialize values
     cnt_lines = 0

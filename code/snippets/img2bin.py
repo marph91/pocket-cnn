@@ -37,16 +37,15 @@ def img2bin(source, dest, val_line=1):
         outfile.write(b"".join(img_bin))
 
 if __name__ == "__main__":
-    # pylint: disable=C0103
-    parser = argparse.ArgumentParser()
-    parser.add_argument("input_image", type=str)
-    parser.add_argument("output_width", type=int)
-    parser.add_argument("output_height", type=int)
-    parser.add_argument("output_destination", type=str)
-    parser.add_argument("val_line", type=int, help="values per line (1 or 4)")
-    args = parser.parse_args()
+    PARSER = argparse.ArgumentParser()
+    PARSER.add_argument("input_image", type=str)
+    PARSER.add_argument("output_width", type=int)
+    PARSER.add_argument("output_height", type=int)
+    PARSER.add_argument("output_destination", type=str)
+    PARSER.add_argument("val_line", type=int, help="values per line (1 or 4)")
+    args = PARSER.parse_args()
 
-    img = common.load_image(args.input_image, args.output_height,
+    IMG = common.load_image(args.input_image, args.output_height,
                             args.output_width, mode="L")
 
-    img2bin(img, args.output_destination, args.val_line)
+    img2bin(IMG, args.output_destination, args.val_line)

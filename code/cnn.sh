@@ -7,68 +7,14 @@
 # disabled to detect errors early
 # export PYTHONDONTWRITEBYTECODE=1
 
-source cnn.config
-
-# finds latest file that matches pattern $1
-function find_latest {
-	unset -v latest
-	for file in $1; do
-		[[ $file -nt $latest ]] && latest="$file"
-	done
-}
-
-if ((GPU == 1)); then
-	PRE=optirun
-	GPU_NR=--gpu=0
-else
-	PRE=""
-	GPU_NR=""
-fi
-
-# TODO: should this be moved to the config?
-if [ "$CNN_FW" = "caffe" ]; then
-	# TODO: run caffe(-ristretto) training from python script
-	# https://stackoverflow.com/questions/32379878/cheat-sheet-for-caffe-pycaffe
-	# would simplify first workflow steps
-	# full precision
-	MODEL_FULL="$DIR/caffe/train_val.prototxt"
-	find_latest "$DIR/caffe/*.caffemodel"
-	WEIGHTS_FULL="$latest"
-	# quantized
-	MODEL_QUANT="$DIR/caffe_ristretto/ristretto_quantized.prototxt"
-	SOLVER_QUANT="$DIR/caffe_ristretto/ristretto_solver.prototxt"
-	find_latest "$DIR/caffe_ristretto/finetune/*.caffemodel"
-	WEIGHTS_QUANT="$latest"
-elif [ "$CNN_FW" = "pytorch" ]; then
-	# full precision
-	MODEL_FULL="$DIR/pytorch/train.pt"
-	WEIGHTS_FULL="$DIR/pytorch/train.pt"
-	# quantized
-	MODEL_QUANT="$DIR/pytorch/quant.pt"
-	SOLVER_QUANT="$DIR/pytorch/quant.pt"
-	WEIGHTS_QUANT="$DIR/pytorch/quant.pt"
-fi
+source cnn_config.sh
 printf "\\nFramework: %s\\n\\n" "$CNN_FW"
-
 
 # overriding patterns is intended to select multiple cases via fallthrough
 # shellcheck disable=SC2221,SC2222
 case $1 in
-	# train CNN from prototxt, solver and dataset
-	1a) echo "train CNN
-		tool: caffe
-		input: model, (solver), dataset
-		output: weights
-		note: to be implemented -> train manually" ;;
-
-	1b) echo "extract files from archive and create hierarchy
-		tool: custom python script
-		input: DIGITS tar archive
-		output: folder hierarchy with files"
-		"./python_tools/cnn_$CNN_FW/untar_digits.py" "$DIR/*.tar.gz" ;;
-
 	# quantize prototxt model -> recommendation -> modify on own needs
-	2a) echo "quantize prototxt
+	quantize_model) echo "quantize prototxt
 		tool: caffe ristretto
 		input: model, weights, trimming mode, error
 		output: quantized model" 
@@ -81,7 +27,7 @@ case $1 in
 			echo "Error: weights file isnt valid!"
 			exit 1
 		fi
-		mkdir -p "$DIR/caffe_ristretto"
+		mkdir -p "$CNN_DIR/caffe_ristretto"
 		"$PRE $CAFFE_RISTRETTO_ROOT/build/tools/ristretto" quantize \
 			--model="$MODEL_FULL" \
 			--weights="$WEIGHTS_FULL" \
@@ -90,17 +36,17 @@ case $1 in
 			--error_margin=5 ;;
 
 	# sanity check of quantized prototxt == run steps 3 and 4 -> prevent time consuming step 2b with invalid model
-	2a_check) echo "sanity check of quantized prototxt
+	quantize_check) echo "sanity check of quantized prototxt
 		tool: custom python script
 		input: quantized model (train)
 		output: Warnings/hints"
 		"./python_tools/cnn_$CNN_FW/parse_param.py" \
 			"$MODEL_QUANT" \
-			"$DIR/caffe_ristretto/mem_init" \
+			"$CNN_DIR/caffe_ristretto/mem_init" \
 			"$VHDL_DIR/src/cnn_parameter.vhd" ;;
 
 	# finetune 32 bit float model to configured fixed point representation
-	2b) echo "quantize weights
+	quantize_weights) echo "quantize weights
 		tool: caffe ristretto
 		input: quantized model, weights, (solver)
 		output: quantized weights
@@ -117,9 +63,9 @@ case $1 in
 			echo "Error: weights file isnt valid!"
 			exit 1
 		fi
-		mkdir -p "$DIR/caffe_ristretto/finetune"
+		mkdir -p "$CNN_DIR/caffe_ristretto/finetune"
 		"./python_tools/cnn_$CNN_FW/create_solver.py" \
-			"$DIR/caffe_ristretto/finetune/quantized" \
+			"$CNN_DIR/caffe_ristretto/finetune/quantized" \
 			"$MODEL_QUANT" \
 			"$SOLVER_QUANT" \
 			--fixed 1 --use_gpu "$GPU"
@@ -129,7 +75,7 @@ case $1 in
 			"$GPU_NR" ;;
 
 	# benchmark finetuned model
-	2b_benchmark) echo "benchmark quantized model and weights
+	benchmark) echo "benchmark quantized model and weights
 		tool: caffe ristretto
 		input: quantized model and weights
 		output: accuracy" 
@@ -139,17 +85,17 @@ case $1 in
 			"$GPU_NR" --iterations=2000 ;;
 
 	# extract weights from net for usage in vhdl model
-	3 | all) echo "extract weights from net
+	extract | all) echo "extract weights from net
 		tool: custom python script
 		input: (quantized) model and weights
 		output: one file per conv layer with binary weights"
 		$PRE "./python_tools/cnn_$CNN_FW/convert_weights.py" \
 			"$WEIGHTS_QUANT" \
 			"$MODEL_QUANT" \
-			--mem_init "$DIR/caffe_ristretto/mem_init" ;;&
+			--mem_init "$CNN_DIR/caffe_ristretto/mem_init" ;;&
 
 	# generate toplevel from quantized net architecture
-	4 | all) echo "generate toplevel parameters from net architecture
+	generate | all) echo "generate toplevel parameters from net architecture
 		tool: custom python script
 		input: quantized model, binary weight files directory
 		output: VHDL toplevel"
@@ -163,13 +109,13 @@ case $1 in
 		[yY][eE][sS]|[yY])
 			"./python_tools/cnn_$CNN_FW/parse_param.py" \
 				"$MODEL_QUANT" \
-				"$DIR/caffe_ristretto/mem_init" \
+				"$CNN_DIR/caffe_ristretto/mem_init" \
 				"$VHDL_DIR/cnn_parameter.vhd" ;;
 		*) ;;
 		esac ;;&
 
 	# cosimulation of finetuned model
-	5 | all) echo "simulate VHDL CNN and compare with Caffe results
+	simulate | all) echo "simulate VHDL CNN and compare with Caffe results
 		tool: cocotb (testbench), ghdl (simulator) and caffe (reference values)
 		input: python testbench, VHDL (code + toplevel), reference model and weights, (input image)
 		output: verification of VHDL design"
@@ -185,41 +131,14 @@ case $1 in
 			MODEL_QUANT="$MODEL_QUANT" \
 			WEIGHTS_QUANT="$WEIGHTS_QUANT" ;;
 
-	# display results
-	6) echo "display results
-		tool: octave, vivado, gtkwave, debug textfile" ;;
-
-	# generate test files from test image
-	test_img) echo "generate test files from test image
-		tool: custom python script
-		input: test image
-		output: binary test image, image text and debug files"
-		if [ -z "$3" ]; then
-			echo "Please specify input image"
-		else
-			./python_tools/img2bin.py "$3" "$DIR"
-		fi ;;
-
-	draw) echo "print model to file
-		tool: caffe
-		input: model
-		output: picture of model structure"
-		$CAFFE_RISTRETTO_ROOT/python/draw_net.py --rankdir TB "$MODEL_FULL" "$DIR/caffe/model.png" ;;
-
-
 	-h | --help) echo "Workflow:
-		1a           - train CNN
-		1b           - extract files from archive and create hierarchy
-		2a           - quantize prototxt
-		2a_check     - sanity check of quantized prototxt
-		2b           - quantize weights
-		2b_benchmark - benchmark quantized model and weights
-		3a           - generate deploy.prototxt
-		3b           - extract weights from caffemodel
-		4            - generate toplevel parameters from prototxt
-		5            - simulate VHDL CNN and compare with Caffe results
-		6            - display results
-		all          - perform all necessary steps from generating deploy.prototxt to simulation
-		test_img     - generate test files from test image
-		draw         - print model to file" ;;
+                          - train CNN
+        quantize_model    - quantize CNN model
+        quantize_check    - sanity check of the quantized model
+        quantize_weights  - quantize weights
+        benchmark         - benchmark quantized model and weights
+        extract           - extract weights from model in VHDL readable form
+        generate          - generate toplevel parameters from CNN model
+        simulate          - simulate VHDL design and compare with caffe results
+        all               - perform all necessary steps from extract to simulation" ;;
 esac

@@ -11,8 +11,8 @@ import tools_common as common
 from google.protobuf import text_format
 common.set_log_level(3)
 import caffe
+from caffe import layers as L
 from caffe.proto import caffe_pb2
-from caffe import layers as L  # for train2deploy
 
 
 def load_net(deploy_file):
