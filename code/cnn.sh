@@ -5,19 +5,18 @@
 # export PYTHONPATH=~/workspace/opencnn/code/python_tools
 
 # disabled to detect errors early
-export PYTHONDONTWRITEBYTECODE=1
+# export PYTHONDONTWRITEBYTECODE=1
 
-# functions
+source cnn.config
+
+# finds latest file that matches pattern $1
 function find_latest {
-	# finds latest file that matches pattern $1
 	unset -v latest
 	for file in $1; do
 		[[ $file -nt $latest ]] && latest="$file"
 	done
 }
 
-# constants
-GPU=1
 if ((GPU == 1)); then
 	PRE=optirun
 	GPU_NR=--gpu=0
@@ -26,24 +25,7 @@ else
 	GPU_NR=""
 fi
 
-DEBUG=0
-
-TEST_FILES="$PWD/../test_images/*.p*"
-
-# programs
-CAFFE_RISTRETTO_ROOT=/home/prog/caffe_ristretto
-COCOTB_ROOT=/home/prog/cocotb
-
-# framework
-CNN_FW="$2"
-
-# root directory of model
-DIR="$3"
-
-# root directory of the CNN VHDL files
-VHDL_DIR="$PWD/VHDL/src"
-
-# filenames
+# TODO: should this be moved to the config?
 if [ "$CNN_FW" = "caffe" ]; then
 	# TODO: run caffe(-ristretto) training from python script
 	# https://stackoverflow.com/questions/32379878/cheat-sheet-for-caffe-pycaffe
@@ -191,7 +173,7 @@ case $1 in
 		tool: cocotb (testbench), ghdl (simulator) and caffe (reference values)
 		input: python testbench, VHDL (code + toplevel), reference model and weights, (input image)
 		output: verification of VHDL design"
-		cd "$(pwd)/VHDL/sim/cocotb/top" || exit 1
+		cd "$PWD/VHDL/sim/cocotb/top" || exit 1
 		$PRE make -s \
 			VHDL_DIR="$VHDL_DIR" \
 			CNN_FW="$CNN_FW" \
@@ -239,7 +221,5 @@ case $1 in
 		6            - display results
 		all          - perform all necessary steps from generating deploy.prototxt to simulation
 		test_img     - generate test files from test image
-		draw         - print model to file
-		class        - forward single picture
-		clean        - delete all generated files" ;;
+		draw         - print model to file" ;;
 esac
