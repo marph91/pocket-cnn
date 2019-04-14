@@ -44,10 +44,6 @@ def prepare_data():
     testset = torchvision.datasets.CIFAR10(
         root="./data", train=False, download=True, transform=transform)
 
-    # FESEQ dataset
-    # trainset = torchvision.datasets.ImageFolder("../../../../datasets/FESEQ-807_test1/train", transform=transform)
-    # testset = torchvision.datasets.ImageFolder("../../../../datasets/FESEQ-807_test1/test", transform=transform)
-
     trainloader = torch.utils.data.DataLoader(
         trainset, batch_size=64, shuffle=True, num_workers=2)
     testloader = torch.utils.data.DataLoader(
@@ -202,6 +198,7 @@ def forward_image(net, image_file):
                 activations.append(x.data.numpy())
                 # activations.append(nn.Softmax(x))
     return activations
+
 
 if __name__ == "__main__":
     # set mode

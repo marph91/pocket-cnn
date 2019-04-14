@@ -4,8 +4,7 @@
 *.csv
 *.so
 .directory
-code/.vscode/
-code/cpp/class
+code/.vscode
 code/python_tools/__pycache__
 code/python_tools/cnn_pytorch/data/**
 code/python_tools/cnn_pytorch/mem_init/**

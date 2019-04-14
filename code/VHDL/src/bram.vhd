@@ -31,10 +31,6 @@ end bram;
 -- Architecture Section
 -----------------------------------------------------------------------------------------------------------------------
 architecture behavioral of bram is
-
-  ------------------------------------------
-  -- Signal Declarations
-  ------------------------------------------
   -- constant to prevent overflow in loop variable (max: 2^16-1)
   constant C_SPLIT : integer range 1 to (C_SIZE+1)/65536+1 := (C_SIZE+1)/65536+1;
 
@@ -65,10 +61,12 @@ architecture behavioral of bram is
     return RAM;
   end function;
 
-  -- ram_style options: auto, block, distributed
+  ------------------------------------------
+  -- Signal Declarations
+  ------------------------------------------
   signal a_RAM : t_ram := init_ram(STR_INIT);
-  -- attribute ram_style : string;
-  -- attribute ram_style of a_RAM : signal is "block";
+  attribute ram_style : string;
+  attribute ram_style of a_RAM : signal is "block";
   signal slv_data : bit_vector(C_DATA_WIDTH - 1 downto 0) := (others => '0');
 
 begin

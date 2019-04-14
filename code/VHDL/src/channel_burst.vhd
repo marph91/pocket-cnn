@@ -47,7 +47,7 @@ begin
   proc_data : process(isl_clk)
   begin
     if (rising_edge(isl_clk)) then
-      -- to 0 to C_CH, that isl_valid = '1' and int_ch_to_burst > 1 can be handled at the same time
+      -- 0 to C_CH, that isl_valid = '1' and int_ch_to_burst > 1 can be handled at the same time
       if (isl_valid = '1') then
         a_ch(0) <= islv_data;
         for i in 1 to C_CH loop
