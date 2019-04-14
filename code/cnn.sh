@@ -1,12 +1,5 @@
 #!/bin/bash
 
-# export CAFFE_ROOT=/home/Programme/caffe-ristretto
-# export PYTHONPATH=/home/Programme/caffe-ristretto/python
-# export PYTHONPATH=~/workspace/opencnn/code/python_tools
-
-# disabled to detect errors early
-# export PYTHONDONTWRITEBYTECODE=1
-
 source cnn_config.sh
 printf "\\nFramework: %s\\n\\n" "$CNN_FW"
 
@@ -99,7 +92,7 @@ case $1 in
 		tool: custom python script
 		input: quantized model, binary weight files directory
 		output: VHDL toplevel"
-		if [ "$1" = "4" ]; then
+		if [ "$1" = "generate" ]; then
 			# just ask for input in manual mode
 			read -r -p "This step will overwrite the current parameter file! Continue? [y/N] " response
 		else
