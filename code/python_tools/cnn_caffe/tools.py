@@ -22,7 +22,7 @@ def load_net(deploy_file):
     return net
 
 
-def get_net(caffemodel, deploy_file, use_gpu=True):
+def get_net(caffemodel, deploy_file, use_gpu=False):
     """
     Returns an instance of caffe.Net
 
@@ -171,7 +171,7 @@ def get_transformer(deploy_file, mean_file=None):
 
 
 def forward_pass(images, net, transformer, deploy_file, batch_size=1,
-                 out_layer=None, use_gpu=True):
+                 out_layer=None, use_gpu=False):
     """
     Returns scores for each image as an np.ndarray (nImages x nClasses)
 
@@ -297,7 +297,7 @@ def classify(caffemodel, deploy_file, image_files, mean_file=None,
 
 
 def classify_many(caffemodel, deploy_file, image_files, mean_file=None,
-                  batch_size=None, use_gpu=True):
+                  batch_size=None, use_gpu=False):
     """Classify images against a Caffe model to get a mean execution time."""
     # Load the model and images
     net = get_net(caffemodel, deploy_file, use_gpu)

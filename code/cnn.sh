@@ -141,7 +141,7 @@ case $1 in
 			"$MODEL_QUANT" \
 			"$SOLVER_QUANT" \
 			--fixed 1 --use_gpu "$GPU"
-		"$PRE" "$CAFFE_RISTRETTO_ROOT/build/tools/caffe" train \
+		$PRE "$CAFFE_RISTRETTO_ROOT/build/tools/caffe" train \
 			--solver="$SOLVER_QUANT" \
 			--weights="$WEIGHTS_FULL" \
 			"$GPU_NR" ;;
@@ -151,7 +151,7 @@ case $1 in
 		tool: caffe ristretto
 		input: quantized model and weights
 		output: accuracy" 
-		"$PRE" "$CAFFE_RISTRETTO_ROOT/build/tools/caffe" test \
+		$PRE "$CAFFE_RISTRETTO_ROOT/build/tools/caffe" test \
 			--model="$MODEL_QUANT" \
 			--weights="$WEIGHTS_QUANT" \
 			"$GPU_NR" --iterations=2000 ;;
@@ -161,7 +161,7 @@ case $1 in
 		tool: custom python script
 		input: (quantized) model and weights
 		output: one file per conv layer with binary weights"
-		"$PRE" "./python_tools/cnn_$CNN_FW/convert_weights.py" \
+		$PRE "./python_tools/cnn_$CNN_FW/convert_weights.py" \
 			"$WEIGHTS_QUANT" \
 			"$MODEL_QUANT" \
 			--mem_init "$DIR/caffe_ristretto/mem_init" ;;&
@@ -192,7 +192,7 @@ case $1 in
 		input: python testbench, VHDL (code + toplevel), reference model and weights, (input image)
 		output: verification of VHDL design"
 		cd "$(pwd)/VHDL/sim/cocotb/top" || exit 1
-		"$PRE" make -s \
+		$PRE make -s \
 			VHDL_DIR="$VHDL_DIR" \
 			CNN_FW="$CNN_FW" \
 			COCOTB_ROOT="$COCOTB_ROOT" \

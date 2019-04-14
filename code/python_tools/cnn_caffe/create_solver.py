@@ -4,15 +4,12 @@ import argparse
 from collections import OrderedDict
 
 
-def create_solver(model_prefix, train_file, solver_file, fixed, use_gpu):
+def create_solver(model_prefix, train_file, solver_file, fixed, use_gpu=False):
     """Create solver dictionary with default parameter and write to file.
     https://github.com/BVLC/caffe/wiki/Solver-Prototxt
     """
 
-    if use_gpu is True:
-        mode = "GPU"
-    else:
-        mode = "CPU"
+    mode = "GPU" if use_gpu is True else "CPU"
 
     if fixed is False:
         solver = OrderedDict([

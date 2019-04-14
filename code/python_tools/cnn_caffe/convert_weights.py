@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import argparse
 
-import tools
+import cnn_caffe.tools as tools
 import tools_common as common
 from weights2files import weights2files
 
