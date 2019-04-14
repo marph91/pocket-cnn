@@ -8,11 +8,11 @@ library vunit_lib;
 
 entity tb_zero_pad is
   generic (
-    runner_cfg : string;
-    tb_path : string;
-    C_IMG_WIDTH : integer := 6;
-    C_IMG_HEIGHT : integer := 6;
-    C_CH : integer := 3
+    runner_cfg      : string;
+    tb_path         : string;
+    C_IMG_WIDTH     : integer := 6;
+    C_IMG_HEIGHT    : integer := 6;
+    C_CH : integer  := 3
   );
 end entity;
 
@@ -37,8 +37,8 @@ begin
   generic map (
     C_DATA_WIDTH  => C_DATA_WIDTH,
     C_CH          => C_CH,
-    C_IMG_WIDTH       => C_IMG_WIDTH,
-    C_IMG_HEIGHT      => C_IMG_HEIGHT,
+    C_IMG_WIDTH   => C_IMG_WIDTH,
+    C_IMG_HEIGHT  => C_IMG_HEIGHT,
     C_PAD_TOP     => 1,
     C_PAD_BOTTOM  => 1,
     C_PAD_LEFT    => 1,
@@ -56,7 +56,7 @@ begin
     oslv_data   => slv_data_out,
     osl_rdy     => sl_rdy
   );
-  
+
   main : process
     procedure run_test is
     begin

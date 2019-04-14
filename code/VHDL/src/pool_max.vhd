@@ -29,7 +29,7 @@ end pool_max;
 -- Architecture Section
 -----------------------------------------------------------------------------------------------------------------------
 architecture behavioral of pool_max is
-  
+
 
   ------------------------------------------
   -- Signal Declarations

@@ -20,7 +20,7 @@ entity tb_pool_ave is
 end entity;
 
 architecture tb of tb_pool_ave is
-  constant C_CLK_PERIOD : time := 10 ns; 
+  constant C_CLK_PERIOD : time := 10 ns;
   constant C_DATA_WIDTH : integer := C_INT_BITS + C_FRAC_BITS;
 
   signal sl_clk : std_logic := '0';

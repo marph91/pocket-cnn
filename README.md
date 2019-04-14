@@ -15,6 +15,7 @@ One of:
 - Clean up code and folder structure.
 
 ## Testing
+- Fix numerical errors when inferring the CNN with CPU. GPU inference yields exactly the same results as the VHDL design.
 - Add more unit tests for cocotb and vunit.
 - Find a good way to run all cocotb tests with changing generics and summary at the end. See https://github.com/potentialventures/cocotb/issues/756 and https://dornerworks.com/blog/setting-vhdl-generics-fpga-verification-made-easy-cocotb.
 - Use a second simulator, f. e. modelsim or nvc.
@@ -26,4 +27,5 @@ One of:
 
 ## CNN Frameworks
 - Fix pytorch saving and loading. The extra layers always have to be in a relative directory when loading the model due to pickle. See https://pytorch.org/docs/stable/notes/serialization.html. Currently the files are duplicated.
+- Improve pytorch and caffe tooling. Currently there are many absolute paths and duplicate code.
 - Add tensorflow support. Currently the quantization we need, is not available at this framework. See https://www.tensorflow.org/api_docs/python/tf/quantization/quantize.

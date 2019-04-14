@@ -49,7 +49,7 @@ begin
     oslv_data => slv_data_out,
     osl_valid => sl_valid_out
   );
-  
+
   main : process
     procedure run_test is
     begin
