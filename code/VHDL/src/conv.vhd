@@ -26,7 +26,7 @@ entity conv is
     islv_weights  : in std_logic_vector(C_KSIZE*C_KSIZE*C_WEIGHTS_TOTAL_BITS-1 downto 0);
     oslv_data     : out std_logic_vector(C_DATA_TOTAL_BITS+C_WEIGHTS_TOTAL_BITS+log2(C_KSIZE-1)*2 downto 0);
     osl_valid     : out std_logic
-    );
+  );
 end conv;
 
 -----------------------------------------------------------------------------------------------------------------------

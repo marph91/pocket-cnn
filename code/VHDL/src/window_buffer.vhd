@@ -6,10 +6,10 @@ library ieee;
 -- Entity Section
 -----------------------------------------------------------------------------------------------------------------------
 entity window_buffer is
-    generic(
-    C_DATA_WIDTH  : integer range 1 to 16;
-    C_CH          : integer range 1 to 512;
-    C_WINDOW_SIZE : integer range 1 to 3
+  generic(
+    C_DATA_WIDTH  : integer range 1 to 16 := 8;
+    C_CH          : integer range 1 to 512 := 4;
+    C_WINDOW_SIZE : integer range 1 to 3 := 3
   );
   port(
     isl_clk     : in std_logic;
@@ -34,11 +34,10 @@ architecture behavior of window_buffer is
   signal int_ch_cnt : integer range 0 to C_CH-1 := 0;
 
   signal sl_valid_out : std_logic := '0';
-  signal slv_data_out : std_logic_vector(C_WINDOW_SIZE*C_WINDOW_SIZE*C_DATA_WIDTH-1 downto 0);
+  signal slv_data_out : std_logic_vector(C_WINDOW_SIZE*C_WINDOW_SIZE*C_DATA_WIDTH-1 downto 0) := (others => '0');
 
-  --debug
   type t_2d_array is array (natural range <>, natural range <>) of std_logic_vector(C_DATA_WIDTH - 1 downto 0);
-  signal a_win : t_2d_array(0 to C_WINDOW_SIZE*C_WINDOW_SIZE - 1, 0 to C_CH - 1);
+  signal a_win : t_2d_array(0 to C_WINDOW_SIZE*C_WINDOW_SIZE - 1, 0 to C_CH - 1) := (others => (others => (others => '0')));
 
 begin
   proc_shift_data : process(isl_clk)

@@ -24,7 +24,7 @@ cd opencnn
 
 # TODO
 
-- Add usage and documentation.
+- Add more documentation.
 - Clean up code and folder structure.
 
 ## Testing

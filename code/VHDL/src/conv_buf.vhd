@@ -12,19 +12,19 @@ library util;
 entity conv_buf is
   generic (
     C_DATA_TOTAL_BITS     : integer range 1 to 16 := 8;
-    C_DATA_FRAC_BITS_IN       : integer range 0 to 16 := 4;
-    C_DATA_FRAC_BITS_OUT      : integer range 0 to 16 := 4;
+    C_DATA_FRAC_BITS_IN   : integer range 0 to 16 := 4;
+    C_DATA_FRAC_BITS_OUT  : integer range 0 to 16 := 4;
     C_WEIGHTS_TOTAL_BITS  : integer range 1 to 16 := 4;
-    C_WEIGHTS_FRAC_BITS  : integer range 0 to 16 := 3;
+    C_WEIGHTS_FRAC_BITS   : integer range 0 to 16 := 3;
 
-    C_KSIZE  : integer range 1 to 3 := 3;
-    C_STRIDE    : integer range 1 to 3 := 1;
-    C_CH_IN     : integer range 1 to 512 := 1;
-    C_CH_OUT    : integer range 1 to 512 := 16;
-    C_IMG_WIDTH     : integer range 1 to 512 := 36;
-    C_IMG_HEIGHT    : integer range 1 to 512 := 16;
+    C_KSIZE           : integer range 1 to 3 := 3;
+    C_STRIDE          : integer range 1 to 3 := 1;
+    C_CH_IN           : integer range 1 to 512 := 1;
+    C_CH_OUT          : integer range 1 to 512 := 16;
+    C_IMG_WIDTH       : integer range 1 to 512 := 36;
+    C_IMG_HEIGHT      : integer range 1 to 512 := 16;
     STR_WEIGHTS_INIT  : string := "";
-    STR_BIAS_INIT  : string := ""
+    STR_BIAS_INIT     : string := ""
   );
   port (
     isl_clk   : in std_logic;
@@ -189,7 +189,7 @@ begin
     generic map(
       C_DATA_WIDTH  => C_DATA_TOTAL_BITS,
       C_CH          => C_CH_IN,
-      C_IMG_WIDTH       => C_IMG_WIDTH,
+      C_IMG_WIDTH   => C_IMG_WIDTH,
       C_WINDOW_SIZE => C_KSIZE
     )
     port map(
@@ -373,7 +373,7 @@ begin
   -- Process: Data shift
   -------------------------------------------------------
   proc_data : process(isl_clk)
-  variable v_sfix_sum_tmp : sfixed(C_DW_SUM-C_DATA_FRAC_BITS_IN-C_WEIGHTS_FRAC_BITS-1 downto -C_DATA_FRAC_BITS_IN-C_WEIGHTS_FRAC_BITS) := (others => '0');-- resize(to_sfixed(slv_ram_data_b, C_WEIGHTS_TOTAL_BITS-C_WEIGHTS_FRAC_BITS-1, -C_WEIGHTS_FRAC_BITS), C_DW_SUM-C_DATA_FRAC_BITS_IN-C_WEIGHTS_FRAC_BITS-1, -C_DATA_FRAC_BITS_IN-C_WEIGHTS_FRAC_BITS); --(others => '0');
+    variable v_sfix_sum_tmp : sfixed(C_DW_SUM-C_DATA_FRAC_BITS_IN-C_WEIGHTS_FRAC_BITS-1 downto -C_DATA_FRAC_BITS_IN-C_WEIGHTS_FRAC_BITS) := (others => '0');-- resize(to_sfixed(slv_ram_data_b, C_WEIGHTS_TOTAL_BITS-C_WEIGHTS_FRAC_BITS-1, -C_WEIGHTS_FRAC_BITS), C_DW_SUM-C_DATA_FRAC_BITS_IN-C_WEIGHTS_FRAC_BITS-1, -C_DATA_FRAC_BITS_IN-C_WEIGHTS_FRAC_BITS); --(others => '0');
   begin
     if rising_edge(isl_clk) then
       if isl_rst_n = '0' then
