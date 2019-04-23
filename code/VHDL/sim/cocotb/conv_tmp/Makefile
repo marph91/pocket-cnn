@@ -1,4 +1,4 @@
-TOPLEVEL=conv
+TOPLEVEL=conv_tmp
 COCOTB_ROOT=/home/prog/cocotb
 VHDL_DIR=/home/workspace/opencnn/code/VHDL/src
 

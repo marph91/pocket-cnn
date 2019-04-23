@@ -9,6 +9,7 @@ from cocotb.clock import Clock
 from cocotb.monitors import Monitor
 from cocotb.triggers import RisingEdge
 from cocotb.regression import TestFactory
+from cocotb.result import TestFailure
 from cocotb.scoreboard import Scoreboard
 
 from fixfloat import fixedint2ffloat
@@ -16,7 +17,7 @@ from fixfloat import fixedint2ffloat
 
 class ConvMonitor(Monitor):
     """Represents a monitor for the output values of a line buffer."""
-    def __init__(self, name, gen, valid, data, callback=None, event=None):
+    def __init__(self, name, gen, clk, valid, data, callback=None, event=None):
         try:
             dim_factor = math.log(gen.dim-1, 2)
         except ValueError:
@@ -25,6 +26,7 @@ class ConvMonitor(Monitor):
             math.ceil(dim_factor) * 2 + 1
         self.out_frac_width = gen.frac_data + gen.frac_weight
 
+        self.clk = clk
         self.name = name
         self.valid = valid
         self.data = data
@@ -33,10 +35,11 @@ class ConvMonitor(Monitor):
     @cocotb.coroutine
     def _monitor_recv(self):
         while True:
-            yield RisingEdge(self.valid)
-            values = fixedint2ffloat(self.data.value.integer,
-                                     self.out_int_width, self.out_frac_width)
-            self._recv(values)
+            yield RisingEdge(self.clk)
+            if bool(self.valid.value.integer):
+                values = fixedint2ffloat(self.data.value.integer,
+                                         self.out_int_width, self.out_frac_width)
+                self._recv(values)
 
 
 class ConvModel:
@@ -51,6 +54,8 @@ class ConvModel:
 
     def __call__(self, data, weights):
         assert len(data) == len(weights)
+        # print("aaa")
+        # print(data)
         out_data_ref = 0
         for i, _ in enumerate(data):
             fixed_data = fixedint2ffloat(data[i], self.int_width_data,
@@ -58,8 +63,10 @@ class ConvModel:
             fixed_weights = fixedint2ffloat(weights[i], self.int_width_weights,
                                             self.frac_width_weights)
             out_data_ref += fixed_data * fixed_weights
-
+            # print(out_data_ref)
+        
         self.expected_output.append(out_data_ref)
+        # print(self.expected_output)
 
 
 def concatenate(data, bitwidth):
@@ -87,10 +94,10 @@ def run_test(dut):
                    dut.C_WEIGHTS_TOTAL_BITS.value.integer -
                    dut.C_WEIGHTS_FRAC_BITS.value.integer,
                    dut.C_WEIGHTS_FRAC_BITS.value.integer,
-                   dut.C_CONV_KSIZE.value.integer)
+                   dut.C_KSIZE.value.integer)
 
     # setup monitor, software model and scoreboard
-    output_mon = ConvMonitor("output", gen, dut.osl_valid, dut.oslv_data)
+    output_mon = ConvMonitor("output", gen, dut.isl_clk, dut.osl_valid, dut.oslv_data)
     conv = ConvModel(gen)
     scoreboard = Scoreboard(dut)
     scoreboard.add_interface(output_mon, conv.expected_output)
@@ -109,7 +116,7 @@ def run_test(dut):
     dut.isl_ce <= 1
     yield RisingEdge(dut.isl_clk)
 
-    for _ in range(10):
+    for _ in range(100):
         in_data = random_input(gen.bits_data, gen.dim)
         in_weights = random_input(gen.bits_data, gen.dim)
 
@@ -119,8 +126,12 @@ def run_test(dut):
         dut.islv_data <= concatenate(in_data, gen.bits_data)
         dut.islv_weights <= concatenate(in_weights, gen.bits_data)
         yield RisingEdge(dut.isl_clk)
-        dut.isl_valid <= 0
-        yield RisingEdge(dut.osl_valid)
+    dut.isl_valid <= 0
+    if len(conv.expected_output) == 0:
+        raise TestFailure("Output is empty.")
+
+    for _ in range(50):
+        yield RisingEdge(dut.isl_clk)
 
     # TODO: print short scoreboard summary
     raise scoreboard.result

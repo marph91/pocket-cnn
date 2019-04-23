@@ -219,12 +219,10 @@ def run_test(dut, files=None, cnn=None):
             cnt_lines += 1
             yield RisingEdge(dut.isl_clk)
             dut.isl_valid <= 0
-        else:
-            dut.isl_valid <= 0
-        # two cycles delay, because else too much data would be sent in
+            # two cycles delay, because else too much data would be sent in
+            yield RisingEdge(dut.isl_clk)
+            yield RisingEdge(dut.isl_clk)
         yield RisingEdge(dut.isl_clk)
-        yield RisingEdge(dut.isl_clk)
-    dut.isl_valid <= 0
     dut._log.info("Finished loading image.")
 
     dut_out = []

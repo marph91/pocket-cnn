@@ -98,7 +98,53 @@ architecture behavioral of pe is
   signal sl_pool_input_valid : std_logic := '0';
   signal sl_pool_rdy : std_logic := '0';
 
+  -- debug
+  signal int_ch_in_cnt : integer range 0 to C_CH_IN-1 := 0;
+  signal int_pixel_in_cnt : integer range 0 to C_IMG_HEIGHT*C_IMG_WIDTH := 0;
+  signal int_col : integer range 0 to C_IMG_WIDTH := 0;
+  signal int_row : integer range 0 to C_IMG_HEIGHT := 0;
+
 begin
+  -------------------------------------------------------
+  -- Process: Counter
+  -------------------------------------------------------
+  proc_cnt : process(isl_clk)
+  begin
+    if rising_edge(isl_clk) then
+      if isl_rst_n = '0' then
+        int_pixel_in_cnt <= 0;
+        int_ch_in_cnt <= 0;
+        int_col <= 0;
+        int_row <= 0;
+      elsif isl_start = '1' then
+        -- have to be resetted at start because of odd kernels (3x3+2) -> image dimensions arent fitting kernel stride
+        int_pixel_in_cnt <= 0;
+        int_ch_in_cnt <= 0;
+        int_col <= 0;
+        int_row <= 0;
+      elsif isl_ce = '1' then
+        if isl_valid = '1' then
+          if int_ch_in_cnt < C_CH_IN-1 then
+            int_ch_in_cnt <= int_ch_in_cnt+1;
+          else
+            int_ch_in_cnt <= 0;
+            int_pixel_in_cnt <= int_pixel_in_cnt+1;
+            if int_col < C_IMG_WIDTH-1 then
+              int_col <= int_col+1;
+            else
+              int_col <= 0;
+              if int_row < C_IMG_HEIGHT-1 then
+                int_row <= int_row+1;
+              else
+                int_row <= 0;
+              end if;
+            end if;
+          end if;
+        end if;
+      end if;
+    end if;
+  end process proc_cnt;
+
   gen_no_pad : if C_PAD = 0 generate
     sl_pad_output_valid <= isl_valid;
     slv_pad_data_out <= islv_data;
@@ -165,7 +211,7 @@ begin
   -----------------------------------
   -- Convolution with line and window buffer
   -----------------------------------
-  conv_buf : entity work.conv_buf
+  conv_buf : entity work.conv_buf_tmp
   generic map(
     C_DATA_TOTAL_BITS     => C_DATA_TOTAL_BITS,
     C_DATA_FRAC_BITS_IN   => C_DATA_FRAC_BITS_IN,
