@@ -1,6 +1,5 @@
 TOPLEVEL=top
-SIM_ARGS=--vcd=../test.vcd
-#--vcd=../test.vcd
-#--wave=../test.ghw
+#SIM_ARGS=--vcd=../test.vcd
+#SIM_ARGS=--wave=../test.ghw
 
 include ../Makefile.opencnn

@@ -16,19 +16,19 @@ entity pe is
     C_WEIGHTS_TOTAL_BITS  : integer range 1 to 16 := 4;
     C_WEIGHTS_FRAC_BITS   : integer range 0 to 16 := 3;
 
-    C_IMG_WIDTH         : integer range 1 to 512 := 36;
-    C_IMG_HEIGHT        : integer range 1 to 512 := 16;
-    C_CH_IN         : integer range 1 to 512 := 1;
-    C_CH_OUT        : integer range 1 to 512 := 16;
-    C_CONV_KSIZE    : integer range 1 to 3 := 3;
-    C_CONV_STRIDE   : integer range 1 to 3 := 3;
-    C_WIN_SIZE_POOL : integer range 0 to 3 := 2;
-    C_POOL_STRIDE   : integer range 0 to 3 := 2;
-    C_PAD           : integer range 0 to 1 := 0;
-    C_RELU          : std_logic := '0';
-    C_LEAKY         : std_logic := '0';
-    STR_WEIGHTS_INIT      : string := "";
-    STR_BIAS_INIT      : string := ""
+    C_IMG_WIDTH       : integer range 1 to 512 := 36;
+    C_IMG_HEIGHT      : integer range 1 to 512 := 16;
+    C_CH_IN           : integer range 1 to 512 := 1;
+    C_CH_OUT          : integer range 1 to 512 := 16;
+    C_CONV_KSIZE      : integer range 1 to 3 := 3;
+    C_CONV_STRIDE     : integer range 1 to 3 := 3;
+    C_WIN_SIZE_POOL   : integer range 0 to 3 := 2;
+    C_POOL_STRIDE     : integer range 0 to 3 := 2;
+    C_PAD             : integer range 0 to 1 := 0;
+    C_RELU            : std_logic := '0';
+    C_LEAKY           : std_logic := '0';
+    STR_WEIGHTS_INIT  : string := "";
+    STR_BIAS_INIT     : string := ""
   );
   port (
     isl_clk   : in std_logic;

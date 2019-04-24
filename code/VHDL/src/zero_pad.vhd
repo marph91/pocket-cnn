@@ -8,8 +8,8 @@ entity zero_pad is
   generic (
     C_DATA_WIDTH  : integer range 1 to 16 := 8;
     C_CH          : integer range 1 to 512 := 16;
-    C_IMG_WIDTH       : integer range 1 to 512 := 32;
-    C_IMG_HEIGHT      : integer range 1 to 512 := 32;
+    C_IMG_WIDTH   : integer range 1 to 512 := 32;
+    C_IMG_HEIGHT  : integer range 1 to 512 := 32;
     C_PAD_TOP     : integer range 0 to 1 := 1;
     C_PAD_BOTTOM  : integer range 0 to 1 := 1;
     C_PAD_LEFT    : integer range 0 to 1 := 1;
@@ -73,7 +73,6 @@ begin
         -- prevent problems with STRIDE /= KERNEL_SIZE at multiple images
         int_row <= 0;
         int_col <= 0;
---        int_ch_out <= 0;
       elsif isl_valid = '1' then
         if int_ch < C_CH-1 then
             int_ch <= int_ch+1;
@@ -120,9 +119,6 @@ begin
     if rising_edge(isl_clk) then
       if isl_start = '1' then
         sl_rdy <= '0';
-        -- prevent problems with STRIDE /= KERNEL_SIZE at multiple images
---        int_burst <= 0;
---        sl_output_valid <= '0';
       elsif isl_ce = '1' then
         if isl_valid = '1' then
           slv_data_out <= islv_data;
@@ -149,5 +145,5 @@ begin
 
   osl_valid <= sl_output_valid;
   oslv_data <= slv_data_out;
-  osl_rdy <= sl_rdy and isl_get;
+  osl_rdy <= sl_rdy and isl_get and not isl_start;
 end architecture;

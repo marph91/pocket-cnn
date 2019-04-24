@@ -18,7 +18,8 @@ COCOTB_ROOT=/home/prog/cocotb
 CNN_FW=caffe
 
 # root directory of the cnn model
-CNN_DIR=/home/workspace/opencnn/cnn_models/tests/test_net_1
+#CNN_DIR=/home/workspace/opencnn/cnn_models/final/baseline
+CNN_DIR=/home/workspace/opencnn/cnn_models/tests/test_net_4
 
 # root directory of the CNN VHDL files
 VHDL_DIR="$PWD/VHDL/src"

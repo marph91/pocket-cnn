@@ -10,7 +10,7 @@ OPT=-O3
 GHDL_ARGS=-g $(OPT) -P$(CWD)/util --ieee=synopsys --std=08
 
 # --vcd slows sim down to half speed
-SIM_ARGS+=--ieee-asserts=disable --assert-level=none #--vcd=../test.vcd
+SIM_ARGS+=--ieee-asserts=disable --assert-level=none
 SIM_BUILD=work
 
 TOPLEVEL_LANG?=vhdl

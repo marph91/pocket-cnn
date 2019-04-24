@@ -143,6 +143,8 @@ begin
               v_sfix_data_out + a_data_tmp(j),
               C_INTW_SUM2-1, -C_DATA_FRAC_BITS_IN-C_WEIGHTS_FRAC_BITS, fixed_wrap, fixed_truncate);
           end loop;
+          -- report "bb" & integer'IMAGE(C_INTW_SUM2-1) & " " &
+          --   integer'IMAGE(-C_DATA_FRAC_BITS_IN-C_WEIGHTS_FRAC_BITS);
           slv_data_out <= to_slv(v_sfix_data_out);
         end if;
       end if;
