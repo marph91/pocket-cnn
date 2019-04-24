@@ -14,6 +14,7 @@ code/VHDL/src/top.vhd
 
 # testbenches
 *.csv
+*.ghw
 *.gtkw
 *.o
 *.so
