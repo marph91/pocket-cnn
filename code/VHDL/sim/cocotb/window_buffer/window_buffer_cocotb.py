@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 
+# disable, because assigning values to signals is needed
+# pylint: disable=pointless-statement
+
 from collections import namedtuple
-import math
 import random
 
 import cocotb
@@ -11,12 +13,12 @@ from cocotb.triggers import RisingEdge
 from cocotb.regression import TestFactory
 from cocotb.scoreboard import Scoreboard
 
-from fixfloat import fixedint2ffloat
+import tools_cocotb
 
 
 class WindowMonitor(Monitor):
-    """Represents a monitor for the output values of a line buffer."""
-    def __init__(self, name, gen, clk, valid, data, callback=None, event=None):
+    """Represents a monitor for the output values of a window buffer."""
+    def __init__(self, name, gen, clk, valid, data):
         self.clk = clk
         self.name = name
         self.valid = valid
@@ -26,19 +28,20 @@ class WindowMonitor(Monitor):
         self.ch = gen.ch
         self.kernel_size = gen.kernel_size
 
-        Monitor.__init__(self, callback, event)
+        super().__init__()
 
     @cocotb.coroutine
     def _monitor_recv(self):
         while True:
             yield RisingEdge(self.clk)
             if bool(self.valid.value.integer):
-                data_list = split_slv(self.data.value.integer, self.bits_data, self.bits_data*self.kernel_size*self.kernel_size)
+                data_list = tools_cocotb.split_slv(
+                    self.data.value.integer, self.bits_data,
+                    self.bits_data*self.kernel_size*self.kernel_size)
                 # reorder in line segments
                 data_reordered = []
                 for k in range(self.kernel_size):
                     data_reordered += data_list[k::self.kernel_size]
-                print(self.data.value.integer)
                 print("recv:", self.data, data_reordered)
                 self._recv(data_reordered)
 
@@ -57,38 +60,25 @@ class WindowModel:
         self.img_1d = []
         self.pos = 0
 
-        self.column_segments = [[0]*self.kernel_size]*(self.ch*(self.kernel_size-1))
+        self.column_segments = [[0]*self.kernel_size] \
+            * (self.ch*(self.kernel_size-1))
 
     def __call__(self, data):
         # collect all column segments and combine them to a window
-        self.column_segments.append(split_slv(data, self.bits_data, self.bits_data*self.kernel_size))
+        self.column_segments.append(tools_cocotb.split_slv(
+            data, self.bits_data, self.bits_data*self.kernel_size))
 
         win = []
         for k in range(self.kernel_size):
             win += self.column_segments[self.pos+k*self.ch]
         self.pos += 1
-        
+
         self.expected_output.append(win)
         print("exp:", win)
 
 
-def split_slv(data: int, bitwidth, total_width):
-    data_split = []
-    for _ in range(total_width//bitwidth):
-        data, splitted = divmod(data, 2**bitwidth)
-        data_split.append(splitted)
-    return list(reversed(data_split))
-
-
-def concatenate(data, bitwidth):
-    data_concat = 0
-    for i, d in enumerate(data):
-        data_concat += d << (bitwidth*i)
-    return data_concat
-
-
 @cocotb.coroutine
-def run_test(dut, repeat=False):
+def run_test(dut):
     """setup testbench and run a test"""
     generics = namedtuple("generics", ["bits_data", "ch", "kernel_size"])
     gen = generics(dut.C_DATA_WIDTH.value.integer,
@@ -96,7 +86,8 @@ def run_test(dut, repeat=False):
                    dut.C_WINDOW_SIZE.value.integer)
 
     # setup monitor, software model and scoreboard
-    output_mon = WindowMonitor("output", gen, dut.isl_clk, dut.osl_valid, dut.oslv_data)
+    output_mon = WindowMonitor("output", gen, dut.isl_clk, dut.osl_valid,
+                               dut.oslv_data)
     window = WindowModel(gen)
     scoreboard = Scoreboard(dut)
     scoreboard.add_interface(output_mon, window.expected_output)
@@ -104,7 +95,7 @@ def run_test(dut, repeat=False):
     # setup clock
     clk = Clock(dut.isl_clk, 10, "ns")
     cocotb.fork(clk.start())
-    
+
     # reset/initialize values
     dut.isl_valid <= 0
     dut.islv_data <= 0
@@ -121,7 +112,7 @@ def run_test(dut, repeat=False):
         yield RisingEdge(dut.isl_clk)
         dut.isl_valid <= 0
         yield RisingEdge(dut.isl_clk)
-    
+
     dut.isl_valid <= 0
     for _ in range(50):
         yield RisingEdge(dut.isl_clk)
@@ -133,8 +124,6 @@ def run_tb():
     """run the testbench with given inputs"""
 
     testbench = TestFactory(run_test)
-    # TODO: add test for repeat and figure out how to reset arrays
-    # testbench.add_option("repeat", [False, True])
     testbench.generate_tests()
 
 

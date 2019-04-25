@@ -12,7 +12,7 @@ class GeneralMonitor(Monitor):
         self.name = name
         self.valid = valid
         self.data = data
-        Monitor.__init__(self, callback, event)
+        super().__init__(callback, event)
 
     @cocotb.coroutine
     def _monitor_recv(self):
@@ -31,3 +31,11 @@ def split_slv(data: int, bitwidth, total_width) -> list:
         data, splitted = divmod(data, 2**bitwidth)
         data_split.append(splitted)
     return list(reversed(data_split))
+
+
+def concatenate(data: list, bitwidth) -> int:
+    """Concatenate a list of integers to one integer."""
+    data_concat = 0
+    for i, d in enumerate(data):
+        data_concat += d << (bitwidth*i)
+    return data_concat

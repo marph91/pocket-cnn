@@ -106,7 +106,7 @@ def run_test(dut):
         if pad.expected_output == []:
             raise TestFailure("Output is empty.")
 
-        for _ in range(50):
+        while dut.int_pixel_to_pad.value.integer > 0:
             yield RisingEdge(dut.isl_clk)
 
     raise scoreboard.result

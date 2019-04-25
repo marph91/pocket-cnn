@@ -20,7 +20,7 @@ import tools_cocotb
 
 class WindowMonitor(Monitor):
     """Represents a monitor for the output values of a line buffer."""
-    def __init__(self, name, gen, clk, valid, data, callback=None, event=None):
+    def __init__(self, name, gen, clk, valid, data):
         self.bits_data = gen.bits_data
         self.kernel_size = gen.kernel_size
 
@@ -28,7 +28,7 @@ class WindowMonitor(Monitor):
         self.name = name
         self.valid = valid
         self.data = data
-        Monitor.__init__(self, callback, event)
+        super().__init__()
 
     @cocotb.coroutine
     def _monitor_recv(self):
