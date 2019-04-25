@@ -159,8 +159,8 @@ begin
     generic map(
       C_DATA_WIDTH  => C_DATA_TOTAL_BITS,
       C_CH          => C_CH_IN,
-      C_IMG_WIDTH       => C_IMG_WIDTH,
-      C_IMG_HEIGHT      => C_IMG_HEIGHT,
+      C_IMG_WIDTH   => C_IMG_WIDTH,
+      C_IMG_HEIGHT  => C_IMG_HEIGHT,
       C_PAD_TOP     => C_PAD,
       C_PAD_BOTTOM  => C_PAD_BOTTOM,
       C_PAD_LEFT    => C_PAD,
@@ -211,7 +211,7 @@ begin
   -----------------------------------
   -- Convolution with line and window buffer
   -----------------------------------
-  conv_buf : entity work.conv_buf_tmp
+  conv_buf : entity work.conv_top
   generic map(
     C_DATA_TOTAL_BITS     => C_DATA_TOTAL_BITS,
     C_DATA_FRAC_BITS_IN   => C_DATA_FRAC_BITS_IN,
@@ -219,14 +219,14 @@ begin
     C_WEIGHTS_TOTAL_BITS  => C_WEIGHTS_TOTAL_BITS,
     C_WEIGHTS_FRAC_BITS   => C_WEIGHTS_FRAC_BITS,
 
-    C_KSIZE     => C_CONV_KSIZE,
-    C_STRIDE    => C_CONV_STRIDE,
-    C_CH_IN     => C_CH_IN,
-    C_CH_OUT    => C_CH_OUT,
-    C_IMG_WIDTH     => C_IMG_WIDTH+2*C_PAD,
-    C_IMG_HEIGHT    => C_IMG_HEIGHT+2*C_PAD,
+    C_KSIZE           => C_CONV_KSIZE,
+    C_STRIDE          => C_CONV_STRIDE,
+    C_CH_IN           => C_CH_IN,
+    C_CH_OUT          => C_CH_OUT,
+    C_IMG_WIDTH       => C_IMG_WIDTH+2*C_PAD,
+    C_IMG_HEIGHT      => C_IMG_HEIGHT+2*C_PAD,
     STR_WEIGHTS_INIT  => STR_WEIGHTS_INIT,
-    STR_BIAS_INIT  => STR_BIAS_INIT
+    STR_BIAS_INIT     => STR_BIAS_INIT
   )
   port map(
     isl_clk   => isl_clk,
@@ -255,7 +255,7 @@ begin
     generic map (
       C_INT_BITS   => C_DATA_TOTAL_BITS-C_DATA_FRAC_BITS_OUT,
       C_FRAC_BITS  => C_DATA_FRAC_BITS_OUT,
-      C_LEAKY       => C_LEAKY
+      C_LEAKY      => C_LEAKY
     )
     port map (
       isl_clk   => isl_clk,
@@ -305,11 +305,11 @@ begin
       C_INT_BITS   => C_DATA_TOTAL_BITS-C_DATA_FRAC_BITS_OUT,
       C_FRAC_BITS  => C_DATA_FRAC_BITS_OUT,
 
-      C_POOL_DIM  => C_WIN_SIZE_POOL,
-      C_STRIDE    => C_POOL_STRIDE,
-      C_CH        => C_CH_OUT,
-      C_IMG_WIDTH     => (C_IMG_WIDTH+2*C_PAD-(C_CONV_KSIZE-C_CONV_STRIDE))/C_CONV_STRIDE,
-      C_IMG_HEIGHT    => (C_IMG_HEIGHT+2*C_PAD-(C_CONV_KSIZE-C_CONV_STRIDE))/C_CONV_STRIDE
+      C_POOL_DIM    => C_WIN_SIZE_POOL,
+      C_STRIDE      => C_POOL_STRIDE,
+      C_CH          => C_CH_OUT,
+      C_IMG_WIDTH   => (C_IMG_WIDTH+2*C_PAD-(C_CONV_KSIZE-C_CONV_STRIDE))/C_CONV_STRIDE,
+      C_IMG_HEIGHT  => (C_IMG_HEIGHT+2*C_PAD-(C_CONV_KSIZE-C_CONV_STRIDE))/C_CONV_STRIDE
     )
     port map (
       isl_clk   => isl_clk,

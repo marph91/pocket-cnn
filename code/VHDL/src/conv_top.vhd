@@ -4,7 +4,7 @@ library ieee;
 -----------------------------------------------------------------------------------------------------------------------
 -- Entity Section
 -----------------------------------------------------------------------------------------------------------------------
-entity conv_buf_tmp is
+entity conv_top is
   generic (
     C_DATA_TOTAL_BITS     : integer range 1 to 16 := 8;
     C_DATA_FRAC_BITS_IN   : integer range 0 to 16 := 4;
@@ -33,12 +33,12 @@ entity conv_buf_tmp is
     osl_valid : out std_logic;
     osl_rdy   : out std_logic
   );
-end conv_buf_tmp;
+end conv_top;
 
 -----------------------------------------------------------------------------------------------------------------------
 -- Architecture Section
 -----------------------------------------------------------------------------------------------------------------------
-architecture behavioral of conv_buf_tmp is
+architecture behavioral of conv_top is
   ------------------------------------------
   -- Signal Declarations
   ------------------------------------------
@@ -70,7 +70,7 @@ begin
     osl_rdy   => osl_rdy
   );
 
-  i_conv_tmp : entity work.conv_tmp
+  i_conv : entity work.conv
   generic map (
     C_DATA_TOTAL_BITS     => C_DATA_TOTAL_BITS,
     C_DATA_FRAC_BITS_IN   => C_DATA_FRAC_BITS_IN,
