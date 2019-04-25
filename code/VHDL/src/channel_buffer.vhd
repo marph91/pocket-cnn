@@ -71,7 +71,9 @@ begin
           else
             int_ch_in_cnt <= 0;
             -- repeat saved data for first time
-            sl_repeat <= '1';
+            if C_CH_OUT > 1 then
+              sl_repeat <= '1';
+            end if;
           end if;
         end if;
         if sl_valid_out = '1' then

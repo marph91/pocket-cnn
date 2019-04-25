@@ -300,12 +300,12 @@ begin
     -----------------------------------
     -- Maxpool with line and window buffer
     -----------------------------------
-    max_buf : entity work.max_buf
+    max_buf : entity work.max_top
     generic map (
       C_INT_BITS   => C_DATA_TOTAL_BITS-C_DATA_FRAC_BITS_OUT,
       C_FRAC_BITS  => C_DATA_FRAC_BITS_OUT,
 
-      C_POOL_DIM    => C_WIN_SIZE_POOL,
+      C_KSIZE       => C_WIN_SIZE_POOL,
       C_STRIDE      => C_POOL_STRIDE,
       C_CH          => C_CH_OUT,
       C_IMG_WIDTH   => (C_IMG_WIDTH+2*C_PAD-(C_CONV_KSIZE-C_CONV_STRIDE))/C_CONV_STRIDE,

@@ -216,8 +216,8 @@ begin
         
         if sl_chb_valid_in_d1 = '1' and
             int_pixel_in_cnt >= (C_KSIZE-1)*C_IMG_WIDTH+C_KSIZE-1 and
-            (int_row-C_KSIZE+C_STRIDE) mod C_STRIDE = 0 and   -- every C_STRIDE row (C_KSIZE+C_STRIDE offset)
-            ((int_col-C_KSIZE+C_STRIDE) mod C_STRIDE = 0) and  -- every C_STRIDE col (C_KSIZE+C_STRIDE offset)
+            (int_row+1-C_KSIZE+C_STRIDE) mod C_STRIDE = 0 and   -- every C_STRIDE row (C_KSIZE+C_STRIDE offset)
+            ((int_col+1-C_KSIZE+C_STRIDE) mod C_STRIDE = 0) and  -- every C_STRIDE col (C_KSIZE+C_STRIDE offset)
             ((int_col+1) > C_KSIZE-1) then                       -- shift window at end/start of line
           sl_output_valid <= '1';
         elsif int_pixel_out_cnt = C_CH_OUT-1 and int_ch_out_cnt = C_CH_IN-1 then -- only for ch_in = 1
@@ -226,7 +226,7 @@ begin
 
         -- sl_output_valid_d1 <= sl_output_valid;
         sl_chb_valid_in_d1 <= sl_chb_valid_in;
-        if C_CH_IN > 1 and int_pixel_in_cnt >= (C_KSIZE-1)*C_IMG_WIDTH+C_KSIZE-1 and
+        if C_CH_IN > 1 and C_CH_OUT > 1 and int_pixel_in_cnt >= (C_KSIZE-1)*C_IMG_WIDTH+C_KSIZE-1 and
             int_pixel_out_cnt = 0 and int_ch_out_cnt = C_CH_IN-1 then
           sl_repeat <= '1';
         elsif int_pixel_out_cnt = C_CH_OUT-1 and int_ch_out_cnt = C_CH_IN-3 then
@@ -239,8 +239,8 @@ begin
 
       if isl_valid = '1' and
           int_pixel_in_cnt >= (C_KSIZE-1)*C_IMG_WIDTH+C_KSIZE-1 and
-          (int_row-C_KSIZE+C_STRIDE) mod C_STRIDE = 0 and   -- every C_STRIDE row (C_KSIZE+C_STRIDE offset)
-          ((int_col-C_KSIZE+C_STRIDE) mod C_STRIDE = 0) and  -- every C_STRIDE col (C_KSIZE+C_STRIDE offset)
+          (int_row+1-C_KSIZE+C_STRIDE) mod C_STRIDE = 0 and   -- every C_STRIDE row (C_KSIZE+C_STRIDE offset)
+          ((int_col+1-C_KSIZE+C_STRIDE) mod C_STRIDE = 0) and  -- every C_STRIDE col (C_KSIZE+C_STRIDE offset)
           ((int_col+1) > C_KSIZE-1) then
         sl_rdy <= '0';
       elsif int_pixel_out_cnt = C_CH_OUT-1 and int_ch_out_cnt = C_CH_IN-1 then
