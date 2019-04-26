@@ -60,7 +60,6 @@ architecture behavioral of window_ctrl is
   signal slv_lb_data_out : std_logic_vector(C_KSIZE*C_DATA_TOTAL_BITS - 1 downto 0);
 
   -- for window buffer
-  signal sl_repeat : std_logic := '0';
   signal sl_wb_valid_out : std_logic := '0';
   signal slv_wb_data_out : std_logic_vector(C_KSIZE*C_KSIZE*C_DATA_TOTAL_BITS-1 downto 0);
 
@@ -74,10 +73,9 @@ architecture behavioral of window_ctrl is
   signal sl_chb_valid_in_d1 : std_logic := '0';
   signal sl_output_valid_d2 : std_logic := '0';
 
-  signal sl_repeat_d1 : std_logic := '0';
-  signal sl_repeat_d2 : std_logic := '0';
-
   signal slv_data_out : std_logic_vector(C_KSIZE*C_KSIZE*C_DATA_TOTAL_BITS-1 downto 0);
+
+  signal isl_valid_d1 : std_logic := '0';
 
   signal sl_rdy : std_logic := '1';
 begin
@@ -115,7 +113,6 @@ begin
       isl_clk     => isl_clk,
       isl_reset   => isl_rst_n,
       isl_ce      => isl_ce,
-      isl_repeat  => '0',
       isl_valid   => sl_lb_valid_out,
       islv_data   => slv_lb_data_out,
       oslv_data   => slv_wb_data_out,
@@ -145,7 +142,6 @@ begin
     isl_clk     => isl_clk,
     isl_reset   => isl_rst_n,
     isl_ce      => isl_ce,
-    isl_repeat  => sl_repeat,
     isl_valid   => sl_chb_valid_in,
     islv_data   => slv_chb_data_in,
     oslv_data   => slv_chb_data_out,
@@ -214,27 +210,22 @@ begin
 
         slv_data_out <= slv_chb_data_out;
         
+        -- the output is valid in the following cases:
+        --    1. after initial buffering
+        --    2. every C_STRIDE row
+        --    3. every C_STRIDE column
+        --    4. when the window is not shifted at end/start of line
         if sl_chb_valid_in_d1 = '1' and
             int_pixel_in_cnt >= (C_KSIZE-1)*C_IMG_WIDTH+C_KSIZE-1 and
-            (int_row+1-C_KSIZE+C_STRIDE) mod C_STRIDE = 0 and   -- every C_STRIDE row (C_KSIZE+C_STRIDE offset)
-            ((int_col+1-C_KSIZE+C_STRIDE) mod C_STRIDE = 0) and  -- every C_STRIDE col (C_KSIZE+C_STRIDE offset)
-            ((int_col+1) > C_KSIZE-1) then                       -- shift window at end/start of line
+            (int_row+1-C_KSIZE+C_STRIDE) mod C_STRIDE = 0 and
+            (int_col+1-C_KSIZE+C_STRIDE) mod C_STRIDE = 0 and
+            int_col+1 > C_KSIZE-1 then
           sl_output_valid <= '1';
         elsif int_pixel_out_cnt = C_CH_OUT-1 and int_ch_out_cnt = C_CH_IN-1 then -- only for ch_in = 1
           sl_output_valid <= '0';
         end if;
 
-        -- sl_output_valid_d1 <= sl_output_valid;
         sl_chb_valid_in_d1 <= sl_chb_valid_in;
-        if C_CH_IN > 1 and C_CH_OUT > 1 and int_pixel_in_cnt >= (C_KSIZE-1)*C_IMG_WIDTH+C_KSIZE-1 and
-            int_pixel_out_cnt = 0 and int_ch_out_cnt = C_CH_IN-1 then
-          sl_repeat <= '1';
-        elsif int_pixel_out_cnt = C_CH_OUT-1 and int_ch_out_cnt = C_CH_IN-3 then
-          -- C_CH_IN-3 because of strange window buffer behaviour
-          sl_repeat <= '0';
-        end if;
-        -- sl_repeat_d1 <= sl_repeat;
-        -- sl_repeat_d2 <= sl_repeat_d1;
       end if;
 
       if isl_valid = '1' and
@@ -246,10 +237,12 @@ begin
       elsif int_pixel_out_cnt = C_CH_OUT-1 and int_ch_out_cnt = C_CH_IN-1 then
         sl_rdy <= '1';
       end if;
+
+      isl_valid_d1 <= isl_valid;
     end if;
   end process proc_states;
 
   oslv_data <= slv_data_out;
-  osl_valid <= sl_output_valid;-- or sl_repeat or sl_repeat_d1 or sl_repeat_d2;
-  osl_rdy <= isl_get and sl_rdy and sl_chb_rdy;-- and not sl_lb_valid_out and not isl_valid;
+  osl_valid <= sl_output_valid;
+  osl_rdy <= isl_get and sl_rdy and sl_chb_rdy and not isl_valid_d1;
 end behavioral;

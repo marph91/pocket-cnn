@@ -15,7 +15,6 @@ entity window_buffer is
     isl_clk     : in std_logic;
     isl_reset   : in std_logic;
     isl_ce      : in std_logic;
-    isl_repeat  : in std_logic;
     isl_valid   : in std_logic;
     islv_data   : in std_logic_vector(C_WINDOW_SIZE*C_DATA_WIDTH-1 downto 0);
     oslv_data   : out std_logic_vector(C_WINDOW_SIZE*C_WINDOW_SIZE*C_DATA_WIDTH-1 downto 0);
@@ -43,7 +42,6 @@ begin
   proc_shift_data : process(isl_clk)
   begin
     if rising_edge(isl_clk) then
-      -- isl_valid has higher priority than isl_repeat!
       -- TODO: look for other possibility to replace loops
       --       -> multidimensional slice not allowed
       if isl_valid = '1' then
@@ -64,20 +62,6 @@ begin
             a_win(i,j) <= a_win(i,j-1);
           end loop;
         end loop;
-
-      elsif isl_repeat = '1' then
-        -- insert new input column
-        for i in 0 to C_WINDOW_SIZE*C_WINDOW_SIZE-1 loop
-          -- loop window buffer if channels are needed multiple times
-          a_win(i,0) <= a_win(i,C_CH-1);
-        end loop;
-
-        -- shift channels
-        for i in 0 to C_WINDOW_SIZE*C_WINDOW_SIZE-1 loop
-          for j in 1 to C_CH-1 loop
-            a_win(i,j) <= a_win(i,j-1);
-          end loop;
-        end loop;
       end if;
     end if;
   end process proc_shift_data;
@@ -86,7 +70,7 @@ begin
   begin
     if rising_edge(isl_clk) then
       if isl_ce = '1' then
-        if isl_valid = '1' or isl_repeat = '1' then
+        if isl_valid = '1' then
           if int_ch_cnt < C_CH-1 then
             int_ch_cnt <= int_ch_cnt+1;
           else
