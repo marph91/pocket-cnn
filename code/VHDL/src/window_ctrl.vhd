@@ -41,21 +41,18 @@ architecture behavioral of window_ctrl is
   ------------------------------------------
   -- Signal Declarations
   ------------------------------------------
+  signal isl_valid_d1 : std_logic := '0';
+
   -- counter
   signal int_col : integer range 0 to C_IMG_WIDTH := 0;
   signal int_row : integer range 0 to C_IMG_HEIGHT := 0;
-  signal int_ch_in_cnt : integer range 0 to C_CH_IN*C_CH_OUT := 0;-- TODO
-  signal int_ch_out_cnt : integer range 0 to C_CH_IN*C_CH_OUT := 0;
-  signal int_pixel_in_cnt : integer := 0;--range 0 to C_IMG_HEIGHT*C_IMG_WIDTH*C_CH_IN := 0; 
-  signal int_pixel_out_cnt : integer := 0;--range 0 to C_IMG_HEIGHT*C_IMG_WIDTH*C_CH_OUT := 0;
-  signal int_pixel_in_cnt_d1 : integer range 0 to C_IMG_HEIGHT*C_IMG_WIDTH := 0;
-  signal int_pixel_in_cnt_d2 : integer range 0 to C_IMG_HEIGHT*C_IMG_WIDTH := 0;
-  signal int_real_pixel_out_cnt : integer := 0;
+  signal int_ch_in_cnt : integer range 0 to C_CH_IN := 0;
+  signal int_ch_out_cnt : integer range 0 to C_CH_IN := 0;
+  signal int_repetition_cnt : integer range 0 to C_CH_OUT := 0;
+  signal int_pixel_in_cnt : integer range 0 to C_IMG_HEIGHT*C_IMG_WIDTH := 0;
+  signal int_pixel_out_cnt : integer := 0;-- TODO: range 0 to C_IMG_HEIGHT*C_IMG_WIDTH := 0;
 
   -- for line buffer
-  signal slv_pad_data : std_logic_vector(C_DATA_TOTAL_BITS - 1 downto 0);
-  signal sl_lb_input_valid : std_logic := '0';
-  signal slv_lb_data_in : std_logic_vector(C_DATA_TOTAL_BITS - 1 downto 0);
   signal sl_lb_valid_out : std_logic := '0';
   signal slv_lb_data_out : std_logic_vector(C_KSIZE*C_DATA_TOTAL_BITS - 1 downto 0);
 
@@ -63,21 +60,16 @@ architecture behavioral of window_ctrl is
   signal sl_wb_valid_out : std_logic := '0';
   signal slv_wb_data_out : std_logic_vector(C_KSIZE*C_KSIZE*C_DATA_TOTAL_BITS-1 downto 0);
 
+  -- for channel buffer
   signal sl_chb_valid_in : std_logic := '0';
+  signal sl_chb_valid_in_d1 : std_logic := '0';
   signal sl_chb_valid_out : std_logic := '0';
   signal slv_chb_data_in : std_logic_vector(C_KSIZE*C_KSIZE*C_DATA_TOTAL_BITS-1 downto 0);
   signal slv_chb_data_out : std_logic_vector(C_KSIZE*C_KSIZE*C_DATA_TOTAL_BITS-1 downto 0);
   signal sl_chb_rdy : std_logic := '0';
 
   signal sl_output_valid : std_logic := '0';
-  signal sl_chb_valid_in_d1 : std_logic := '0';
-  signal sl_output_valid_d2 : std_logic := '0';
-
   signal slv_data_out : std_logic_vector(C_KSIZE*C_KSIZE*C_DATA_TOTAL_BITS-1 downto 0);
-
-  signal isl_valid_d1 : std_logic := '0';
-
-  signal sl_rdy : std_logic := '1';
 begin
   gen_kernel : if C_KSIZE > 1 generate
     -----------------------------------
@@ -134,9 +126,9 @@ begin
   channel_buffer : entity work.channel_buffer
   generic map(
     C_DATA_WIDTH  => C_DATA_TOTAL_BITS,
-    C_CH_IN       => C_CH_IN,
-    C_CH_OUT      => C_CH_OUT,
-    C_WINDOW_SIZE => C_KSIZE
+    C_CH          => C_CH_IN,
+    C_REPEAT      => C_CH_OUT,
+    C_KSIZE       => C_KSIZE
   )
   port map(
     isl_clk     => isl_clk,
@@ -157,8 +149,11 @@ begin
     if rising_edge(isl_clk) then
       if isl_rst_n = '0' then
         int_pixel_in_cnt <= 0;
+        int_row <= 0;
+        int_col <= 0;
       elsif isl_start = '1' then
-        -- have to be resetted at start because of odd kernels (3x3+2) -> image dimensions arent fitting kernel stride
+        -- have to be resetted at start because of odd kernels (3x3+2)
+        -- because image dimensions aren't fitting kernel stride
         int_pixel_in_cnt <= 0;
         int_row <= 0;
         int_col <= 0;
@@ -188,11 +183,11 @@ begin
             int_ch_out_cnt <= int_ch_out_cnt+1;
           else
             int_ch_out_cnt <= 0;
-            if int_pixel_out_cnt < C_CH_OUT-1 then
-              int_pixel_out_cnt <= int_pixel_out_cnt+1;
+            if int_repetition_cnt < C_CH_OUT-1 then
+              int_repetition_cnt <= int_repetition_cnt+1;
             else
-              int_real_pixel_out_cnt <= int_real_pixel_out_cnt+1;
-              int_pixel_out_cnt <= 0;
+              int_repetition_cnt <= 0;
+              int_pixel_out_cnt <= int_pixel_out_cnt+1;
             end if;
           end if;
         end if;
@@ -207,35 +202,23 @@ begin
   begin
     if rising_edge(isl_clk) then
       if isl_ce = '1' then
-
-        slv_data_out <= slv_chb_data_out;
-        
         -- the output is valid in the following cases:
         --    1. after initial buffering
         --    2. every C_STRIDE row
         --    3. every C_STRIDE column
         --    4. when the window is not shifted at end/start of line
+        slv_data_out <= slv_chb_data_out;
         if sl_chb_valid_in_d1 = '1' and
             int_pixel_in_cnt >= (C_KSIZE-1)*C_IMG_WIDTH+C_KSIZE-1 and
             (int_row+1-C_KSIZE+C_STRIDE) mod C_STRIDE = 0 and
             (int_col+1-C_KSIZE+C_STRIDE) mod C_STRIDE = 0 and
             int_col+1 > C_KSIZE-1 then
           sl_output_valid <= '1';
-        elsif int_pixel_out_cnt = C_CH_OUT-1 and int_ch_out_cnt = C_CH_IN-1 then -- only for ch_in = 1
+        elsif int_repetition_cnt = C_CH_OUT-1 and int_ch_out_cnt = C_CH_IN-1 then -- only for ch_in = 1
           sl_output_valid <= '0';
         end if;
 
         sl_chb_valid_in_d1 <= sl_chb_valid_in;
-      end if;
-
-      if isl_valid = '1' and
-          int_pixel_in_cnt >= (C_KSIZE-1)*C_IMG_WIDTH+C_KSIZE-1 and
-          (int_row+1-C_KSIZE+C_STRIDE) mod C_STRIDE = 0 and   -- every C_STRIDE row (C_KSIZE+C_STRIDE offset)
-          ((int_col+1-C_KSIZE+C_STRIDE) mod C_STRIDE = 0) and  -- every C_STRIDE col (C_KSIZE+C_STRIDE offset)
-          ((int_col+1) > C_KSIZE-1) then
-        sl_rdy <= '0';
-      elsif int_pixel_out_cnt = C_CH_OUT-1 and int_ch_out_cnt = C_CH_IN-1 then
-        sl_rdy <= '1';
       end if;
 
       isl_valid_d1 <= isl_valid;
@@ -244,5 +227,5 @@ begin
 
   oslv_data <= slv_data_out;
   osl_valid <= sl_output_valid;
-  osl_rdy <= isl_get and sl_rdy and sl_chb_rdy and not isl_valid_d1;
+  osl_rdy <= isl_get and sl_chb_rdy and not isl_valid_d1;
 end behavioral;
