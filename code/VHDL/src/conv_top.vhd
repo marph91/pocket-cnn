@@ -42,7 +42,7 @@ architecture behavioral of conv_top is
   ------------------------------------------
   -- Signal Declarations
   ------------------------------------------
-  signal slv_win_data_out : std_logic_vector(C_KSIZE*C_KSIZE*C_DATA_TOTAL_BITS - 1 downto 0);
+  signal slv_win_data_out : std_logic_vector(C_KSIZE*C_KSIZE*C_DATA_TOTAL_BITS - 1 downto 0) := (others => '0');
   signal slv_win_valid_out : std_logic := '0';
 
 begin

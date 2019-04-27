@@ -51,7 +51,7 @@ architecture behavioral of bram is
     return RAM;
   end function;
 
-  -- check if the filename is valid
+  -- check whether the filename is valid
   impure function init_ram (filename : in string) return t_ram is
     variable RAM : t_ram;
   begin

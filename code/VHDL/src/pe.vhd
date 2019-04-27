@@ -155,7 +155,7 @@ begin
     -- Zero Padding
     -------------------------------------------------------
     sl_pad_get <= sl_conv_burst_rdy and sl_conv_rdy;
-    zero_pad : entity work.zero_pad
+    i_zero_pad : entity work.zero_pad
     generic map(
       C_DATA_WIDTH  => C_DATA_TOTAL_BITS,
       C_CH          => C_CH_IN,
@@ -190,7 +190,7 @@ begin
     -----------------------------------
     -- Burst
     -----------------------------------
-    channel_burst : entity work.channel_burst
+    i_channel_burst_conv : entity work.channel_burst
     generic map(
       C_DATA_WIDTH  => C_DATA_TOTAL_BITS,
       C_CH          => C_CH_IN
@@ -211,7 +211,7 @@ begin
   -----------------------------------
   -- Convolution with line and window buffer
   -----------------------------------
-  conv_buf : entity work.conv_top
+  i_conv_top : entity work.conv_top
   generic map(
     C_DATA_TOTAL_BITS     => C_DATA_TOTAL_BITS,
     C_DATA_FRAC_BITS_IN   => C_DATA_FRAC_BITS_IN,
@@ -251,9 +251,9 @@ begin
     -----------------------------------
     -- ReLU
     -----------------------------------
-    relu : entity work.relu
+    i_relu : entity work.relu
     generic map (
-      C_INT_BITS   => C_DATA_TOTAL_BITS-C_DATA_FRAC_BITS_OUT,
+      C_TOTAL_BITS => C_DATA_TOTAL_BITS,
       C_FRAC_BITS  => C_DATA_FRAC_BITS_OUT,
       C_LEAKY      => C_LEAKY
     )
@@ -280,7 +280,7 @@ begin
     -----------------------------------
     -- Burst
     -----------------------------------
-    channel_burst : entity work.channel_burst
+    i_channel_burst_max : entity work.channel_burst
     generic map(
       C_DATA_WIDTH  => C_DATA_TOTAL_BITS,
       C_CH          => C_CH_OUT
@@ -300,7 +300,7 @@ begin
     -----------------------------------
     -- Maxpool with line and window buffer
     -----------------------------------
-    max_buf : entity work.max_top
+    i_max_top : entity work.max_top
     generic map (
       C_TOTAL_BITS  => C_DATA_TOTAL_BITS,
       C_FRAC_BITS   => C_DATA_FRAC_BITS_OUT,

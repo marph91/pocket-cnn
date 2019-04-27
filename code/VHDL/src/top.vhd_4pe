@@ -76,7 +76,7 @@ begin
   -----------------------------------
   prepr : entity work.prepr
   generic map (
-    C_INT_BITS   => C_BITWIDTH(1, 0)-C_BITWIDTH(1, 1),
+    C_TOTAL_BITS   => C_BITWIDTH(1, 0),
     C_FRAC_BITS  => C_BITWIDTH(1, 1),
     C_SHIFT     => log2(C_SCALE)
   )

@@ -7,9 +7,9 @@ library ieee;
 -----------------------------------------------------------------------------------------------------------------------
 entity channel_buffer is
     generic(
-    C_DATA_WIDTH  : integer range 1 to 32;
-    C_CH          : integer range 1 to 512;
-    C_REPEAT      : integer range 1 to 512;
+    C_DATA_WIDTH  : integer range 1 to 32 := 8;
+    C_CH          : integer range 1 to 512 := 16;
+    C_REPEAT      : integer range 1 to 512 := 32;
     C_KSIZE       : integer range 1 to 3 := 3
   );
   port(
@@ -44,21 +44,23 @@ begin
   proc_data : process(isl_clk)
   begin
     if rising_edge(isl_clk) then
-      if isl_valid = '1' then
-        a_ch(0) <= islv_data;
-        for i in 1 to C_CH-1 loop
-          a_ch(i) <= a_ch(i-1);
-        end loop;
-      elsif sl_valid_out = '1' then
-        a_ch(0) <= a_ch(C_CH-1);
-        for i in 1 to C_CH-1 loop
-          a_ch(i) <= a_ch(i-1);
-        end loop;
+      if isl_ce = '1' then
+        if isl_valid = '1' then
+          a_ch(0) <= islv_data;
+          for i in 1 to C_CH-1 loop
+            a_ch(i) <= a_ch(i-1);
+          end loop;
+        elsif sl_valid_out = '1' then
+          a_ch(0) <= a_ch(C_CH-1);
+          for i in 1 to C_CH-1 loop
+            a_ch(i) <= a_ch(i-1);
+          end loop;
+        end if;
       end if;
     end if;
   end process proc_data;
 
-  proc_channel_buffer : process(isl_clk) is
+  proc_counter : process(isl_clk)
   begin
     if rising_edge(isl_clk) then
       if isl_ce = '1' then
@@ -87,7 +89,7 @@ begin
         end if;
       end if;
     end if;
-  end process proc_channel_buffer;
+  end process proc_counter;
 
   osl_rdy <= not (sl_valid_out or sl_valid_in or isl_valid);
   oslv_data <= a_ch(0);

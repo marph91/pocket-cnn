@@ -5,7 +5,7 @@ library ieee;
 -- Package declaration
 -----------------------------------------------------------------------------------------------------------------------
 package math is
-  function log2(x : natural) return integer;
+  function log2(x : integer) return integer;
   function max(l, r : integer) return integer;
   function max(l, r : sfixed) return sfixed;
   function min(l, r : integer) return integer;
@@ -17,7 +17,7 @@ end package math;
 package body math is
 
   -- compute the binary logarithm
-  function log2(x : natural) return integer is
+  function log2(x : integer) return integer is
     variable i : integer := 0;
   begin
     if x = 0 then
@@ -40,7 +40,7 @@ package body math is
     end if;
   end max;
 
-  -- chose the maximum of two signed fixed numbers
+  -- chose the maximum of two signed fixed point numbers
   function max(l, r : sfixed) return sfixed is
   begin
     if l > r then

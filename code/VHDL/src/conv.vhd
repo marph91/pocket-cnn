@@ -44,7 +44,7 @@ architecture behavioral of conv is
   constant C_INT_BITS_DATA : integer range 0 to 16 := C_DATA_TOTAL_BITS-C_DATA_FRAC_BITS_IN;
 
   -- for BRAM
-  constant C_BRAM_DATA_WIDTH : integer range C_WEIGHTS_TOTAL_BITS*(C_KSIZE*C_KSIZE) to C_WEIGHTS_TOTAL_BITS*(C_KSIZE*C_KSIZE) := C_WEIGHTS_TOTAL_BITS*(C_KSIZE*C_KSIZE);
+  constant C_BRAM_DATA_WIDTH : integer range C_WEIGHTS_TOTAL_BITS*C_KSIZE*C_KSIZE to C_WEIGHTS_TOTAL_BITS*C_KSIZE*C_KSIZE := C_WEIGHTS_TOTAL_BITS*(C_KSIZE*C_KSIZE);
   constant C_BRAM_SIZE : integer range C_CH_IN*C_CH_OUT to C_CH_IN*C_CH_OUT := C_CH_IN*C_CH_OUT;
   signal usig_addr_cnt : unsigned(log2(C_BRAM_SIZE - 1) - 1 downto 0) := (others => '0');
   constant C_BRAM_ADDR_WIDTH : integer range 1 to usig_addr_cnt'LENGTH := usig_addr_cnt'LENGTH;
@@ -54,9 +54,7 @@ architecture behavioral of conv is
   constant C_BRAM_ADDR_WIDTH_B : integer range 1 to usig_addr_cnt_b'LENGTH := usig_addr_cnt_b'LENGTH;
   signal slv_ram_bias : std_logic_vector(C_WEIGHTS_TOTAL_BITS-1 downto 0);
 
-
-  -- +log2(C_CH_IN)-1 weil ueber alle C_CH_IN summiert wird -> Datenbreite erweitern, damit kein saturate angewendet werden muss
-  -- 6 bit int mehr um FIXED_SATURATE zu sparen und trotzdem ueberlauf zu vermeiden
+  -- +log2(C_CH_IN)-1 because all C_CH_IN are summed up -> broaden data width to avoid overflow
   -- new bitwidth = log2(C_CH_IN*(2^old bitwidth-1)) = log2(C_CH_IN) + old bitwidth -> new bw = lb(64) + 8 = 14
   constant C_SUM_TOTAL_BITS : integer range 0 to 32 := C_DATA_TOTAL_BITS+C_WEIGHTS_TOTAL_BITS+1+log2(C_KSIZE-1)*2+log2(C_CH_IN);
   constant C_SUM_FRAC_BITS : integer range 0 to 32 := C_DATA_FRAC_BITS_IN+C_WEIGHTS_FRAC_BITS;
@@ -72,28 +70,21 @@ architecture behavioral of conv is
   signal sl_conv_valid_out : std_logic := '0';
   signal sl_conv_valid_out_d1 : std_logic := '0';
   signal sl_conv_valid_out_d2 : std_logic := '0';
-  signal sl_conv_valid_out_d3 : std_logic := '0';
 
   signal sl_valid_out : std_logic := '0';
   signal sl_valid_out_d1 : std_logic := '0';
   signal slv_data_out : std_logic_vector(C_DATA_TOTAL_BITS-1 downto 0);
   signal int_mm_out_cnt : integer range 0 to C_CH_IN*C_CH_OUT-1 := 0;
-  signal int_mm_out_cnt_d1 : integer range 0 to C_CH_IN*C_CH_OUT-1 := 0;
 
   -- debug
   signal int_ch_in_cnt : integer := 0;
   signal int_pixel_in_cnt : integer := 0;
-  signal isl_start : std_logic := '0';
   signal int_ch_out_cnt : integer range 0 to C_CH_OUT-1 := 0;
   signal int_pixel_out_cnt : integer := 0;
 
   type t_2d_array is array (natural range <>, natural range <>) of std_logic_vector(C_DATA_TOTAL_BITS - 1 downto 0);
   signal a_conv_data_in : t_2d_array(0 to C_KSIZE - 1,0 to C_KSIZE - 1);
   signal a_weights : t_2d_array(0 to C_KSIZE - 1,0 to C_KSIZE - 1);
-
-  -- debug
-  signal int_col : integer := 0;
-  signal int_row : integer := 0;
 
 begin
   -----------------------------------
@@ -167,10 +158,6 @@ begin
       if isl_rst_n = '0' then
         int_pixel_in_cnt <= 0;
         int_pixel_out_cnt <= 0;
-      elsif isl_start = '1' then
-        -- have to be resetted at start because of odd kernels (3x3+2) -> image dimensions arent fitting kernel stride
-        int_pixel_in_cnt <= 0;
-        int_pixel_out_cnt <= 0;
       elsif isl_ce = '1' then
         if isl_valid = '1' then
           if int_ch_in_cnt < C_CH_IN*C_CH_OUT-1 then
@@ -178,12 +165,6 @@ begin
           else
             int_ch_in_cnt <= 0;
             int_pixel_in_cnt <= int_pixel_in_cnt+1;
-            if int_col < 12 then
-              int_col <= int_col+1;
-            else
-              int_col <= 0;
-              int_row <= int_row+1;
-            end if;
           end if;
         end if;
 
@@ -209,10 +190,11 @@ begin
       if isl_rst_n = '0' then
         usig_addr_cnt <= (others => '0');
         usig_addr_cnt_b <= (others => '0');
-      else
+      elsif isl_ce = '1' then
         if isl_valid = '1' then
           usig_addr_cnt <= unsigned(usig_addr_cnt)+1;
         end if;
+
         -- wait one cycle for bram data to be available
         sl_valid_in_d1 <= isl_valid;
         sl_data_in_d1 <= islv_data;
@@ -256,8 +238,6 @@ begin
 
         sl_conv_valid_out_d1 <= sl_conv_valid_out;
         sl_conv_valid_out_d2 <= sl_conv_valid_out_d1;
-        sl_conv_valid_out_d3 <= sl_conv_valid_out_d2;
-        int_mm_out_cnt_d1 <= int_mm_out_cnt;
         sl_valid_out <= sl_conv_valid_out_d2 when int_mm_out_cnt = 0 and not (C_CH_IN > 1 and sl_valid_out = '1') else '0';
         sl_valid_out_d1 <= sl_valid_out;
       end if;

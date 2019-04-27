@@ -33,27 +33,27 @@ end mm;
 -- Architecture Section
 -----------------------------------------------------------------------------------------------------------------------
 architecture behavioral of mm is
-  constant C_INT_BITS_DATA : integer range 0 to 16 := C_DATA_TOTAL_BITS-C_DATA_FRAC_BITS_IN;
+  constant C_DATA_INT_BITS : integer range 0 to 16 := C_DATA_TOTAL_BITS-C_DATA_FRAC_BITS_IN;
 
   ------------------------------------------
   -- Signal Declarations
   ------------------------------------------
   signal slv_stage : std_logic_vector(2 to 6) := (others => '0');
 
-  type t_1d_sfix_array is array (natural range <>) of sfixed(C_INT_BITS_DATA-1 downto -C_DATA_FRAC_BITS_IN);
+  type t_1d_sfix_array is array (natural range <>) of sfixed(C_DATA_INT_BITS-1 downto -C_DATA_FRAC_BITS_IN);
   signal a_sfix_data : t_1d_sfix_array(0 to C_KSIZE*C_KSIZE-1);
 
   -- full signal bitwidth after multiplication
-  type t_1d_sfix_mult_array is array (natural range <>) of sfixed(C_INT_BITS_DATA+C_WEIGHTS_TOTAL_BITS-C_WEIGHTS_FRAC_BITS-1 downto -C_DATA_FRAC_BITS_IN-C_WEIGHTS_FRAC_BITS);
+  type t_1d_sfix_mult_array is array (natural range <>) of sfixed(C_DATA_INT_BITS+C_WEIGHTS_TOTAL_BITS-C_WEIGHTS_FRAC_BITS-1 downto -C_DATA_FRAC_BITS_IN-C_WEIGHTS_FRAC_BITS);
   signal a_data_mult : t_1d_sfix_mult_array(0 to C_KSIZE*C_KSIZE-1);
   attribute use_dsp : string;
   attribute use_dsp of a_data_mult : signal is "yes";
-  signal a_data_mult_pipe : t_1d_sfix_mult_array(0 to C_KSIZE*C_KSIZE-1);
+  signal a_data_mult_d1 : t_1d_sfix_mult_array(0 to C_KSIZE*C_KSIZE-1);
 
   -- add bits to avoid using FIXED_SATURATE and avoid overflow
   -- new bitwidth = log2((C_KSIZE-1)*(2^old bitwidth-1)) -> new bw = lb(2*(2^12-1)) = 13
   -- C_KSIZE-1 additions, +1 for bias addition
-  constant C_INTW_SUM1 : integer range 0 to 16 := C_INT_BITS_DATA+C_WEIGHTS_TOTAL_BITS-C_WEIGHTS_FRAC_BITS+1+log2(C_KSIZE-1);
+  constant C_INTW_SUM1 : integer range 0 to 16 := C_DATA_INT_BITS+C_WEIGHTS_TOTAL_BITS-C_WEIGHTS_FRAC_BITS+1+log2(C_KSIZE-1);
   type t_1d_sfix_add_array is array (natural range <>) of sfixed(C_INTW_SUM1-1 downto -C_DATA_FRAC_BITS_IN-C_WEIGHTS_FRAC_BITS);
   signal a_data_mult_resized : t_1d_sfix_add_array(0 to C_KSIZE*C_KSIZE-1);
   signal a_data_tmp : t_1d_sfix_add_array(0 to C_KSIZE-1);
@@ -62,8 +62,6 @@ architecture behavioral of mm is
   signal a_sfix_weights : t_1d_sfix_weights_array(0 to C_KSIZE*C_KSIZE-1);
 
   constant C_INTW_SUM2 : integer range 0 to 16 := C_INTW_SUM1+log2(C_KSIZE-1); -- C_KSIZE-1 additions
-  signal sfix_data_conv : sfixed(C_INTW_SUM2-1 downto -C_DATA_FRAC_BITS_IN-C_WEIGHTS_FRAC_BITS);
-
   signal slv_data_out : std_logic_vector(C_INTW_SUM2+C_DATA_FRAC_BITS_IN+C_WEIGHTS_FRAC_BITS-1 downto 0);
   signal sl_output_valid : std_logic := '0';
 
@@ -93,7 +91,7 @@ begin
           for j in 0 to C_KSIZE-1 loop
             for i in 0 to C_KSIZE-1 loop
               a_sfix_data(i+j*C_KSIZE) <= to_sfixed(islv_data(((i+1)+j*C_KSIZE)*C_DATA_TOTAL_BITS-1 downto
-                (i+j*C_KSIZE)*C_DATA_TOTAL_BITS),C_INT_BITS_DATA-1, -C_DATA_FRAC_BITS_IN);
+                (i+j*C_KSIZE)*C_DATA_TOTAL_BITS),C_DATA_INT_BITS-1, -C_DATA_FRAC_BITS_IN);
               a_sfix_weights(i+j*C_KSIZE) <= to_sfixed(islv_weights(((i+1)+j*C_KSIZE)*C_WEIGHTS_TOTAL_BITS-1 downto
                 (i+j*C_KSIZE)*C_WEIGHTS_TOTAL_BITS), C_WEIGHTS_TOTAL_BITS-C_WEIGHTS_FRAC_BITS-1, -C_WEIGHTS_FRAC_BITS);
             end loop;
@@ -110,14 +108,14 @@ begin
         end if;
 
         if slv_stage(3) = '1' then
-          a_data_mult_pipe <= a_data_mult;
+          a_data_mult_d1 <= a_data_mult;
         end if;
 
         if slv_stage(4) = '1' then
           for j in 0 to C_KSIZE-1 loop
             for i in 0 to C_KSIZE-1 loop
               a_data_mult_resized(i+j*C_KSIZE) <= resize(
-                a_data_mult_pipe(i+j*C_KSIZE),
+                a_data_mult_d1(i+j*C_KSIZE),
                 C_INTW_SUM1-1, -C_DATA_FRAC_BITS_IN-C_WEIGHTS_FRAC_BITS, fixed_wrap, fixed_truncate);
             end loop;
           end loop;
@@ -143,8 +141,6 @@ begin
               v_sfix_data_out + a_data_tmp(j),
               C_INTW_SUM2-1, -C_DATA_FRAC_BITS_IN-C_WEIGHTS_FRAC_BITS, fixed_wrap, fixed_truncate);
           end loop;
-          -- report "bb" & integer'IMAGE(C_INTW_SUM2-1) & " " &
-          --   integer'IMAGE(-C_DATA_FRAC_BITS_IN-C_WEIGHTS_FRAC_BITS);
           slv_data_out <= to_slv(v_sfix_data_out);
         end if;
       end if;

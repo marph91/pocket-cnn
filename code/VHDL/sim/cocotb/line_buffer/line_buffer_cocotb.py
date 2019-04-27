@@ -22,7 +22,7 @@ class LineBufferMonitor(Monitor):
         self.valid = dut.osl_valid
         self.data = dut.oslv_data
         self.bitwidth = dut.C_DATA_WIDTH.value.integer
-        self.window_size = dut.C_WINDOW_SIZE.value.integer
+        self.window_size = dut.C_KSIZE.value.integer
         super().__init__()
 
     @cocotb.coroutine
@@ -64,7 +64,7 @@ def run_test(dut):
     output_mon = LineBufferMonitor("output", dut)
     line_buffer = LineBufferModel(dut.C_CH.value.integer,
                                   dut.C_IMG_WIDTH.value.integer,
-                                  dut.C_WINDOW_SIZE.value.integer)
+                                  dut.C_KSIZE.value.integer)
     scoreboard = Scoreboard(dut)
     scoreboard.add_interface(output_mon, line_buffer.expected_output)
 

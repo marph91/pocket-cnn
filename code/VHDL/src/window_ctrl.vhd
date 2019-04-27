@@ -80,7 +80,7 @@ begin
       C_DATA_WIDTH  => C_DATA_TOTAL_BITS,
       C_CH          => C_CH_IN,
       C_IMG_WIDTH   => C_IMG_WIDTH,
-      C_WINDOW_SIZE => C_KSIZE
+      C_KSIZE => C_KSIZE
     )
     port map(
       isl_clk   => isl_clk,
@@ -99,7 +99,7 @@ begin
     generic map(
       C_DATA_WIDTH  => C_DATA_TOTAL_BITS,
       C_CH          => C_CH_IN,
-      C_WINDOW_SIZE => C_KSIZE
+      C_KSIZE => C_KSIZE
     )
     port map(
       isl_clk     => isl_clk,

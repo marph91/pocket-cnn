@@ -83,7 +83,7 @@ def run_test(dut):
     generics = namedtuple("generics", ["bits_data", "ch", "kernel_size"])
     gen = generics(dut.C_DATA_WIDTH.value.integer,
                    dut.C_CH.value.integer,
-                   dut.C_WINDOW_SIZE.value.integer)
+                   dut.C_KSIZE.value.integer)
 
     # setup monitor, software model and scoreboard
     output_mon = WindowMonitor("output", gen, dut.isl_clk, dut.osl_valid,
