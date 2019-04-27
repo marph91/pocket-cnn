@@ -26,21 +26,21 @@ def vhdl_top_template(param, weight_dir, param_file):
         outfile.write("\
 library ieee;\n\tuse ieee.std_logic_1164.all;\n\n\
 package cnn_parameter is\n\
-\tconstant C_DATA_TOTAL_BITS: integer range 1 to 16 := " + str(bitwidth[0][0]) + ";\n\n\
-\tconstant C_IMG_WIDTH_IN: integer range 2 to 512 := " + str(param["input_width"]) + ";\n\
-\tconstant C_IMG_HEIGHT_IN: integer range 2 to 512 := " + str(param["input_height"]) + ";\n\n\
-\tconstant C_PE: integer range 1 to 100 := " + str(pe) + ";\n\n\
-\tconstant C_SCALE: integer range 0 to 256 := " + str(param["scale"]) + ";\n\n\
+\tconstant C_DATA_TOTAL_BITS : integer range 1 to 16 := " + str(bitwidth[0][0]) + ";\n\n\
+\tconstant C_IMG_WIDTH_IN : integer range 2 to 512 := " + str(param["input_width"]) + ";\n\
+\tconstant C_IMG_HEIGHT_IN : integer range 2 to 512 := " + str(param["input_height"]) + ";\n\n\
+\tconstant C_PE : integer range 1 to 100 := " + str(pe) + ";\n\n\
+\tconstant C_SCALE : integer range 0 to 256 := " + str(param["scale"]) + ";\n\n\
 \t-- 0 - preprocessing, 1 to C_PE - pe, C_PE+1 - average\n\
-\tconstant C_RELU: std_logic_vector(1 to C_PE) := \"" + "".join(map(str, param["relu"])) + "\";\n\
-\tconstant C_LEAKY_RELU: std_logic_vector(1 to C_PE) := \"" + "".join(map(str, param["leaky_relu"])) + "\";\
+\tconstant C_RELU : std_logic_vector(1 to C_PE) := \"" + "".join(map(str, param["relu"])) + "\";\n\
+\tconstant C_LEAKY_RELU : std_logic_vector(1 to C_PE) := \"" + "".join(map(str, param["leaky_relu"])) + "\";\
 \n\n\ttype t_pad_array is array (1 to C_PE) of integer range 0 to 1;\n\
 \tconstant C_PAD: t_pad_array := (" + ", ".join(map(str, param["pad"])) + ");\n\n\
 \ttype t_win_array is array (1 to C_PE) of integer range 0 to 3;\n\
-\tconstant C_CONV_KSIZE: t_win_array := (" + ", ".join(map(str, param["conv_kernel"])) + ");\n\
-\tconstant C_CONV_STRIDE: t_win_array := (" + ", ".join(map(str, param["conv_stride"])) + ");\n\
-\tconstant C_WIN_POOL: t_win_array := (" + ", ".join(map(str, param["pool_kernel"])) + ");\n\
-\tconstant C_POOL_STRIDE: t_win_array := (" + ", ".join(map(str, param["pool_stride"])) + ");\n\n\
+\tconstant C_CONV_KSIZE : t_win_array := (" + ", ".join(map(str, param["conv_kernel"])) + ");\n\
+\tconstant C_CONV_STRIDE : t_win_array := (" + ", ".join(map(str, param["conv_stride"])) + ");\n\
+\tconstant C_WIN_POOL : t_win_array := (" + ", ".join(map(str, param["pool_kernel"])) + ");\n\
+\tconstant C_POOL_STRIDE : t_win_array := (" + ", ".join(map(str, param["pool_stride"])) + ");\n\n\
 \ttype t_ch_array is array (0 to C_PE) of integer range 1 to 512;\n\
 \tconstant C_CH: t_ch_array := (" + ", ".join(map(str, param["channel"])) + ");\n\n\
 \t-- 0 - bitwidth data, 1 - bitwidth frac data in, 2 - bitwidth frac data out\
@@ -52,8 +52,8 @@ C_DATA_TOTAL_BITS;\n\
 " + bws + "\
 \t\t" + str(pe) + " => (" + ", ".join(map(str, bitwidth[pe-1])) + "));\n\n\
 \ttype t_weights_array is array (1 to C_PE) of string(1 to " + len_weights + ");\n\
-\tconstant STR_WEIGHTS_INIT: t_weights_array := (\n\
+\tconstant STR_WEIGHTS_INIT : t_weights_array := (\n\
 " + weight_dirs + "\t\t\"" + weight_dir + "/W_" + conv_names[pe-1] + ".txt\");\n\
-\tconstant STR_BIAS_INIT: t_weights_array := (\n\
+\tconstant STR_BIAS_INIT : t_weights_array := (\n\
 " + bias_dirs + "\t\t\"" + weight_dir + "/B_" + conv_names[pe-1] + ".txt\");\n\
 end cnn_parameter;")
