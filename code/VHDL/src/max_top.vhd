@@ -6,7 +6,7 @@ library ieee;
 -----------------------------------------------------------------------------------------------------------------------
 entity max_top is
   generic (
-    C_INT_BITS    : integer range 1 to 16 := 8;
+    C_TOTAL_BITS  : integer range 1 to 16 := 8;
     C_FRAC_BITS   : integer range 0 to 16 := 4;
 
     C_KSIZE       : integer range 0 to 16 := 4;
@@ -22,8 +22,8 @@ entity max_top is
     isl_get   : in std_logic;
     isl_start : in std_logic;
     isl_valid : in std_logic;
-    islv_data : in std_logic_vector(C_INT_BITS+C_FRAC_BITS-1 downto 0);
-    oslv_data : out std_logic_vector(C_INT_BITS+C_FRAC_BITS-1 downto 0);
+    islv_data : in std_logic_vector(C_TOTAL_BITS-1 downto 0);
+    oslv_data : out std_logic_vector(C_TOTAL_BITS-1 downto 0);
     osl_valid : out std_logic;
     osl_rdy   : out std_logic
   );
@@ -36,13 +36,13 @@ architecture behavioral of max_top is
   ------------------------------------------
   -- Signal Declarations
   ------------------------------------------
-  signal slv_win_data_out : std_logic_vector(C_KSIZE*C_KSIZE*(C_INT_BITS+C_FRAC_BITS) - 1 downto 0);
+  signal slv_win_data_out : std_logic_vector(C_KSIZE*C_KSIZE*C_TOTAL_BITS - 1 downto 0);
   signal slv_win_valid_out : std_logic := '0';
 
 begin
   i_window_ctrl : entity work.window_ctrl
   generic map (
-    C_DATA_TOTAL_BITS     => C_INT_BITS + C_FRAC_BITS,
+    C_DATA_TOTAL_BITS     => C_TOTAL_BITS,
 
     C_KSIZE       => C_KSIZE,
     C_STRIDE      => C_STRIDE,
@@ -66,9 +66,9 @@ begin
 
   i_max : entity work.pool_max
   generic map (
-    C_POOL_DIM   => C_KSIZE,
-    C_INT_BITS   => C_INT_BITS,
-    C_FRAC_BITS  => C_FRAC_BITS
+    C_KSIZE       => C_KSIZE,
+    C_TOTAL_BITS  => C_TOTAL_BITS,
+    C_FRAC_BITS   => C_FRAC_BITS
   )
   port map (
     isl_clk   => isl_clk,

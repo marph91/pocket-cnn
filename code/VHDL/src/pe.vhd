@@ -302,8 +302,8 @@ begin
     -----------------------------------
     max_buf : entity work.max_top
     generic map (
-      C_INT_BITS   => C_DATA_TOTAL_BITS-C_DATA_FRAC_BITS_OUT,
-      C_FRAC_BITS  => C_DATA_FRAC_BITS_OUT,
+      C_TOTAL_BITS  => C_DATA_TOTAL_BITS,
+      C_FRAC_BITS   => C_DATA_FRAC_BITS_OUT,
 
       C_KSIZE       => C_WIN_SIZE_POOL,
       C_STRIDE      => C_POOL_STRIDE,
