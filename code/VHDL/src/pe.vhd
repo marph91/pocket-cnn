@@ -16,19 +16,19 @@ entity pe is
     C_WEIGHTS_TOTAL_BITS  : integer range 1 to 16 := 4;
     C_WEIGHTS_FRAC_BITS   : integer range 0 to 16 := 3;
 
-    C_IMG_WIDTH         : integer range 1 to 512 := 36;
-    C_IMG_HEIGHT        : integer range 1 to 512 := 16;
-    C_CH_IN         : integer range 1 to 512 := 1;
-    C_CH_OUT        : integer range 1 to 512 := 16;
-    C_CONV_KSIZE    : integer range 1 to 3 := 3;
-    C_CONV_STRIDE   : integer range 1 to 3 := 3;
-    C_WIN_SIZE_POOL : integer range 0 to 3 := 2;
-    C_POOL_STRIDE   : integer range 0 to 3 := 2;
-    C_PAD           : integer range 0 to 1 := 0;
-    C_RELU          : std_logic := '0';
-    C_LEAKY         : std_logic := '0';
-    STR_WEIGHTS_INIT      : string := "";
-    STR_BIAS_INIT      : string := ""
+    C_IMG_WIDTH       : integer range 1 to 512 := 36;
+    C_IMG_HEIGHT      : integer range 1 to 512 := 16;
+    C_CH_IN           : integer range 1 to 512 := 1;
+    C_CH_OUT          : integer range 1 to 512 := 16;
+    C_CONV_KSIZE      : integer range 1 to 3 := 3;
+    C_CONV_STRIDE     : integer range 1 to 3 := 3;
+    C_WIN_SIZE_POOL   : integer range 0 to 3 := 2;
+    C_POOL_STRIDE     : integer range 0 to 3 := 2;
+    C_PAD             : integer range 0 to 1 := 0;
+    C_RELU            : std_logic := '0';
+    C_LEAKY           : std_logic := '0';
+    STR_WEIGHTS_INIT  : string := "";
+    STR_BIAS_INIT     : string := ""
   );
   port (
     isl_clk   : in std_logic;
@@ -98,7 +98,53 @@ architecture behavioral of pe is
   signal sl_pool_input_valid : std_logic := '0';
   signal sl_pool_rdy : std_logic := '0';
 
+  -- debug
+  signal int_ch_in_cnt : integer range 0 to C_CH_IN-1 := 0;
+  signal int_pixel_in_cnt : integer range 0 to C_IMG_HEIGHT*C_IMG_WIDTH := 0;
+  signal int_col : integer range 0 to C_IMG_WIDTH := 0;
+  signal int_row : integer range 0 to C_IMG_HEIGHT := 0;
+
 begin
+  -------------------------------------------------------
+  -- Process: Counter
+  -------------------------------------------------------
+  proc_cnt : process(isl_clk)
+  begin
+    if rising_edge(isl_clk) then
+      if isl_rst_n = '0' then
+        int_pixel_in_cnt <= 0;
+        int_ch_in_cnt <= 0;
+        int_col <= 0;
+        int_row <= 0;
+      elsif isl_start = '1' then
+        -- have to be resetted at start because of odd kernels (3x3+2) -> image dimensions arent fitting kernel stride
+        int_pixel_in_cnt <= 0;
+        int_ch_in_cnt <= 0;
+        int_col <= 0;
+        int_row <= 0;
+      elsif isl_ce = '1' then
+        if isl_valid = '1' then
+          if int_ch_in_cnt < C_CH_IN-1 then
+            int_ch_in_cnt <= int_ch_in_cnt+1;
+          else
+            int_ch_in_cnt <= 0;
+            int_pixel_in_cnt <= int_pixel_in_cnt+1;
+            if int_col < C_IMG_WIDTH-1 then
+              int_col <= int_col+1;
+            else
+              int_col <= 0;
+              if int_row < C_IMG_HEIGHT-1 then
+                int_row <= int_row+1;
+              else
+                int_row <= 0;
+              end if;
+            end if;
+          end if;
+        end if;
+      end if;
+    end if;
+  end process proc_cnt;
+
   gen_no_pad : if C_PAD = 0 generate
     sl_pad_output_valid <= isl_valid;
     slv_pad_data_out <= islv_data;
@@ -109,12 +155,12 @@ begin
     -- Zero Padding
     -------------------------------------------------------
     sl_pad_get <= sl_conv_burst_rdy and sl_conv_rdy;
-    zero_pad : entity work.zero_pad
+    i_zero_pad : entity work.zero_pad
     generic map(
       C_DATA_WIDTH  => C_DATA_TOTAL_BITS,
       C_CH          => C_CH_IN,
-      C_IMG_WIDTH       => C_IMG_WIDTH,
-      C_IMG_HEIGHT      => C_IMG_HEIGHT,
+      C_IMG_WIDTH   => C_IMG_WIDTH,
+      C_IMG_HEIGHT  => C_IMG_HEIGHT,
       C_PAD_TOP     => C_PAD,
       C_PAD_BOTTOM  => C_PAD_BOTTOM,
       C_PAD_LEFT    => C_PAD,
@@ -144,7 +190,7 @@ begin
     -----------------------------------
     -- Burst
     -----------------------------------
-    channel_burst : entity work.channel_burst
+    i_channel_burst_conv : entity work.channel_burst
     generic map(
       C_DATA_WIDTH  => C_DATA_TOTAL_BITS,
       C_CH          => C_CH_IN
@@ -165,7 +211,7 @@ begin
   -----------------------------------
   -- Convolution with line and window buffer
   -----------------------------------
-  conv_buf : entity work.conv_buf
+  i_conv_top : entity work.conv_top
   generic map(
     C_DATA_TOTAL_BITS     => C_DATA_TOTAL_BITS,
     C_DATA_FRAC_BITS_IN   => C_DATA_FRAC_BITS_IN,
@@ -173,14 +219,14 @@ begin
     C_WEIGHTS_TOTAL_BITS  => C_WEIGHTS_TOTAL_BITS,
     C_WEIGHTS_FRAC_BITS   => C_WEIGHTS_FRAC_BITS,
 
-    C_KSIZE     => C_CONV_KSIZE,
-    C_STRIDE    => C_CONV_STRIDE,
-    C_CH_IN     => C_CH_IN,
-    C_CH_OUT    => C_CH_OUT,
-    C_IMG_WIDTH     => C_IMG_WIDTH+2*C_PAD,
-    C_IMG_HEIGHT    => C_IMG_HEIGHT+2*C_PAD,
+    C_KSIZE           => C_CONV_KSIZE,
+    C_STRIDE          => C_CONV_STRIDE,
+    C_CH_IN           => C_CH_IN,
+    C_CH_OUT          => C_CH_OUT,
+    C_IMG_WIDTH       => C_IMG_WIDTH+2*C_PAD,
+    C_IMG_HEIGHT      => C_IMG_HEIGHT+2*C_PAD,
     STR_WEIGHTS_INIT  => STR_WEIGHTS_INIT,
-    STR_BIAS_INIT  => STR_BIAS_INIT
+    STR_BIAS_INIT     => STR_BIAS_INIT
   )
   port map(
     isl_clk   => isl_clk,
@@ -205,11 +251,11 @@ begin
     -----------------------------------
     -- ReLU
     -----------------------------------
-    relu : entity work.relu
+    i_relu : entity work.relu
     generic map (
-      C_INT_BITS   => C_DATA_TOTAL_BITS-C_DATA_FRAC_BITS_OUT,
+      C_TOTAL_BITS => C_DATA_TOTAL_BITS,
       C_FRAC_BITS  => C_DATA_FRAC_BITS_OUT,
-      C_LEAKY       => C_LEAKY
+      C_LEAKY      => C_LEAKY
     )
     port map (
       isl_clk   => isl_clk,
@@ -234,7 +280,7 @@ begin
     -----------------------------------
     -- Burst
     -----------------------------------
-    channel_burst : entity work.channel_burst
+    i_channel_burst_max : entity work.channel_burst
     generic map(
       C_DATA_WIDTH  => C_DATA_TOTAL_BITS,
       C_CH          => C_CH_OUT
@@ -254,16 +300,16 @@ begin
     -----------------------------------
     -- Maxpool with line and window buffer
     -----------------------------------
-    max_buf : entity work.max_buf
+    i_max_top : entity work.max_top
     generic map (
-      C_INT_BITS   => C_DATA_TOTAL_BITS-C_DATA_FRAC_BITS_OUT,
-      C_FRAC_BITS  => C_DATA_FRAC_BITS_OUT,
+      C_TOTAL_BITS  => C_DATA_TOTAL_BITS,
+      C_FRAC_BITS   => C_DATA_FRAC_BITS_OUT,
 
-      C_POOL_DIM  => C_WIN_SIZE_POOL,
-      C_STRIDE    => C_POOL_STRIDE,
-      C_CH        => C_CH_OUT,
-      C_IMG_WIDTH     => (C_IMG_WIDTH+2*C_PAD-(C_CONV_KSIZE-C_CONV_STRIDE))/C_CONV_STRIDE,
-      C_IMG_HEIGHT    => (C_IMG_HEIGHT+2*C_PAD-(C_CONV_KSIZE-C_CONV_STRIDE))/C_CONV_STRIDE
+      C_KSIZE       => C_WIN_SIZE_POOL,
+      C_STRIDE      => C_POOL_STRIDE,
+      C_CH          => C_CH_OUT,
+      C_IMG_WIDTH   => (C_IMG_WIDTH+2*C_PAD-(C_CONV_KSIZE-C_CONV_STRIDE))/C_CONV_STRIDE,
+      C_IMG_HEIGHT  => (C_IMG_HEIGHT+2*C_PAD-(C_CONV_KSIZE-C_CONV_STRIDE))/C_CONV_STRIDE
     )
     port map (
       isl_clk   => isl_clk,

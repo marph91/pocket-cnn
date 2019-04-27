@@ -37,6 +37,7 @@ cd opencnn
 ## HDL
 - Handle top.vhd_Xpe better. Currently these files only exists, because of the missing vpi array support of ghdl. See https://github.com/ghdl/ghdl/issues/237.
 - Add more layers, f. e. fully connected layer.
+- Check if CE is correctly implemented and useful at all. See http://arantxa.ii.uam.es/~ivan/spl12-clock-gating.pdf.
 
 ## CNN Frameworks
 - Fix pytorch saving and loading. The extra layers always have to be in a relative directory when loading the model due to pickle. See https://pytorch.org/docs/stable/notes/serialization.html. Currently the files are duplicated.

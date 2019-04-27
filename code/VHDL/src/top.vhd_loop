@@ -74,16 +74,16 @@ begin
   -----------------------------------
   prepr : entity work.prepr
   generic map (
-    C_INT_BITS   => C_BITWIDTH(1, 0) - C_BITWIDTH(1, 1),
+    C_TOTAL_BITS => C_BITWIDTH(1, 0),
     C_FRAC_BITS  => C_BITWIDTH(1, 1),
-    C_SHIFT       => log2(C_SCALE)
+    C_SHIFT      => log2(C_SCALE)
   )
   port map (
     isl_valid => isl_valid,
     islv_data => islv_data,
     oslv_data => a_data_out(0),
     osl_valid => sl_output_valid(0)
-    );
+  );
 
   slv_rdy(C_PE+1) <= isl_get;
   gen_stages : for i in 1 to C_PE generate
@@ -92,25 +92,25 @@ begin
     -----------------------------------
     stage : entity work.pe
     generic map (
-      C_DATA_TOTAL_BITS     => C_BITWIDTH(i, 0),
-      C_DATA_FRAC_BITS_IN       => C_BITWIDTH(i, 1),
-      C_DATA_FRAC_BITS_OUT      => C_BITWIDTH(i, 2),
-      C_WEIGHTS_TOTAL_BITS  => C_BITWIDTH(i, 3),
+      C_DATA_TOTAL_BITS    => C_BITWIDTH(i, 0),
+      C_DATA_FRAC_BITS_IN  => C_BITWIDTH(i, 1),
+      C_DATA_FRAC_BITS_OUT => C_BITWIDTH(i, 2),
+      C_WEIGHTS_TOTAL_BITS => C_BITWIDTH(i, 3),
       C_WEIGHTS_FRAC_BITS  => C_BITWIDTH(i, 4),
 
-      C_IMG_WIDTH         => C_IMG_WIDTH(i),
-      C_IMG_HEIGHT        => C_IMG_HEIGHT(i),
-      C_CH_IN         => C_CH(i-1),
-      C_CH_OUT        => C_CH(i),
-      C_CONV_KSIZE => C_CONV_KSIZE(i),
-      C_CONV_STRIDE   => C_CONV_STRIDE(i),
-      C_WIN_SIZE_POOL => C_WIN_POOL(i),
-      C_POOL_STRIDE   => C_POOL_STRIDE(i),
-      C_PAD           => C_PAD(i),
-      C_RELU          => C_RELU(i),
-      C_LEAKY         => C_LEAKY_RELU(i),
-      STR_WEIGHTS_INIT      => STR_WEIGHTS_INIT(i),
-      STR_BIAS_INIT      => STR_BIAS_INIT(i)
+      C_IMG_WIDTH       => C_IMG_WIDTH(i),
+      C_IMG_HEIGHT      => C_IMG_HEIGHT(i),
+      C_CH_IN           => C_CH(i-1),
+      C_CH_OUT          => C_CH(i),
+      C_CONV_KSIZE      => C_CONV_KSIZE(i),
+      C_CONV_STRIDE     => C_CONV_STRIDE(i),
+      C_WIN_SIZE_POOL   => C_WIN_POOL(i),
+      C_POOL_STRIDE     => C_POOL_STRIDE(i),
+      C_PAD             => C_PAD(i),
+      C_RELU            => C_RELU(i),
+      C_LEAKY           => C_LEAKY_RELU(i),
+      STR_WEIGHTS_INIT  => STR_WEIGHTS_INIT(i),
+      STR_BIAS_INIT     => STR_BIAS_INIT(i)
     )
     port map (
       isl_clk   => isl_clk,
@@ -131,11 +131,11 @@ begin
   -----------------------------------
   ave : entity work.pool_ave
   generic map (
-    C_INT_BITS   => C_BITWIDTH(C_PE, 0)-C_BITWIDTH(C_PE, 2),
-    C_FRAC_BITS  => C_BITWIDTH(C_PE, 2),
+    C_TOTAL_BITS  => C_BITWIDTH(C_PE, 0),
+    C_FRAC_BITS   => C_BITWIDTH(C_PE, 2),
     C_POOL_CH     => C_CH(C_PE),
-    C_IMG_WIDTH       => C_IMG_WIDTH(C_PE),
-    C_IMG_HEIGHT      => C_IMG_HEIGHT(C_PE)
+    C_IMG_WIDTH   => C_IMG_WIDTH(C_PE),
+    C_IMG_HEIGHT  => C_IMG_HEIGHT(C_PE)
   )
   port map (
     isl_clk   => isl_clk,

@@ -199,7 +199,6 @@ def run_test(dut, files=None, cnn=None):
     dut.islv_data <= 0
     yield RisingEdge(dut.isl_clk)
     dut.isl_rst_n <= 1
-    yield RisingEdge(dut.isl_clk)
     dut.isl_ce <= 1
     dut.isl_get <= 1
     dut.isl_start <= 1
@@ -219,12 +218,10 @@ def run_test(dut, files=None, cnn=None):
             cnt_lines += 1
             yield RisingEdge(dut.isl_clk)
             dut.isl_valid <= 0
-        else:
-            dut.isl_valid <= 0
-        # two cycles delay, because else too much data would be sent in
+            # two cycles delay, because else too much data would be sent in
+            yield RisingEdge(dut.isl_clk)
+            yield RisingEdge(dut.isl_clk)
         yield RisingEdge(dut.isl_clk)
-        yield RisingEdge(dut.isl_clk)
-    dut.isl_valid <= 0
     dut._log.info("Finished loading image.")
 
     dut_out = []
@@ -233,7 +230,9 @@ def run_test(dut, files=None, cnn=None):
         # collect the data outputs of the dut
         if dut.osl_valid == 1:
             dut_out.append(fixfloat.fixed2float(
-                dut.oslv_data.value.binstr, dut.ave.C_INT_BITS.value.integer,
+                dut.oslv_data.value.binstr,
+                dut.ave.C_TOTAL_BITS.value.integer - \
+                dut.ave.C_FRAC_BITS.value.integer,
                 dut.ave.C_FRAC_BITS.value.integer))
             dut_out_bin.append(dut.oslv_data.value.binstr)
         yield RisingEdge(dut.isl_clk)

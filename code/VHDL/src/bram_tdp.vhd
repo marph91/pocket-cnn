@@ -9,11 +9,11 @@ library util;
 -----------------------------------------------------------------------------------------------------------------------
 entity bram_tdp is
   generic(
-    C_DATA_WIDTH_A  : integer := 4;
+    C_DATA_WIDTH_A  : integer := 8;
     C_ADDR_WIDTH_A  : integer := 10;
     C_SIZE_A        : integer := 1024;
 
-    C_DATA_WIDTH_B  : integer := 16;
+    C_DATA_WIDTH_B  : integer := 32;
     C_ADDR_WIDTH_B  : integer := 8;
     C_SIZE_B        : integer := 256
   );

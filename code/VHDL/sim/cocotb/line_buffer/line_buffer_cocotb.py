@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
 
+# disable, because assigning values to signals is needed
+# pylint: disable=pointless-statement
+
 import random
 
 import cocotb
@@ -9,32 +12,27 @@ from cocotb.regression import TestFactory
 from cocotb.scoreboard import Scoreboard
 from cocotb.triggers import RisingEdge
 
+import tools_cocotb
+
 
 class LineBufferMonitor(Monitor):
     """Represents a monitor for the output values of a line buffer."""
-    def __init__(self, name, dut, callback=None, event=None):
+    def __init__(self, name, dut):
         self.name = name
         self.valid = dut.osl_valid
         self.data = dut.oslv_data
         self.bitwidth = dut.C_DATA_WIDTH.value.integer
-        self.window_size = dut.C_WINDOW_SIZE.value.integer
-        Monitor.__init__(self, callback, event)
+        self.window_size = dut.C_KSIZE.value.integer
+        super().__init__()
 
     @cocotb.coroutine
     def _monitor_recv(self):
         while True:
             yield RisingEdge(self.valid)
-            values = self.split_values()
+            values = tools_cocotb.split_slv(self.data.value.integer,
+                                            self.bitwidth,
+                                            self.window_size*self.bitwidth)
             self._recv(values)
-
-    def split_values(self):
-        """Split values for better readability into several integers instead of
-        only one integer with shifted vaues.
-        """
-        line = self.data.value.integer
-        values = [(line >> (i*self.bitwidth)) % (2**self.bitwidth)
-                  for i in range(self.window_size)]
-        return values
 
 
 class LineBufferModel:
@@ -52,8 +50,8 @@ class LineBufferModel:
            - add the input and remove the oldest value from the buffer
         """
         self.expected_output.append(
-            [value] + [self.buffer[self.channel * self.width * i]
-                       for i in reversed(range(self.window_size-1))])
+            [self.buffer[self.channel * self.width * i]
+             for i in reversed(range(self.window_size-1))] + [value])
         self.buffer.append(value)
         self.buffer.pop(0)
 
@@ -66,7 +64,7 @@ def run_test(dut):
     output_mon = LineBufferMonitor("output", dut)
     line_buffer = LineBufferModel(dut.C_CH.value.integer,
                                   dut.C_IMG_WIDTH.value.integer,
-                                  dut.C_WINDOW_SIZE.value.integer)
+                                  dut.C_KSIZE.value.integer)
     scoreboard = Scoreboard(dut)
     scoreboard.add_interface(output_mon, line_buffer.expected_output)
 

@@ -7,7 +7,7 @@ library ieee;
 entity channel_burst is
     generic(
     C_DATA_WIDTH  : integer range 1 to 32 := 8;
-    C_CH          : integer range 1 to 512 := 1
+    C_CH          : integer range 1 to 512 := 8
   );
   port(
     isl_clk   : in std_logic;
@@ -31,7 +31,7 @@ architecture behavior of channel_burst is
   ------------------------------------------
   signal sl_input_valid : std_logic := '0';
   signal slv_data_in : std_logic_vector(C_DATA_WIDTH-1 downto 0);
-  signal slv_data_in_delay : std_logic_vector(C_DATA_WIDTH-1 downto 0);
+  signal slv_data_in_d1 : std_logic_vector(C_DATA_WIDTH-1 downto 0);
   signal sl_bursted : std_logic := '0';
 
   signal sl_rdy : std_logic := '0';
@@ -46,9 +46,9 @@ architecture behavior of channel_burst is
 begin
   proc_data : process(isl_clk)
   begin
-    if (rising_edge(isl_clk)) then
+    if rising_edge(isl_clk) then
       -- 0 to C_CH, that isl_valid = '1' and int_ch_to_burst > 1 can be handled at the same time
-      if (isl_valid = '1') then
+      if isl_valid = '1' then
         a_ch(0) <= islv_data;
         for i in 1 to C_CH loop
           a_ch(i) <= a_ch(i-1);
@@ -71,7 +71,7 @@ begin
   begin
     if rising_edge(isl_clk) then
       slv_data_in <= islv_data;
-      slv_data_in_delay <= slv_data_in;
+      slv_data_in_d1 <= slv_data_in;
       sl_input_valid <= isl_valid;
 
       if isl_start = '1' then
@@ -120,7 +120,7 @@ begin
     end if;
   end process proc_cnt;
 
-  oslv_data <= slv_data_in_delay when sl_bursted = '1' else a_ch(C_CH);
+  oslv_data <= slv_data_in_d1 when sl_bursted = '1' else a_ch(C_CH);
   osl_valid <= sl_bursted or sl_output_valid;
   osl_rdy <= sl_rdy and isl_get;
 end architecture behavior;
