@@ -395,7 +395,7 @@ begin
   -----------------------------------
   ave : entity work.pool_ave
   generic map (
-    C_INT_BITS   => C_BITWIDTH(C_PE, 0)-C_BITWIDTH(C_PE, 2),
+    C_TOTAL_BITS   => C_BITWIDTH(C_PE, 0),
     C_FRAC_BITS  => C_BITWIDTH(C_PE, 2),
     C_POOL_CH   => C_CH(C_PE),
     C_IMG_WIDTH     => C_IMG_WIDTH(C_PE),
