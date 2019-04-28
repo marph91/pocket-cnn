@@ -75,7 +75,7 @@ def random_input(bitwidth, dim):
 
 
 @cocotb.coroutine
-def run_test(dut):
+def run_test(dut, burst=True):
     """setup testbench and run a test"""
     generics = namedtuple("generics", ["bits_data", "int_data", "frac_data",
                                        "bits_weight", "int_weight",
@@ -120,6 +120,9 @@ def run_test(dut):
         dut.islv_data <= tools_cocotb.concatenate(in_data, gen.bits_data)
         dut.islv_weights <= tools_cocotb.concatenate(in_weights, gen.bits_data)
         yield RisingEdge(dut.isl_clk)
+        if not burst:
+            dut.isl_valid <= 0
+            yield RisingEdge(dut.isl_clk)
 
     dut.isl_valid <= 0
 
@@ -137,6 +140,7 @@ def run_tb():
     """run the testbench with given inputs"""
 
     testbench = TestFactory(run_test)
+    testbench.add_option("burst", [True, False])
     testbench.generate_tests()
 
 
