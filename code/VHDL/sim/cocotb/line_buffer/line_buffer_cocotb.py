@@ -88,7 +88,6 @@ def run_test(dut):
         dut.isl_valid <= 0
         yield RisingEdge(dut.isl_clk)
 
-    # TODO: print short scoreboard summary
     raise scoreboard.result
 
 

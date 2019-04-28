@@ -74,7 +74,7 @@ def duplicate_model_with_quant(model, bw_param, bits, overflow_rate=0.0, counter
     # assert type is "linear"
     if isinstance(model, nn.Sequential):
         l = OrderedDict()
-        # TODO: find better way than add layer and then remove them
+        # TODO: find better way than add layer and then remove it
         # add quantization of scaled values as first layer
         quant_layer = LinearQuant("0_prepr_quant", [None, None], bw_layer=bits, fl_layer=bits-3, counter=0)
         l["0_prepr_quant"] = quant_layer

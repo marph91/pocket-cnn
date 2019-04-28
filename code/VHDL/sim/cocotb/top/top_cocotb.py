@@ -23,25 +23,6 @@ import cnn_frameworks
 import fixfloat
 import tools_common as common
 
-# TODO: automatize running of test cnn architectures
-# signals == blobs
-# test 1 - 4 PE; conv: 3x3+1+pad, 1x1; max: 2x2+2, 3x3+3
-# signals = [dut, dut.prepr, dut.stage1.gen_relu.relu, dut.stage1,
-#            dut.stage2.gen_relu.relu, dut.stage2, dut.stage3, dut.stage4,
-#            dut.ave]
-# test 2 - 4 PE; conv: 3x3+2+pad, 1x1; max: 3x3+2
-# signals = [dut, dut.prepr, dut.stage1, dut.stage2.gen_relu.relu, dut.stage2,
-#            dut.stage3, dut.stage4, dut.ave]
-# test 3 - 6 PE; 2*(conv - conv - pool)
-# signals = [dut, dut.prepr, dut.stage1, dut.stage2.gen_relu.relu, dut.stage2,
-#            dut.stage3, dut.stage4.gen_relu.relu, dut.stage4, dut.stage5,
-#            dut.stage6, dut.ave]
-# test 4 - 5 PE; conv: 2x2+1, 3x3+1+pad, 1x1; max: 2x2+1, 3x3+3, 3x3+2,
-#                Leaky ReLU; 3*(conv - pool)
-# signals = [dut, dut.prepr, dut.stage1.gen_relu.relu, dut.stage1,
-#            dut.stage2.gen_relu.relu, dut.stage2, dut.stage3.gen_relu.relu,
-#            dut.stage3, dut.stage4, dut.stage5, dut.ave]
-
 DEBUG = bool(int(os.environ["DEBUG"]))
 DEBUG_DIR = os.environ["TB_ROOT"] + "/DEBUG/"
 
