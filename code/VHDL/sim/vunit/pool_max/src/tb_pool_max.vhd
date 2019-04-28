@@ -16,8 +16,7 @@ entity tb_pool_max is
     tb_path       : string;
     C_KSIZE       : integer := 6;
     C_TOTAL_BITS  : integer := 6;
-    C_FRAC_BITS   : integer := 3;
-    C_BURST       : boolean := true
+    C_FRAC_BITS   : integer := 3
   );
 end entity;
 
@@ -88,19 +87,13 @@ begin
             to_string(C_KSIZE));
 
     wait until rising_edge(sl_clk);
+    sl_valid_in <= '1';
     for y in 0 to C_KSIZE-1 loop
       for x in 0 to C_KSIZE-1 loop
         slv_data_in((x+y*C_KSIZE+1)*C_TOTAL_BITS-1 downto (x+y*C_KSIZE)*C_TOTAL_BITS) <= std_logic_vector(to_unsigned(data_src.get(x, y), C_TOTAL_BITS));
       end loop;
     end loop;
-    sl_valid_in <= '1';
     wait until rising_edge(sl_clk);
-
-    if not C_BURST then
-      sl_valid_in <= '0';
-      wait until rising_edge(sl_clk);
-    end if;
-
     sl_valid_in <= '0';
 
     stimuli_done <= true;
