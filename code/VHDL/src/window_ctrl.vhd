@@ -61,6 +61,7 @@ architecture behavioral of window_ctrl is
   signal slv_wb_data_out : std_logic_vector(C_KSIZE*C_KSIZE*C_DATA_TOTAL_BITS-1 downto 0);
 
   -- for channel buffer
+  signal sl_chb_repeat : std_logic := '0';
   signal sl_chb_valid_in : std_logic := '0';
   signal sl_chb_valid_in_d1 : std_logic := '0';
   signal sl_chb_valid_out : std_logic := '0';
@@ -134,12 +135,14 @@ begin
     isl_clk     => isl_clk,
     isl_reset   => isl_rst_n,
     isl_ce      => isl_ce,
+    isl_repeat  => sl_chb_repeat,
     isl_valid   => sl_chb_valid_in,
     islv_data   => slv_chb_data_in,
     oslv_data   => slv_chb_data_out,
     osl_valid   => sl_chb_valid_out,
     osl_rdy     => sl_chb_rdy
   );
+  sl_chb_repeat <= '1' when int_pixel_in_cnt >= (C_KSIZE-1)*C_IMG_WIDTH+C_KSIZE-1 else '0';
 
   -------------------------------------------------------
   -- Process: Counter

@@ -16,12 +16,13 @@ entity channel_buffer is
     isl_clk     : in std_logic;
     isl_reset   : in std_logic;
     isl_ce      : in std_logic;
+    isl_repeat  : in std_logic;
     isl_valid   : in std_logic;
     islv_data   : in std_logic_vector(C_DATA_WIDTH*C_KSIZE*C_KSIZE-1 downto 0);
     oslv_data   : out std_logic_vector(C_DATA_WIDTH*C_KSIZE*C_KSIZE-1 downto 0);
     osl_valid   : out std_logic;
     osl_rdy     : out std_logic
-    );
+  );
 end channel_buffer;
 
 -----------------------------------------------------------------------------------------------------------------------
@@ -75,6 +76,11 @@ begin
         end if;
 
         if sl_valid_out = '1' then
+          if isl_repeat = '0' and sl_valid_in = '0' then
+            -- repeat only when needed, i. e. when the linebuffer is filled
+            sl_valid_out <= '0';
+          end if;
+
           if int_ch_out_cnt < C_CH-1 then
             int_ch_out_cnt <= int_ch_out_cnt+1;
           else
