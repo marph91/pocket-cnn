@@ -3,6 +3,9 @@ library ieee;
   use ieee.numeric_std.all;
   use ieee.fixed_pkg.all;
 
+library sim;
+  use sim.common.all;
+
 library vunit_lib;
   context vunit_lib.vunit_context;
   use vunit_lib.array_pkg.all;
@@ -11,7 +14,7 @@ entity tb_pool_ave is
   generic (
     runner_cfg    : string;
     tb_path       : string;
-    C_INT_BITS    : integer := 3;
+    C_TOTAL_BITS  : integer := 3;
     C_FRAC_BITS   : integer := 3;
     C_IMG_WIDTH   : integer := 3;
     C_IMG_HEIGHT  : integer := 3;
@@ -21,13 +24,12 @@ end entity;
 
 architecture tb of tb_pool_ave is
   constant C_CLK_PERIOD : time := 10 ns;
-  constant C_DATA_WIDTH : integer := C_INT_BITS + C_FRAC_BITS;
 
   signal sl_clk : std_logic := '0';
   signal sl_valid_in : std_logic := '0';
-  signal slv_data_in : std_logic_vector(C_DATA_WIDTH-1 downto 0) := (others => '0');
+  signal slv_data_in : std_logic_vector(C_TOTAL_BITS-1 downto 0) := (others => '0');
   signal sl_valid_out : std_logic := '0';
-  signal slv_data_out : std_logic_vector(C_DATA_WIDTH-1 downto 0) := (others => '0');
+  signal slv_data_out : std_logic_vector(C_TOTAL_BITS-1 downto 0) := (others => '0');
 
   signal sl_start : std_logic := '0';
 
@@ -38,7 +40,7 @@ architecture tb of tb_pool_ave is
 begin
   dut : entity work.pool_ave
   generic map (
-    C_INT_BITS    => C_INT_BITS,
+    C_TOTAL_BITS  => C_TOTAL_BITS,
     C_FRAC_BITS   => C_FRAC_BITS,
     C_POOL_CH     => C_POOL_CH,
     C_IMG_WIDTH   => C_IMG_WIDTH,
@@ -64,9 +66,9 @@ begin
       sl_start <= '0';
       wait until rising_edge(sl_clk);
 
-      wait until (stimuli_done and
-                  data_check_done and
-                  rising_edge(sl_clk));
+      wait until (rising_edge(sl_clk) and
+                  stimuli_done and
+                  data_check_done);
     end procedure;
 
   begin
@@ -78,13 +80,7 @@ begin
     wait;
   end process;
 
-  clk_process : process
-  begin
-    sl_clk <= '1';
-    wait for C_CLK_PERIOD/2;
-    sl_clk <= '0';
-    wait for C_CLK_PERIOD/2;
-  end process;
+  clk_gen(sl_clk, C_CLK_PERIOD);
 
   stimuli_process : process
   begin
@@ -118,7 +114,7 @@ begin
     for w in 0 to C_POOL_CH-1 loop
       wait until rising_edge(sl_clk) and sl_valid_out = '1';
       report ("ch=" & to_string(w) & " " & to_string(slv_data_out) & " " & to_string(data_ref.get(0, w)));
-      check_equal(slv_data_out, std_logic_vector(to_unsigned(data_ref.get(0, w), C_DATA_WIDTH)));
+      check_equal(slv_data_out, std_logic_vector(to_unsigned(data_ref.get(0, w), C_TOTAL_BITS)));
     end loop;
     report ("Done checking");
     data_check_done <= true;

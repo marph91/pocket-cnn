@@ -2,6 +2,9 @@ library ieee;
   use ieee.std_logic_1164.all;
   use ieee.numeric_std.all;
 
+library sim;
+  use sim.common.all;
+
 library vunit_lib;
   context vunit_lib.vunit_context;
   use vunit_lib.array_pkg.all;
@@ -80,13 +83,7 @@ begin
     wait;
   end process;
 
-  clk_process : process
-  begin
-    sl_clk <= '1';
-    wait for C_CLK_PERIOD/2;
-    sl_clk <= '0';
-    wait for C_CLK_PERIOD/2;
-  end process;
+  clk_gen(sl_clk, C_CLK_PERIOD);
 
   stimuli_process : process
   begin

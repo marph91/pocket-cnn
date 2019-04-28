@@ -6,7 +6,7 @@ def random_bw(max_bw=16):
     bits = randint(1, max_bw)
     int_bits = randint(1, bits)
     frac_bits = bits - int_bits
-    return int_bits, frac_bits
+    return bits, frac_bits
 
 
 def random_fixed_array(size, int_bits, frac_bits):

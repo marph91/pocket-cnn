@@ -2,31 +2,33 @@ library ieee;
   use ieee.std_logic_1164.all;
   use ieee.numeric_std.all;
 
+library sim;
+  use sim.common.all;
+
 library vunit_lib;
   context vunit_lib.vunit_context;
   use vunit_lib.array_pkg.all;
 
 entity tb_relu is
   generic (
-    runner_cfg  : string;
-    tb_path     : string;
-    ref_file    : string;
-    sample_cnt  : integer;
-    C_LEAKY     : std_logic := '0';
-    C_INT_BITS  : integer := 4;
-    C_FRAC_BITS : integer := 4
+    runner_cfg    : string;
+    tb_path       : string;
+    ref_file      : string;
+    sample_cnt    : integer;
+    C_LEAKY       : std_logic := '0';
+    C_TOTAL_BITS  : integer := 4;
+    C_FRAC_BITS   : integer := 4
   );
 end entity;
 
 architecture tb of tb_relu is
   constant C_CLK_PERIOD : time := 10 ns;
-  constant C_DATA_WIDTH : integer := C_INT_BITS + C_FRAC_BITS;
 
   signal sl_clk : std_logic := '0';
   signal sl_valid_in : std_logic := '0';
-  signal slv_data_in : std_logic_vector(C_DATA_WIDTH-1 downto 0) := (others => '0');
+  signal slv_data_in : std_logic_vector(C_TOTAL_BITS-1 downto 0) := (others => '0');
   signal sl_valid_out : std_logic := '0';
-  signal slv_data_out : std_logic_vector(C_DATA_WIDTH-1 downto 0) := (others => '0');
+  signal slv_data_out : std_logic_vector(C_TOTAL_BITS-1 downto 0) := (others => '0');
 
   signal sl_start : std_logic := '0';
 
@@ -37,9 +39,9 @@ architecture tb of tb_relu is
 begin
   dut : entity work.relu
   generic map (
-    C_INT_BITS  => C_INT_BITS,
-    C_FRAC_BITS => C_FRAC_BITS,
-    C_LEAKY     => C_LEAKY
+    C_TOTAL_BITS  => C_TOTAL_BITS,
+    C_FRAC_BITS   => C_FRAC_BITS,
+    C_LEAKY       => C_LEAKY
   )
   port map (
     isl_clk   => sl_clk,
@@ -73,13 +75,7 @@ begin
     wait;
   end process;
 
-  clk_process : process
-  begin
-    sl_clk <= '1';
-    wait for C_CLK_PERIOD/2;
-    sl_clk <= '0';
-    wait for C_CLK_PERIOD/2;
-  end process;
+  clk_gen(sl_clk, C_CLK_PERIOD);
 
   stimuli_process : process
   begin
@@ -89,7 +85,7 @@ begin
     wait until rising_edge(sl_clk);
     sl_valid_in <= '1';
     for x in 0 to sample_cnt-1 loop
-      slv_data_in <= std_logic_vector(to_signed(data_src.get(x), C_DATA_WIDTH));
+      slv_data_in <= std_logic_vector(to_signed(data_src.get(x), C_TOTAL_BITS));
       wait until rising_edge(sl_clk);
     end loop;
     sl_valid_in <= '0';

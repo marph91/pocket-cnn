@@ -7,10 +7,11 @@ from fixfloat import v_float2fixedint
 from tools_vunit import random_bw, random_fixed_array
 
 
-def create_stimuli(root, pool_dim, int_bits, frac_bits):
+def create_stimuli(root, pool_dim, total_bits, frac_bits):
     # vunit import from csv can only handle datatype integer.
     # Therefore the random fixed point values have to be converted to
     # corresponding integer values.
+    int_bits = total_bits - frac_bits
     a_rand = random_fixed_array((pool_dim, pool_dim), int_bits, frac_bits)
     a_in = v_float2fixedint(a_rand, int_bits, frac_bits)
     np.savetxt(join(root, "src", "input%d.csv" % pool_dim), a_in,
@@ -34,14 +35,13 @@ def create_test_suite(ui):
 
     tb_pool_max = lib.entity("tb_pool_max")
     for pool_dim in [2, 3]:
-        int_bits, frac_bits = random_bw(max_bw=16)
-        # print("dim=%d,q%d.%d" % (pool_dim, int_bits, frac_bits))
-        generics = {"C_POOL_DIM": pool_dim, "C_INT_BITS": int_bits,
+        total_bits, frac_bits = random_bw(max_bw=16)
+        generics = {"C_KSIZE": pool_dim, "C_TOTAL_BITS": total_bits,
                     "C_FRAC_BITS": frac_bits}
         tb_pool_max.add_config(name="dim=%d" % (pool_dim),
                                generics=generics,
                                pre_config=create_stimuli(root, pool_dim,
-                                                         int_bits, frac_bits))
+                                                         total_bits, frac_bits))
 
 
 if __name__ == "__main__":
