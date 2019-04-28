@@ -115,7 +115,6 @@ def run_test(dut):
     for _ in range(50):
         yield RisingEdge(dut.isl_clk)
 
-    # TODO: print short scoreboard summary
     # raise scoreboard.result
 
 

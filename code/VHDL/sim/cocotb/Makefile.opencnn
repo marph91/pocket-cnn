@@ -1,7 +1,7 @@
 CWD=$(shell pwd)
 
 # COCOTB_ROOT=/home/Programme/cocotb
-# suppress most of the cocotb log
+# fit the cocotb log on 80 characters per line
 export COCOTB_REDUCED_LOG_FMT=1
 
 SIM=ghdl
@@ -9,7 +9,6 @@ CMD_BIN=ghdl
 OPT=-O3
 GHDL_ARGS=-g $(OPT) -P$(CWD)/util --ieee=synopsys --std=08
 
-# --vcd slows sim down to half speed
 SIM_ARGS+=--ieee-asserts=disable --assert-level=none
 SIM_BUILD=work
 
@@ -27,13 +26,11 @@ VSIM_ARGS=-t 1ps
 
 all: dirs libs
 dirs:
-	mkdir -p $(CWD)/work $(CWD)/util #$(CWD)/ieee_proposed
+	mkdir -p $(CWD)/work $(CWD)/util
 
 # compile the custom libraries
 libs:
 	$(CMD_BIN) -a $(OPT) --std=08 --work=util --workdir=util $(VHDL_DIR)/util/*.vhd
-	#$(CMD_BIN) -a $(OPT) --std=93c --work=ieee_proposed --workdir=ieee_proposed --ieee=synopsys $(VHDL_DIR)/ieee_proposed/*.vhd
-
 
 include $(COCOTB_ROOT)/makefiles/Makefile.inc
 include $(COCOTB_ROOT)/makefiles/Makefile.sim

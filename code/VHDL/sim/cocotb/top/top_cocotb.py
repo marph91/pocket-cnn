@@ -1,6 +1,12 @@
 #!/usr/bin/env python3
+
+# disable, because assigning values to signals is needed
+# pylint: disable=pointless-statement
+
+# dut._log seems to be the official way to print a log message
+# pylint: disable=protected-access
+
 import glob
-import argparse
 import os
 import sys
 import numpy as np
@@ -8,7 +14,7 @@ import numpy as np
 # pylint: disable=E0401
 import cocotb
 from cocotb.clock import Clock
-from cocotb.triggers import Timer, RisingEdge
+from cocotb.triggers import RisingEdge
 from cocotb.regression import TestFactory
 from cocotb.result import TestFailure
 
@@ -16,25 +22,6 @@ import cnn_frameworks
 
 import fixfloat
 import tools_common as common
-
-# TODO: automatize running of test cnn architectures
-# signals == blobs
-# test 1 - 4 PE; conv: 3x3+1+pad, 1x1; max: 2x2+2, 3x3+3
-# signals = [dut, dut.prepr, dut.stage1.gen_relu.relu, dut.stage1,
-#            dut.stage2.gen_relu.relu, dut.stage2, dut.stage3, dut.stage4,
-#            dut.ave]
-# test 2 - 4 PE; conv: 3x3+2+pad, 1x1; max: 3x3+2
-# signals = [dut, dut.prepr, dut.stage1, dut.stage2.gen_relu.relu, dut.stage2,
-#            dut.stage3, dut.stage4, dut.ave]
-# test 3 - 6 PE; 2*(conv - conv - pool)
-# signals = [dut, dut.prepr, dut.stage1, dut.stage2.gen_relu.relu, dut.stage2,
-#            dut.stage3, dut.stage4.gen_relu.relu, dut.stage4, dut.stage5,
-#            dut.stage6, dut.ave]
-# test 4 - 5 PE; conv: 2x2+1, 3x3+1+pad, 1x1; max: 2x2+1, 3x3+3, 3x3+2,
-#                Leaky ReLU; 3*(conv - pool)
-# signals = [dut, dut.prepr, dut.stage1.gen_relu.relu, dut.stage1,
-#            dut.stage2.gen_relu.relu, dut.stage2, dut.stage3.gen_relu.relu,
-#            dut.stage3, dut.stage4, dut.stage5, dut.ave]
 
 DEBUG = bool(int(os.environ["DEBUG"]))
 DEBUG_DIR = os.environ["TB_ROOT"] + "/DEBUG/"
@@ -49,18 +36,19 @@ def parse_signals(dut):
     sys.stdout = open(os.devnull, "w")
 
     for submodule in dut:
+        # TODO: is this the right way? _name is protected
         if "stage" in submodule._name:
             stages.update({submodule._name: []})
 
             # get convolution (inclusive relu) blob
             try:
-                stages[submodule._name].append(submodule.gen_relu.relu)
+                stages[submodule._name].append(submodule.gen_relu.i_relu)
             except AttributeError:
                 stages[submodule._name].append(submodule.conv_buf)
 
             # get pool blob
             try:
-                stages[submodule._name].append(submodule.gen_pool.max_buf)
+                stages[submodule._name].append(submodule.gen_pool.i_max_top)
             except AttributeError:
                 pass
 
@@ -69,7 +57,9 @@ def parse_signals(dut):
 
     # add input and output blobs to list of signals
     signals = [dut, dut.prepr]
-    [signals.append(signal) for key in stages.keys() for signal in stages[key]]
+    for _, value in stages.items():
+        for signal in value:
+            signals.append(signal)
     signals.append(dut.ave)
     return signals
 
@@ -81,15 +71,15 @@ def format_array(fl_list):
 
 def softmax(scores):
     """Calculate softmax function for class scores."""
-    y = np.empty(scores.shape)
+    res = np.empty(scores.shape)
     for index, data in enumerate(scores.flat):
-        y[0, index, 0, 0] = np.exp(data)/np.sum(np.exp(scores[0, :, 0, 0]))
-    return y
+        res[0, index, 0, 0] = np.exp(data)/np.sum(np.exp(scores[0, :, 0, 0]))
+    return res
 
 
 # ==============================================================================
 @cocotb.coroutine
-def gen_debug(clk, dut, exp_out, outfile, cnn):
+def gen_debug(dut, exp_out, outfile, cnn):
     """Collects the results of the dut and calculates differences to
     software cnn inference.
     """
@@ -123,7 +113,7 @@ def gen_debug(clk, dut, exp_out, outfile, cnn):
                 for i in range(len(exp_out))]
 
     brief_out = []
-    for layer in range(len(test_out)):
+    for layer, _ in enumerate(test_out):
         # compare just whole layers
         if layer < len(test_out)-1:
             if not np.array_equal(exp_out[layer], test_out[layer]):
@@ -138,16 +128,16 @@ def gen_debug(clk, dut, exp_out, outfile, cnn):
             for ch_out in range(len(test_out[layer][ch_in])):
                 diff_str.append("Output Channel %d\n" % (ch_out+1))
                 out_str.append("\n\nOutput Channel %d\n" % (ch_out+1))
-                for w in range(len(test_out[layer][ch_in][ch_out])):
+                for width in range(len(test_out[layer][ch_in][ch_out])):
                     out_str.append("\n")
-                    for h in range(len(test_out[layer][ch_in][ch_out][w])):
-                        out_val = test_out[layer][ch_in][ch_out][w][h]
-                        exp_val = exp_out[layer][ch_in][ch_out][w][h]
+                    for height in range(len(test_out[layer][ch_in][ch_out][width])):
+                        out_val = test_out[layer][ch_in][ch_out][width][height]
+                        exp_val = exp_out[layer][ch_in][ch_out][width][height]
                         out_str.append("%f " % (out_val))
-                        if (exp_val != out_val):
+                        if exp_val != out_val:
                             diff_str.append("%d %d %d %d %f %f\n" %
-                                            (ch_in+1, ch_out+1, w+1, h+1,
-                                             exp_val, out_val))
+                                            (ch_in+1, ch_out+1, width+1,
+                                             height+1, exp_val, out_val))
         with open("%s%d_DIFF.txt" % (DEBUG_DIR, layer), "w") as ofile:
             ofile.write("".join(diff_str))
         with open("%s%d_OUT.txt" % (DEBUG_DIR, layer), "w") as ofile:
@@ -163,7 +153,7 @@ def gen_debug(clk, dut, exp_out, outfile, cnn):
     diff = softmax(test_out[-1]) - softmax(exp_out[-1])
     err_soft_abs = np.sum(abs(diff))
     err_soft_rel = np.average(abs(diff))
-    brief_out.append("%d %f %f\n" % (layer+1, err_soft_abs, err_soft_rel))
+    brief_out.append("%d %f %f\n" % (len(test_out)+1, err_soft_abs, err_soft_rel))
     with open(outfile, "w") as ofile:
         ofile.write("".join(brief_out))
 
@@ -187,7 +177,7 @@ def run_test(dut, files=None, cnn=None):
 
     if DEBUG is True:
         # neglect last layer of exp_out (softmax), it gets calculated on PS
-        cocotb.fork(gen_debug(dut.isl_clk, dut, exp_out[0:-1], outfile, cnn))
+        cocotb.fork(gen_debug(dut, exp_out[0:-1], outfile, cnn))
 
     # reset/initialize values
     cnt_lines = 0
@@ -199,6 +189,7 @@ def run_test(dut, files=None, cnn=None):
     dut.islv_data <= 0
     yield RisingEdge(dut.isl_clk)
     dut.isl_rst_n <= 1
+    yield RisingEdge(dut.isl_clk)
     dut.isl_ce <= 1
     dut.isl_get <= 1
     dut.isl_start <= 1
@@ -209,7 +200,7 @@ def run_test(dut, files=None, cnn=None):
     # load image
     dut._log.info("Start loading image.")
     exp_out_flat = exp_out[0].flat
-    while (cnt_lines < np.prod(exp_out[0].shape)):
+    while cnt_lines < np.prod(exp_out[0].shape):
         if dut.osl_rdy == 1 and dut.isl_valid == 0:
             dut.isl_valid <= 1
             # round because exp_out are stored float numbers, f. e.: 123.999997
@@ -256,10 +247,8 @@ def run_test(dut, files=None, cnn=None):
 
 def run_tb():
     """Run the testbench with given inputs."""
-    tb = TestFactory(run_test)
-
-    FILES = os.environ["TEST_FILES"]
-    file_list = glob.glob(FILES)
+    files = os.environ["TEST_FILES"]
+    file_list = glob.glob(files)
 
     if os.environ["CNN_FW"] == "caffe":
         cnn = [cnn_frameworks.Caffe()]
@@ -279,8 +268,10 @@ def run_tb():
                     for i, d in enumerate(file_list)]
     else:
         out_list = file_list
-    tb.add_option("files", out_list)
-    tb.add_option("cnn", cnn)
-    tb.generate_tests()
+
+    testbench = TestFactory(run_test)
+    testbench.add_option("files", out_list)
+    testbench.add_option("cnn", cnn)  # TODO: test with pytorch AND caffe
+    testbench.generate_tests()
 
 run_tb()

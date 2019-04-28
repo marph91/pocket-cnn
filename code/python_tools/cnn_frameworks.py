@@ -73,7 +73,7 @@ class Pytorch(CnnBase):
 
     def inference(self, image, width, height):
         net = cnn_pytorch.tools.load_model(self.deploy_file)
-        # TODO: implement manual gpu flag useful?
+        # TODO: would manual gpu flag be useful?
         # use_gpu = bool(int(os.environ["GPU"]))
         net.eval()
         result = cnn_pytorch.tools.forward_image(net, image)
