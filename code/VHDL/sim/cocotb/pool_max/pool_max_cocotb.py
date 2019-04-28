@@ -4,8 +4,6 @@
 # pylint: disable=pointless-statement, expression-not-assigned
 
 from collections import namedtuple
-import math
-import random
 
 import cocotb
 from cocotb.clock import Clock
@@ -19,17 +17,11 @@ from fixfloat import fixedint2ffloat
 import tools_cocotb
 
 
-class ConvMonitor(Monitor):
+class MaxPoolMonitor(Monitor):
     """Represents a monitor for the output values of a line buffer."""
     def __init__(self, name, gen, clk, valid, data):
-        try:
-            dim_factor = math.log(gen.dim-1, 2)
-        except ValueError:
-            # prevent division by zero
-            dim_factor = 0
-        self.int_width_out = gen.int_data + gen.int_weight + \
-            math.ceil(dim_factor) * 2 + 1
-        self.frac_width_out = gen.frac_data + gen.frac_weight
+        self.int_width = gen.int_data
+        self.frac_width = gen.frac_data
 
         self.clk = clk
         self.name = name
@@ -43,64 +35,54 @@ class ConvMonitor(Monitor):
             yield RisingEdge(self.clk)
             if bool(self.valid.value.integer):
                 values = fixedint2ffloat(self.data.value.integer,
-                                         self.int_width_out, self.frac_width_out)
+                                         self.int_width, self.frac_width)
                 self._recv(values)
 
 
-class ConvModel:
+class MaxPoolModel:
     """Represent a software model of a convolution."""
     def __init__(self, gen):
         self.window_size = gen.dim
         self.int_width_data = gen.int_data
         self.frac_width_data = gen.frac_data
-        self.int_width_weights = gen.int_weight
-        self.frac_width_weights = gen.frac_weight
         self.expected_output = []
 
-    def __call__(self, data, weights):
-        assert len(data) == len(weights)
+    def __call__(self, data: list):
         out_data_ref = 0
-        for i, _ in enumerate(data):
-            fixed_data = fixedint2ffloat(data[i], self.int_width_data,
-                                         self.frac_width_data)
-            fixed_weights = fixedint2ffloat(weights[i], self.int_width_weights,
-                                            self.frac_width_weights)
-            out_data_ref += fixed_data * fixed_weights
-
+        fixed_data = []
+        for value in data:
+            fixed_data.append(fixedint2ffloat(value, self.int_width_data,
+                                              self.frac_width_data))
+        out_data_ref = max(fixed_data)
         self.expected_output.append(out_data_ref)
 
 
 @cocotb.coroutine
 def run_test(dut, burst=True):
     """setup testbench and run a test"""
+    # setup clock, do this at first, because more clear error messages appear
+    clk = Clock(dut.isl_clk, 10, "ns")
+    cocotb.fork(clk.start())
+
+    # parse generics
     generics = namedtuple("generics", ["bits_data", "int_data", "frac_data",
-                                       "bits_weight", "int_weight",
-                                       "frac_weight", "dim"])
-    gen = generics(dut.C_DATA_TOTAL_BITS.value.integer,
-                   dut.C_DATA_TOTAL_BITS.value.integer -
-                   dut.C_DATA_FRAC_BITS_IN.value.integer,
-                   dut.C_DATA_FRAC_BITS_IN.value.integer,
-                   dut.C_WEIGHTS_TOTAL_BITS.value.integer,
-                   dut.C_WEIGHTS_TOTAL_BITS.value.integer -
-                   dut.C_WEIGHTS_FRAC_BITS.value.integer,
-                   dut.C_WEIGHTS_FRAC_BITS.value.integer,
+                                       "dim"])
+    gen = generics(dut.C_TOTAL_BITS.value.integer,
+                   dut.C_TOTAL_BITS.value.integer -
+                   dut.C_FRAC_BITS.value.integer,
+                   dut.C_FRAC_BITS.value.integer,
                    dut.C_KSIZE.value.integer)
 
     # setup monitor, software model and scoreboard
-    output_mon = ConvMonitor("output", gen, dut.isl_clk, dut.osl_valid, dut.oslv_data)
-    conv = ConvModel(gen)
+    output_mon = MaxPoolMonitor("output", gen, dut.isl_clk, dut.osl_valid, dut.oslv_data)
+    maxpool = MaxPoolModel(gen)
     scoreboard = Scoreboard(dut)
-    scoreboard.add_interface(output_mon, conv.expected_output)
-
-    # setup clock
-    clk = Clock(dut.isl_clk, 10, "ns")
-    cocotb.fork(clk.start())
+    scoreboard.add_interface(output_mon, maxpool.expected_output)
 
     # reset/initialize values
     dut.isl_rst_n <= 0
     dut.isl_valid <= 0
     dut.islv_data <= 0
-    dut.islv_weights <= 0
     yield RisingEdge(dut.isl_clk)
     dut.isl_rst_n <= 1
     dut.isl_ce <= 1
@@ -108,13 +90,10 @@ def run_test(dut, burst=True):
 
     for _ in range(100):
         in_data = tools_cocotb.random_list(gen.bits_data, gen.dim)
-        in_weights = tools_cocotb.random_list(gen.bits_data, gen.dim)
-
-        conv(in_data, in_weights)
+        maxpool(in_data)
 
         dut.isl_valid <= 1
         dut.islv_data <= tools_cocotb.concatenate(in_data, gen.bits_data)
-        dut.islv_weights <= tools_cocotb.concatenate(in_weights, gen.bits_data)
         yield RisingEdge(dut.isl_clk)
         if not burst:
             dut.isl_valid <= 0
@@ -122,7 +101,7 @@ def run_test(dut, burst=True):
 
     dut.isl_valid <= 0
 
-    if conv.expected_output == []:
+    if maxpool.expected_output == []:
         raise TestFailure("Output is empty.")
 
     for _ in range(50):

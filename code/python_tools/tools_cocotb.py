@@ -1,3 +1,5 @@
+import random
+
 import cocotb
 from cocotb.monitors import Monitor
 from cocotb.triggers import RisingEdge
@@ -39,3 +41,7 @@ def concatenate(data: list, bitwidth) -> int:
     for i, d in enumerate(data):
         data_concat += d << (bitwidth*i)
     return data_concat
+
+def random_list(bitwidth, dim):
+    """Generate a list with random integers."""
+    return [random.randint(0, 2**bitwidth-1) for _ in range(dim**2)]
