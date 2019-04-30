@@ -9,7 +9,7 @@ CMD_BIN=ghdl
 OPT=-O3
 GHDL_ARGS=-g $(OPT) -P$(CWD)/util --ieee=synopsys --std=08
 
-SIM_ARGS+=--ieee-asserts=disable --assert-level=none
+SIM_ARGS+=--ieee-asserts=disable --assert-level=none --max-stack-alloc=0
 SIM_BUILD=work
 
 TOPLEVEL_LANG?=vhdl

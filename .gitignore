@@ -22,3 +22,5 @@ code/VHDL/src/top.vhd
 code/VHDL/sim/cocotb/*/*/**
 code/VHDL/sim/vunit/vunit_out/**
 code/VHDL/sim/vunit/*/vunit_out/**
+
+cnn_models/**
