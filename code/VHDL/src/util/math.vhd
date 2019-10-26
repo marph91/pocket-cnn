@@ -1,9 +1,6 @@
 library ieee;
   use ieee.fixed_pkg.all;
 
------------------------------------------------------------------------------------------------------------------------
--- Package declaration
------------------------------------------------------------------------------------------------------------------------
 package math is
   function log2(x : integer) return integer;
   function max(l, r : integer) return integer;
@@ -11,11 +8,7 @@ package math is
   function min(l, r : integer) return integer;
 end package math;
 
------------------------------------------------------------------------------------------------------------------------
--- Package body
------------------------------------------------------------------------------------------------------------------------
 package body math is
-
   -- compute the binary logarithm
   function log2(x : integer) return integer is
     variable i : integer := 0;

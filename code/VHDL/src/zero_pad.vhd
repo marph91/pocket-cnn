@@ -1,9 +1,6 @@
 library ieee;
   use ieee.std_logic_1164.all;
 
------------------------------------------------------------------------------------------------------------------------
--- Entity Section
------------------------------------------------------------------------------------------------------------------------
 entity zero_pad is
   generic (
     C_DATA_WIDTH  : integer range 1 to 16 := 8;
@@ -29,17 +26,10 @@ entity zero_pad is
   );
 end entity;
 
------------------------------------------------------------------------------------------------------------------------
--- Architecture Section
------------------------------------------------------------------------------------------------------------------------
 architecture behavioral of zero_pad is
-
   constant C_IMG_WIDTH_OUT : integer range 1 to C_IMG_WIDTH + C_PAD_LEFT + C_PAD_RIGHT := C_IMG_WIDTH + C_PAD_LEFT + C_PAD_RIGHT;
   constant C_IMG_HEIGHT_OUT : integer range 1 to C_IMG_HEIGHT + C_PAD_TOP + C_PAD_BOTTOM := C_IMG_HEIGHT + C_PAD_TOP + C_PAD_BOTTOM;
 
-  ------------------------------------------
-  -- Signal Declarations
-  ------------------------------------------
   -- counter
   signal int_ch : integer range 0 to C_CH := 0;
   signal int_ch_out : integer range 0 to C_CH := 0;

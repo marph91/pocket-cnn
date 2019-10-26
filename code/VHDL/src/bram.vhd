@@ -6,9 +6,6 @@ library std;
 library util;
   use util.math.all;
 
------------------------------------------------------------------------------------------------------------------------
--- Entity Section
------------------------------------------------------------------------------------------------------------------------
 entity bram is
   generic(
     C_DATA_WIDTH  : integer range 1 to 32*10 := 8;
@@ -27,9 +24,6 @@ entity bram is
   );
 end bram;
 
------------------------------------------------------------------------------------------------------------------------
--- Architecture Section
------------------------------------------------------------------------------------------------------------------------
 architecture behavioral of bram is
   -- constant to prevent overflow in loop variable (max: 2^16-1)
   constant C_SPLIT : integer range 1 to (C_SIZE+1)/65536+1 := (C_SIZE+1)/65536+1;
@@ -61,9 +55,6 @@ architecture behavioral of bram is
     return RAM;
   end function;
 
-  ------------------------------------------
-  -- Signal Declarations
-  ------------------------------------------
   signal a_RAM : t_ram := init_ram(STR_INIT);
   attribute ram_style : string;
   attribute ram_style of a_RAM : signal is "block";

@@ -6,9 +6,6 @@ library ieee;
 library util;
   use util.math.all;
 
------------------------------------------------------------------------------------------------------------------------
--- Entity Section
------------------------------------------------------------------------------------------------------------------------
 entity mm is
   generic (
     C_DATA_TOTAL_BITS     : integer range 1 to 16 := 8;
@@ -29,15 +26,9 @@ entity mm is
   );
 end mm;
 
------------------------------------------------------------------------------------------------------------------------
--- Architecture Section
------------------------------------------------------------------------------------------------------------------------
 architecture behavioral of mm is
   constant C_DATA_INT_BITS : integer range 0 to 16 := C_DATA_TOTAL_BITS-C_DATA_FRAC_BITS_IN;
 
-  ------------------------------------------
-  -- Signal Declarations
-  ------------------------------------------
   signal slv_stage : std_logic_vector(2 to 6) := (others => '0');
 
   type t_1d_sfix_array is array (natural range <>) of sfixed(C_DATA_INT_BITS-1 downto -C_DATA_FRAC_BITS_IN);
@@ -68,6 +59,13 @@ architecture behavioral of mm is
 begin
   -------------------------------------------------------
   -- Process: Convolution
+  -- Stage 1: Load Weights and Data
+  -- Stage 2: 9x Mult / 1x Mult + Add Bias
+  -- Stage 3: Pipeline DSP output
+  -- Stage 4: 9x Resize
+  -- Stage 5: 2x Add / 1x Add
+  -- Stage 6: 2x Add / 1x Add (theoretically not needed for 1x1 conv)
+  -- Total: 3x3 Convolution / 1x1 Convolution
   -------------------------------------------------------
   process(isl_clk)
     variable v_sfix_conv_res : t_1d_sfix_add_array(0 to C_KSIZE-1);
@@ -75,15 +73,6 @@ begin
   begin
     if rising_edge(isl_clk) then
       if isl_ce = '1' then
-
-        -- Stage 1: Load Weights and Data
-        -- Stage 2: 9x Mult / 1x Mult + Add Bias
-        -- Stage 3: Pipeline DSP output
-        -- Stage 4: 9x Resize
-        -- Stage 5: 2x Add / 1x Add
-        -- Stage 6: 2x Add / 1x Add (theoretically not needed for 1x1 conv)
-        -- Total: 3x3 Convolution / 1x1 Convolution
-
         slv_stage <= isl_valid & slv_stage(slv_stage'LOW to slv_stage'HIGH-1);
         sl_output_valid <= slv_stage(slv_stage'HIGH);
 

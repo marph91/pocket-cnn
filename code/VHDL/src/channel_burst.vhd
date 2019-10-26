@@ -1,9 +1,6 @@
 library ieee;
   use ieee.std_logic_1164.all;
 
------------------------------------------------------------------------------------------------------------------------
--- Entity Section
------------------------------------------------------------------------------------------------------------------------
 entity channel_burst is
     generic(
     C_DATA_WIDTH  : integer range 1 to 32 := 8;
@@ -22,13 +19,7 @@ entity channel_burst is
   );
 end channel_burst;
 
------------------------------------------------------------------------------------------------------------------------
--- Architecture Section
------------------------------------------------------------------------------------------------------------------------
 architecture behavior of channel_burst is
-  ------------------------------------------
-  -- Signal Declarations
-  ------------------------------------------
   signal sl_input_valid : std_logic := '0';
   signal slv_data_in : std_logic_vector(C_DATA_WIDTH-1 downto 0);
   signal slv_data_in_d1 : std_logic_vector(C_DATA_WIDTH-1 downto 0);

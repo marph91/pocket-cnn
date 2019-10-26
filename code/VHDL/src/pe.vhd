@@ -5,9 +5,6 @@ library ieee;
 library util;
   use util.math.all;
 
------------------------------------------------------------------------------------------------------------------------
--- Entity Section
------------------------------------------------------------------------------------------------------------------------
 entity pe is
   generic (
     C_DATA_TOTAL_BITS     : integer range 1 to 16 := 8;
@@ -44,14 +41,9 @@ entity pe is
   );
 end pe;
 
------------------------------------------------------------------------------------------------------------------------
--- Architecture Section
------------------------------------------------------------------------------------------------------------------------
 architecture behavioral of pe is
 
-  ------------------------------------------
-  -- Function: calculate the padding at bottom (dependent of conv stride and kernel size)
-  ------------------------------------------
+  -- calculate the padding at bottom (dependent of conv stride and kernel size)
   function f_set_pad_bottom return integer is
     variable v_pad : integer range 0 to 1 := 0;
   begin
@@ -63,12 +55,8 @@ architecture behavioral of pe is
     return v_pad;
   end f_set_pad_bottom;
 
-  constant C_PAD_BOTTOM : integer range 0 to 1 := f_set_pad_bottom;
-
-  ------------------------------------------
-  -- Signal Declarations
-  ------------------------------------------
   -- padding
+  constant C_PAD_BOTTOM : integer range 0 to 1 := f_set_pad_bottom;
   signal slv_pad_data_out : std_logic_vector(C_DATA_TOTAL_BITS-1 downto 0);
   signal sl_pad_output_valid : std_logic := '0';
   signal sl_pad_rdy : std_logic := '0';

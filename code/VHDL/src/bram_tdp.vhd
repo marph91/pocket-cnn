@@ -4,9 +4,6 @@ library ieee;
 library util;
   use util.math.all;
 
------------------------------------------------------------------------------------------------------------------------
--- Entity Section
------------------------------------------------------------------------------------------------------------------------
 entity bram_tdp is
   generic(
     C_DATA_WIDTH_A  : integer := 8;
@@ -32,13 +29,7 @@ entity bram_tdp is
   );
 end bram_tdp;
 
------------------------------------------------------------------------------------------------------------------------
--- Architecture Section
------------------------------------------------------------------------------------------------------------------------
 architecture behavioral of bram_tdp is
-  ------------------------------------------
-  -- Signal Declarations
-  ------------------------------------------
   constant C_MIN_WIDTH : integer := util.math.min(C_DATA_WIDTH_A, C_DATA_WIDTH_B);
   constant C_MAX_WIDTH : integer := util.math.max(C_DATA_WIDTH_A, C_DATA_WIDTH_B);
   constant C_MAX_SIZE : integer := util.math.max(C_SIZE_A, C_SIZE_B);

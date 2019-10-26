@@ -2,9 +2,6 @@ library ieee;
   use ieee.std_logic_1164.all;
   use ieee.numeric_std.all;
 
------------------------------------------------------------------------------------------------------------------------
--- Entity Section
------------------------------------------------------------------------------------------------------------------------
 entity channel_buffer is
     generic(
     C_DATA_WIDTH  : integer range 1 to 32 := 8;
@@ -25,13 +22,7 @@ entity channel_buffer is
   );
 end channel_buffer;
 
------------------------------------------------------------------------------------------------------------------------
--- Architecture Section
------------------------------------------------------------------------------------------------------------------------
 architecture behavior of channel_buffer is
-  ------------------------------------------
-  -- Signal Declarations
-  ------------------------------------------
   signal sl_valid_in : std_logic := '0';
   signal sl_valid_out : std_logic := '0';
   signal int_ch_in_cnt : integer range 0 to C_CH-1 := 0;

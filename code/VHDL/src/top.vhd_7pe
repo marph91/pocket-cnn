@@ -6,9 +6,6 @@ library util;
 
   use work.cnn_parameter.all;
 
------------------------------------------------------------------------------------------------------------------------
--- Entity Section
------------------------------------------------------------------------------------------------------------------------
 entity top is
   port (
     isl_clk   : in std_logic;
@@ -25,15 +22,10 @@ entity top is
   );
 end top;
 
------------------------------------------------------------------------------------------------------------------------
--- Architecture Section
------------------------------------------------------------------------------------------------------------------------
 architecture behavioral of top is
   type t_img_size_array is array (1 to C_PE) of integer range 1 to 512;
 
-  ------------------------------------------
-  -- Function: calculate the image size at every layer
-  ------------------------------------------
+  -- calculate the image size at every layer
   function f_calc_size (size : in integer range 1 to 512) return t_img_size_array is
     variable v_a_size       : t_img_size_array;
   begin
@@ -53,9 +45,6 @@ architecture behavioral of top is
   constant C_IMG_WIDTH        : t_img_size_array := f_calc_size(C_IMG_WIDTH_IN);
   constant C_IMG_HEIGHT         : t_img_size_array := f_calc_size(C_IMG_HEIGHT_IN);
 
-  ------------------------------------------
-  -- Signal Declarations
-  ------------------------------------------
   signal sl_output_valid      : std_logic_vector(0 to C_PE+1) := (others => '0');
 
   type t_data_array is array (0 to C_PE+1) of std_logic_vector(C_DATA_TOTAL_BITS-1 downto 0);
@@ -397,4 +386,3 @@ begin
   osl_valid <= sl_output_valid(C_PE+1);
   osl_rdy <= slv_rdy(1) and isl_get and not isl_valid;--and not sl_output_valid(0)
 end behavioral;
-

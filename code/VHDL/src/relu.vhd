@@ -4,9 +4,6 @@ library ieee;
   use ieee.fixed_pkg.all;
   use ieee.fixed_float_types.all;
 
------------------------------------------------------------------------------------------------------------------------
--- Entity Section
------------------------------------------------------------------------------------------------------------------------
 entity relu is
   generic (
     C_TOTAL_BITS : integer range 1 to 32 := 8;
@@ -25,16 +22,10 @@ entity relu is
   );
 end relu;
 
------------------------------------------------------------------------------------------------------------------------
--- Architecture Section
------------------------------------------------------------------------------------------------------------------------
 architecture behavioral of relu is
   constant C_INT_BITS : integer range 1 to 16 := C_TOTAL_BITS - C_FRAC_BITS;
   signal sl_output_valid : std_logic := '0';
 begin
-  ------------------------------------------
-  -- Process: ReLU
-  ------------------------------------------
   -- use generate statement instead of if-else in process
   -- it is more code, but needs less ressources
   gen_relu : if C_LEAKY = '0' generate
@@ -77,4 +68,3 @@ begin
 
   osl_valid <= sl_output_valid;
 end behavioral;
-

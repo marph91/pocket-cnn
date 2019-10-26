@@ -4,9 +4,6 @@ library ieee;
 library util;
   use util.math.all;
 
------------------------------------------------------------------------------------------------------------------------
--- Entity Section
------------------------------------------------------------------------------------------------------------------------
 entity line_buffer is
   generic(
     C_DATA_WIDTH  : integer range 1 to 64 := 8;
@@ -25,17 +22,11 @@ entity line_buffer is
   );
 end line_buffer;
 
------------------------------------------------------------------------------------------------------------------------
--- Architecture Section
------------------------------------------------------------------------------------------------------------------------
 architecture behavioral of line_buffer is
   constant C_OUTPUT_REG : integer range 0 to 1 := 1;
   constant C_BRAM_SIZE : integer range 1 to C_IMG_WIDTH*C_CH := C_IMG_WIDTH*C_CH - C_OUTPUT_REG;
   constant C_BRAM_DATA_WIDTH : integer range 0 to (C_KSIZE-1)*C_DATA_WIDTH := (C_KSIZE - 1) * C_DATA_WIDTH;
 
-  ------------------------------------------
-  -- Signal Declarations
-  ------------------------------------------
   signal sl_valid_out : std_logic := '0';
   signal slv_data_out : std_logic_vector(C_KSIZE * C_DATA_WIDTH - 1 downto 0) := (others => '0');
 
@@ -47,9 +38,6 @@ architecture behavioral of line_buffer is
   signal slv_bram_data_out : std_logic_vector(C_BRAM_DATA_WIDTH - 1 downto 0);
 
 begin
-  ------------------------------------------
-  -- Component Instantiations
-  ------------------------------------------
   bram_buffer : entity work.bram
   generic map(
     C_DATA_WIDTH  => C_BRAM_DATA_WIDTH,

@@ -6,9 +6,6 @@ library ieee;
 library util;
   use util.math.all;
 
------------------------------------------------------------------------------------------------------------------------
--- Entity Section
------------------------------------------------------------------------------------------------------------------------
 entity conv is
   generic (
     C_DATA_TOTAL_BITS     : integer range 1 to 16 := 8;
@@ -34,13 +31,7 @@ entity conv is
   );
 end conv;
 
------------------------------------------------------------------------------------------------------------------------
--- Architecture Section
------------------------------------------------------------------------------------------------------------------------
 architecture behavioral of conv is
-  ------------------------------------------
-  -- Signal and constant Declarations
-  ------------------------------------------
   constant C_INT_BITS_DATA : integer range 0 to 16 := C_DATA_TOTAL_BITS-C_DATA_FRAC_BITS_IN;
 
   -- for BRAM
@@ -128,7 +119,7 @@ begin
   );
   
   -----------------------------------
-  -- Convolution
+  -- Matrix multiplication
   -----------------------------------
   i_mm : entity work.mm
   generic map (

@@ -6,9 +6,6 @@ library ieee;
 library util;
   use util.math.all;
 
------------------------------------------------------------------------------------------------------------------------
--- Entity Section
------------------------------------------------------------------------------------------------------------------------
 entity pool_ave is
   generic (
     C_TOTAL_BITS  : integer range 1 to 16 := 8;
@@ -29,9 +26,6 @@ entity pool_ave is
   );
 end pool_ave;
 
------------------------------------------------------------------------------------------------------------------------
--- Architecture Section
------------------------------------------------------------------------------------------------------------------------
 architecture behavioral of pool_ave is
   constant C_INT_BITS : integer range 1 to 16 := C_TOTAL_BITS - C_FRAC_BITS;
 
@@ -40,9 +34,6 @@ architecture behavioral of pool_ave is
   constant C_INTW_SUM : integer range 1 to C_INT_BITS+log2(C_IMG_HEIGHT*C_IMG_WIDTH) := C_INT_BITS+log2(C_IMG_HEIGHT*C_IMG_WIDTH);
   constant C_FRACW_REZI : integer range 1 to 16 := 16;
 
-  ------------------------------------------
-  -- Signal Declarations
-  ------------------------------------------
   signal sl_input_valid_d1 : std_logic := '0';
   signal sl_input_valid_d2 : std_logic := '0';
   signal sl_input_valid_d3 : std_logic := '0';
