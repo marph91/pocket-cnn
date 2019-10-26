@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 FILES=$(find "${1-.}" -name "*.vhd")
 FILE_CNT=$(echo -n "$FILES" | grep -c "^")
 
