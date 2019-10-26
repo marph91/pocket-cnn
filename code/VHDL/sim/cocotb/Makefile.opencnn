@@ -32,11 +32,12 @@ dirs:
 libs:
 	$(CMD_BIN) -a $(OPT) --std=08 --work=util --workdir=util $(VHDL_DIR)/util/*.vhd
 
-include $(COCOTB_ROOT)/makefiles/Makefile.inc
-include $(COCOTB_ROOT)/makefiles/Makefile.sim
+include $(shell cocotb-config --makefiles)/Makefile.inc
+include $(shell cocotb-config --makefiles)/Makefile.sim
 
 # override target from cocotb, to force usage of flags -i, -m (previously -a, -e)
 # without these flags, the design would be analyzed by filenames alphabetically
 # now the design gets analysed hierarchically according to VHDL modules
+# TODO: check if still needed and remove COCOTB_ROOT if possible
 analyse: $(VHDL_SOURCES) $(SIM_BUILD)
 	cd $(SIM_BUILD) && $(CMD) -i $(GHDL_ARGS) --work=$(RTL_LIBRARY) $(VHDL_SOURCES) && $(CMD) -m $(GHDL_ARGS) --work=$(RTL_LIBRARY) $(TOPLEVEL)
