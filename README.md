@@ -1,3 +1,5 @@
+Direct Hardware Mapping of CNN to FPGA.
+
 # Requirements
 
 - GHDL: https://github.com/tgingold/ghdl
@@ -28,7 +30,7 @@ cd opencnn
 - Clean up code and folder structure.
 
 ## Testing
-- Fix numerical errors when inferring the CNN with CPU. GPU inference yields exactly the same results as the VHDL design. Maybe related to https://groups.google.com/forum/#!searchin/caffe-users/cpu$20gpu$20difference|sort:date/caffe-users/zwCmin767SE/tz4C8pPpBAAJ.
+- Fix numerical errors when inferring the CNN with CPU. GPU inference yields bit accurate results. Maybe related to https://groups.google.com/forum/#!searchin/caffe-users/cpu$20gpu$20difference|sort:date/caffe-users/zwCmin767SE/tz4C8pPpBAAJ.
 - Add more unit tests for cocotb and vunit.
 - Find a good way to run all cocotb tests with changing generics and summary at the end. Probably a similar implementation like at cocotb repository (cocotb/Makefile) is the best solution. See https://github.com/potentialventures/cocotb/issues/756 and https://dornerworks.com/blog/setting-vhdl-generics-fpga-verification-made-easy-cocotb.
 - Use a second simulator, f. e. modelsim or nvc.
