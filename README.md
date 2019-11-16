@@ -1,4 +1,8 @@
-Direct Hardware Mapping of CNN to FPGA.
+microCNN is a framework to map small Convolutional Neural Networks (CNN) fully on a FPGA.
+
+# Approach
+
+The full CNN is mapped to hardware. There is no communication outside of the FPGA needed. It is similar to the Direct Hardware Mapping approach of https://github.com/DreamIP/haddoc2.
 
 # Requirements
 
