@@ -19,14 +19,21 @@ One of:
 
 ```bash
 # install requirements
-git clone https://gitlab.com/Marph/opencnn.git
-export PYTHONPATH="$PWD"opencnn/code/python_tools:/PATH/TO/CAFFE/RISTRETTO/python
+git clone https://gitlab.com/Marph/microcnn.git
+export PYTHONPATH="$PWD"microcnn/code/python_tools:/PATH/TO/CAFFE/RISTRETTO/python
 export CAFFE_ROOT=/PATH/TO/CAFFE/RISTRETTO
-cd opencnn
+cd microcnn
 
 # edit your cnn_config.sh
 ./cnn.sh all
 ```
+
+To run the vunit based tests, execute:
+```bash
+cd microcnn/code/VHDL/sim/vunit/
+python3 run_all.py
+```
+Further cocotb based tests can be found in the folder `cocotb` and run by executing `make` in the corresponding subdirectory.
 
 # TODO
 

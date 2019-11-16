@@ -33,7 +33,7 @@ def create_test_suite(ui):
 
     ui.add_array_util()
     lib = ui.add_library("lib", allow_duplicate=True)
-    lib.add_source_files("/home/workspace/opencnn/code/VHDL/src/relu.vhd")
+    lib.add_source_files("../../src/relu.vhd")
     lib.add_source_files(join(root, "src", "*.vhd"))
 
     tb_relu = lib.entity("tb_relu")

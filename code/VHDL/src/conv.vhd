@@ -17,8 +17,8 @@ entity conv is
     C_KSIZE           : integer range 1 to 3 := 3;
     C_CH_IN           : integer range 1 to 512 := 4;
     C_CH_OUT          : integer range 1 to 512 := 8;
-    STR_WEIGHTS_INIT  : string := "/home/workspace/opencnn/code/VHDL/sim/cocotb/conv/weights.txt";
-    STR_BIAS_INIT     : string := "/home/workspace/opencnn/code/VHDL/sim/cocotb/conv/bias.txt"
+    STR_WEIGHTS_INIT  : string := "/home/workspace/microcnn/code/VHDL/sim/cocotb/conv/weights.txt";
+    STR_BIAS_INIT     : string := "/home/workspace/microcnn/code/VHDL/sim/cocotb/conv/bias.txt"
   );
   port (
     isl_clk       : in std_logic;

@@ -1,7 +1,7 @@
 TOPLEVEL=zero_pad
 COCOTB_ROOT=/home/prog/cocotb
-VHDL_DIR=/home/workspace/opencnn/code/VHDL/src
+VHDL_DIR=/home/workspace/microcnn/code/VHDL/src
 
 SIM_ARGS?=--vcd=../test.vcd
 
-include ../Makefile.opencnn
+include ../Makefile.microcnn

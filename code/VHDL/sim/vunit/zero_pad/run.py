@@ -24,8 +24,7 @@ def create_test_suite(ui):
 
     ui.add_array_util()
     lib = ui.add_library("lib", allow_duplicate=True)
-    # TODO: remove absolute path -> problem when running single test/all tests
-    lib.add_source_files("/home/workspace/opencnn/code/VHDL/src/zero_pad.vhd")
+    lib.add_source_files("../../src/zero_pad.vhd")
     lib.add_source_files(join(root, "src", "*.vhd"))
 
     tb_zero_pad = lib.entity("tb_zero_pad")

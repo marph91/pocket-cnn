@@ -28,9 +28,9 @@ def create_test_suite(ui):
 
     ui.add_array_util()
     util = ui.add_library("util", allow_duplicate=True)
-    util.add_source_files("/home/workspace/opencnn/code/VHDL/src/util/math.vhd")
+    util.add_source_files("../../src/util/math.vhd")
     lib = ui.add_library("lib", allow_duplicate=True)
-    lib.add_source_files("/home/workspace/opencnn/code/VHDL/src/pool_max.vhd")
+    lib.add_source_files("../../src/pool_max.vhd")
     lib.add_source_files(join(root, "src", "*.vhd"))
 
     tb_pool_max = lib.entity("tb_pool_max")

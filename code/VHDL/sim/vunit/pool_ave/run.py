@@ -31,11 +31,11 @@ def create_test_suite(ui):
 
     ui.add_array_util()
     lib_sim = ui.add_library("sim", allow_duplicate=True)
-    lib_sim.add_source_files("/home/workspace/opencnn/code/VHDL/sim/vunit/common.vhd")
+    lib_sim.add_source_files("common.vhd")
     lib_cmn = ui.add_library("util", allow_duplicate=True)
-    lib_cmn.add_source_files("/home/workspace/opencnn/code/VHDL/src/util/*.vhd")
+    lib_cmn.add_source_files("../../src/util/*.vhd")
     lib = ui.add_library("lib", allow_duplicate=True)
-    lib.add_source_files("/home/workspace/opencnn/code/VHDL/src/pool_ave.vhd")
+    lib.add_source_files("../../src/pool_ave.vhd")
     lib.add_source_files(join(root, "src", "*.vhd"))
 
     tb_pool_ave = lib.entity("tb_pool_ave")

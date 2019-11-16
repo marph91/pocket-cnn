@@ -43,8 +43,8 @@ architecture behavioral of tb_top is
   signal sl_finish        : std_logic;
 
   type t_str_array is array (natural range <>) of string(1 to 48);
-  signal files : t_str_array(0 to 1) := ("/home/workspace/opencnn/code/VHDL/sim/IMAGE1.txt",
-                                         "/home/workspace/opencnn/code/VHDL/sim/IMAGE2.txt");
+  signal files : t_str_array(0 to 1) := ("/home/workspace/microcnn/code/VHDL/sim/IMAGE1.txt",
+                                         "/home/workspace/microcnn/code/VHDL/sim/IMAGE2.txt");
 
   constant C_CLK_PERIOD : time := 10 ns;
 
