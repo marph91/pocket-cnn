@@ -15,7 +15,7 @@ entity tb_zero_pad is
     tb_path         : string;
     C_IMG_WIDTH     : integer := 6;
     C_IMG_HEIGHT    : integer := 6;
-    C_CH : integer  := 3
+    C_IMG_DEPTH     : integer := 3
   );
 end entity;
 
@@ -39,7 +39,7 @@ begin
   dut : entity work.zero_pad
   generic map (
     C_DATA_WIDTH  => C_DATA_WIDTH,
-    C_CH          => C_CH,
+    C_CH          => C_IMG_DEPTH,
     C_IMG_WIDTH   => C_IMG_WIDTH,
     C_IMG_HEIGHT  => C_IMG_HEIGHT,
     C_PAD_TOP     => 1,
@@ -78,6 +78,8 @@ begin
     test_runner_setup(runner, runner_cfg);
     data_src.load_csv(tb_path & "input.csv");
     data_ref.load_csv(tb_path & "output.csv");
+    data_src.reshape(C_IMG_HEIGHT, C_IMG_WIDTH, C_IMG_DEPTH);
+    data_ref.reshape(C_IMG_HEIGHT+2, C_IMG_WIDTH+2, C_IMG_DEPTH);
     run_test;
     test_runner_cleanup(runner);
     wait;
@@ -91,21 +93,24 @@ begin
     stimuli_done <= false;
 
     report ("Sending image of size " &
-            to_string(data_src.width/C_CH) & "x" &
+            to_string(data_src.width) & "x" &
             to_string(data_src.height) & "x" &
-            to_string(C_CH));
+            to_string(data_src.depth));
     report ("Expecting image of size " &
-            to_string(data_ref.width/C_CH) & "x" &
+            to_string(data_ref.width) & "x" &
             to_string(data_ref.height) & "x" &
-            to_string(C_CH));
+            to_string(data_ref.depth));
 
     for y in 0 to data_src.height-1 loop
-      for x in 0 to data_src.width/C_CH-1 loop
+      for x in 0 to data_src.width-1 loop
         wait until rising_edge(sl_clk) and sl_rdy = '1';
         sl_valid_in <= '1';
-        for w in 0 to C_CH-1 loop
-          slv_data_in <= std_logic_vector(to_unsigned(data_src.get(w+(x*C_CH), y), slv_data_in'length));
-          report("w=" & to_string(x) & ", h=" & to_string(y) & ", ch=" & to_string(w) & ", in_val=" & to_string(std_logic_vector(to_unsigned(data_src.get(x*(w+1), y), slv_data_in'length))));
+        for w in 0 to data_src.depth-1 loop
+          slv_data_in <= std_logic_vector(to_unsigned(data_src.get(x, y, w), slv_data_in'length));
+          report("input: " & "w=" & to_string(x) &
+                             ", h=" & to_string(y) &
+                             ", ch=" & to_string(w) &
+                             ", in_val=" & to_string(std_logic_vector(to_unsigned(data_src.get(x, y, w), slv_data_in'length))));
           wait until rising_edge(sl_clk);
         end loop;
         sl_valid_in <= '0';
@@ -122,16 +127,21 @@ begin
     data_check_done <= false;
     for y in 0 to data_ref.height-1 loop
       for x in 0 to data_ref.width-1 loop
-        wait until rising_edge(sl_clk) and sl_valid_out = '1';
-        report("w=" & to_string(x/C_CH) & ", h=" & to_string(y) & ", ch=" & to_string(x rem C_CH) & ", out_val=" & to_string(slv_data_out));
-        check_equal(slv_data_out, data_ref.get(x, y),
-                    "w=" & to_string(x/C_CH) & ", h=" & to_string(y) & ", ch=" & to_string(x rem C_CH));
+        for z in 0 to data_ref.depth-1 loop
+          wait until rising_edge(sl_clk) and sl_valid_out = '1';
+          report("output: " & "w=" & to_string(x) &
+                              ", h=" & to_string(y) &
+                              ", ch=" & to_string(z) &
+                              ", out_val=" & to_string(slv_data_out));
+          check_equal(slv_data_out, data_ref.get(x, y, z),
+                      "w=" & to_string(x) & ", h=" & to_string(y) & ", ch=" & to_string(z));
+        end loop;
       end loop;
     end loop;
     report ("Done checking image of size " &
-            to_string(data_ref.width/C_CH) & "x" &
+            to_string(data_ref.width) & "x" &
             to_string(data_ref.height) & "x" &
-            to_string(C_CH));
+            to_string(data_src.depth));
     data_check_done <= true;
   end process;
 end architecture;

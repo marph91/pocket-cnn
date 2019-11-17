@@ -31,7 +31,7 @@ def create_test_suite(ui):
     width, height, channel = randint(1, 32), randint(1, 32), randint(1, 16)
     tb_zero_pad.add_config(name="all",
                            generics={"C_IMG_WIDTH": width, "C_IMG_HEIGHT": height,
-                                     "C_CH": channel},
+                                     "C_IMG_DEPTH": channel},
                            pre_config=create_arrays(root, width, height,
                                                     channel))
 
