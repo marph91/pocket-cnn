@@ -37,9 +37,9 @@ def create_test_suite(ui):
     lib.add_source_files(join(root, "src", "*.vhd"))
 
     tb_relu = lib.entity("tb_relu")
-    sample_cnt = 10
+    sample_cnt = 100
     for leaky in [0, 1]:
-        generics = {"sample_cnt": 10,
+        generics = {"sample_cnt": sample_cnt,
                     "ref_file": "output" + "_leaky" * leaky + ".csv",
                     "C_LEAKY": "'%d'" % leaky,
                     "C_TOTAL_BITS": 8, "C_FRAC_BITS": 0}
