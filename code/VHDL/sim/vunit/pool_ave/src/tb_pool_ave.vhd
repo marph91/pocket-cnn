@@ -18,7 +18,7 @@ entity tb_pool_ave is
     C_FRAC_BITS   : integer := 3;
     C_IMG_WIDTH   : integer := 3;
     C_IMG_HEIGHT  : integer := 3;
-    C_POOL_CH     : integer := 3
+    C_IMG_DEPTH   : integer := 3
   );
 end entity;
 
@@ -42,7 +42,7 @@ begin
   generic map (
     C_TOTAL_BITS  => C_TOTAL_BITS,
     C_FRAC_BITS   => C_FRAC_BITS,
-    C_POOL_CH     => C_POOL_CH,
+    C_POOL_CH     => C_IMG_DEPTH,
     C_IMG_WIDTH   => C_IMG_WIDTH,
     C_IMG_HEIGHT  => C_IMG_HEIGHT
   )
@@ -90,14 +90,14 @@ begin
     report ("Sending image of size " &
             to_string(C_IMG_WIDTH) & "x" &
             to_string(C_IMG_HEIGHT) & "x" &
-            to_string(C_POOL_CH));
+            to_string(C_IMG_DEPTH));
 
     for y in 0 to C_IMG_HEIGHT-1 loop
       for x in 0 to C_IMG_WIDTH-1 loop
         wait until rising_edge(sl_clk);
-        for w in 0 to C_POOL_CH-1 loop
+        for w in 0 to C_IMG_DEPTH-1 loop
           sl_valid_in <= '1';
-          slv_data_in <= std_logic_vector(to_unsigned(data_src.get(w+(x*C_POOL_CH), y), slv_data_in'length));
+          slv_data_in <= std_logic_vector(to_unsigned(data_src.get(w+(x*C_IMG_DEPTH), y), slv_data_in'length));
           wait until rising_edge(sl_clk);
         end loop;
         sl_valid_in <= '0';
@@ -111,7 +111,7 @@ begin
   begin
     wait until rising_edge(sl_clk) and sl_start = '1';
     data_check_done <= false;
-    for w in 0 to C_POOL_CH-1 loop
+    for w in 0 to C_IMG_DEPTH-1 loop
       wait until rising_edge(sl_clk) and sl_valid_out = '1';
       report ("ch=" & to_string(w) & " " & to_string(slv_data_out) & " " & to_string(data_ref.get(0, w)));
       check_equal(slv_data_out, std_logic_vector(to_unsigned(data_ref.get(0, w), C_TOTAL_BITS)));

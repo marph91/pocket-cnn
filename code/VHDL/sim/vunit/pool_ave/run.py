@@ -41,7 +41,7 @@ def create_test_suite(ui):
     tb_pool_ave = lib.entity("tb_pool_ave")
     width, height, channel = randint(1, 4), randint(1, 8), randint(1, 8)
     total_bits, frac_bits = random_bw(max_bw=8)
-    generics = {"C_IMG_WIDTH": width, "C_IMG_HEIGHT": height, "C_POOL_CH": channel,
+    generics = {"C_IMG_WIDTH": width, "C_IMG_HEIGHT": height, "C_IMG_DEPTH": channel,
                 "C_TOTAL_BITS": total_bits, "C_FRAC_BITS": frac_bits}
     tb_pool_ave.add_config(name="all", generics=generics,
                            pre_config=create_stimuli(root, width, height,

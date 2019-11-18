@@ -16,6 +16,7 @@ entity pool_max is
     isl_rst_n : in std_logic;
     isl_ce    : in std_logic;
     isl_valid : in std_logic;
+    -- TODO: use array type instead of concatenated vectors
     islv_data : in std_logic_vector(C_KSIZE*C_KSIZE*C_TOTAL_BITS-1 downto 0);
     oslv_data : out std_logic_vector(C_TOTAL_BITS-1 downto 0);
     osl_valid : out std_logic
