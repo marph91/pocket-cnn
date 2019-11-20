@@ -46,9 +46,6 @@ architecture behavioral of zero_pad is
   signal sl_rdy : std_logic := '0';
 
 begin
-  -------------------------------------------------------
-  -- Process: Counter
-  -------------------------------------------------------
   proc_cnt : process(isl_clk)
   begin
     if rising_edge(isl_clk) then
@@ -100,9 +97,6 @@ begin
     end if;
   end process proc_cnt;
 
-  -------------------------------------------------------
-  -- Process: Padding
-  -------------------------------------------------------
   proc_pad: process(isl_clk)
   begin
     if rising_edge(isl_clk) then

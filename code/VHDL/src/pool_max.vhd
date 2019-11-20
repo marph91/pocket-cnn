@@ -34,6 +34,11 @@ architecture behavioral of pool_max is
   signal a_max_tmp : t_1d_sfix_array(0 to C_KSIZE-1);
 
 begin
+  -------------------------------------------------------
+  -- Process: Maximum Pooling (3x3 / 2x2)
+  -- Stage 1: 2x / 1x compare
+  -- Stage 2: 2x / 1x compare
+  -------------------------------------------------------
   process(isl_clk)
     variable v_a_current_max : t_1d_sfix_array(0 to C_KSIZE-1);
     variable v_sfix_current_max_tmp : sfixed(C_INT_BITS-1 downto -C_FRAC_BITS);
@@ -41,10 +46,6 @@ begin
   begin
     if rising_edge(isl_clk) then
       if isl_ce = '1' then
-        -- Stage 1: 2x compare / 1x compare
-        -- Stage 2: 2x compare / 1x compare
-        -- Summary: 3x3 maxpool / 2x2 maxpool
-
         -- Stage 1
         for j in 0 to C_KSIZE-1 loop
           v_a_current_max(j) := to_sfixed(islv_data((j*C_KSIZE+1)*C_TOTAL_BITS-1 downto

@@ -78,10 +78,7 @@ architecture behavioral of conv is
   signal a_weights : t_2d_array(0 to C_KSIZE - 1,0 to C_KSIZE - 1);
 
 begin
-  -----------------------------------
-  -- BRAM for storing weights
-  -----------------------------------
-  bram_weights : entity work.bram
+  i_bram_weights : entity work.bram
   generic map(
     C_DATA_WIDTH  => C_BRAM_DATA_WIDTH,
     C_ADDR_WIDTH  => C_BRAM_ADDR_WIDTH,
@@ -98,10 +95,7 @@ begin
     oslv_data => slv_ram_weights
   );
 
-  -----------------------------------
-  -- BRAM for storing bias
-  -----------------------------------
-  bram_bias : entity work.bram
+  i_bram_bias : entity work.bram
   generic map(
     C_DATA_WIDTH  => C_WEIGHTS_TOTAL_BITS,
     C_ADDR_WIDTH  => C_BRAM_ADDR_WIDTH_B,
@@ -117,10 +111,7 @@ begin
     islv_data => (others => '0'),
     oslv_data => slv_ram_bias
   );
-  
-  -----------------------------------
-  -- Matrix multiplication
-  -----------------------------------
+
   i_mm : entity work.mm
   generic map (
     C_DATA_TOTAL_BITS     => C_DATA_TOTAL_BITS,
@@ -140,9 +131,6 @@ begin
     osl_valid     => sl_conv_valid_out
   );
 
-  -------------------------------------------------------
-  -- Process: Counter
-  -------------------------------------------------------
   proc_cnt : process(isl_clk)
   begin
     if rising_edge(isl_clk) then
@@ -171,11 +159,8 @@ begin
     end if;
   end process proc_cnt;
 
-  -------------------------------------------------------
-  -- Process: data
-  -------------------------------------------------------
   proc_data : process(isl_clk)
-    variable v_sfix_sum : sfixed(C_SUM_INT_BITS-1 downto -C_SUM_FRAC_BITS) := (others => '0');-- resize(to_sfixed(slv_ram_bias, C_WEIGHTS_TOTAL_BITS-C_WEIGHTS_FRAC_BITS-1, -C_WEIGHTS_FRAC_BITS), C_SUM_INT_BITS-1, -C_SUM_FRAC_BITS); --(others => '0');
+    variable v_sfix_sum : sfixed(C_SUM_INT_BITS-1 downto -C_SUM_FRAC_BITS) := (others => '0');
   begin
     if rising_edge(isl_clk) then
       if isl_rst_n = '0' then

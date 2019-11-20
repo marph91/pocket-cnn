@@ -64,10 +64,8 @@ architecture behavioral of window_ctrl is
   signal slv_data_out : std_logic_vector(C_KSIZE*C_KSIZE*C_DATA_TOTAL_BITS-1 downto 0);
 begin
   gen_kernel : if C_KSIZE > 1 generate
-    -----------------------------------
-    -- Line Buffer
-    -----------------------------------
-    line_buffer : entity work.line_buffer
+    -- line buffer
+    i_line_buffer : entity work.line_buffer
     generic map(
       C_DATA_WIDTH  => C_DATA_TOTAL_BITS,
       C_CH          => C_CH_IN,
@@ -84,10 +82,8 @@ begin
       osl_valid => sl_lb_valid_out
     );
 
-    -----------------------------------
-    -- Window Buffer
-    -----------------------------------
-    window_buffer : entity work.window_buffer
+    -- window buffer
+    i_window_buffer : entity work.window_buffer
     generic map(
       C_DATA_WIDTH  => C_DATA_TOTAL_BITS,
       C_CH          => C_CH_IN,
@@ -112,10 +108,8 @@ begin
     slv_chb_data_in <= islv_data;
   end generate;
 
-  -----------------------------------
-  -- Channel Buffer
-  -----------------------------------
-  channel_buffer : entity work.channel_buffer
+  -- channel buffer
+  i_channel_buffer : entity work.channel_buffer
   generic map(
     C_DATA_WIDTH  => C_DATA_TOTAL_BITS,
     C_CH          => C_CH_IN,
@@ -135,9 +129,6 @@ begin
   );
   sl_chb_repeat <= '1' when int_pixel_in_cnt >= (C_KSIZE-1)*C_IMG_WIDTH+C_KSIZE-1 else '0';
 
-  -------------------------------------------------------
-  -- Process: Counter
-  -------------------------------------------------------
   proc_cnt : process(isl_clk)
   begin
     if rising_edge(isl_clk) then
@@ -190,17 +181,17 @@ begin
   end process proc_cnt;
 
   -------------------------------------------------------
-  -- Process: States
+  -- Process: Output valid
+  -- The output is valid in the following cases:
+  --    1. after initial buffering
+  --    2. every C_STRIDE row
+  --    3. every C_STRIDE column
+  --    4. when the window is not shifted at end/start of line
   -------------------------------------------------------
-  proc_states : process(isl_clk)
+  proc_output_valid : process(isl_clk)
   begin
     if rising_edge(isl_clk) then
       if isl_ce = '1' then
-        -- the output is valid in the following cases:
-        --    1. after initial buffering
-        --    2. every C_STRIDE row
-        --    3. every C_STRIDE column
-        --    4. when the window is not shifted at end/start of line
         slv_data_out <= slv_chb_data_out;
         if sl_chb_valid_in_d1 = '1' and
             int_pixel_in_cnt >= (C_KSIZE-1)*C_IMG_WIDTH+C_KSIZE-1 and
@@ -217,7 +208,7 @@ begin
 
       isl_valid_d1 <= isl_valid;
     end if;
-  end process proc_states;
+  end process proc_output_valid;
 
   oslv_data <= slv_data_out;
   osl_valid <= sl_output_valid;

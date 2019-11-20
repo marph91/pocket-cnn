@@ -53,6 +53,14 @@ architecture behavioral of pool_ave is
   signal sl_output_valid : std_logic := '0';
 
 begin
+  -------------------------------------------------------
+  -- Process: Average Pooling (average of each channel)
+  -- Stage 1: sum up the values of every channel
+  -- Stage 2*: multiply with reciprocal
+  -- Stage 3: pipeline DSP output
+  -- Stage 4: resize output
+  -- *Stage 2 is entered when full image except of last pixel (C_IMG_HEIGHT*C_IMG_WIDTH*C_POOL_CH-C_POOL_CH) is loaded
+  -------------------------------------------------------
   process(isl_clk)
     variable v_sfix_sum : sfixed(C_INTW_SUM-1 downto -C_FRAC_BITS);
   begin
@@ -65,13 +73,6 @@ begin
           a_ch_buffer <= (others => (others => '0'));
           int_data_in_cnt <= 0;
         else
-          -- Stage 1: sum up the values of every channel
-          -- Stage 2*: multiply with reciprocal
-          -- Stage 3: pipeline DSP output
-          -- Stage 4: resize output
-          -- Total: global average pool (average of every channel)
-          -- *Stage 2 is entered when full image except of last pixel (C_IMG_HEIGHT*C_IMG_WIDTH*C_POOL_CH-C_POOL_CH) is loaded
-
           sl_input_valid_d1 <= isl_valid;
           if int_data_in_cnt > C_IMG_HEIGHT*C_IMG_WIDTH*C_POOL_CH-C_POOL_CH then
             sl_input_valid_d2 <= sl_input_valid_d1;
@@ -79,7 +80,6 @@ begin
           sl_input_valid_d3 <= sl_input_valid_d2;
           sl_output_valid <= sl_input_valid_d3;
 
-          -- Stage 1
           if isl_valid = '1' then
             int_data_in_cnt <= int_data_in_cnt+1;
             v_sfix_sum := resize(
@@ -93,10 +93,10 @@ begin
           ------------------------DIVIDE OPTIONS---------------------------
           -- 1. simple divide
           -- sfix_average <= a_ch_buffer(0)/to_sfixed(C_IMG_HEIGHT*C_IMG_WIDTH, 8, 0);
-
+          --
           -- 2. divide with round properties (round, guard bits)
           -- sfix_average <= divide(a_ch_buffer(0), to_sfixed(C_IMG_HEIGHT*C_IMG_WIDTH, 8, 0), FIXED_TRUNCATE, 0)
-
+          --
           -- 3. multiply with reciprocal -> best for timing and ressource usage!
           -- sfix_average <= a_ch_buffer(0) * sfix_rezi;
           -----------------------------------------------------------------

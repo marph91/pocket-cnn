@@ -93,9 +93,6 @@ architecture behavioral of pe is
   signal int_row : integer range 0 to C_IMG_HEIGHT := 0;
 
 begin
-  -------------------------------------------------------
-  -- Process: Counter
-  -------------------------------------------------------
   proc_cnt : process(isl_clk)
   begin
     if rising_edge(isl_clk) then
@@ -133,15 +130,14 @@ begin
     end if;
   end process proc_cnt;
 
+  -- zero padding
   gen_no_pad : if C_PAD = 0 generate
     sl_pad_output_valid <= isl_valid;
     slv_pad_data_out <= islv_data;
     sl_pad_rdy <= '1';
   end generate;
+
   gen_pad : if C_PAD > 0 generate
-    -------------------------------------------------------
-    -- Zero Padding
-    -------------------------------------------------------
     sl_pad_get <= sl_conv_burst_rdy and sl_conv_rdy;
     i_zero_pad : entity work.zero_pad
     generic map(
@@ -168,6 +164,7 @@ begin
     );
   end generate;
 
+  -- burst
   gen_no_burst : if C_CH_IN = 1 generate
     slv_conv_data_in <= slv_pad_data_out;
     sl_conv_input_valid <= sl_pad_output_valid;
@@ -175,9 +172,6 @@ begin
   end generate gen_no_burst;
 
   gen_burst : if C_CH_IN > 1 generate
-    -----------------------------------
-    -- Burst
-    -----------------------------------
     i_channel_burst_conv : entity work.channel_burst
     generic map(
       C_DATA_WIDTH  => C_DATA_TOTAL_BITS,
@@ -196,9 +190,7 @@ begin
     );
   end generate gen_burst;
 
-  -----------------------------------
-  -- Convolution with line and window buffer
-  -----------------------------------
+  -- convolution
   i_conv_top : entity work.conv_top
   generic map(
     C_DATA_TOTAL_BITS     => C_DATA_TOTAL_BITS,
@@ -235,10 +227,8 @@ begin
     osl_valid <= sl_conv_output_valid;
   end generate;
 
+  -- relu
   gen_relu : if C_RELU = '1' generate
-    -----------------------------------
-    -- ReLU
-    -----------------------------------
     i_relu : entity work.relu
     generic map (
       C_TOTAL_BITS => C_DATA_TOTAL_BITS,
@@ -253,6 +243,8 @@ begin
       oslv_data => slv_relu_data_out,
       osl_valid => sl_relu_output_valid
     );
+
+    -- assign relu outputs
     gen_relu_no_pool : if C_WIN_SIZE_POOL = 0 generate
       sl_pool_rdy <= '1';
       oslv_data <= slv_relu_data_out;
@@ -264,10 +256,8 @@ begin
     end generate;
   end generate;
 
+  -- max pooling
   gen_pool : if C_WIN_SIZE_POOL > 0 generate
-    -----------------------------------
-    -- Burst
-    -----------------------------------
     i_channel_burst_max : entity work.channel_burst
     generic map(
       C_DATA_WIDTH  => C_DATA_TOTAL_BITS,
@@ -285,9 +275,6 @@ begin
       osl_rdy   => sl_pool_burst_rdy
     );
 
-    -----------------------------------
-    -- Maxpool with line and window buffer
-    -----------------------------------
     i_max_top : entity work.max_top
     generic map (
       C_TOTAL_BITS  => C_DATA_TOTAL_BITS,
@@ -311,6 +298,7 @@ begin
       osl_valid => osl_valid,
       osl_rdy   => sl_pool_rdy
     );
+
     gen_pool_no_relu : if C_RELU = '0' generate
       slv_pool_data_in <= slv_conv_data_out;
       sl_pool_input_valid <= sl_conv_output_valid;

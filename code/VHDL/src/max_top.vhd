@@ -33,14 +33,14 @@ architecture behavioral of max_top is
 begin
   i_window_ctrl : entity work.window_ctrl
   generic map (
-    C_DATA_TOTAL_BITS     => C_TOTAL_BITS,
+    C_DATA_TOTAL_BITS => C_TOTAL_BITS,
 
-    C_KSIZE       => C_KSIZE,
-    C_STRIDE      => C_STRIDE,
-    C_CH_IN       => C_CH,
-    C_CH_OUT      => 1, -- no repetition at maximum pooling needed
-    C_IMG_WIDTH   => C_IMG_WIDTH,
-    C_IMG_HEIGHT  => C_IMG_HEIGHT
+    C_KSIZE           => C_KSIZE,
+    C_STRIDE          => C_STRIDE,
+    C_CH_IN           => C_CH,
+    C_CH_OUT          => 1, -- no repetition at maximum pooling needed
+    C_IMG_WIDTH       => C_IMG_WIDTH,
+    C_IMG_HEIGHT      => C_IMG_HEIGHT
   )
   port map (
     isl_clk   => isl_clk,

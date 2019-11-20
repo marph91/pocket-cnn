@@ -8,6 +8,7 @@ entity relu is
   generic (
     C_TOTAL_BITS : integer range 1 to 32 := 8;
     C_FRAC_BITS  : integer range 0 to 16 := 8;
+    -- TODO: use custom types
     -- 0: normal ReLU (if x<0: then y=0)
     -- 1: leaky ReLU (if x<0: then y=0.125*x)
     C_LEAKY       : std_logic := '0'

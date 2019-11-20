@@ -61,7 +61,7 @@ begin
   -----------------------------------
   -- Stage 0 (preprocessing input)
   -----------------------------------
-  prepr : entity work.prepr
+  i_prepr : entity work.prepr
   generic map (
     C_TOTAL_BITS => C_BITWIDTH(1, 0),
     C_FRAC_BITS  => C_BITWIDTH(1, 1),
@@ -79,7 +79,7 @@ begin
     -----------------------------------
     -- Stage
     -----------------------------------
-    stage : entity work.pe
+    i_stage : entity work.pe
     generic map (
       C_DATA_TOTAL_BITS    => C_BITWIDTH(i, 0),
       C_DATA_FRAC_BITS_IN  => C_BITWIDTH(i, 1),
@@ -118,7 +118,7 @@ begin
   -----------------------------------
   -- stage C_PE+1 (global average)
   -----------------------------------
-  ave : entity work.pool_ave
+  i_ave : entity work.pool_ave
   generic map (
     C_TOTAL_BITS  => C_BITWIDTH(C_PE, 0),
     C_FRAC_BITS   => C_BITWIDTH(C_PE, 2),

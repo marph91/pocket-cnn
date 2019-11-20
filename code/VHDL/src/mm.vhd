@@ -36,6 +36,7 @@ architecture behavioral of mm is
 
   -- full signal bitwidth after multiplication
   type t_1d_sfix_mult_array is array (natural range <>) of sfixed(C_DATA_INT_BITS+C_WEIGHTS_TOTAL_BITS-C_WEIGHTS_FRAC_BITS-1 downto -C_DATA_FRAC_BITS_IN-C_WEIGHTS_FRAC_BITS);
+  -- TODO: use 2d arrays
   signal a_data_mult : t_1d_sfix_mult_array(0 to C_KSIZE*C_KSIZE-1);
   attribute use_dsp : string;
   attribute use_dsp of a_data_mult : signal is "yes";
@@ -58,14 +59,13 @@ architecture behavioral of mm is
 
 begin
   -------------------------------------------------------
-  -- Process: Convolution
+  -- Process: Convolution (3x3 / 2x2 / 1x1)
   -- Stage 1: Load Weights and Data
-  -- Stage 2: 9x Mult / 1x Mult + Add Bias
+  -- Stage 2: 3x3 / 2x2 / 1x1 Mult
   -- Stage 3: Pipeline DSP output
-  -- Stage 4: 9x Resize
-  -- Stage 5: 2x Add / 1x Add
-  -- Stage 6: 2x Add / 1x Add (theoretically not needed for 1x1 conv)
-  -- Total: 3x3 Convolution / 1x1 Convolution
+  -- Stage 4: Resize
+  -- Stage 5: 2x / 1x / 1x Add
+  -- Stage 6: 2x / 1x / 1x Add (theoretically not needed for 1x1 conv)
   -------------------------------------------------------
   process(isl_clk)
     variable v_sfix_conv_res : t_1d_sfix_add_array(0 to C_KSIZE-1);
@@ -80,7 +80,7 @@ begin
           for j in 0 to C_KSIZE-1 loop
             for i in 0 to C_KSIZE-1 loop
               a_sfix_data(i+j*C_KSIZE) <= to_sfixed(islv_data(((i+1)+j*C_KSIZE)*C_DATA_TOTAL_BITS-1 downto
-                (i+j*C_KSIZE)*C_DATA_TOTAL_BITS),C_DATA_INT_BITS-1, -C_DATA_FRAC_BITS_IN);
+                (i+j*C_KSIZE)*C_DATA_TOTAL_BITS), C_DATA_INT_BITS-1, -C_DATA_FRAC_BITS_IN);
               a_sfix_weights(i+j*C_KSIZE) <= to_sfixed(islv_weights(((i+1)+j*C_KSIZE)*C_WEIGHTS_TOTAL_BITS-1 downto
                 (i+j*C_KSIZE)*C_WEIGHTS_TOTAL_BITS), C_WEIGHTS_TOTAL_BITS-C_WEIGHTS_FRAC_BITS-1, -C_WEIGHTS_FRAC_BITS);
             end loop;
@@ -90,8 +90,7 @@ begin
         if slv_stage(2) = '1' then
           for j in 0 to C_KSIZE-1 loop
             for i in 0 to C_KSIZE-1 loop
-              a_data_mult(i+j*C_KSIZE) <=
-                a_sfix_data(i+j*C_KSIZE) * a_sfix_weights(i+j*C_KSIZE);
+              a_data_mult(i+j*C_KSIZE) <= a_sfix_data(i+j*C_KSIZE) * a_sfix_weights(i+j*C_KSIZE);
             end loop;
           end loop;
         end if;
