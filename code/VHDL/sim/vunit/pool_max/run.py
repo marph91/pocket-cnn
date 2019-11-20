@@ -29,11 +29,11 @@ def create_test_suite(ui):
     ui.add_array_util()
     util = ui.add_library("util", allow_duplicate=True)
     util.add_source_files("../../src/util/math.vhd")
-    lib = ui.add_library("lib", allow_duplicate=True)
-    lib.add_source_files("../../src/pool_max.vhd")
-    lib.add_source_files(join(root, "src", "*.vhd"))
+    unittest = ui.add_library("unittest", allow_duplicate=True)
+    unittest.add_source_files("../../src/pool_max.vhd")
+    unittest.add_source_files(join(root, "src", "*.vhd"))
 
-    tb_pool_max = lib.entity("tb_pool_max")
+    tb_pool_max = unittest.entity("tb_pool_max")
     for pool_dim in [2, 3]:
         total_bits, frac_bits = random_bw(max_bw=16)
         generics = {"C_KSIZE": pool_dim, "C_TOTAL_BITS": total_bits,

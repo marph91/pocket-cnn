@@ -32,11 +32,11 @@ def create_test_suite(ui):
     root = dirname(__file__)
 
     ui.add_array_util()
-    lib = ui.add_library("lib", allow_duplicate=True)
-    lib.add_source_files("../../src/relu.vhd")
-    lib.add_source_files(join(root, "src", "*.vhd"))
+    unittest = ui.add_library("unittest", allow_duplicate=True)
+    unittest.add_source_files("../../src/relu.vhd")
+    unittest.add_source_files(join(root, "src", "*.vhd"))
 
-    tb_relu = lib.entity("tb_relu")
+    tb_relu = unittest.entity("tb_relu")
     sample_cnt = 100
     for leaky in [0, 1]:
         generics = {"sample_cnt": sample_cnt,

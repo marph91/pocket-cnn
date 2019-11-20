@@ -23,11 +23,11 @@ def create_test_suite(ui):
     root = dirname(__file__)
 
     ui.add_array_util()
-    lib = ui.add_library("lib", allow_duplicate=True)
-    lib.add_source_files("../../src/zero_pad.vhd")
-    lib.add_source_files(join(root, "src", "*.vhd"))
+    unittest = ui.add_library("unittest", allow_duplicate=True)
+    unittest.add_source_files("../../src/zero_pad.vhd")
+    unittest.add_source_files(join(root, "src", "*.vhd"))
 
-    tb_zero_pad = lib.entity("tb_zero_pad")
+    tb_zero_pad = unittest.entity("tb_zero_pad")
     width, height, channel = randint(1, 32), randint(1, 32), randint(1, 16)
     tb_zero_pad.add_config(name="all",
                            generics={"C_IMG_WIDTH": width, "C_IMG_HEIGHT": height,

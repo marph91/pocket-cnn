@@ -34,11 +34,11 @@ def create_test_suite(ui):
     lib_sim.add_source_files("common.vhd")
     lib_cmn = ui.add_library("util", allow_duplicate=True)
     lib_cmn.add_source_files("../../src/util/*.vhd")
-    lib = ui.add_library("lib", allow_duplicate=True)
-    lib.add_source_files("../../src/pool_ave.vhd")
-    lib.add_source_files(join(root, "src", "*.vhd"))
+    unittest = ui.add_library("unittest", allow_duplicate=True)
+    unittest.add_source_files("../../src/pool_ave.vhd")
+    unittest.add_source_files(join(root, "src", "*.vhd"))
 
-    tb_pool_ave = lib.entity("tb_pool_ave")
+    tb_pool_ave = unittest.entity("tb_pool_ave")
     width, height, channel = randint(1, 4), randint(1, 8), randint(1, 8)
     total_bits, frac_bits = random_bw(max_bw=8)
     generics = {"C_IMG_WIDTH": width, "C_IMG_HEIGHT": height, "C_IMG_DEPTH": channel,
