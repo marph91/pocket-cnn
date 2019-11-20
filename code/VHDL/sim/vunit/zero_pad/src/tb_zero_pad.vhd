@@ -20,7 +20,6 @@ entity tb_zero_pad is
 end entity;
 
 architecture tb of tb_zero_pad is
-  constant C_CLK_PERIOD : time := 10 ns;
   constant C_DATA_WIDTH : integer := 8;
 
   signal sl_clk : std_logic := '0';

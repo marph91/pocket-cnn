@@ -22,8 +22,6 @@ entity tb_relu is
 end entity;
 
 architecture tb of tb_relu is
-  constant C_CLK_PERIOD : time := 10 ns;
-
   signal sl_clk : std_logic := '0';
   signal sl_valid_in : std_logic := '0';
   signal slv_data_in : std_logic_vector(C_TOTAL_BITS-1 downto 0) := (others => '0');
