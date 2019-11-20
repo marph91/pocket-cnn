@@ -2,10 +2,14 @@ library ieee;
   use ieee.std_logic_1164.all;
 
 package common is
+  constant C_CLK_PERIOD : time;
+
   procedure clk_gen(signal clk : out std_logic; constant PERIOD : time);
 end package common;
 
 package body common is
+  constant C_CLK_PERIOD : time := 10 ns;
+
   -- Procedure for clock generation
   procedure clk_gen(signal clk : out std_logic; constant PERIOD : time) is
     constant HIGH_TIME : time := PERIOD / 2;
