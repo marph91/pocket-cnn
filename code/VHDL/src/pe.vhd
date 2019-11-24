@@ -88,7 +88,7 @@ architecture behavioral of pe is
 
   -- debug
   signal int_ch_in_cnt : integer range 0 to C_CH_IN-1 := 0;
-  signal int_pixel_in_cnt : integer range 0 to C_IMG_HEIGHT*C_IMG_WIDTH := 0;
+  signal int_pixel_in_cnt : integer := 0;-- TODO: range 0 to C_IMG_HEIGHT*C_IMG_WIDTH := 0;
   signal int_col : integer range 0 to C_IMG_WIDTH := 0;
   signal int_row : integer range 0 to C_IMG_HEIGHT := 0;
 
