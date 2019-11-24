@@ -13,6 +13,11 @@ def create_test_suites(prj):
     root = os.path.dirname(__file__)
     run_scripts = glob(os.path.join(root, "*", "run.py"))
 
+    # TODO: add code coverage
+    # ui.set_sim_option("enable_coverage", True)
+    # ui.set_compile_option("ghdl.flags",["-g", "-fprofile-arcs", "-ftest-coverage"])
+    # ui.set_sim_option("ghdl.elab_flags",["-Wl,-lgcov", "-Wl,--coverage"])
+
     for run_script in run_scripts:
         mod = imp.find_module("run", [os.path.dirname(run_script)])
         run = imp.load_module("run", *mod)
