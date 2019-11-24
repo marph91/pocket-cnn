@@ -3,6 +3,7 @@ library ieee;
   use ieee.numeric_std.all;
 library util;
   use util.math.all;
+library cnn_lib;
 
   use work.cnn_parameter.all;
 
@@ -61,7 +62,7 @@ begin
   -----------------------------------
   -- Stage 0 (preprocessing input)
   -----------------------------------
-  i_prepr : entity work.prepr
+  i_prepr : entity cnn_lib.prepr
   generic map (
     C_TOTAL_BITS => C_BITWIDTH(1, 0),
     C_FRAC_BITS  => C_BITWIDTH(1, 1),
@@ -79,7 +80,7 @@ begin
     -----------------------------------
     -- Stage
     -----------------------------------
-    i_stage : entity work.pe
+    i_stage : entity cnn_lib.pe
     generic map (
       C_DATA_TOTAL_BITS    => C_BITWIDTH(i, 0),
       C_DATA_FRAC_BITS_IN  => C_BITWIDTH(i, 1),
@@ -118,7 +119,7 @@ begin
   -----------------------------------
   -- stage C_PE+1 (global average)
   -----------------------------------
-  i_ave : entity work.pool_ave
+  i_ave : entity cnn_lib.pool_ave
   generic map (
     C_TOTAL_BITS  => C_BITWIDTH(C_PE, 0),
     C_FRAC_BITS   => C_BITWIDTH(C_PE, 2),
