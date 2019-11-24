@@ -4,6 +4,7 @@ library ieee;
   use ieee.fixed_pkg.all;
   use ieee.fixed_float_types.all;
 library util;
+  use util.cnn_pkg.all;
   use util.math_pkg.all;
 
 entity window_ctrl is
@@ -25,7 +26,7 @@ entity window_ctrl is
     isl_start : in std_logic;
     isl_valid : in std_logic;
     islv_data : in std_logic_vector(C_DATA_TOTAL_BITS-1 downto 0);
-    oslv_data : out std_logic_vector(C_KSIZE*C_KSIZE*C_DATA_TOTAL_BITS-1 downto 0);
+    oa_data   : out t_slv_array_2d(0 to C_KSIZE-1, 0 to C_KSIZE-1);
     osl_valid : out std_logic;
     osl_rdy   : out std_logic
   );
@@ -49,19 +50,19 @@ architecture behavioral of window_ctrl is
 
   -- for window buffer
   signal sl_wb_valid_out : std_logic := '0';
-  signal slv_wb_data_out : std_logic_vector(C_KSIZE*C_KSIZE*C_DATA_TOTAL_BITS-1 downto 0);
+  signal a_wb_data_out : t_slv_array_2d(0 to C_KSIZE-1, 0 to C_KSIZE-1);
 
   -- for channel buffer
   signal sl_chb_repeat : std_logic := '0';
   signal sl_chb_valid_in : std_logic := '0';
   signal sl_chb_valid_in_d1 : std_logic := '0';
   signal sl_chb_valid_out : std_logic := '0';
-  signal slv_chb_data_in : std_logic_vector(C_KSIZE*C_KSIZE*C_DATA_TOTAL_BITS-1 downto 0);
-  signal slv_chb_data_out : std_logic_vector(C_KSIZE*C_KSIZE*C_DATA_TOTAL_BITS-1 downto 0);
+  signal a_chb_data_in : t_slv_array_2d(0 to C_KSIZE-1, 0 to C_KSIZE-1);
+  signal a_chb_data_out : t_slv_array_2d(0 to C_KSIZE-1, 0 to C_KSIZE-1);
   signal sl_chb_rdy : std_logic := '0';
 
   signal sl_output_valid : std_logic := '0';
-  signal slv_data_out : std_logic_vector(C_KSIZE*C_KSIZE*C_DATA_TOTAL_BITS-1 downto 0);
+  signal a_data_out : t_slv_array_2d(0 to C_KSIZE-1, 0 to C_KSIZE-1);
 begin
   gen_kernel : if C_KSIZE > 1 generate
     -- line buffer
@@ -87,7 +88,7 @@ begin
     generic map(
       C_DATA_WIDTH  => C_DATA_TOTAL_BITS,
       C_CH          => C_CH_IN,
-      C_KSIZE => C_KSIZE
+      C_KSIZE       => C_KSIZE
     )
     port map(
       isl_clk     => isl_clk,
@@ -95,17 +96,17 @@ begin
       isl_ce      => isl_ce,
       isl_valid   => sl_lb_valid_out,
       islv_data   => slv_lb_data_out,
-      oslv_data   => slv_wb_data_out,
+      oa_data     => a_wb_data_out,
       osl_valid   => sl_wb_valid_out
     );
 
     sl_chb_valid_in <= sl_wb_valid_out;
-    slv_chb_data_in <= slv_wb_data_out;
+    a_chb_data_in <= a_wb_data_out;
   end generate;
 
   gen_scalar : if C_KSIZE = 1 generate
     sl_chb_valid_in <= isl_valid;
-    slv_chb_data_in <= islv_data;
+    a_chb_data_in(0, 0) <= islv_data;
   end generate;
 
   -- channel buffer
@@ -122,8 +123,8 @@ begin
     isl_ce      => isl_ce,
     isl_repeat  => sl_chb_repeat,
     isl_valid   => sl_chb_valid_in,
-    islv_data   => slv_chb_data_in,
-    oslv_data   => slv_chb_data_out,
+    ia_data     => a_chb_data_in,
+    oa_data     => a_chb_data_out,
     osl_valid   => sl_chb_valid_out,
     osl_rdy     => sl_chb_rdy
   );
@@ -192,7 +193,7 @@ begin
   begin
     if rising_edge(isl_clk) then
       if isl_ce = '1' then
-        slv_data_out <= slv_chb_data_out;
+        a_data_out <= a_chb_data_out;
         if sl_chb_valid_in_d1 = '1' and
             int_pixel_in_cnt >= (C_KSIZE-1)*C_IMG_WIDTH+C_KSIZE-1 and
             (int_row+1-C_KSIZE+C_STRIDE) mod C_STRIDE = 0 and
@@ -210,7 +211,7 @@ begin
     end if;
   end process proc_output_valid;
 
-  oslv_data <= slv_data_out;
+  oa_data <= a_data_out;
   osl_valid <= sl_output_valid;
   osl_rdy <= isl_get and sl_chb_rdy and not isl_valid_d1;
 end behavioral;

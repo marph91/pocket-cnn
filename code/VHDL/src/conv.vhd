@@ -4,6 +4,7 @@ library ieee;
   use ieee.fixed_pkg.all;
   use ieee.fixed_float_types.all;
 library util;
+  use util.cnn_pkg.all;
   use util.math_pkg.all;
 
 entity conv is
@@ -25,7 +26,7 @@ entity conv is
     isl_rst_n     : in std_logic;
     isl_ce        : in std_logic;
     isl_valid     : in std_logic;
-    islv_data     : in std_logic_vector(C_KSIZE*C_KSIZE*C_DATA_TOTAL_BITS-1 downto 0);
+    ia_data       : in t_slv_array_2d(0 to C_KSIZE-1, 0 to C_KSIZE-1);
     oslv_data     : out std_logic_vector(C_DATA_TOTAL_BITS-1 downto 0);
     osl_valid     : out std_logic
   );
@@ -56,7 +57,8 @@ architecture behavioral of conv is
 
   -- for Convolution
   signal sl_valid_in_d1 : std_logic := '0';
-  signal slv_data_in_d1 : std_logic_vector(C_KSIZE*C_KSIZE*C_DATA_TOTAL_BITS-1 downto 0) := (others => '0');
+  signal a_data_mm_in : t_slv_array_2d(0 to C_KSIZE-1, 0 to C_KSIZE-1);
+  signal a_weights_mm_in : t_slv_array_2d(0 to C_KSIZE-1, 0 to C_KSIZE-1);
   signal slv_conv_data_out : std_logic_vector(C_SUM_TOTAL_BITS-log2(C_CH_IN)-1 downto 0);
   signal sl_conv_valid_out : std_logic := '0';
   signal sl_conv_valid_out_d1 : std_logic := '0';
@@ -72,10 +74,6 @@ architecture behavioral of conv is
   signal int_pixel_in_cnt : integer := 0;
   signal int_ch_out_cnt : integer range 0 to C_CH_OUT-1 := 0;
   signal int_pixel_out_cnt : integer := 0;
-
-  type t_2d_array is array (natural range <>, natural range <>) of std_logic_vector(C_DATA_TOTAL_BITS - 1 downto 0);
-  signal a_conv_data_in : t_2d_array(0 to C_KSIZE - 1,0 to C_KSIZE - 1);
-  signal a_weights : t_2d_array(0 to C_KSIZE - 1,0 to C_KSIZE - 1);
 
 begin
   i_bram_weights : entity work.bram
@@ -94,6 +92,11 @@ begin
     islv_data => (others => '0'),
     oslv_data => slv_ram_weights
   );
+  gen_array_1d: for i in 0 to C_KSIZE-1 generate
+    gen_array_2d: for j in 0 to C_KSIZE-1 generate
+      a_weights_mm_in(i, j) <= slv_ram_weights(((i+j*C_KSIZE)+1)*C_DATA_TOTAL_BITS-1 downto ((i+j*C_KSIZE))*C_DATA_TOTAL_BITS);
+    end generate gen_array_2d;
+  end generate gen_array_1d;
 
   i_bram_bias : entity work.bram
   generic map(
@@ -125,8 +128,8 @@ begin
     isl_rst_n     => isl_rst_n,
     isl_ce        => isl_ce,
     isl_valid     => sl_valid_in_d1,
-    islv_data     => slv_data_in_d1,
-    islv_weights  => slv_ram_weights,
+    ia_data       => a_data_mm_in,
+    ia_weights    => a_weights_mm_in,
     oslv_data     => slv_conv_data_out,
     osl_valid     => sl_conv_valid_out
   );
@@ -173,14 +176,7 @@ begin
 
         -- wait one cycle for bram data to be available
         sl_valid_in_d1 <= isl_valid;
-        slv_data_in_d1 <= islv_data;
-
-        for i in 0 to C_KSIZE-1 loop
-          for j in 0 to C_KSIZE-1 loop
-            a_conv_data_in(j, i) <= slv_data_in_d1(((i+j*C_KSIZE)+1)*C_DATA_TOTAL_BITS-1 downto ((i+j*C_KSIZE))*C_DATA_TOTAL_BITS);
-            a_weights(j, i) <= slv_ram_weights(((i+j*C_KSIZE)+1)*C_DATA_TOTAL_BITS-1 downto ((i+j*C_KSIZE))*C_DATA_TOTAL_BITS);
-          end loop;
-        end loop;
+        a_data_mm_in <= ia_data;
 
         if sl_conv_valid_out = '1' then
           if int_mm_out_cnt < C_CH_IN-1 then

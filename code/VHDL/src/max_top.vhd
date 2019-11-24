@@ -1,5 +1,7 @@
 library ieee;
   use ieee.std_logic_1164.all;
+library util;
+  use util.cnn_pkg.all;
 
 entity max_top is
   generic (
@@ -27,7 +29,7 @@ entity max_top is
 end max_top;
 
 architecture behavioral of max_top is
-  signal slv_win_data_out : std_logic_vector(C_KSIZE*C_KSIZE*C_TOTAL_BITS - 1 downto 0);
+  signal a_win_data_out : t_slv_array_2d(0 to C_KSIZE-1, 0 to C_KSIZE-1);
   signal slv_win_valid_out : std_logic := '0';
 
 begin
@@ -50,7 +52,7 @@ begin
     isl_start => isl_start,
     isl_valid => isl_valid,
     islv_data => islv_data,
-    oslv_data => slv_win_data_out,
+    oa_data   => a_win_data_out,
     osl_valid => slv_win_valid_out,
     osl_rdy   => osl_rdy
   );
@@ -66,7 +68,7 @@ begin
     isl_rst_n => isl_rst_n,
     isl_ce    => isl_ce,
     isl_valid => slv_win_valid_out,
-    islv_data => slv_win_data_out,
+    ia_data   => a_win_data_out,
     oslv_data => oslv_data,
     osl_valid => osl_valid
   );

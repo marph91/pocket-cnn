@@ -3,6 +3,7 @@ library ieee;
   use ieee.numeric_std.all;
   use ieee.fixed_pkg.all;
 library util;
+  use util.cnn_pkg.all;
   use util.math_pkg.all;
 
 entity pool_max is
@@ -16,8 +17,7 @@ entity pool_max is
     isl_rst_n : in std_logic;
     isl_ce    : in std_logic;
     isl_valid : in std_logic;
-    -- TODO: use array type instead of concatenated vectors
-    islv_data : in std_logic_vector(C_KSIZE*C_KSIZE*C_TOTAL_BITS-1 downto 0);
+    ia_data   : in t_slv_array_2d(0 to C_KSIZE-1, 0 to C_KSIZE-1);
     oslv_data : out std_logic_vector(C_TOTAL_BITS-1 downto 0);
     osl_valid : out std_logic
   );
@@ -48,11 +48,9 @@ begin
       if isl_ce = '1' then
         -- Stage 1
         for j in 0 to C_KSIZE-1 loop
-          v_a_current_max(j) := to_sfixed(islv_data((j*C_KSIZE+1)*C_TOTAL_BITS-1 downto
-            (j*C_KSIZE)*C_TOTAL_BITS), C_INT_BITS-1, -C_FRAC_BITS);
+          v_a_current_max(j) := to_sfixed(ia_data(0, j), C_INT_BITS-1, -C_FRAC_BITS);
           for i in 1 to C_KSIZE-1 loop
-            v_sfix_new_value := to_sfixed(islv_data(((i+1)+j*C_KSIZE)*C_TOTAL_BITS-1 downto
-              (i+j*C_KSIZE)*C_TOTAL_BITS), C_INT_BITS-1, -C_FRAC_BITS);
+            v_sfix_new_value := to_sfixed(ia_data(i, j), C_INT_BITS-1, -C_FRAC_BITS);
             v_a_current_max(j) := max(v_sfix_new_value, v_a_current_max(j));
           end loop;
         end loop;

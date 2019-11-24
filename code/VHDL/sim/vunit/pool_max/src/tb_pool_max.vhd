@@ -3,6 +3,9 @@ library ieee;
   use ieee.numeric_std.all;
   use ieee.fixed_pkg.all;
 
+library util;
+  use util.cnn_pkg.all;
+
 library sim;
   use sim.common.all;
 
@@ -23,7 +26,7 @@ end entity;
 architecture tb of tb_pool_max is
   signal sl_clk : std_logic := '0';
   signal sl_valid_in : std_logic := '0';
-  signal slv_data_in : std_logic_vector(C_KSIZE*C_KSIZE*C_TOTAL_BITS-1 downto 0) := (others => '0');
+  signal a_data_in : t_slv_array_2d(0 to C_KSIZE-1, 0 to C_KSIZE-1);
   signal sl_valid_out : std_logic := '0';
   signal slv_data_out : std_logic_vector(C_TOTAL_BITS-1 downto 0) := (others => '0');
 
@@ -45,7 +48,7 @@ begin
     isl_rst_n => '1',
     isl_ce    => '1',
     isl_valid => sl_valid_in,
-    islv_data => slv_data_in,
+    ia_data   => a_data_in,
     oslv_data => slv_data_out,
     osl_valid => sl_valid_out
   );
@@ -86,9 +89,9 @@ begin
 
     wait until rising_edge(sl_clk);
     sl_valid_in <= '1';
-    for y in 0 to C_KSIZE-1 loop
-      for x in 0 to C_KSIZE-1 loop
-        slv_data_in((x+y*C_KSIZE+1)*C_TOTAL_BITS-1 downto (x+y*C_KSIZE)*C_TOTAL_BITS) <= std_logic_vector(to_unsigned(data_src.get(x, y), C_TOTAL_BITS));
+    for x in 0 to C_KSIZE-1 loop
+      for y in 0 to C_KSIZE-1 loop
+        a_data_in(x, y) <= std_logic_vector(to_unsigned(data_src.get(x, y), C_TOTAL_BITS));
       end loop;
     end loop;
     wait until rising_edge(sl_clk);
