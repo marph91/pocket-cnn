@@ -56,7 +56,7 @@ architecture behavioral of conv is
 
   -- for Convolution
   signal sl_valid_in_d1 : std_logic := '0';
-  signal sl_data_in_d1 : std_logic_vector(C_KSIZE*C_KSIZE*C_DATA_TOTAL_BITS-1 downto 0) := (others => '0');
+  signal slv_data_in_d1 : std_logic_vector(C_KSIZE*C_KSIZE*C_DATA_TOTAL_BITS-1 downto 0) := (others => '0');
   signal slv_conv_data_out : std_logic_vector(C_SUM_TOTAL_BITS-log2(C_CH_IN)-1 downto 0);
   signal sl_conv_valid_out : std_logic := '0';
   signal sl_conv_valid_out_d1 : std_logic := '0';
@@ -125,7 +125,7 @@ begin
     isl_rst_n     => isl_rst_n,
     isl_ce        => isl_ce,
     isl_valid     => sl_valid_in_d1,
-    islv_data     => sl_data_in_d1,
+    islv_data     => slv_data_in_d1,
     islv_weights  => slv_ram_weights,
     oslv_data     => slv_conv_data_out,
     osl_valid     => sl_conv_valid_out
@@ -173,11 +173,11 @@ begin
 
         -- wait one cycle for bram data to be available
         sl_valid_in_d1 <= isl_valid;
-        sl_data_in_d1 <= islv_data;
+        slv_data_in_d1 <= islv_data;
 
         for i in 0 to C_KSIZE-1 loop
           for j in 0 to C_KSIZE-1 loop
-            a_conv_data_in(j, i) <= sl_data_in_d1(((i+j*C_KSIZE)+1)*C_DATA_TOTAL_BITS-1 downto ((i+j*C_KSIZE))*C_DATA_TOTAL_BITS);
+            a_conv_data_in(j, i) <= slv_data_in_d1(((i+j*C_KSIZE)+1)*C_DATA_TOTAL_BITS-1 downto ((i+j*C_KSIZE))*C_DATA_TOTAL_BITS);
             a_weights(j, i) <= slv_ram_weights(((i+j*C_KSIZE)+1)*C_DATA_TOTAL_BITS-1 downto ((i+j*C_KSIZE))*C_DATA_TOTAL_BITS);
           end loop;
         end loop;
