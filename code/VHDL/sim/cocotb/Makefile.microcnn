@@ -1,6 +1,6 @@
 CWD=$(shell pwd)
 
-# COCOTB_ROOT=/home/Programme/cocotb
+# COCOTB_ROOT=/home/prog/cocotb
 # fit the cocotb log on 80 characters per line
 export COCOTB_REDUCED_LOG_FMT=1
 
@@ -32,8 +32,10 @@ dirs:
 libs:
 	$(CMD_BIN) -a $(OPT) --std=08 --work=util --workdir=util $(VHDL_DIR)/util/*.vhd
 
-include $(shell cocotb-config --makefiles)/Makefile.inc
-include $(shell cocotb-config --makefiles)/Makefile.sim
+include /home/prog/cocotb/makefiles/Makefile.inc
+include /home/prog/cocotb/makefiles/Makefile.sim
+# include $(shell cocotb-config --makefiles)/Makefile.inc
+# include $(shell cocotb-config --makefiles)/Makefile.sim
 
 # override target from cocotb, to force usage of flags -i, -m (previously -a, -e)
 # without these flags, the design would be analyzed by filenames alphabetically
