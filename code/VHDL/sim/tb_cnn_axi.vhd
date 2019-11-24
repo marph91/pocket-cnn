@@ -4,7 +4,7 @@ library ieee;
 library std;
   use std.textio.all;
 library util;
-  use util.math.all;
+  use util.math_pkg.all;
 
 entity tb_cnn_axi is
   generic (
