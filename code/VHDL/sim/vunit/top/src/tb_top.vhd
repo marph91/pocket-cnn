@@ -10,7 +10,7 @@ library integration_test_net_1;
 library integration_test_net_3;
 -- library integration_test_net_4;
 library integration_test_input_ones;
-library integration_test_input_zeros;
+-- library integration_test_input_zeros;
 library integration_test_last_weights_zeros;
 
 library vunit_lib;
@@ -129,22 +129,22 @@ begin
       osl_finish  => sl_finish
     );
   end generate;
-  gen_input_zeros : if C_FOLDER = "test_input_zeros" generate
-    dut: entity integration_test_input_zeros.top
-    port map (
-      isl_clk     => sl_clk,
-      isl_rst_n   => sl_rst_n,
-      isl_ce      => sl_ce,
-      isl_get     => sl_get,
-      isl_start   => sl_start,
-      isl_valid   => sl_valid_in,
-      islv_data   => slv_data_in,
-      oslv_data   => slv_data_out,
-      osl_valid   => sl_valid_out,
-      osl_rdy     => sl_rdy,
-      osl_finish  => sl_finish
-    );
-  end generate;
+  -- gen_input_zeros : if C_FOLDER = "test_input_zeros" generate
+  --   dut: entity integration_test_input_zeros.top
+  --   port map (
+  --     isl_clk     => sl_clk,
+  --     isl_rst_n   => sl_rst_n,
+  --     isl_ce      => sl_ce,
+  --     isl_get     => sl_get,
+  --     isl_start   => sl_start,
+  --     isl_valid   => sl_valid_in,
+  --     islv_data   => slv_data_in,
+  --     oslv_data   => slv_data_out,
+  --     osl_valid   => sl_valid_out,
+  --     osl_rdy     => sl_rdy,
+  --     osl_finish  => sl_finish
+  --   );
+  -- end generate;
   gen_test_last_weights_zeros : if C_FOLDER = "test_last_weights_zeros" generate
     dut: entity integration_test_last_weights_zeros.top
     port map (
