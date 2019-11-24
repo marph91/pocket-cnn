@@ -3,7 +3,7 @@ library ieee;
   use ieee.numeric_std.all;
   use ieee.fixed_pkg.all;
 library util;
-  use util.math.all;
+  use util.math_pkg.all;
 
 entity pool_max is
   generic (

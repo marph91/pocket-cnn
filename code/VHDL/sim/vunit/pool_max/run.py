@@ -28,7 +28,7 @@ def create_test_suite(ui):
 
     ui.add_array_util()
     util = ui.add_library("util", allow_duplicate=True)
-    util.add_source_files("../../src/util/math.vhd")
+    util.add_source_files("../../src/util/math_pkg.vhd")
     unittest = ui.add_library("unittest", allow_duplicate=True)
     unittest.add_source_files("../../src/pool_max.vhd")
     unittest.add_source_files(join(root, "src", "*.vhd"))

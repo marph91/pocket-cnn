@@ -4,7 +4,7 @@ library ieee;
   use ieee.fixed_pkg.all;
   use ieee.fixed_float_types.all;
 library util;
-  use util.math.all;
+  use util.math_pkg.all;
 
 entity pool_ave is
   generic (

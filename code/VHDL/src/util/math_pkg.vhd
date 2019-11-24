@@ -1,14 +1,14 @@
 library ieee;
   use ieee.fixed_pkg.all;
 
-package math is
+package math_pkg is
   function log2(x : integer) return integer;
   function max(l, r : integer) return integer;
   function max(l, r : sfixed) return sfixed;
   function min(l, r : integer) return integer;
-end package math;
+end package math_pkg;
 
-package body math is
+package body math_pkg is
   -- compute the binary logarithm
   function log2(x : integer) return integer is
     variable i : integer := 0;
@@ -52,4 +52,4 @@ package body math is
       return r;
     end if;
   end min;
-end math;
+end math_pkg;
