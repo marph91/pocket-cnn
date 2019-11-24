@@ -4,15 +4,15 @@ import os
 try:
     import cnn_caffe.tools
     import cnn_caffe.parse_param
-except ImportError:
-    print("No caffe detected.")
+except ImportError as err:
+    print("Caffe not available.")
 
 # pytorch
 try:
     import cnn_pytorch.tools
     import cnn_pytorch.parse_param
 except ImportError:
-    print("No pytorch detected.")
+    print("Pytorch not available.")
 
 import tools_common as common
 
