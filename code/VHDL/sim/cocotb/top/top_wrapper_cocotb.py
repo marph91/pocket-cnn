@@ -170,8 +170,8 @@ def run_test(dut, files=None, cnn=None):
 
     # extract bitwiths and height/width from design to support multiple
     # cnn frameworks
-    width = dut.stage1.C_IMG_WIDTH.value.integer
-    height = dut.stage1.C_IMG_HEIGHT.value.integer
+    width = dut.i_top.C_IMG_WIDTH_IN.value.integer
+    height = dut.i_top.C_IMG_HEIGHT_IN.value.integer
     exp_out = cnn.inference(infile, width, height)
     dut._log.info("{} result ready.".format(os.environ["CNN_FW"]))
 
@@ -222,9 +222,9 @@ def run_test(dut, files=None, cnn=None):
         if dut.osl_valid == 1:
             dut_out.append(fixfloat.fixed2float(
                 dut.oslv_data.value.binstr,
-                dut.ave.C_TOTAL_BITS.value.integer - \
-                dut.ave.C_FRAC_BITS.value.integer,
-                dut.ave.C_FRAC_BITS.value.integer))
+                dut.i_top.i_ave.C_TOTAL_BITS.value.integer - \
+                dut.i_top.i_ave.C_FRAC_BITS.value.integer,
+                dut.i_top.i_ave.C_FRAC_BITS.value.integer))
             dut_out_bin.append(dut.oslv_data.value.binstr)
         yield RisingEdge(dut.isl_clk)
     dut._log.info("Finished processing image.")

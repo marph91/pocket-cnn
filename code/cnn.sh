@@ -36,7 +36,7 @@ case $1 in
 		"./python_tools/cnn_$CNN_FW/parse_param.py" \
 			"$MODEL_QUANT" \
 			"$CNN_DIR/caffe_ristretto/mem_init" \
-			"$VHDL_DIR/src/cnn_parameter.vhd" ;;
+			"$VHDL_DIR/src/top_wrapper.vhd" ;;
 
 	# finetune 32 bit float model to configured fixed point representation
 	quantize_weights) echo "quantize weights
@@ -103,7 +103,7 @@ case $1 in
 			"./python_tools/cnn_$CNN_FW/parse_param.py" \
 				"$MODEL_QUANT" \
 				"$CNN_DIR/caffe_ristretto/mem_init" \
-				"$VHDL_DIR/cnn_parameter.vhd" ;;
+				"$VHDL_DIR/top_wrapper.vhd" ;;
 		*) ;;
 		esac ;;&
 

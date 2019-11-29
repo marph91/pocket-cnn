@@ -10,11 +10,11 @@ OPT=-O3
 GHDL_ARGS=-g $(OPT) -P$(CWD)/util --ieee=synopsys --std=08
 
 SIM_ARGS+=--ieee-asserts=disable --assert-level=none --max-stack-alloc=0
-SIM_BUILD=work
+SIM_BUILD=build
 
 TOPLEVEL_LANG?=vhdl
-
 VHDL_SOURCES=$(VHDL_DIR)/*.vhd
+RTL_LIBRARY=cnn_lib
 
 TOPLEVEL?=top
 MODULE=$(TOPLEVEL)_cocotb

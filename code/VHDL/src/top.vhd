@@ -2,12 +2,41 @@ library ieee;
   use ieee.std_logic_1164.all;
   use ieee.numeric_std.all;
 library util;
+  use util.cnn_pkg.all;
   use util.math_pkg.all;
 library cnn_lib;
 
-  use work.cnn_parameter.all;
-
 entity top is
+  generic(
+    C_DATA_TOTAL_BITS : integer range 1 to 16;
+    C_IMG_WIDTH_IN : integer range 2 to 512;
+	  C_IMG_HEIGHT_IN : integer range 2 to 512;
+
+	  C_PE : integer range 1 to 100;
+
+	  C_SCALE : integer range 0 to 256;
+
+    -- 0 - preprocessing, 1 to C_PE - pe, C_PE+1 - average
+    C_RELU : std_logic_vector(1 to C_PE);
+    C_LEAKY_RELU : std_logic_vector(1 to C_PE);
+
+	  C_PAD: t_pad_array(1 to C_PE);
+
+	  C_CONV_KSIZE : t_win_array(1 to C_PE);
+	  C_CONV_STRIDE : t_win_array(1 to C_PE);
+	  C_WIN_POOL : t_win_array(1 to C_PE);
+	  C_POOL_STRIDE : t_win_array(1 to C_PE);
+
+	  C_CH : t_ch_array(0 to C_PE);
+
+    -- 0 - bitwidth data, 1 - bitwidth frac data in, 2 - bitwidth frac data out
+    -- 3 - bitwidth weights, 4 - bitwidth frac weights
+	  C_BITWIDTH : t_bitwidth_array(1 to C_PE, 0 to 4);
+
+    C_STR_LENGTH : integer range 1 to 256;
+    STR_WEIGHTS_INIT : t_weights_array(1 to C_PE)(1 to C_STR_LENGTH);
+	  STR_BIAS_INIT : t_weights_array(1 to C_PE)(1 to C_STR_LENGTH)
+  );
   port (
     isl_clk   	: in std_logic;
     isl_rst_n 	: in std_logic;
@@ -35,9 +64,12 @@ architecture behavioral of top is
       -- stride conv just useful if no pooling layer in pe (either reduce image dimensions in conv OR pool)
       -- ite to protect from division by 0
       if (C_POOL_STRIDE(i-1) > 0) then
-        v_a_size(i) := ((v_a_size(i-1)+2*C_PAD(i-1)-(C_CONV_KSIZE(i-1)-C_CONV_STRIDE(i-1)))/C_CONV_STRIDE(i-1)-(C_WIN_POOL(i-1)-C_POOL_STRIDE(i-1)))/C_POOL_STRIDE(i-1);
+        v_a_size(i) := ((v_a_size(i-1)+2*C_PAD(i-1)-(C_CONV_KSIZE(i-1)-C_CONV_STRIDE(i-1))) /
+                        C_CONV_STRIDE(i-1)-(C_WIN_POOL(i-1)-C_POOL_STRIDE(i-1))) /
+                        C_POOL_STRIDE(i-1);
       else
-        v_a_size(i) := (v_a_size(i-1)+2*C_PAD(i-1)-(C_CONV_KSIZE(i-1)-C_CONV_STRIDE(i-1)))/C_CONV_STRIDE(i-1);
+        v_a_size(i) := (v_a_size(i-1)+2*C_PAD(i-1)-(C_CONV_KSIZE(i-1)-C_CONV_STRIDE(i-1))) /
+                        C_CONV_STRIDE(i-1);
       end if;
     end loop;
     return v_a_size;
@@ -78,7 +110,7 @@ begin
   slv_rdy(C_PE+1) <= isl_get;
   gen_stages : for i in 1 to C_PE generate
     -----------------------------------
-    -- Stage
+    -- Stage 1 to C_PE: processing elements
     -----------------------------------
     i_stage : entity cnn_lib.pe
     generic map (
@@ -117,7 +149,7 @@ begin
   end generate gen_stages;
 
   -----------------------------------
-  -- stage C_PE+1 (global average)
+  -- Stage C_PE+1 (global average)
   -----------------------------------
   i_ave : entity cnn_lib.pool_ave
   generic map (
