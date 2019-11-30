@@ -70,6 +70,7 @@ def create_test_suite(ui):
         tb_top.add_config(name=test_case, generics=generics,
                           pre_config=create_stimuli(join(
                               root, "src", test_case)))
+        tb_top.set_attribute(".integration_test", None)
 
 
 if __name__ == "__main__":

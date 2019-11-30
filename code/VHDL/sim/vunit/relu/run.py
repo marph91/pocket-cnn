@@ -47,6 +47,7 @@ def create_test_suite(ui):
                            generics=generics,
                            pre_config=create_stimuli(root,
                                                      sample_cnt=sample_cnt))
+        tb_relu.set_attribute(".unittest", None)
 
 
 if __name__ == "__main__":
