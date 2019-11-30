@@ -1,0 +1,93 @@
+{
+  "channel": [
+    1,
+    16,
+    32,
+    64,
+    2
+  ],
+  "input_height": 36,
+  "input_width": 18,
+  "scale": 64,
+  "relu": [
+    1,
+    1,
+    1,
+    1
+  ],
+  "leaky_relu": [
+    0,
+    0,
+    0,
+    0
+  ],
+  "pad": [
+    1,
+    1,
+    0,
+    0
+  ],
+  "conv_names": [
+    "conv1",
+    "conv2",
+    "conv3",
+    "conv4"
+  ],
+  "conv_kernel": [
+    3,
+    3,
+    1,
+    1
+  ],
+  "conv_stride": [
+    1,
+    1,
+    1,
+    1
+  ],
+  "pool_kernel": [
+    2,
+    3,
+    0,
+    0
+  ],
+  "pool_stride": [
+    2,
+    3,
+    0,
+    0
+  ],
+  "bitwidth": [
+    [
+      8,
+      4,
+      4,
+      8,
+      5
+    ],
+    [
+      8,
+      4,
+      4,
+      8,
+      5
+    ],
+    [
+      8,
+      4,
+      4,
+      8,
+      5
+    ],
+    [
+      8,
+      4,
+      2,
+      8,
+      5
+    ]
+  ],
+  "pe": 4,
+  "weight_dir": "top/src/test_net_1/weights",
+  "len_weights": 38
+}

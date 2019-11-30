@@ -1,4 +1,4 @@
-def vhdl_top_template(param, weight_dir, param_file):
+def vhdl_top_template(param, param_file):
     """"Generating a VHDL toplevel wrapper with all needed CNN parameter."""
     pe = param["pe"]
     conv_names = param["conv_names"]
@@ -9,10 +9,9 @@ def vhdl_top_template(param, weight_dir, param_file):
     for i, bw in enumerate(bitwidth[:-1]):
         bws += "      " + str(i+1) + " => (" + ", ".join(map(str, bw)) + "),\n"
     for i, name in enumerate(conv_names[:-1]):
-        weight_dirs += "      \"%s/W_%s.txt\",\n" % (weight_dir, name)
+        weight_dirs += "      \"%s/W_%s.txt\",\n" % (param["weight_dir"], name)
     for i, name in enumerate(conv_names[:-1]):
-        bias_dirs += "      \"%s/B_%s.txt\",\n" % (weight_dir, name)
-    len_weights = str(len("%s/W_%s.txt" % (weight_dir, conv_names[0])))
+        bias_dirs += "      \"%s/B_%s.txt\",\n" % (param["weight_dir"], name)
 
     # write parameter into file
     with open(param_file, "w") as outfile:
@@ -61,11 +60,11 @@ begin\n\
     C_BITWIDTH => (\n\
 " + bws + "\
       " + str(pe) + " => (" + ", ".join(map(str, bitwidth[pe-1])) + ")),\n\
-    C_STR_LENGTH => " + str(len_weights) + ",\n\
+    C_STR_LENGTH => " + str(param["len_weights"]) + ",\n\
     STR_WEIGHTS_INIT => (\n\
-" + weight_dirs + "      \"" + weight_dir + "/W_" + conv_names[pe-1] + ".txt\"),\n\
+" + weight_dirs + "      \"" + param["weight_dir"] + "/W_" + conv_names[pe-1] + ".txt\"),\n\
     STR_BIAS_INIT => (\n\
-" + bias_dirs + "      \"" + weight_dir + "/B_" + conv_names[pe-1] + ".txt\")\n\
+" + bias_dirs + "      \"" + param["weight_dir"] + "/B_" + conv_names[pe-1] + ".txt\")\n\
   )\n\
   port map (\n\
     isl_clk     => isl_clk,\n\

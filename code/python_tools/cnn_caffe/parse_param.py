@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 
 import argparse
-import math
 import ast
+import json
+import math
 
 from google.protobuf import text_format
 from caffe.proto import caffe_pb2
@@ -201,4 +202,11 @@ if __name__ == "__main__":
     tools.train2deploy(args.train_file, deploy_file)
 
     param_dict = parse_param(deploy_file)
-    vhdl_top_template(param_dict, args.weight_dir, args.param_file)
+    # create some (redundant) dict entries
+    param_dict["weight_dir"] = args.weight_dir
+    param_dict["len_weights"] = len("%s/W_%s.txt" % (
+        param_dict["weight_dir"], param_dict["conv_names"][0]))
+    vhdl_top_template(param_dict, args.param_file)
+
+    with open("cnn_parameter.json", 'w') as outfile:
+        json.dump(param_dict, outfile, indent=2)
