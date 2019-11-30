@@ -1,1 +1,1 @@
-/home/workspace/microcnn/cnn_models/tests/test_net_2/
+/home/workspace/picocnn/cnn_models/tests/test_net_2/

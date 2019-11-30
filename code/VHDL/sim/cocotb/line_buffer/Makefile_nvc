@@ -1,7 +1,7 @@
 CWD=$(shell pwd)
 
 # TODO: remove absolute path -> problem when running ghdl
-VHDL_DIR=/home/workspace/microcnn/code/VHDL/src
+VHDL_DIR=/home/workspace/picocnn/code/VHDL/src
 COCOTB_ROOT=/home/prog/cocotb
 # suppress most of the cocotb log
 export COCOTB_REDUCED_LOG_FMT=1
@@ -27,8 +27,8 @@ CUSTOM_SIM_DEPS=$(CWD)/Makefile
 # time resolution like vivado standard
 VSIM_ARGS=-t 1ps
 
-# LIB_DIR=/home/workspace/microcnn/code/VHDL/sim/cocotb/line_buffer
-RTL_LIBRARY=work --std=2008 -L /home/workspace/microcnn/code/VHDL/sim/cocotb/line_buffer
+# LIB_DIR=/home/workspace/picocnn/code/VHDL/sim/cocotb/line_buffer
+RTL_LIBRARY=work --std=2008 -L /home/workspace/picocnn/code/VHDL/sim/cocotb/line_buffer
 
 all: dirs libs
 dirs:

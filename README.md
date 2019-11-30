@@ -1,4 +1,4 @@
-microCNN is a framework to map small Convolutional Neural Networks (CNN) fully on a FPGA.
+picocnn is a framework to map small Convolutional Neural Networks (CNN) fully on a FPGA.
 
 # Approach
 
@@ -19,10 +19,10 @@ One of:
 
 ```bash
 # install requirements
-git clone https://gitlab.com/Marph/microcnn.git
-export PYTHONPATH="$PWD"microcnn/code/python_tools:/PATH/TO/CAFFE/RISTRETTO/python
+git clone https://gitlab.com/Marph/picocnn.git
+export PYTHONPATH="$PWD"picocnn/code/python_tools:/PATH/TO/CAFFE/RISTRETTO/python
 export CAFFE_ROOT=/PATH/TO/CAFFE/RISTRETTO
-cd microcnn
+cd picocnn
 
 # edit your cnn_config.sh
 ./cnn.sh all
@@ -30,7 +30,7 @@ cd microcnn
 
 To run the vunit based tests, execute:
 ```bash
-cd microcnn/code/VHDL/sim/vunit/
+cd picocnn/code/VHDL/sim/vunit/
 python3 run_all.py
 ```
 Further cocotb based tests can be found in the folder `cocotb` and run by executing `make` in the corresponding subdirectory.

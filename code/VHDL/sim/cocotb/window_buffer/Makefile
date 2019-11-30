@@ -1,7 +1,7 @@
 TOPLEVEL=window_buffer
 COCOTB_ROOT=/home/prog/cocotb
-VHDL_DIR=/home/workspace/microcnn/code/VHDL/src
+VHDL_DIR=/home/workspace/picocnn/code/VHDL/src
 
 SIM_ARGS=--vcd=../test.vcd
 
-include ../Makefile.microcnn
+include ../Makefile.picocnn
