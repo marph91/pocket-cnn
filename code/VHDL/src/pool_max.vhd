@@ -30,8 +30,7 @@ architecture behavioral of pool_max is
   signal slv_data_out : std_logic_vector(C_TOTAL_BITS-1 downto 0);
   signal sl_output_valid : std_logic := '0';
 
-  type t_1d_sfix_array is array (natural range <>) of sfixed(C_INT_BITS-1 downto -C_FRAC_BITS);
-  signal a_max_tmp : t_1d_sfix_array(0 to C_KSIZE-1);
+  signal a_max_tmp : t_sfix_array_1d(0 to C_KSIZE-1)(C_INT_BITS-1 downto -C_FRAC_BITS) := (others => (others => '0'));
 
 begin
   -------------------------------------------------------
@@ -40,7 +39,7 @@ begin
   -- Stage 2: 2x / 1x compare
   -------------------------------------------------------
   process(isl_clk)
-    variable v_a_current_max : t_1d_sfix_array(0 to C_KSIZE-1);
+    variable v_a_current_max : t_sfix_array_1d(0 to C_KSIZE-1)(C_INT_BITS-1 downto -C_FRAC_BITS);
     variable v_sfix_current_max_tmp : sfixed(C_INT_BITS-1 downto -C_FRAC_BITS);
     variable v_sfix_new_value : sfixed(C_INT_BITS-1 downto -C_FRAC_BITS);
   begin

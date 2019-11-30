@@ -48,7 +48,7 @@ architecture behavioral of pool_ave is
 
   signal int_data_in_cnt : integer := 0;-- TODO: range 0 to C_IMG_WIDTH*C_IMG_HEIGHT*C_POOL_CH+1 := 0;
   type t_1d_array is array (natural range <>) of sfixed(C_INTW_SUM-1 downto -C_FRAC_BITS);
-  signal a_ch_buffer : t_1d_array(0 to C_POOL_CH-1);
+  signal a_ch_buffer : t_1d_array(0 to C_POOL_CH-1) := (others => (others => '0'));
 
   signal sl_output_valid : std_logic := '0';
 
