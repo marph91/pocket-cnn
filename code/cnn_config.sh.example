@@ -11,15 +11,13 @@ fi
 DEBUG=0
 
 # root directories of used programs
-CAFFE_RISTRETTO_ROOT=/home/prog/caffe_ristretto
-COCOTB_ROOT=/home/prog/cocotb
+CAFFE_RISTRETTO_ROOT=/home/prog/caffe
 
 # cnn framework (caffe or pytorch)
 CNN_FW=caffe
 
 # root directory of the cnn model
-#CNN_DIR=/home/workspace/microcnn/cnn_models/final/baseline
-CNN_DIR=/home/workspace/microcnn/cnn_models/tests/test_net_4
+CNN_DIR=/home/workspace/picocnn/cnn_models/final/baseline
 
 # root directory of the CNN VHDL files
 VHDL_DIR="$PWD/VHDL/src"
@@ -33,7 +31,6 @@ function find_latest {
 	done
 }
 
-# TODO: should this be moved to the config?
 if [ "$CNN_FW" = "caffe" ]; then
 	# TODO: run caffe(-ristretto) training from python script
 	# https://stackoverflow.com/questions/32379878/cheat-sheet-for-caffe-pycaffe

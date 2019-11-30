@@ -24,6 +24,7 @@ export PYTHONPATH="$PWD"picocnn/code/python_tools:/PATH/TO/CAFFE/RISTRETTO/pytho
 export CAFFE_ROOT=/PATH/TO/CAFFE/RISTRETTO
 cd picocnn
 
+cp cnn_config.sh.example cnn_config.sh
 # edit your cnn_config.sh
 ./cnn.sh all
 ```
