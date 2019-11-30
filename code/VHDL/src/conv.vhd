@@ -57,8 +57,8 @@ architecture behavioral of conv is
 
   -- for Convolution
   signal sl_valid_in_d1 : std_logic := '0';
-  signal a_data_mm_in : t_slv_array_2d(0 to C_KSIZE-1, 0 to C_KSIZE-1);
-  signal a_weights_mm_in : t_slv_array_2d(0 to C_KSIZE-1, 0 to C_KSIZE-1);
+  signal a_data_mm_in : t_slv_array_2d(0 to C_KSIZE-1, 0 to C_KSIZE-1) := (others => (others => (others => '0')));
+  signal a_weights_mm_in : t_slv_array_2d(0 to C_KSIZE-1, 0 to C_KSIZE-1) := (others => (others => (others => '0')));
   signal slv_conv_data_out : std_logic_vector(C_SUM_TOTAL_BITS-log2(C_CH_IN)-1 downto 0);
   signal sl_conv_valid_out : std_logic := '0';
   signal sl_conv_valid_out_d1 : std_logic := '0';

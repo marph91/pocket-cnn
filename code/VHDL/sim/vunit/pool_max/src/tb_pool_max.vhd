@@ -26,7 +26,7 @@ end entity;
 architecture tb of tb_pool_max is
   signal sl_clk : std_logic := '0';
   signal sl_valid_in : std_logic := '0';
-  signal a_data_in : t_slv_array_2d(0 to C_KSIZE-1, 0 to C_KSIZE-1);
+  signal a_data_in : t_slv_array_2d(0 to C_KSIZE-1, 0 to C_KSIZE-1) := (others => (others => (others => '0')));
   signal sl_valid_out : std_logic := '0';
   signal slv_data_out : std_logic_vector(C_TOTAL_BITS-1 downto 0) := (others => '0');
 

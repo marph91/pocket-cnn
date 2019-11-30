@@ -1,5 +1,7 @@
 library ieee;
   use ieee.std_logic_1164.all;
+library util;
+  use util.cnn_pkg.all;
 
 entity channel_burst is
     generic(
@@ -31,8 +33,7 @@ architecture behavior of channel_burst is
   signal int_ch_out_cnt : integer range 0 to C_CH := 0;
   signal int_ch_to_burst : integer range 0 to C_CH := 0;
 
-  type t_1d_array is array (natural range <>) of std_logic_vector(C_DATA_WIDTH - 1 downto 0);
-  signal a_ch : t_1d_array(0 to C_CH);
+  signal a_ch : t_slv_array_1d(0 to C_CH) := (others => (others => '0'));
 
 begin
   proc_data : process(isl_clk)

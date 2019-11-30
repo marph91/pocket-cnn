@@ -50,19 +50,19 @@ architecture behavioral of window_ctrl is
 
   -- for window buffer
   signal sl_wb_valid_out : std_logic := '0';
-  signal a_wb_data_out : t_slv_array_2d(0 to C_KSIZE-1, 0 to C_KSIZE-1);
+  signal a_wb_data_out : t_slv_array_2d(0 to C_KSIZE-1, 0 to C_KSIZE-1) := (others => (others => (others => '0')));
 
   -- for channel buffer
   signal sl_chb_repeat : std_logic := '0';
   signal sl_chb_valid_in : std_logic := '0';
   signal sl_chb_valid_in_d1 : std_logic := '0';
   signal sl_chb_valid_out : std_logic := '0';
-  signal a_chb_data_in : t_slv_array_2d(0 to C_KSIZE-1, 0 to C_KSIZE-1);
-  signal a_chb_data_out : t_slv_array_2d(0 to C_KSIZE-1, 0 to C_KSIZE-1);
+  signal a_chb_data_in : t_slv_array_2d(0 to C_KSIZE-1, 0 to C_KSIZE-1) := (others => (others => (others => '0')));
+  signal a_chb_data_out : t_slv_array_2d(0 to C_KSIZE-1, 0 to C_KSIZE-1) := (others => (others => (others => '0')));
   signal sl_chb_rdy : std_logic := '0';
 
   signal sl_output_valid : std_logic := '0';
-  signal a_data_out : t_slv_array_2d(0 to C_KSIZE-1, 0 to C_KSIZE-1);
+  signal a_data_out : t_slv_array_2d(0 to C_KSIZE-1, 0 to C_KSIZE-1) := (others => (others => (others => '0')));
 begin
   gen_kernel : if C_KSIZE > 1 generate
     -- line buffer

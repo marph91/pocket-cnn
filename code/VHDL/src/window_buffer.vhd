@@ -25,11 +25,9 @@ architecture behavior of window_buffer is
   signal int_ch_cnt : integer range 0 to C_CH-1 := 0;
 
   signal sl_valid_out : std_logic := '0';
-  signal a_data_out : t_slv_array_2d(0 to C_KSIZE-1, 0 to C_KSIZE-1);
-  -- signal slv_data_out : std_logic_vector(C_KSIZE*C_KSIZE*C_DATA_WIDTH-1 downto 0) := (others => '0');
+  signal a_data_out : t_slv_array_2d(0 to C_KSIZE-1, 0 to C_KSIZE-1) := (others => (others => (others => '0')));
 
-  type t_2d_array is array (natural range <>, natural range <>) of std_logic_vector(C_DATA_WIDTH - 1 downto 0);
-  signal a_win : t_2d_array(0 to C_KSIZE*C_KSIZE - 1, 0 to C_CH - 1) := (others => (others => (others => '0')));
+  signal a_win : t_slv_array_2d(0 to C_KSIZE*C_KSIZE - 1, 0 to C_CH - 1) := (others => (others => (others => '0')));
 
 begin
   proc_shift_data : process(isl_clk)

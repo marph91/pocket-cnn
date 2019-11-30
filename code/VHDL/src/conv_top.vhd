@@ -36,7 +36,7 @@ end conv_top;
 
 architecture behavioral of conv_top is
   -- TODO: initialize to 0
-  signal a_win_data_out : t_slv_array_2d(0 to C_KSIZE-1, 0 to C_KSIZE-1);
+  signal a_win_data_out : t_slv_array_2d(0 to C_KSIZE-1, 0 to C_KSIZE-1) := (others => (others => (others => '0')));
   signal slv_win_valid_out : std_logic := '0';
 
 begin

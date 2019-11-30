@@ -53,6 +53,7 @@ entity top is
 end top;
 
 architecture behavioral of top is
+  -- TODO: is subtype with integer range possible?
   type t_img_size_array is array (1 to C_PE) of integer range 1 to 512;
 
   -- calculate the image size at every layer

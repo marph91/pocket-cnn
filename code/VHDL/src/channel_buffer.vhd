@@ -32,7 +32,7 @@ architecture behavior of channel_buffer is
   signal int_repeat_cnt : integer range 0 to C_REPEAT-1 := 0;
 
   type t_1d_array is array (natural range <>) of t_slv_array_2d(0 to C_KSIZE-1, 0 to C_KSIZE-1);
-  signal a_ch : t_1d_array(0 to C_CH-1);
+  signal a_ch : t_1d_array(0 to C_CH-1) := (others => (others => (others => (others => '0'))));
 
 begin
   proc_data : process(isl_clk)
