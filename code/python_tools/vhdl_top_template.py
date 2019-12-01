@@ -52,7 +52,7 @@ begin\n\
     C_PAD => (" + ", ".join(map(str, param["pad"])) + "),\n\
     C_CONV_KSIZE => (" + ", ".join(map(str, param["conv_kernel"])) + "),\n\
     C_CONV_STRIDE => (" + ", ".join(map(str, param["conv_stride"])) + "),\n\
-    C_WIN_POOL => (" + ", ".join(map(str, param["pool_kernel"])) + "),\n\
+    C_POOL_KSIZE => (" + ", ".join(map(str, param["pool_kernel"])) + "),\n\
     C_POOL_STRIDE => (" + ", ".join(map(str, param["pool_stride"])) + "),\n\
     C_CH => (" + ", ".join(map(str, param["channel"])) + "), \n\
     -- 0 - bitwidth data, 1 - bitwidth frac data in, 2 - bitwidth frac data out\n\

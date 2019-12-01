@@ -29,7 +29,7 @@ entity tb_top is
     C_PAD             : string;
     C_CONV_KSIZE      : string;
 	  C_CONV_STRIDE     : string;
-	  C_WIN_POOL        : string;
+	  C_POOL_KSIZE      : string;
     C_POOL_STRIDE     : string;
     C_CH              : string;
     C_BITWIDTH        : string;
@@ -135,7 +135,7 @@ begin
     C_PAD => decode_integer_array(C_PAD, 1),
     C_CONV_KSIZE => decode_integer_array(C_CONV_KSIZE, 1),
     C_CONV_STRIDE => decode_integer_array(C_CONV_STRIDE, 1),
-    C_WIN_POOL => decode_integer_array(C_WIN_POOL, 1),
+    C_POOL_KSIZE => decode_integer_array(C_POOL_KSIZE, 1),
     C_POOL_STRIDE => decode_integer_array(C_POOL_STRIDE, 1),
     C_CH => decode_integer_array(C_CH, 0), 
     -- 0 - bitwidth data, 1 - bitwidth frac data in, 2 - bitwidth frac data out

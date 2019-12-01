@@ -19,7 +19,7 @@ entity pe is
     C_CH_OUT          : integer range 1 to 512 := 16;
     C_CONV_KSIZE      : integer range 1 to 3 := 3;
     C_CONV_STRIDE     : integer range 1 to 3 := 3;
-    C_WIN_SIZE_POOL   : integer range 0 to 3 := 2;
+    C_POOL_KSIZE      : integer range 0 to 3 := 2;
     C_POOL_STRIDE     : integer range 0 to 3 := 2;
     C_PAD             : integer range 0 to 1 := 0;
     C_RELU            : std_logic := '0';
@@ -221,7 +221,7 @@ begin
     osl_rdy   => sl_conv_rdy
   );
 
-  gen_no_relu_no_pool : if C_RELU = '0' and C_WIN_SIZE_POOL = 0 generate
+  gen_no_relu_no_pool : if C_RELU = '0' and C_POOL_KSIZE = 0 generate
     sl_pool_rdy <= '1';
     oslv_data <= slv_conv_data_out;
     osl_valid <= sl_conv_output_valid;
@@ -245,19 +245,19 @@ begin
     );
 
     -- assign relu outputs
-    gen_relu_no_pool : if C_WIN_SIZE_POOL = 0 generate
+    gen_relu_no_pool : if C_POOL_KSIZE = 0 generate
       sl_pool_rdy <= '1';
       oslv_data <= slv_relu_data_out;
       osl_valid <= sl_relu_output_valid;
     end generate;
-    gen_relu_pool : if C_WIN_SIZE_POOL > 0 generate
+    gen_relu_pool : if C_POOL_KSIZE > 0 generate
       slv_pool_data_in <= slv_relu_data_out;
       sl_pool_input_valid <= sl_relu_output_valid;
     end generate;
   end generate;
 
   -- max pooling
-  gen_pool : if C_WIN_SIZE_POOL > 0 generate
+  gen_pool : if C_POOL_KSIZE > 0 generate
     i_channel_burst_max : entity work.channel_burst
     generic map(
       C_DATA_WIDTH  => C_DATA_TOTAL_BITS,
@@ -280,7 +280,7 @@ begin
       C_TOTAL_BITS  => C_DATA_TOTAL_BITS,
       C_FRAC_BITS   => C_DATA_FRAC_BITS_OUT,
 
-      C_KSIZE       => C_WIN_SIZE_POOL,
+      C_KSIZE       => C_POOL_KSIZE,
       C_STRIDE      => C_POOL_STRIDE,
       C_CH          => C_CH_OUT,
       C_IMG_WIDTH   => (C_IMG_WIDTH+2*C_PAD-(C_CONV_KSIZE-C_CONV_STRIDE))/C_CONV_STRIDE,

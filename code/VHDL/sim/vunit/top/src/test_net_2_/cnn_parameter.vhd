@@ -21,7 +21,7 @@ package cnn_parameter is
 	type t_win_array is array (1 to C_PE) of integer range 0 to 3;
 	constant C_CONV_KSIZE : t_win_array := (3, 3, 3, 3, 1, 1);
 	constant C_CONV_STRIDE : t_win_array := (1, 1, 1, 1, 1, 1);
-	constant C_WIN_POOL : t_win_array := (0, 2, 0, 3, 0, 0);
+	constant C_POOL_KSIZE : t_win_array := (0, 2, 0, 3, 0, 0);
 	constant C_POOL_STRIDE : t_win_array := (0, 2, 0, 3, 0, 0);
 
 	type t_ch_array is array (0 to C_PE) of integer range 1 to 512;

@@ -24,7 +24,7 @@ entity top is
 
 	  C_CONV_KSIZE : t_int_array_1d(1 to C_PE);
 	  C_CONV_STRIDE : t_int_array_1d(1 to C_PE);
-	  C_WIN_POOL : t_int_array_1d(1 to C_PE);
+	  C_POOL_KSIZE : t_int_array_1d(1 to C_PE);
 	  C_POOL_STRIDE : t_int_array_1d(1 to C_PE);
 
 	  C_CH : t_int_array_1d(0 to C_PE);
@@ -66,7 +66,7 @@ architecture behavioral of top is
       -- ite to protect from division by 0
       if (C_POOL_STRIDE(i-1) > 0) then
         v_a_size(i) := ((v_a_size(i-1)+2*C_PAD(i-1)-(C_CONV_KSIZE(i-1)-C_CONV_STRIDE(i-1))) /
-                        C_CONV_STRIDE(i-1)-(C_WIN_POOL(i-1)-C_POOL_STRIDE(i-1))) /
+                        C_CONV_STRIDE(i-1)-(C_POOL_KSIZE(i-1)-C_POOL_STRIDE(i-1))) /
                         C_POOL_STRIDE(i-1);
       else
         v_a_size(i) := (v_a_size(i-1)+2*C_PAD(i-1)-(C_CONV_KSIZE(i-1)-C_CONV_STRIDE(i-1))) /
@@ -127,7 +127,7 @@ begin
       C_CH_OUT          => C_CH(i),
       C_CONV_KSIZE      => C_CONV_KSIZE(i),
       C_CONV_STRIDE     => C_CONV_STRIDE(i),
-      C_WIN_SIZE_POOL   => C_WIN_POOL(i),
+      C_POOL_KSIZE      => C_POOL_KSIZE(i),
       C_POOL_STRIDE     => C_POOL_STRIDE(i),
       C_PAD             => C_PAD(i),
       C_RELU            => C_RELU(i),
