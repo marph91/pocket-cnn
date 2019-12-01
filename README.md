@@ -6,14 +6,19 @@ The full CNN is mapped to hardware. There is no communication outside of the FPG
 
 # Requirements
 
-- GHDL: https://github.com/tgingold/ghdl
-- gtkwave
-- cocotb: https://github.com/potentialventures/cocotb
+For tests:
+- ghdl: https://github.com/ghdl/ghdl
 - vunit: https://github.com/vunit/vunit
+- gtkwave (optional)
+- cocotb (only until commit 05fa2417): https://github.com/potentialventures/cocotb
 
-One of:
+To train new models, one of:
 - Caffe Ristretto: https://github.com/pmgysel/caffe
 - Pytorch: https://github.com/pytorch/pytorch
+
+For synthesis:
+- A generated top_wrapper.vhd and corresponding weight files.
+- A synthesis tool of your choice. For now, the design was synthesized only using Xilinx Vivado.
 
 # Installation and Usage
 
