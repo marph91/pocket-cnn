@@ -59,7 +59,7 @@ def create_test_suite(ui):
                     "C_PAD": ", ".join(map(str, params["pad"])),
                     "C_CONV_KSIZE": ", ".join(map(str, params["conv_kernel"])),
                     "C_CONV_STRIDE": ", ".join(map(str, params["conv_stride"])),
-                    "C_POOL_KSIZE_POOL": ", ".join(map(str, params["pool_kernel"])),
+                    "C_POOL_KSIZE": ", ".join(map(str, params["pool_kernel"])),
                     "C_POOL_STRIDE": ", ".join(map(str, params["pool_stride"])),
                     "C_CH": ", ".join(map(str, params["channel"])),
                     "C_BITWIDTH": bitwidth,
