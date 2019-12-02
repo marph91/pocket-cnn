@@ -80,6 +80,11 @@ begin
 
   begin
     test_runner_setup(runner, runner_cfg);
+    report ("bitwidths: " &
+            to_string(C_DATA_TOTAL_BITS) & " " &
+            to_string(C_DATA_FRAC_BITS_IN) & " " &
+            to_string(C_WEIGHTS_TOTAL_BITS) & " " &
+            to_string(C_WEIGHTS_FRAC_BITS));
     data_src.load_csv(tb_path & "input_data" & to_string(C_KSIZE) & ".csv");
     weights_src.load_csv(tb_path & "input_weights" & to_string(C_KSIZE) & ".csv");
     data_ref.load_csv(tb_path & "output" & to_string(C_KSIZE) & ".csv");
