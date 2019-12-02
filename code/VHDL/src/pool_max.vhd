@@ -11,7 +11,7 @@ entity pool_max is
     C_TOTAL_BITS  : integer range 1 to 16 := 8;
     C_FRAC_BITS   : integer range 0 to 16 := 4;
 
-    C_KSIZE       : integer range 2 to 3 := 2;
+    C_KSIZE       : integer range 2 to 3 := 2
   );
   port (
     isl_clk   : in std_logic;

@@ -13,7 +13,7 @@ entity max_top is
     C_IMG_HEIGHT  : integer range 1 to 512 := 16;
 
     C_KSIZE       : integer range 0 to 16 := 4;
-    C_STRIDE      : integer range 1 to 3 := 1;
+    C_STRIDE      : integer range 1 to 3 := 1
   );
   port (
     isl_clk   : in std_logic;
