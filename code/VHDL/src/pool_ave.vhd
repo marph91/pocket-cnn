@@ -10,6 +10,7 @@ entity pool_ave is
   generic (
     C_TOTAL_BITS  : integer range 1 to 16 := 8;
     C_FRAC_BITS   : integer range 0 to 16 := 8;
+
     C_POOL_CH     : integer range 1 to 512 := 4;
     C_IMG_WIDTH   : integer range 1 to 512 := 6;
     C_IMG_HEIGHT  : integer range 1 to 512 := 6

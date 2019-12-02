@@ -15,9 +15,10 @@ entity conv is
     C_WEIGHTS_TOTAL_BITS  : integer range 1 to 16 := 8;
     C_WEIGHTS_FRAC_BITS   : integer range 0 to 16 := 4;
     
-    C_KSIZE           : integer range 1 to 3 := 3;
     C_CH_IN           : integer range 1 to 512 := 4;
     C_CH_OUT          : integer range 1 to 512 := 8;
+
+    C_KSIZE           : integer range 1 to 3 := 3;
     STR_WEIGHTS_INIT  : string := "";
     STR_BIAS_INIT     : string := ""
   );

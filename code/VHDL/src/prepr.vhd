@@ -10,6 +10,7 @@ entity prepr is
   generic (
     C_TOTAL_BITS : integer range 1 to 32 := 8;
     C_FRAC_BITS  : integer range 0 to 16 := 4;
+
     C_SHIFT      : integer range 0 to 32 := 6
   );
   port (

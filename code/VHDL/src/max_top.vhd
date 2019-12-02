@@ -8,11 +8,12 @@ entity max_top is
     C_TOTAL_BITS  : integer range 1 to 16 := 8;
     C_FRAC_BITS   : integer range 0 to 16 := 4;
 
-    C_KSIZE       : integer range 0 to 16 := 4;
-    C_STRIDE      : integer range 1 to 3 := 1;
     C_CH          : integer range 1 to 512 := 1;
     C_IMG_WIDTH   : integer range 1 to 512 := 36;
-    C_IMG_HEIGHT  : integer range 1 to 512 := 16
+    C_IMG_HEIGHT  : integer range 1 to 512 := 16;
+
+    C_KSIZE       : integer range 0 to 16 := 4;
+    C_STRIDE      : integer range 1 to 3 := 1;
   );
   port (
     isl_clk   : in std_logic;

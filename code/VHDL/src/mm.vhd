@@ -13,6 +13,7 @@ entity mm is
     C_DATA_FRAC_BITS_IN   : integer range 0 to 16 := 4;
     C_WEIGHTS_TOTAL_BITS  : integer range 1 to 16 := 8;
     C_WEIGHTS_FRAC_BITS   : integer range 0 to 16 := 4;
+
     C_KSIZE               : integer range 1 to 3 := 3
   );
   port (

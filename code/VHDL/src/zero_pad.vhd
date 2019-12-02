@@ -4,9 +4,11 @@ library ieee;
 entity zero_pad is
   generic (
     C_DATA_WIDTH  : integer range 1 to 16 := 8;
+
     C_CH          : integer range 1 to 512 := 16;
     C_IMG_WIDTH   : integer range 1 to 512 := 32;
     C_IMG_HEIGHT  : integer range 1 to 512 := 32;
+
     C_PAD_TOP     : integer range 0 to 1 := 1;
     C_PAD_BOTTOM  : integer range 0 to 1 := 1;
     C_PAD_LEFT    : integer range 0 to 1 := 1;

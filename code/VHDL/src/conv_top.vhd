@@ -11,12 +11,13 @@ entity conv_top is
     C_WEIGHTS_TOTAL_BITS  : integer range 1 to 16 := 4;
     C_WEIGHTS_FRAC_BITS   : integer range 0 to 16 := 3;
 
-    C_KSIZE           : integer range 1 to 3 := 3;
-    C_STRIDE          : integer range 1 to 3 := 1;
     C_CH_IN           : integer range 1 to 512 := 1;
     C_CH_OUT          : integer range 1 to 512 := 16;
     C_IMG_WIDTH       : integer range 1 to 512 := 36;
     C_IMG_HEIGHT      : integer range 1 to 512 := 16;
+
+    C_KSIZE           : integer range 1 to 3 := 3;
+    C_STRIDE          : integer range 1 to 3 := 1;
     STR_WEIGHTS_INIT  : string := "";
     STR_BIAS_INIT     : string := ""
   );

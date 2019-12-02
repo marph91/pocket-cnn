@@ -7,8 +7,10 @@ library util;
 entity line_buffer is
   generic(
     C_DATA_WIDTH  : integer range 1 to 64 := 8;
+
     C_CH          : integer range 1 to 1024 := 16;
     C_IMG_WIDTH   : integer range 1 to 2048 := 20;
+
     C_KSIZE       : integer range 1 to 2048 := 3
   );
   port(
@@ -17,8 +19,8 @@ entity line_buffer is
     isl_ce    : in std_logic;
     isl_valid : in std_logic;
     islv_data : in std_logic_vector(C_DATA_WIDTH - 1 downto 0);
-    osl_valid : out std_logic;
-    oslv_data : out std_logic_vector(C_KSIZE * C_DATA_WIDTH - 1 downto 0)
+    oslv_data : out std_logic_vector(C_KSIZE * C_DATA_WIDTH - 1 downto 0);
+    osl_valid : out std_logic
   );
 end line_buffer;
 

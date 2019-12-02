@@ -7,7 +7,9 @@ library util;
 entity window_buffer is
   generic(
     C_DATA_WIDTH  : integer range 1 to 16 := 8;
+
     C_CH          : integer range 1 to 512 := 4;
+
     C_KSIZE       : integer range 1 to 3 := 3
   );
   port(

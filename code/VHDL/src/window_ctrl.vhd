@@ -11,12 +11,13 @@ entity window_ctrl is
   generic (
     C_DATA_TOTAL_BITS     : integer range 1 to 16 := 8;
 
-    C_KSIZE           : integer range 1 to 3 := 3;
-    C_STRIDE          : integer range 1 to 3 := 1;
     C_CH_IN           : integer range 1 to 512 := 1;
     C_CH_OUT          : integer range 1 to 512 := 8;
     C_IMG_WIDTH       : integer range 1 to 512 := 8;
-    C_IMG_HEIGHT      : integer range 1 to 512 := 8
+    C_IMG_HEIGHT      : integer range 1 to 512 := 8;
+
+    C_KSIZE           : integer range 1 to 3 := 3;
+    C_STRIDE          : integer range 1 to 3 := 1
   );
   port (
     isl_clk   : in std_logic;

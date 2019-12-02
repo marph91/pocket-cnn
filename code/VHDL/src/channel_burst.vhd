@@ -6,6 +6,7 @@ library util;
 entity channel_burst is
     generic(
     C_DATA_WIDTH  : integer range 1 to 32 := 8;
+
     C_CH          : integer range 1 to 512 := 8
   );
   port(
