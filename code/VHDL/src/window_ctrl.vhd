@@ -9,7 +9,7 @@ library util;
 
 entity window_ctrl is
   generic (
-    C_DATA_TOTAL_BITS     : integer range 1 to 16 := 8;
+    C_DATA_TOTAL_BITS : integer range 1 to 16 := 8;
 
     C_CH_IN           : integer range 1 to 512 := 1;
     C_CH_OUT          : integer range 1 to 512 := 8;

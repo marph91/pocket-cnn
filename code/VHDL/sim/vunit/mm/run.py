@@ -50,7 +50,8 @@ def create_test_suite(ui):
 
     tb_mm = unittest.entity("tb_mm")
     for ksize in [1, 2, 3]:
-        total_bits, frac_bits = random_bw(max_bw=16)
+        total_bits_data, frac_bits_data = random_bw(max_bw=16)
+        total_bits_weight, frac_bits_weight = random_bw(max_bw=16)
         # TODO: fix when bitwidth is parametrizable
         total_bits_data, frac_bits_data = 8, 4
         total_bits_weight, frac_bits_weight = 8, 5
