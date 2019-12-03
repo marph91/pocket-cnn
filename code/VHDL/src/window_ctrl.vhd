@@ -47,7 +47,7 @@ architecture behavioral of window_ctrl is
 
   -- for line buffer
   signal sl_lb_valid_out : std_logic := '0';
-  signal slv_lb_data_out : std_logic_vector(C_KSIZE*C_DATA_TOTAL_BITS - 1 downto 0);
+  signal a_lb_data_out : t_slv_array_1d(0 to C_KSIZE-1);
 
   -- for window buffer
   signal sl_wb_valid_out : std_logic := '0';
@@ -72,7 +72,7 @@ begin
       C_DATA_WIDTH  => C_DATA_TOTAL_BITS,
       C_CH          => C_CH_IN,
       C_IMG_WIDTH   => C_IMG_WIDTH,
-      C_KSIZE => C_KSIZE
+      C_KSIZE       => C_KSIZE
     )
     port map(
       isl_clk   => isl_clk,
@@ -80,7 +80,7 @@ begin
       isl_ce    => isl_ce,
       isl_valid => isl_valid,
       islv_data => islv_data,
-      oslv_data => slv_lb_data_out,
+      oa_data   => a_lb_data_out,
       osl_valid => sl_lb_valid_out
     );
 
@@ -96,7 +96,7 @@ begin
       isl_reset   => isl_rst_n,
       isl_ce      => isl_ce,
       isl_valid   => sl_lb_valid_out,
-      islv_data   => slv_lb_data_out,
+      ia_data     => a_lb_data_out,
       oa_data     => a_wb_data_out,
       osl_valid   => sl_wb_valid_out
     );

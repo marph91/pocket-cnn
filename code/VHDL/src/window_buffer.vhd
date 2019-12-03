@@ -17,7 +17,7 @@ entity window_buffer is
     isl_reset   : in std_logic;
     isl_ce      : in std_logic;
     isl_valid   : in std_logic;
-    islv_data   : in std_logic_vector(C_KSIZE*C_DATA_WIDTH-1 downto 0);
+    ia_data     : in t_slv_array_1d(0 to C_KSIZE-1);
     oa_data     : out t_slv_array_2d(0 to C_KSIZE-1, 0 to C_KSIZE-1);
     osl_valid   : out std_logic
   );
@@ -46,7 +46,7 @@ begin
         -- insert new input column
         for i in 0 to C_KSIZE - 1 loop
           -- normal input
-          a_win(i*C_KSIZE,0) <= islv_data((i+1)*C_DATA_WIDTH-1 downto i*C_DATA_WIDTH);
+          a_win(i*C_KSIZE, 0) <= ia_data(i);
         end loop;
 
         -- shift channels
