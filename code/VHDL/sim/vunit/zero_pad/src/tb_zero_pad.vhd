@@ -13,9 +13,9 @@ entity tb_zero_pad is
   generic (
     runner_cfg      : string;
     tb_path         : string;
-    C_IMG_WIDTH     : integer := 6;
-    C_IMG_HEIGHT    : integer := 6;
-    C_IMG_DEPTH     : integer := 3
+    C_IMG_WIDTH     : integer;
+    C_IMG_HEIGHT    : integer;
+    C_IMG_DEPTH     : integer
   );
 end entity;
 
@@ -77,8 +77,8 @@ begin
     test_runner_setup(runner, runner_cfg);
     data_src.load_csv(tb_path & "input.csv");
     data_ref.load_csv(tb_path & "output.csv");
-    data_src.reshape(C_IMG_HEIGHT, C_IMG_WIDTH, C_IMG_DEPTH);
-    data_ref.reshape(C_IMG_HEIGHT+2, C_IMG_WIDTH+2, C_IMG_DEPTH);
+    data_src.reshape(C_IMG_WIDTH, C_IMG_HEIGHT, C_IMG_DEPTH);
+    data_ref.reshape(C_IMG_WIDTH+2, C_IMG_HEIGHT+2, C_IMG_DEPTH);
     run_test;
     test_runner_cleanup(runner);
     wait;
@@ -100,6 +100,7 @@ begin
             to_string(data_ref.height) & "x" &
             to_string(data_ref.depth));
 
+    -- increment stream based: channel > width > height
     for y in 0 to data_src.height-1 loop
       for x in 0 to data_src.width-1 loop
         wait until rising_edge(sl_clk) and sl_rdy = '1';

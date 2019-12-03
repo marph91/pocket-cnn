@@ -9,6 +9,7 @@ from tools_vunit import random_fixed_array
 
 
 def create_arrays(root, w, h, ch):
+    # TODO: check: numpy size: (ch, h, w) -> 2d: (h, w*ch)
     a_rand = random_fixed_array((h, w*ch), 8, 0)
     a_in = v_float2fixedint(a_rand, 8, 0)
     np.savetxt(join(root, "src", "input.csv"), a_in, delimiter=", ",
