@@ -101,9 +101,10 @@ begin
     check_equal(data_src.height, 1, "input_height");
     check_equal(data_src.depth, 1, "input_depth");
 
-    check_equal(data_ref.width, C_CH, "output_width");
-    check_equal(data_ref.height, ((C_IMG_WIDTH-(C_KSIZE-C_STRIDE))/C_STRIDE) * 
-                                 ((C_IMG_HEIGHT-(C_KSIZE-C_STRIDE))/C_STRIDE), "output_height"); -- number of positions of the kernel
+    check_equal(data_ref.width, ((C_IMG_WIDTH-(C_KSIZE-C_STRIDE))/C_STRIDE) * 
+                                ((C_IMG_HEIGHT-(C_KSIZE-C_STRIDE))/C_STRIDE) * -- number of positions of the kernel
+                                C_CH, "output_width");
+    check_equal(data_ref.height, 1, "output_height"); 
     check_equal(data_ref.depth, 1, "output_depth");
     run_test;
     test_runner_cleanup(runner);
@@ -148,23 +149,13 @@ begin
     data_check_done <= false;
     wait until rising_edge(sl_clk);
 
-    -- one row in the output file for each image position
     int_x_out := (C_IMG_WIDTH-(C_KSIZE-C_STRIDE))/C_STRIDE;
     int_y_out := (C_IMG_HEIGHT-(C_KSIZE-C_STRIDE))/C_STRIDE;
-    for pos in 0 to int_x_out*int_y_out-1 loop
-      for ch in 0 to C_CH-1 loop
-        wait until rising_edge(sl_clk) and sl_valid_out = '1';
-        for x in 0 to C_KSIZE-1 loop
-          for y in 0 to C_KSIZE-1 loop
-            report to_string(slv_data_out) &
-                  " " & to_string(data_ref.get(ch, pos));
-            check_equal(slv_data_out, data_ref.get(ch, pos),
-                        "pos=" & to_string(pos) & ", ch=" & to_string(ch));
-          end loop;
-        end loop;
-      end loop;
+    for i in 0 to int_x_out*int_y_out*C_CH-1 loop
+      wait until rising_edge(sl_clk) and sl_valid_out = '1';
+      check_equal(slv_data_out, data_ref.get(i));
+      -- TODO: convert i to height, width, channel for easier debugging
     end loop;
-
     report ("Done checking");
     data_check_done <= true;
   end process;

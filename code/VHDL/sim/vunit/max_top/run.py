@@ -22,32 +22,33 @@ def create_stimuli(root, ksize, stride, total_bits, frac_bits, channel,
 
     # put the array in a stream based shape (channel > width > height)
     a_rand_stream = np.transpose(a_rand, (1, 2, 0)).flatten()
-    np.savetxt(join(root, "src", "input_%d_%d.csv" % (ksize, stride)), a_rand_stream[None],
-               delimiter=", ", fmt="%3d")
-    
-    # assign the outputs
-    # TODO: check numpy.lib.stride_tricks.as_strided +
-    #       scipy.ndimage.maximum_filter / scipy.ndimage.convolve
-    rois = []
-    ## get rois
-    # - (stride - 1) to provide only outputs, where the full kernel fits
+    np.savetxt(join(root, "src", "input_%d_%d.csv" % (ksize, stride)),
+               a_rand_stream[None], delimiter=", ", fmt="%3d")
+
     a_rand_ffloat = v_fixedint2ffloat(a_rand, int_bits, frac_bits)
-    for row in range(0, height - (ksize - stride) - (stride - 1), stride):
-        for col in range(0, width - (ksize - stride) - (stride - 1), stride):
-            roi = a_rand_ffloat[:, row:row + ksize, col:col + ksize]
-            rois.append(roi)
 
-    ## get max for each channel of each roi
-    rois_max = []
-    for r in rois:
-        rois_max.append(
-            block_reduce(r, block_size=(1, ksize, ksize), func=np.max))
+    # assign the outputs
+    # TODO: put in own cnn operations file
+    def max_pool(array_in):
+        out = np.zeros((channel, int((height - (ksize - stride)) / stride),
+                        int((width - (ksize - stride)) / stride)))
+        # - (stride - 1) to provide only outputs, where the full kernel fits
+        max_height = height - (ksize - stride) - (stride - 1)
+        max_width = width - (ksize - stride) - (stride - 1)
+        for row_out, row_in in enumerate(range(0, max_height, stride)):
+            for col_out, col_in in enumerate(range(0, max_width, stride)):
+                roi = array_in[:, row_in:row_in+ksize, col_in:col_in+ksize]
+                out[:, row_out, col_out] = np.amax(
+                    roi.reshape(channel, -1), axis=1)
+        return out
 
-    with open(join(root, "src", "output_%d_%d.csv" % (ksize, stride)), "w") as outfile:
-        for r in rois_max:
-            r_stream = v_float2fixedint(r, int_bits, frac_bits).flatten()
-            # add None to get second dimension and comma separation
-            np.savetxt(outfile, r_stream[None], delimiter=", ", fmt="%3d")
+    filename = join(root, "src", "output_%d_%d.csv" % (ksize, stride))
+    with open(filename, "w") as outfile:
+        out_stream = np.transpose(
+            v_float2fixedint(
+                max_pool(a_rand_ffloat), int_bits, frac_bits),
+                (1, 2, 0)).flatten()
+        np.savetxt(outfile, out_stream[None], delimiter=", ", fmt="%3d")
 
 
 def create_test_suite(ui):
