@@ -42,6 +42,12 @@ def fixedint2ffloat(number, int_bits, frac_bits):
     return fixed2float(bin(int(number))[2:].zfill(int_bits + frac_bits), int_bits, frac_bits)
 
 
+def v_fixedint2ffloat(array, int_bits, frac_bits):
+    """vectorized fixedint2ffloat function"""
+    vector_fixedint2ffloat = np.vectorize(fixedint2ffloat, otypes=[np.float])
+    return vector_fixedint2ffloat(array, int_bits, frac_bits)
+
+
 def fixed2float(number, int_bits, frac_bits):
     """converts binary signed fixed point to floating point number"""
     if number[0] == "1":
