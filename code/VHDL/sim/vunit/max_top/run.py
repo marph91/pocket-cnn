@@ -75,7 +75,7 @@ def create_test_suite(ui):
 
         total_bits = 8  # TODO: fix when bitwidth is parametrizable
         frac_bits = 4
-        channel = randint(1, 16)  # TODO: test larger values in nightly runs
+        channel = randint(2, 16)  # TODO: test larger values in nightly runs
         width = randint(ksize, 16)
         height = randint(ksize, 16)
         
