@@ -27,7 +27,7 @@ def create_stimuli(root, ksize, total_bits_data, frac_bits_data,
     np.savetxt(join(root, "src", "input_weights%d.csv" % ksize), a_weights_in,
                delimiter=", ", fmt="%3d")
 
-    sum_ = np.sum(np.multiply(a_rand, a_weights_rand))
+    sum_ = np.sum(a_rand * a_weights_rand)
 
     additions = 0 if ksize == 1 else int(math.log(ksize - 1, 2) * 2)
     # use atleast_1d to fulfill 1d requirement of savetxt
