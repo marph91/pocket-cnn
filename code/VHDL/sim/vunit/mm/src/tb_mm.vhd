@@ -88,6 +88,18 @@ begin
     data_src.load_csv(tb_path & "input_data" & to_string(C_KSIZE) & ".csv");
     weights_src.load_csv(tb_path & "input_weights" & to_string(C_KSIZE) & ".csv");
     data_ref.load_csv(tb_path & "output" & to_string(C_KSIZE) & ".csv");
+
+    check_equal(data_src.width, C_KSIZE, "input_width");
+    check_equal(data_src.height, C_KSIZE, "input_height");
+    check_equal(data_src.depth, 1, "input_depth");
+
+    check_equal(weights_src.width, C_KSIZE, "input_width");
+    check_equal(weights_src.height, C_KSIZE, "input_height");
+    check_equal(weights_src.depth, 1, "input_depth");
+
+    check_equal(data_ref.width, 1, "output_width");
+    check_equal(data_ref.height, 1, "output_height"); 
+    check_equal(data_ref.depth, 1, "output_depth");
     run_test;
     test_runner_cleanup(runner);
     wait;
