@@ -23,6 +23,7 @@ code/cnn_parameter.json
 code/VHDL/sim/cocotb/*/*/**
 code/VHDL/sim/vunit/vunit_out/**
 code/VHDL/sim/vunit/*/vunit_out/**
+code/VHDL/sim/vunit/*/gen/**
 
 # CNN models
 cnn_models/**
