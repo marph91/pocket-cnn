@@ -55,7 +55,7 @@ architecture behavioral of mm is
   type t_sfix_weights_array_2d is array (natural range <>, natural range <>) of sfixed(C_WEIGHTS_TOTAL_BITS-C_WEIGHTS_FRAC_BITS-1 downto -C_WEIGHTS_FRAC_BITS);
   signal a_sfix_weights : t_sfix_weights_array_2d(0 to C_KSIZE-1, 0 to C_KSIZE-1) := (others => (others => (others => '0')));
 
-  constant C_INTW_SUM2 : integer range 0 to 16 := C_INTW_SUM1+log2(C_KSIZE-1); -- C_KSIZE-1 additions
+  constant C_INTW_SUM2 : integer range 0 to 32 := C_INTW_SUM1+log2(C_KSIZE-1); -- C_KSIZE-1 additions
   signal slv_data_out : std_logic_vector(C_INTW_SUM2+C_DATA_FRAC_BITS_IN+C_WEIGHTS_FRAC_BITS-1 downto 0);
   signal sl_output_valid : std_logic := '0';
 
