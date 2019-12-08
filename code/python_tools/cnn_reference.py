@@ -45,3 +45,7 @@ def conv(array_in, weights, bias, ksize, stride):
                 mm = np.sum(roi * weights[ch_out]) + bias[ch_out]
                 out[ch_out, row_out, col_out] = mm
     return out
+
+def zero_pad(array_in):
+    return np.pad(array_in, ((0, 0), (1, 1), (1, 1)),
+                  "constant", constant_values=0)
