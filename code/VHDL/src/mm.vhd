@@ -47,7 +47,7 @@ architecture behavioral of mm is
   -- add bits to avoid using FIXED_SATURATE and avoid overflow
   -- new bitwidth = log2((C_KSIZE-1)*(2^old bitwidth-1)) -> new bw = lb(2*(2^12-1)) = 13
   -- C_KSIZE-1 additions, +1 for bias addition
-  constant C_INTW_SUM1 : integer range 0 to 16 := C_DATA_INT_BITS+C_WEIGHTS_TOTAL_BITS-C_WEIGHTS_FRAC_BITS+1+log2(C_KSIZE-1);
+  constant C_INTW_SUM1 : integer range 0 to 32 := C_DATA_INT_BITS+C_WEIGHTS_TOTAL_BITS-C_WEIGHTS_FRAC_BITS+1+log2(C_KSIZE-1);
   type t_1d_sfix_add_array is array (natural range <>) of sfixed(C_INTW_SUM1-1 downto -C_DATA_FRAC_BITS_IN-C_WEIGHTS_FRAC_BITS);
   signal a_data_mult_resized : t_1d_sfix_add_array(0 to C_KSIZE*C_KSIZE-1) := (others => (others => '0'));
   signal a_data_tmp : t_1d_sfix_add_array(0 to C_KSIZE-1) := (others => (others => '0'));

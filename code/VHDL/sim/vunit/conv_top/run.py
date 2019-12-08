@@ -73,11 +73,13 @@ def create_test_suite(ui):
 
     tb_conv_top = unittest.entity("tb_conv_top")
     for ksize, stride in itertools.product((1, 2, 3), (1, 2, 3)):
+        if stride > ksize:  # this case doesn't make sense
+            continue
         total_bits_data = 8  # TODO: fix when bitwidth is parametrizable
-        frac_bits_data_in = randint(0, total_bits_data)
-        frac_bits_data_out = randint(0, total_bits_data)
+        frac_bits_data_in = randint(0, total_bits_data-1)
+        frac_bits_data_out = randint(0, total_bits_data-1)
         total_bits_weight = 8
-        frac_bits_weight = randint(0, total_bits_data)
+        frac_bits_weight = randint(0, total_bits_data-1)
 
         # TODO: bug: only 2^x values succeed
         channel_in, channel_out = 4, 16  #randint(1, 32), randint(1, 32)
