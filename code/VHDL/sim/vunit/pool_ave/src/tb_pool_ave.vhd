@@ -14,11 +14,11 @@ entity tb_pool_ave is
   generic (
     runner_cfg    : string;
     tb_path       : string;
-    C_TOTAL_BITS  : integer := 3;
-    C_FRAC_BITS   : integer := 3;
-    C_IMG_WIDTH   : integer := 3;
-    C_IMG_HEIGHT  : integer := 3;
-    C_IMG_DEPTH   : integer := 3
+    C_TOTAL_BITS  : integer;
+    C_FRAC_BITS   : integer;
+    C_IMG_WIDTH   : integer;
+    C_IMG_HEIGHT  : integer;
+    C_IMG_DEPTH   : integer
   );
 end entity;
 
@@ -73,6 +73,15 @@ begin
     test_runner_setup(runner, runner_cfg);
     data_src.load_csv(tb_path & "input.csv");
     data_ref.load_csv(tb_path & "output.csv");
+
+    check_equal(data_src.width, C_IMG_WIDTH*C_IMG_HEIGHT*C_IMG_DEPTH, "input_width");
+    check_equal(data_src.height, 1, "input_height");
+    check_equal(data_src.depth, 1, "input_depth");
+
+    check_equal(data_ref.width, C_IMG_DEPTH, "output_width");
+    check_equal(data_ref.height, 1, "output_height"); 
+    check_equal(data_ref.depth, 1, "output_depth");
+
     run_test;
     test_runner_cleanup(runner);
     wait;
@@ -90,16 +99,12 @@ begin
             to_string(C_IMG_HEIGHT) & "x" &
             to_string(C_IMG_DEPTH));
 
-    for y in 0 to C_IMG_HEIGHT-1 loop
-      for x in 0 to C_IMG_WIDTH-1 loop
-        wait until rising_edge(sl_clk);
-        for w in 0 to C_IMG_DEPTH-1 loop
-          sl_valid_in <= '1';
-          slv_data_in <= std_logic_vector(to_unsigned(data_src.get(w+(x*C_IMG_DEPTH), y), slv_data_in'length));
-          wait until rising_edge(sl_clk);
-        end loop;
-        sl_valid_in <= '0';
-      end loop;
+    for i in 0 to C_IMG_HEIGHT*C_IMG_WIDTH*C_IMG_DEPTH-1 loop
+      -- TODO: inner loop until C_IMG_DEPTH, how it is in the real cnn
+      sl_valid_in <= '1';
+      slv_data_in <= std_logic_vector(to_unsigned(data_src.get(i), slv_data_in'length));
+      wait until rising_edge(sl_clk);
+      sl_valid_in <= '0';
     end loop;
 
     stimuli_done <= true;
@@ -111,8 +116,8 @@ begin
     data_check_done <= false;
     for w in 0 to C_IMG_DEPTH-1 loop
       wait until rising_edge(sl_clk) and sl_valid_out = '1';
-      report ("ch=" & to_string(w) & " " & to_string(slv_data_out) & " " & to_string(data_ref.get(0, w)));
-      check_equal(slv_data_out, std_logic_vector(to_unsigned(data_ref.get(0, w), C_TOTAL_BITS)));
+      report ("ch=" & to_string(w) & " " & to_string(slv_data_out) & " " & to_string(data_ref.get(w)));
+      check_equal(slv_data_out, std_logic_vector(to_unsigned(data_ref.get(w), C_TOTAL_BITS)));
     end loop;
     report ("Done checking");
     data_check_done <= true;

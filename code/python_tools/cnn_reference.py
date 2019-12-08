@@ -1,5 +1,15 @@
 import numpy as np
 
+from fixfloat import float2ffloat
+
+
+def avg_pool(array_in):
+    _, width, height = array_in.shape
+    # calculate reciprocal for average manually, because else factor would
+    # be too different
+    reciprocal = float2ffloat(1. / (width * height), 1, 16)
+    return np.sum(np.sum(array_in, axis=1), axis=1) * reciprocal
+
 
 def max_pool(array_in, ksize, stride):
     channel, height, width = array_in.shape
