@@ -43,7 +43,7 @@ def create_test_suite(ui):
                     "ref_file": "output" + "_leaky" * leaky + ".csv",
                     "C_LEAKY": "'%d'" % leaky,
                     "C_TOTAL_BITS": 8, "C_FRAC_BITS": 0}
-        tb_relu.add_config(name="leaky=%d,samples=%d" % (leaky, sample_cnt),
+        tb_relu.add_config(name="leaky=%d_samples=%d" % (leaky, sample_cnt),
                            generics=generics,
                            pre_config=create_stimuli(root,
                                                      sample_cnt=sample_cnt))

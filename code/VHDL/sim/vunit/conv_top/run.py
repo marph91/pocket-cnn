@@ -101,7 +101,7 @@ def create_test_suite(ui):
                     "C_STRIDE": stride,
                     "STR_WEIGHTS_INIT": weights_file,
                     "STR_BIAS_INIT": bias_file}
-        tb_conv_top.add_config(name="dim=%d,stride=%d" % (ksize, stride),
+        tb_conv_top.add_config(name="dim=%d_stride=%d" % (ksize, stride),
                                generics=generics,
                                pre_config=create_stimuli(root, ksize, stride,
                                                          total_bits_data,

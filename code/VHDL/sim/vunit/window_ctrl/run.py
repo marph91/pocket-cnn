@@ -71,7 +71,7 @@ def create_test_suite(ui):
                     "C_IMG_HEIGHT": height,
                     "C_STRIDE": stride,
                     "C_KSIZE": ksize}
-        tb_window_ctrl.add_config(name="dim=%d,stride=%d" % (ksize, stride),
+        tb_window_ctrl.add_config(name="dim=%d_stride=%d" % (ksize, stride),
                                   generics=generics,
                                   pre_config=create_stimuli(root,
                                                             ksize, stride,

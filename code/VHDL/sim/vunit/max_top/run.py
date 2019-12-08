@@ -68,7 +68,7 @@ def create_test_suite(ui):
                     "C_IMG_HEIGHT": height,
                     "C_STRIDE": stride,
                     "C_KSIZE": ksize}
-        tb_max_top.add_config(name="ksize=%d,stride=%d" % (ksize, stride),
+        tb_max_top.add_config(name="ksize=%d_stride=%d" % (ksize, stride),
                               generics=generics,
                               pre_config=create_stimuli(root, ksize, stride,
                                                         total_bits, frac_bits,
