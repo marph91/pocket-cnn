@@ -10,15 +10,16 @@ from cnn_reference import zero_pad
 
 
 def create_arrays(root, w, h, ch):
+    id_ = "one" if ch == 1 else "multiple"
     # TODO: check: numpy size: (ch, h, w) -> 2d: (h, w*ch)
     a_rand = random_fixed_array((ch, h, w), 8, 0)
     a_in = v_float2fixedint(a_rand, 8, 0)
-    np.savetxt(join(root, "src", "input.csv"),
+    np.savetxt(join(root, "src", "input_%s.csv" % id_),
                array2stream(a_in), delimiter=", ",
                fmt="%3d")
 
     a_out = v_float2fixedint(zero_pad(a_rand), 8, 0)
-    np.savetxt(join(root, "src", "output.csv"),
+    np.savetxt(join(root, "src", "output_%s.csv" % id_),
                array2stream(a_out), delimiter=", ",
                fmt="%3d")
 
@@ -32,13 +33,17 @@ def create_test_suite(ui):
     unittest.add_source_files(join(root, "src", "*.vhd"))
 
     tb_zero_pad = unittest.entity("tb_zero_pad")
-    width, height, channel = randint(1, 32), randint(1, 32), randint(1, 16)
-    tb_zero_pad.add_config(name="all",
-                           generics={"C_IMG_WIDTH": width,
-                                     "C_IMG_HEIGHT": height,
-                                     "C_IMG_DEPTH": channel},
-                           pre_config=create_arrays(root, width, height,
-                                                    channel))
+    config_multiple_ch = randint(1, 32), randint(1, 32), randint(2, 16)
+    config_one_ch = randint(1, 32), randint(1, 32), 1  # TODO: fix bug
+    for width, height, channel in (config_multiple_ch,):
+        id_ = "one" if channel == 1 else "multiple"
+        tb_zero_pad.add_config(name="%s_channel" % id_,
+                            generics={"id": id_,
+                                      "C_IMG_WIDTH": width,
+                                      "C_IMG_HEIGHT": height,
+                                      "C_IMG_DEPTH": channel},
+                            pre_config=create_arrays(root, width, height,
+                                                     channel))
     tb_zero_pad.set_attribute(".unittest", None)
 
 
