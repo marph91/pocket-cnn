@@ -34,7 +34,7 @@ architecture behavioral of line_buffer is
   signal a_data_out : t_slv_array_1d(0 to C_KSIZE-1) := (others => (others => '0'));
 
   signal usig_addr_cnt : unsigned(log2(C_BRAM_SIZE - 1) - 1 downto 0) := (others => '0');
-  constant C_BRAM_ADDR_WIDTH : integer range 1 to usig_addr_cnt'LENGTH := usig_addr_cnt'LENGTH;
+  constant C_BRAM_ADDR_WIDTH : integer := usig_addr_cnt'LENGTH;
 
   signal sl_bram_en : std_logic;
   signal slv_bram_data_in : std_logic_vector(C_BRAM_DATA_WIDTH - 1 downto 0);

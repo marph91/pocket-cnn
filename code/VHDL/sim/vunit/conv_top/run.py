@@ -81,8 +81,8 @@ def create_test_suite(ui):
         total_bits_weight = 8
         frac_bits_weight = randint(0, total_bits_data-1)
 
-        # TODO: bug: only 2^x values succeed
-        channel_in, channel_out = 4, 16  #randint(1, 32), randint(1, 32)
+        # TODO: bigger values at nightly runs
+        channel_in, channel_out = randint(1, 16), randint(1, 16)
         width = randint(ksize, 16)
         height = randint(ksize, 16)
 

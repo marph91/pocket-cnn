@@ -8,9 +8,9 @@ library util;
 
 entity bram is
   generic(
-    C_DATA_WIDTH  : integer range 1 to 32*10 := 8;
-    C_ADDR_WIDTH  : integer range 1 to log2(1024*1024);
-    C_SIZE        : integer range 1 to 1024*1024;
+    C_DATA_WIDTH  : integer;
+    C_ADDR_WIDTH  : integer;
+    C_SIZE        : integer;
     C_OUTPUT_REG  : integer range 0 to 1 := 0;
     STR_INIT      : string := ""
   );
@@ -65,6 +65,7 @@ begin
   begin
     if rising_edge(isl_clk) then
       if isl_en = '1' then
+        report to_string(islv_addr);
         if isl_we = '1' then
           a_RAM(to_integer(unsigned(islv_addr))) <= to_bitvector(islv_data);
         end if;

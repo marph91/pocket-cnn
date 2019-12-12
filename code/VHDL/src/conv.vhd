@@ -40,11 +40,11 @@ architecture behavioral of conv is
   constant C_BRAM_DATA_WIDTH : integer range C_WEIGHTS_TOTAL_BITS*C_KSIZE*C_KSIZE to C_WEIGHTS_TOTAL_BITS*C_KSIZE*C_KSIZE := C_WEIGHTS_TOTAL_BITS*(C_KSIZE*C_KSIZE);
   constant C_BRAM_SIZE : integer range C_CH_IN*C_CH_OUT to C_CH_IN*C_CH_OUT := C_CH_IN*C_CH_OUT;
   signal usig_addr_cnt : unsigned(log2(C_BRAM_SIZE - 1) - 1 downto 0) := (others => '0');
-  constant C_BRAM_ADDR_WIDTH : integer range 1 to usig_addr_cnt'LENGTH := usig_addr_cnt'LENGTH;
+  constant C_BRAM_ADDR_WIDTH : integer := usig_addr_cnt'LENGTH;
   signal slv_ram_weights : std_logic_vector(C_BRAM_DATA_WIDTH-1 downto 0);
 
   signal usig_addr_cnt_b : unsigned(log2(C_CH_OUT) - 1 downto 0) := (others => '0');
-  constant C_BRAM_ADDR_WIDTH_B : integer range 1 to usig_addr_cnt_b'LENGTH := usig_addr_cnt_b'LENGTH;
+  constant C_BRAM_ADDR_WIDTH_B : integer := usig_addr_cnt_b'LENGTH;
   signal slv_ram_bias : std_logic_vector(C_WEIGHTS_TOTAL_BITS-1 downto 0);
 
   -- +log2(C_CH_IN)-1 because all C_CH_IN are summed up -> broaden data width to avoid overflow
@@ -172,7 +172,11 @@ begin
         usig_addr_cnt_b <= (others => '0');
       elsif isl_ce = '1' then
         if isl_valid = '1' then
-          usig_addr_cnt <= unsigned(usig_addr_cnt)+1;
+          if usig_addr_cnt < C_BRAM_SIZE-1 then
+            usig_addr_cnt <= unsigned(usig_addr_cnt)+1;
+          else
+            usig_addr_cnt <= (others => '0');
+          end if;
         end if;
 
         -- wait one cycle for bram data to be available
@@ -184,7 +188,11 @@ begin
             int_mm_out_cnt <= int_mm_out_cnt+1;
           else
             int_mm_out_cnt <= 0;
-            usig_addr_cnt_b <= unsigned(usig_addr_cnt_b)+1;
+            if usig_addr_cnt_b < C_CH_OUT-1 then
+              usig_addr_cnt_b <= unsigned(usig_addr_cnt_b)+1;
+            else
+              usig_addr_cnt_b <= (others => '0');
+            end if;
           end if;
           if int_mm_out_cnt = 0 then
             v_sfix_sum := (others => '0');
