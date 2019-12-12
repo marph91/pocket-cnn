@@ -109,7 +109,7 @@ begin
 
     -- increment stream based: channel > width > height
     i := 0;
-    while i < C_IMG_WIDTH * C_IMG_HEIGHT * C_IMG_DEPTH - 1 loop
+    while i < C_IMG_WIDTH * C_IMG_HEIGHT * C_IMG_DEPTH loop
       wait until rising_edge(sl_clk) and sl_rdy = '1';
       -- TODO: check with non burst input
       sl_valid_in <= '1';

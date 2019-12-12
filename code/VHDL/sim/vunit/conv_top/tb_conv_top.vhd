@@ -134,7 +134,7 @@ begin
     wait until rising_edge(sl_clk);
 
     -- increment stream based: channel > width > height
-    while i < data_src.height*data_src.width*data_src.depth-1 loop
+    while i < data_src.height*data_src.width*data_src.depth loop
       wait until rising_edge(sl_clk) and sl_rdy = '1';
       sl_valid_in <= '1';
       for ch_in in 0 to C_CH_IN-1 loop

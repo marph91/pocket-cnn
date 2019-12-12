@@ -100,14 +100,16 @@ begin
 
     data_src.load_csv(tb_path & "input_" & to_string(C_KSIZE) & "_" & to_string(C_STRIDE) & ".csv");
     data_ref.load_csv(tb_path & "output_" & to_string(C_KSIZE) & "_" & to_string(C_STRIDE) & ".csv");
+
     check_equal(data_src.width, C_IMG_WIDTH*C_IMG_HEIGHT*C_CH_IN, "input_width");
     check_equal(data_src.height, 1, "input_height");
     check_equal(data_src.depth, 1, "input_depth");
-    -- TODO: check ref data
+
     check_equal(data_ref.width, C_KSIZE*C_KSIZE*C_CH_IN, "output_width"); -- channels, get repeated C_CH_OUT times
     check_equal(data_ref.height, ((C_IMG_WIDTH-(C_KSIZE-C_STRIDE))/C_STRIDE) * 
                                  ((C_IMG_HEIGHT-(C_KSIZE-C_STRIDE))/C_STRIDE), "output_height"); -- number of positions of the kernel
     check_equal(data_ref.depth, 1, "output_depth");
+
     run_test;
     test_runner_cleanup(runner);
     wait;
@@ -125,7 +127,7 @@ begin
     wait until rising_edge(sl_clk);
 
     -- increment stream based: channel > width > height
-    while i < data_src.height*data_src.width*data_src.depth-1 loop
+    while i < data_src.height*data_src.width*data_src.depth loop
       wait until rising_edge(sl_clk) and sl_rdy = '1';
       sl_valid_in <= '1';
       for ch_in in 0 to C_CH_IN-1 loop

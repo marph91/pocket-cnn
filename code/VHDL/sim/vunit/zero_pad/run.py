@@ -35,7 +35,7 @@ def create_test_suite(ui):
     tb_zero_pad = unittest.entity("tb_zero_pad")
     config_multiple_ch = randint(1, 32), randint(1, 32), randint(2, 16)
     config_one_ch = randint(1, 32), randint(1, 32), 1  # TODO: fix bug
-    for width, height, channel in (config_multiple_ch,):
+    for width, height, channel in (config_one_ch, config_multiple_ch):
         id_ = "one" if channel == 1 else "multiple"
         tb_zero_pad.add_config(name="%s_channel" % id_,
                             generics={"id": id_,
