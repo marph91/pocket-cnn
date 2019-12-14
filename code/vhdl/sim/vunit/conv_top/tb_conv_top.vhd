@@ -38,6 +38,9 @@ entity tb_conv_top is
 end entity;
 
 architecture tb of tb_conv_top is
+  constant C_IMG_HEIGHT_OUT : integer := (C_IMG_HEIGHT-(C_KSIZE-C_STRIDE))/C_STRIDE;
+  constant C_IMG_WIDTH_OUT : integer := (C_IMG_WIDTH-(C_KSIZE-C_STRIDE))/C_STRIDE;
+
   signal sl_clk : std_logic := '0';
   signal sl_valid_in, sl_valid_out : std_logic := '0';
   signal slv_data_in, slv_data_out : std_logic_vector(C_DATA_TOTAL_BITS-1 downto 0) := (others => '0');
@@ -139,9 +142,8 @@ begin
       sl_valid_in <= '1';
       for ch_in in 0 to C_CH_IN-1 loop
         slv_data_in <= std_logic_vector(to_unsigned(data_src.get(i), slv_data_in'length));
-        report("input: " & "i=" & to_string(i) &
-               ", in_val=" & to_string(std_logic_vector(to_unsigned(data_src.get(i), slv_data_in'length)))) &
-               " " & to_string(data_src.get(i));
+        report_position(i, C_IMG_HEIGHT, C_IMG_WIDTH, C_CH_IN,
+                        "input: ", ", val=" & to_string(data_src.get(i)));
         wait until rising_edge(sl_clk);
         i := i + 1;
       end loop;
@@ -153,16 +155,13 @@ begin
   end process;
 
   data_check_process : process
-    variable int_x_out, int_y_out : integer;
   begin
     wait until rising_edge(sl_clk) and sl_start = '1';
     data_check_done <= false;
 
-    int_x_out := (C_IMG_WIDTH-(C_KSIZE-C_STRIDE))/C_STRIDE;
-    int_y_out := (C_IMG_HEIGHT-(C_KSIZE-C_STRIDE))/C_STRIDE;
-    for i in 0 to int_x_out*int_y_out*C_CH_OUT-1 loop
+    for i in 0 to C_IMG_HEIGHT_OUT*C_IMG_WIDTH_OUT*C_CH_OUT-1 loop
       wait until rising_edge(sl_clk) and sl_valid_out = '1';
-      report to_string(slv_data_out) & " " & to_string(data_ref.get(i));
+      report_position(i, C_IMG_HEIGHT_OUT, C_IMG_WIDTH_OUT, C_CH_OUT, "output: ");
       check_equal(slv_data_out, std_logic_vector(to_unsigned(data_ref.get(i), slv_data_out'length)));
     end loop;
     

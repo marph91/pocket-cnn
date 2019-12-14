@@ -115,9 +115,8 @@ begin
       sl_valid_in <= '1';
       for w in 0 to C_IMG_DEPTH-1 loop
         slv_data_in <= std_logic_vector(to_unsigned(data_src.get(i), slv_data_in'length));
-        report("input: " & "i=" & to_string(i) &
-                            ", ch=" & to_string(w) &
-                            ", in_val=" & to_string(std_logic_vector(to_unsigned(data_src.get(i), slv_data_in'length))));
+        report_position(i, C_IMG_HEIGHT, C_IMG_WIDTH, C_IMG_DEPTH,
+                        "input: ", ", val=" & to_string(data_src.get(i)));
         wait until rising_edge(sl_clk);
         i := i + 1;
       end loop;
@@ -134,9 +133,7 @@ begin
     data_check_done <= false;
     for i in 0 to (C_IMG_WIDTH+2) * (C_IMG_HEIGHT+2) * C_IMG_DEPTH - 1 loop
       wait until rising_edge(sl_clk) and sl_valid_out = '1';
-      report("output: " & "i=" & to_string(i) &
-                          ", width=" & to_string(data_ref.width) &
-                          ", out_val=" & to_string(slv_data_out));
+      report_position(i, C_IMG_HEIGHT+2, C_IMG_WIDTH+2, C_IMG_DEPTH, "output: ");
       check_equal(slv_data_out, std_logic_vector(to_unsigned(data_ref.get(i), slv_data_out'length)));
     end loop;
     report ("Done checking.");

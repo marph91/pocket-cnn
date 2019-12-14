@@ -87,6 +87,8 @@ begin
     for x in 0 to data_src_ref.width-1 loop
       sl_valid_in <= '1';
       slv_data_in <= std_logic_vector(to_signed(data_src_ref.get(x), C_DATA_WIDTH));
+      report_position(x, 1, 1, C_CH,
+                      "input: ", ", val=" & to_string(data_src_ref.get(x)));
       wait until rising_edge(sl_clk);
       sl_valid_in <= '0';
       for i in 1 to interval loop
@@ -104,7 +106,7 @@ begin
 
     wait until rising_edge(sl_clk) and sl_valid_out = '1';
     for x in 0 to data_src_ref.width-1 loop
-      report (to_string(slv_data_out) & " " & to_string(data_src_ref.get(x)));
+      report_position(x, 1, 1, C_CH, "output: ");
       check_equal(sl_valid_out, '1');
       check_equal(slv_data_out, data_src_ref.get(x));
       wait until rising_edge(sl_clk);

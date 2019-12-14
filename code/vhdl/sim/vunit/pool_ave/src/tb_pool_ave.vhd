@@ -101,6 +101,8 @@ begin
 
     for i in 0 to C_IMG_HEIGHT*C_IMG_WIDTH*C_IMG_DEPTH-1 loop
       -- TODO: inner loop until C_IMG_DEPTH, how it is in the real cnn
+      report_position(i, C_IMG_HEIGHT, C_IMG_WIDTH, C_IMG_DEPTH,
+                      "input: ", ", val=" & to_string(data_src.get(i)));
       sl_valid_in <= '1';
       slv_data_in <= std_logic_vector(to_unsigned(data_src.get(i), slv_data_in'length));
       wait until rising_edge(sl_clk);
@@ -116,7 +118,7 @@ begin
     data_check_done <= false;
     for w in 0 to C_IMG_DEPTH-1 loop
       wait until rising_edge(sl_clk) and sl_valid_out = '1';
-      report ("ch=" & to_string(w) & " " & to_string(slv_data_out) & " " & to_string(data_ref.get(w)));
+      report_position(w, 1, 1, C_IMG_DEPTH, "output: ");
       check_equal(slv_data_out, std_logic_vector(to_unsigned(data_ref.get(w), C_TOTAL_BITS)));
     end loop;
     report ("Done checking");

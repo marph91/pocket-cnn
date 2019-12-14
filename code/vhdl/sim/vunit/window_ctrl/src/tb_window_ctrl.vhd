@@ -132,9 +132,8 @@ begin
       sl_valid_in <= '1';
       for ch_in in 0 to C_CH_IN-1 loop
         slv_data_in <= std_logic_vector(to_unsigned(data_src.get(i), slv_data_in'length));
-        report("input: " & "i=" & to_string(i) &
-               ", in_val=" & to_string(std_logic_vector(to_unsigned(data_src.get(i), slv_data_in'length)))) &
-               " " & to_string(data_src.get(i));
+        report_position(i, C_IMG_HEIGHT, C_IMG_WIDTH, C_CH_IN,
+                        "input: ", ", val=" & to_string(data_src.get(i)));
         wait until rising_edge(sl_clk);
         i := i + 1;
       end loop;
