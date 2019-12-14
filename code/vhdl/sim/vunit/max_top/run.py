@@ -36,19 +36,8 @@ def create_test_suite(ui):
     root = dirname(__file__)
 
     ui.add_array_util()
-    util = ui.add_library("util", allow_duplicate=True)
-    util.add_source_files("../../src/util/cnn_pkg.vhd")
-    util.add_source_files("../../src/util/math_pkg.vhd")
     unittest = ui.add_library("unittest", allow_duplicate=True)
-    unittest.add_source_files("../../src/bram.vhd")
-    unittest.add_source_files("../../src/line_buffer.vhd")
-    unittest.add_source_files("../../src/window_buffer.vhd")
-    unittest.add_source_files("../../src/channel_buffer.vhd")
-    unittest.add_source_files("../../src/window_ctrl.vhd")
-    unittest.add_source_files("../../src/pool_max.vhd")
-    unittest.add_source_files("../../src/max_top.vhd")
     unittest.add_source_files(join(root, "src", "*.vhd"))
-
     tb_max_top = unittest.entity("tb_max_top")
 
     for ksize, stride in itertools.product((2, 3), (1, 2, 3)):

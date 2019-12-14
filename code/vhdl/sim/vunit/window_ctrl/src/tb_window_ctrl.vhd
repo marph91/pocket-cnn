@@ -3,6 +3,8 @@ library ieee;
   use ieee.numeric_std.all;
   use ieee.fixed_pkg.all;
 
+library cnn_lib;
+
 library util;
   use util.cnn_pkg.all;
   use util.math_pkg.all;
@@ -47,7 +49,7 @@ architecture tb of tb_window_ctrl is
 
   signal data_check_done, stimuli_done : boolean := false;
 begin
-  dut : entity work.window_ctrl
+  dut : entity cnn_lib.window_ctrl
   generic map (
     C_DATA_TOTAL_BITS  => C_DATA_TOTAL_BITS,
 

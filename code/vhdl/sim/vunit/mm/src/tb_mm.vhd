@@ -3,6 +3,8 @@ library ieee;
   use ieee.numeric_std.all;
   use ieee.fixed_pkg.all;
 
+library cnn_lib;
+
 library util;
   use util.cnn_pkg.all;
   use util.math_pkg.all;
@@ -44,7 +46,7 @@ architecture tb of tb_mm is
 
   signal data_check_done, stimuli_done : boolean := false;
 begin
-  dut : entity work.mm
+  dut : entity cnn_lib.mm
   generic map (
     C_DATA_TOTAL_BITS     => C_DATA_TOTAL_BITS,
     C_DATA_FRAC_BITS_IN   => C_DATA_FRAC_BITS_IN,

@@ -17,14 +17,6 @@ def create_test_suite(ui):
     root = dirname(__file__)
 
     ui.add_array_util()
-    lib_sim = ui.add_library("sim", allow_duplicate=True)
-    lib_sim.add_source_files("common.vhd")
-    lib_cmn = ui.add_library("util", allow_duplicate=True)
-    lib_cmn.add_source_files("../../src/util/*.vhd")
-
-    cnn_lib = ui.add_library("cnn_lib", allow_duplicate=True)
-    cnn_lib.add_source_files("../../src/*.vhd")
-
     integration_test = ui.add_library("integration_test")
     integration_test.add_source_files(join(root, "src", "tb_top.vhd"))
     tb_top = integration_test.entity("tb_top")

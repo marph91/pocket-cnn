@@ -42,13 +42,10 @@ def create_test_suite(ui):
     root = dirname(__file__)
 
     ui.add_array_util()
-    util = ui.add_library("util", allow_duplicate=True)
-    util.add_source_files("../../src/util/math_pkg.vhd")
     unittest = ui.add_library("unittest", allow_duplicate=True)
-    unittest.add_source_files("../../src/mm.vhd")
     unittest.add_source_files(join(root, "src", "*.vhd"))
-
     tb_mm = unittest.entity("tb_mm")
+
     for ksize in [1, 2, 3]:
         total_bits_data, frac_bits_data = random_bw(max_bw=16)
         total_bits_weight, frac_bits_weight = random_bw(max_bw=16)

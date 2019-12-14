@@ -15,9 +15,7 @@ def create_test_suite(ui):
 
     ui.add_array_util()
     unittest = ui.add_library("unittest", allow_duplicate=True)
-    unittest.add_source_files("../../src/channel_burst.vhd")
     unittest.add_source_files(join(root, "src", "*.vhd"))
-
     tb_channel_burst = unittest.entity("tb_channel_burst")
 
     bits = 8

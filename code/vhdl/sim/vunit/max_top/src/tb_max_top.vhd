@@ -3,6 +3,8 @@ library ieee;
   use ieee.numeric_std.all;
   use ieee.fixed_pkg.all;
 
+library cnn_lib;
+
 library util;
   use util.cnn_pkg.all;
   use util.math_pkg.all;
@@ -49,7 +51,7 @@ architecture tb of tb_max_top is
 
   signal data_check_done, stimuli_done : boolean := false;
 begin
-  dut : entity work.max_top
+  dut : entity cnn_lib.max_top
   generic map (
     C_TOTAL_BITS       => C_TOTAL_BITS,
     C_FRAC_BITS        => C_FRAC_BITS,

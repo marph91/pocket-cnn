@@ -2,6 +2,8 @@ library ieee;
   use ieee.std_logic_1164.all;
   use ieee.numeric_std.all;
 
+library cnn_lib;
+
 library sim;
   use sim.common.all;
 
@@ -35,7 +37,7 @@ architecture tb of tb_relu is
 
   signal data_check_done, stimuli_done : boolean := false;
 begin
-  dut : entity work.relu
+  dut : entity cnn_lib.relu
   generic map (
     C_TOTAL_BITS  => C_TOTAL_BITS,
     C_FRAC_BITS   => C_FRAC_BITS,

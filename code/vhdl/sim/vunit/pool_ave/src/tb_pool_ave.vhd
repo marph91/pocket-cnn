@@ -3,6 +3,8 @@ library ieee;
   use ieee.numeric_std.all;
   use ieee.fixed_pkg.all;
 
+library cnn_lib;
+
 library sim;
   use sim.common.all;
 
@@ -36,7 +38,7 @@ architecture tb of tb_pool_ave is
 
   signal data_check_done, stimuli_done : boolean := false;
 begin
-  dut : entity work.pool_ave
+  dut : entity cnn_lib.pool_ave
   generic map (
     C_TOTAL_BITS  => C_TOTAL_BITS,
     C_FRAC_BITS   => C_FRAC_BITS,

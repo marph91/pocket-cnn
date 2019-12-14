@@ -2,6 +2,8 @@ library ieee;
   use ieee.std_logic_1164.all;
   use ieee.numeric_std.all;
 
+library cnn_lib;
+
 library sim;
   use sim.common.all;
 
@@ -36,7 +38,7 @@ architecture tb of tb_zero_pad is
   shared variable data_ref : array_t;
   signal data_check_done, stimuli_done : boolean := false;
 begin
-  dut : entity work.zero_pad
+  dut : entity cnn_lib.zero_pad
   generic map (
     C_DATA_WIDTH  => C_DATA_WIDTH,
     C_CH          => C_IMG_DEPTH,

@@ -4,11 +4,11 @@ library ieee;
 
 library sim;
   use sim.common.all;
-
 library cnn_lib;
 library util;
   use util.cnn_pkg.all;
-use std.textio.all;
+
+use std.textio.all; -- TODO: needed?
 
 library vunit_lib;
   context vunit_lib.vunit_context;

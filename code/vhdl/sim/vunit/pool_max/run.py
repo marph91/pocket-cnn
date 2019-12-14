@@ -27,13 +27,10 @@ def create_test_suite(ui):
     root = dirname(__file__)
 
     ui.add_array_util()
-    util = ui.add_library("util", allow_duplicate=True)
-    util.add_source_files("../../src/util/math_pkg.vhd")
     unittest = ui.add_library("unittest", allow_duplicate=True)
-    unittest.add_source_files("../../src/pool_max.vhd")
     unittest.add_source_files(join(root, "src", "*.vhd"))
-
     tb_pool_max = unittest.entity("tb_pool_max")
+
     for pool_dim in [2, 3]:
         total_bits, frac_bits = random_bw(max_bw=16)
         # TODO: fix when bitwidth is parametrizable

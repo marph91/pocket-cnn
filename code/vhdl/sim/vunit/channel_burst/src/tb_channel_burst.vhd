@@ -2,6 +2,8 @@ library ieee;
   use ieee.std_logic_1164.all;
   use ieee.numeric_std.all;
 
+library cnn_lib;
+
 library sim;
   use sim.common.all;
 
@@ -33,7 +35,7 @@ architecture tb of tb_channel_burst is
 
   signal data_check_done, stimuli_done : boolean := false;
 begin
-  dut : entity work.channel_burst
+  dut : entity cnn_lib.channel_burst
   generic map(
     C_DATA_WIDTH  => C_DATA_WIDTH,
     C_CH          => C_CH

@@ -3,6 +3,8 @@ library ieee;
   use ieee.numeric_std.all;
   use ieee.fixed_pkg.all;
 
+library cnn_lib;
+
 library util;
   use util.cnn_pkg.all;
   use util.math_pkg.all;
@@ -54,7 +56,7 @@ architecture tb of tb_conv_top is
 
   signal data_check_done, stimuli_done : boolean := false;
 begin
-  dut : entity work.conv_top
+  dut : entity cnn_lib.conv_top
   generic map(
     C_DATA_TOTAL_BITS     => C_DATA_TOTAL_BITS,
     C_DATA_FRAC_BITS_IN   => C_DATA_FRAC_BITS_IN,

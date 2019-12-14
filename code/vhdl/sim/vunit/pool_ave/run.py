@@ -25,15 +25,10 @@ def create_test_suite(ui):
     root = dirname(__file__)
 
     ui.add_array_util()
-    lib_sim = ui.add_library("sim", allow_duplicate=True)
-    lib_sim.add_source_files("common.vhd")
-    lib_cmn = ui.add_library("util", allow_duplicate=True)
-    lib_cmn.add_source_files("../../src/util/*.vhd")
     unittest = ui.add_library("unittest", allow_duplicate=True)
-    unittest.add_source_files("../../src/pool_ave.vhd")
     unittest.add_source_files(join(root, "src", "*.vhd"))
-
     tb_pool_ave = unittest.entity("tb_pool_ave")
+
     width, height, channel = randint(1, 4), randint(1, 8), randint(1, 8)
     total_bits = 8
     frac_bits = randint(0, total_bits-1)
