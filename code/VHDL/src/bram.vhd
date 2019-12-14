@@ -65,7 +65,6 @@ begin
   begin
     if rising_edge(isl_clk) then
       if isl_en = '1' then
-        report to_string(islv_addr);
         if isl_we = '1' then
           a_RAM(to_integer(unsigned(islv_addr))) <= to_bitvector(islv_data);
         end if;
@@ -74,11 +73,9 @@ begin
     end if;
   end process;
 
-  gen_no_reg : if C_OUTPUT_REG = 0 generate
+  gen_output_reg : if C_OUTPUT_REG = 0 generate
     oslv_data <= to_stdlogicvector(slv_data);
-  end generate;
-
-  gen_reg : if C_OUTPUT_REG = 1 generate
+  elsif C_OUTPUT_REG = 1 generate
     process(isl_clk)
     begin
       if rising_edge(isl_clk) then

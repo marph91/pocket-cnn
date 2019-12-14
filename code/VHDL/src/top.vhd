@@ -147,7 +147,7 @@ begin
       osl_valid => sl_output_valid(i),
       osl_rdy   => slv_rdy(i)
     );
-  end generate gen_stages;
+  end generate;
 
   -----------------------------------
   -- Stage C_PE+1 (global average)

@@ -132,13 +132,11 @@ begin
   end process proc_cnt;
 
   -- zero padding
-  gen_no_pad : if C_PAD = 0 generate
+  gen_pad : if C_PAD = 0 generate
     sl_pad_output_valid <= isl_valid;
     slv_pad_data_out <= islv_data;
     sl_pad_rdy <= '1';
-  end generate;
-
-  gen_pad : if C_PAD > 0 generate
+  else generate
     sl_pad_get <= sl_conv_burst_rdy and sl_conv_rdy;
     i_zero_pad : entity work.zero_pad
     generic map(
@@ -166,13 +164,11 @@ begin
   end generate;
 
   -- burst
-  gen_no_burst : if C_CH_IN = 1 generate
+  gen_burst : if C_CH_IN = 1 generate
     slv_conv_data_in <= slv_pad_data_out;
     sl_conv_input_valid <= sl_pad_output_valid;
     sl_conv_burst_rdy <= '1';
-  end generate gen_no_burst;
-
-  gen_burst : if C_CH_IN > 1 generate
+  else generate
     i_channel_burst_conv : entity work.channel_burst
     generic map(
       C_DATA_WIDTH  => C_DATA_TOTAL_BITS,
@@ -189,7 +185,7 @@ begin
       osl_valid => sl_conv_input_valid,
       osl_rdy   => sl_conv_burst_rdy
     );
-  end generate gen_burst;
+  end generate;
 
   -- convolution
   i_conv_top : entity work.conv_top
@@ -250,8 +246,7 @@ begin
       sl_pool_rdy <= '1';
       oslv_data <= slv_relu_data_out;
       osl_valid <= sl_relu_output_valid;
-    end generate;
-    gen_relu_pool : if C_POOL_KSIZE > 0 generate
+    else generate
       slv_pool_data_in <= slv_relu_data_out;
       sl_pool_input_valid <= sl_relu_output_valid;
     end generate;

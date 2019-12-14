@@ -62,11 +62,10 @@ begin
   sl_bram_en <= isl_valid and isl_ce;
 
   -- move data one line "down"
-  gen_bram_lb_connect:
-  for i in 0 to (C_KSIZE - 3) generate
+  gen_bram_lb_connect : for i in 0 to (C_KSIZE - 3) generate
     slv_bram_data_in((C_DATA_WIDTH - 1) + (i + 1) * C_DATA_WIDTH downto (i + 1) * C_DATA_WIDTH)
       <= slv_bram_data_out((C_DATA_WIDTH - 1) + i * C_DATA_WIDTH downto i * C_DATA_WIDTH);
-  end generate gen_bram_lb_connect;
+  end generate;
 
   proc_counter : process(isl_clk)
   begin

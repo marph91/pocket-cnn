@@ -79,8 +79,8 @@ begin
   output_gen_1d : for i in 0 to C_KSIZE-1 generate
     output_gen_2d : for j in 0 to C_KSIZE-1 generate
       a_data_out(i, j) <= a_win(i+j*C_KSIZE, 0);
-    end generate output_gen_2d;
-  end generate output_gen_1d;
+    end generate;
+  end generate;
 
   oa_data <= a_data_out;
   osl_valid <= sl_valid_out;

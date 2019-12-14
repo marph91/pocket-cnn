@@ -45,9 +45,7 @@ begin
         end if;
       end if;
     end process;
-  end generate gen_relu;
-
-  gen_leaky_relu : if C_LEAKY = '1' generate
+  else generate
     process(isl_clk)
     begin
       if rising_edge(isl_clk) then
@@ -65,7 +63,7 @@ begin
         end if;
       end if;
     end process;
-  end generate gen_leaky_relu;
+  end generate;
 
   osl_valid <= sl_output_valid;
 end behavioral;

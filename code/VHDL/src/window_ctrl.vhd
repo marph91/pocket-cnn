@@ -65,7 +65,10 @@ architecture behavioral of window_ctrl is
   signal sl_output_valid : std_logic := '0';
   signal a_data_out : t_slv_array_2d(0 to C_KSIZE-1, 0 to C_KSIZE-1) := (others => (others => (others => '0')));
 begin
-  gen_kernel : if C_KSIZE > 1 generate
+  gen_buffer : if C_KSIZE = 1 generate
+    sl_chb_valid_in <= isl_valid;
+    a_chb_data_in(0, 0) <= islv_data;
+  else generate
     -- line buffer
     i_line_buffer : entity work.line_buffer
     generic map(
@@ -103,11 +106,6 @@ begin
 
     sl_chb_valid_in <= sl_wb_valid_out;
     a_chb_data_in <= a_wb_data_out;
-  end generate;
-
-  gen_scalar : if C_KSIZE = 1 generate
-    sl_chb_valid_in <= isl_valid;
-    a_chb_data_in(0, 0) <= islv_data;
   end generate;
 
   -- channel buffer
