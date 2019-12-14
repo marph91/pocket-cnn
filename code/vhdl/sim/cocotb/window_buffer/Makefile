@@ -1,6 +1,6 @@
-TOPLEVEL=line_buffer
+TOPLEVEL=window_buffer
 COCOTB_ROOT=/home/prog/cocotb
-VHDL_DIR=/home/workspace/picocnn/code/VHDL/src
+VHDL_DIR=/home/workspace/picocnn/code/vhdl/src
 
 SIM_ARGS=--vcd=../test.vcd
 

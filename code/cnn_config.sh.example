@@ -20,7 +20,7 @@ CNN_FW=caffe
 CNN_DIR=/home/workspace/picocnn/cnn_models/final/baseline
 
 # root directory of the CNN VHDL files
-VHDL_DIR="$PWD/VHDL/src"
+vhdl_DIR="$PWD/vhdl/src"
 TEST_FILES="$PWD/../test_images/*.p*"
 
 # finds latest file that matches pattern $1

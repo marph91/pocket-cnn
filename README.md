@@ -36,7 +36,7 @@ cp cnn_config.sh.example cnn_config.sh
 
 To run the vunit based tests, execute:
 ```bash
-cd picocnn/code/VHDL/sim/vunit/
+cd picocnn/code/vhdl/sim/vunit/
 python3 run_all.py
 ```
 Further cocotb based tests can be found in the folder `cocotb` and run by executing `make` in the corresponding subdirectory.

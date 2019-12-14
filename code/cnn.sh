@@ -112,7 +112,7 @@ case $1 in
 		tool: cocotb (testbench), ghdl (simulator) and caffe (reference values)
 		input: python testbench, VHDL (code + toplevel), reference model and weights, (input image)
 		output: verification of VHDL design"
-		cd "$PWD/VHDL/sim/cocotb/top" || exit 1
+		cd "$PWD/vhdl/sim/cocotb/top" || exit 1
 		$PRE make -s \
 			VHDL_DIR="$VHDL_DIR" \
 			CNN_FW="$CNN_FW" \
