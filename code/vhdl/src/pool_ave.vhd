@@ -44,10 +44,11 @@ architecture behavioral of pool_ave is
   attribute use_dsp48 of sfix_average : signal is "yes";
   signal sfix_average_d1 : sfixed(C_INTW_SUM+1 downto -C_FRAC_BITS-C_FRACW_REZI) := (others => '0');
 
-  signal sfix_rezi : sfixed(1 downto -C_FRACW_REZI) := reciprocal(to_sfixed(C_IMG_HEIGHT*C_IMG_WIDTH, C_FRACW_REZI, 0));
+  -- TODO: try real instead of sfixed
+  constant C_RECIPROCAL : sfixed(1 downto -C_FRACW_REZI) := reciprocal(to_sfixed(C_IMG_HEIGHT*C_IMG_WIDTH, C_FRACW_REZI, 0));
   signal slv_average : std_logic_vector(C_TOTAL_BITS-1 downto 0) := (others => '0');
 
-  signal int_data_in_cnt : integer := 0;-- TODO: range 0 to C_IMG_WIDTH*C_IMG_HEIGHT*C_POOL_CH+1 := 0;
+  signal int_data_in_cnt : integer range 0 to C_IMG_WIDTH*C_IMG_HEIGHT*C_POOL_CH+1 := 0;
   type t_1d_array is array (natural range <>) of sfixed(C_INTW_SUM-1 downto -C_FRAC_BITS);
   signal a_ch_buffer : t_1d_array(0 to C_POOL_CH-1) := (others => (others => '0'));
 
@@ -99,11 +100,11 @@ begin
           -- sfix_average <= divide(a_ch_buffer(0), to_sfixed(C_IMG_HEIGHT*C_IMG_WIDTH, 8, 0), FIXED_TRUNCATE, 0)
           --
           -- 3. multiply with reciprocal -> best for timing and ressource usage!
-          -- sfix_average <= a_ch_buffer(0) * sfix_rezi;
+          -- sfix_average <= a_ch_buffer(0) * C_RECIPROCAL;
           -----------------------------------------------------------------
 
           if sl_input_valid_d1 = '1' then
-            sfix_average <= a_ch_buffer(0) * sfix_rezi;
+            sfix_average <= a_ch_buffer(0) * C_RECIPROCAL;
           end if;
 
           if sl_input_valid_d2 = '1' then

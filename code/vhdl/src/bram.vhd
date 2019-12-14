@@ -26,7 +26,7 @@ end bram;
 
 architecture behavioral of bram is
   -- constant to prevent overflow in loop variable (max: 2^16-1)
-  constant C_SPLIT : integer range 1 to (C_SIZE+1)/65536+1 := (C_SIZE+1)/65536+1;
+  constant C_SPLIT : integer := (C_SIZE+1)/65536+1;
 
   type t_ram is array(0 to C_SIZE - 1) of bit_vector(C_DATA_WIDTH - 1 downto 0);
 

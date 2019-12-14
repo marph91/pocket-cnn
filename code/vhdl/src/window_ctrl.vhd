@@ -42,8 +42,8 @@ architecture behavioral of window_ctrl is
   signal int_ch_in_cnt : integer range 0 to C_CH_IN := 0;
   signal int_ch_out_cnt : integer range 0 to C_CH_IN := 0;
   signal int_repetition_cnt : integer range 0 to C_CH_OUT := 0;
-  signal int_pixel_in_cnt : integer := 0;-- TODO: range 0 to C_IMG_HEIGHT*C_IMG_WIDTH := 0;
-  signal int_pixel_out_cnt : integer := 0;-- TODO: range 0 to C_IMG_HEIGHT*C_IMG_WIDTH := 0;
+  signal int_pixel_in_cnt : integer range 0 to C_IMG_HEIGHT*C_IMG_WIDTH := 0;
+  signal int_pixel_out_cnt : integer range 0 to C_IMG_HEIGHT*C_IMG_WIDTH := 0;
 
   -- for line buffer
   signal sl_lb_valid_out : std_logic := '0';

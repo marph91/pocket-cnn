@@ -29,16 +29,16 @@ entity zero_pad is
 end entity;
 
 architecture behavioral of zero_pad is
-  constant C_IMG_WIDTH_OUT : integer range 1 to C_IMG_WIDTH + C_PAD_LEFT + C_PAD_RIGHT := C_IMG_WIDTH + C_PAD_LEFT + C_PAD_RIGHT;
-  constant C_IMG_HEIGHT_OUT : integer range 1 to C_IMG_HEIGHT + C_PAD_TOP + C_PAD_BOTTOM := C_IMG_HEIGHT + C_PAD_TOP + C_PAD_BOTTOM;
+  constant C_IMG_WIDTH_OUT : integer := C_IMG_WIDTH + C_PAD_LEFT + C_PAD_RIGHT;
+  constant C_IMG_HEIGHT_OUT : integer := C_IMG_HEIGHT + C_PAD_TOP + C_PAD_BOTTOM;
 
   -- counter
   signal int_ch : integer range 0 to C_CH := 0;
   signal int_ch_out : integer range 0 to C_CH := 0;
   signal int_row : integer range 0 to C_IMG_HEIGHT := 0;
   signal int_col : integer range 0 to C_IMG_WIDTH := 0;
-  signal int_data_in_cnt : integer := 0;-- TODO: range 0 to C_IMG_HEIGHT*C_IMG_WIDTH := 0;
-  signal int_data_out_cnt : integer := 0;-- TODO: range 0 to C_IMG_HEIGHT_OUT*C_IMG_WIDTH_OUT := 0;
+  signal int_data_in_cnt : integer range 0 to C_IMG_HEIGHT*C_IMG_WIDTH := 0;
+  signal int_data_out_cnt : integer range 0 to C_IMG_HEIGHT_OUT*C_IMG_WIDTH_OUT := 0;
 
   signal int_values_to_pad : integer range 0 to (C_IMG_WIDTH_OUT + C_PAD_LEFT)*C_CH+1 := 0;
   signal int_burst : integer range 0 to C_CH := 0;

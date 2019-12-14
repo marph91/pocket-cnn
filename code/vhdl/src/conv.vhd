@@ -34,11 +34,11 @@ entity conv is
 end conv;
 
 architecture behavioral of conv is
-  constant C_INT_BITS_DATA : integer range 0 to 16 := C_DATA_TOTAL_BITS-C_DATA_FRAC_BITS_IN;
+  constant C_INT_BITS_DATA : integer range 1 to 16 := C_DATA_TOTAL_BITS-C_DATA_FRAC_BITS_IN;
 
   -- for BRAM
-  constant C_BRAM_DATA_WIDTH : integer range C_WEIGHTS_TOTAL_BITS*C_KSIZE*C_KSIZE to C_WEIGHTS_TOTAL_BITS*C_KSIZE*C_KSIZE := C_WEIGHTS_TOTAL_BITS*(C_KSIZE*C_KSIZE);
-  constant C_BRAM_SIZE : integer range C_CH_IN*C_CH_OUT to C_CH_IN*C_CH_OUT := C_CH_IN*C_CH_OUT;
+  constant C_BRAM_DATA_WIDTH : integer := C_WEIGHTS_TOTAL_BITS*(C_KSIZE*C_KSIZE);
+  constant C_BRAM_SIZE : integer := C_CH_IN*C_CH_OUT;
   signal usig_addr_cnt : unsigned(log2(C_BRAM_SIZE - 1) - 1 downto 0) := (others => '0');
   constant C_BRAM_ADDR_WIDTH : integer := usig_addr_cnt'LENGTH;
   signal slv_ram_weights : std_logic_vector(C_BRAM_DATA_WIDTH-1 downto 0);
@@ -49,9 +49,9 @@ architecture behavioral of conv is
 
   -- +log2(C_CH_IN)-1 because all C_CH_IN are summed up -> broaden data width to avoid overflow
   -- new bitwidth = log2(C_CH_IN*(2^old bitwidth-1)) = log2(C_CH_IN) + old bitwidth -> new bw = lb(64) + 8 = 14
-  constant C_SUM_TOTAL_BITS : integer range 0 to 32 := C_DATA_TOTAL_BITS+C_WEIGHTS_TOTAL_BITS+1+log2(C_KSIZE-1)*2+log2(C_CH_IN);
+  constant C_SUM_TOTAL_BITS : integer range 1 to 32 := C_DATA_TOTAL_BITS+C_WEIGHTS_TOTAL_BITS+1+log2(C_KSIZE-1)*2+log2(C_CH_IN);
   constant C_SUM_FRAC_BITS : integer range 0 to 32 := C_DATA_FRAC_BITS_IN+C_WEIGHTS_FRAC_BITS;
-  constant C_SUM_INT_BITS : integer range 0 to 32 := C_SUM_TOTAL_BITS-C_SUM_FRAC_BITS;
+  constant C_SUM_INT_BITS : integer range 1 to 32 := C_SUM_TOTAL_BITS-C_SUM_FRAC_BITS;
   signal sfix_sum : sfixed(C_SUM_INT_BITS-1 downto -C_SUM_FRAC_BITS) := (others => '0');
   -- 1 bit larger than sfix_sum
   signal sfix_sum_bias : sfixed(C_SUM_INT_BITS downto -C_SUM_FRAC_BITS) := (others => '0');

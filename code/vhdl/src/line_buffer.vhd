@@ -27,8 +27,8 @@ end line_buffer;
 
 architecture behavioral of line_buffer is
   constant C_OUTPUT_REG : integer range 0 to 1 := 1;
-  constant C_BRAM_SIZE : integer range 1 to C_IMG_WIDTH*C_CH := C_IMG_WIDTH*C_CH - C_OUTPUT_REG;
-  constant C_BRAM_DATA_WIDTH : integer range 0 to (C_KSIZE-1)*C_DATA_WIDTH := (C_KSIZE - 1) * C_DATA_WIDTH;
+  constant C_BRAM_SIZE : integer := C_IMG_WIDTH*C_CH - C_OUTPUT_REG;
+  constant C_BRAM_DATA_WIDTH : integer := (C_KSIZE - 1) * C_DATA_WIDTH;
 
   signal sl_valid_out : std_logic := '0';
   signal a_data_out : t_slv_array_1d(0 to C_KSIZE-1) := (others => (others => '0'));
