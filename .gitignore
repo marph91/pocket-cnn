@@ -1,6 +1,6 @@
 # external configs (dolphin and vscode)
 .directory
-code/.vscode
+.vscode
 
 # python related files
 *.pyc
@@ -27,6 +27,7 @@ code/vhdl/sim/vunit/*/gen/**
 
 # CNN models
 cnn_models/**
+*.onnx
 
 # other files
 code/cnn_config.sh
