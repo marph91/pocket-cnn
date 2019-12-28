@@ -3,6 +3,10 @@ import numpy as np
 from fixfloat import float2ffloat
 
 
+def scale(array_in, factor):
+    return array_in / factor
+
+
 def avg_pool(array_in):
     _, width, height = array_in.shape
     # calculate reciprocal for average manually, because else factor would
@@ -26,7 +30,7 @@ def max_pool(array_in, ksize, stride):
     return out
 
 
-def conv(array_in, weights, bias, ksize, stride):
+def conv(array_in, weights, bias, ksize, stride, int_bits_out, frac_bits_out):
     channel_in, height, width = array_in.shape
     channel_out, channel_in_w, ksize_w1, ksize_w2 = weights.shape
     assert channel_in == channel_in_w
@@ -43,9 +47,19 @@ def conv(array_in, weights, bias, ksize, stride):
             roi = array_in[:, row_in:row_in + ksize, col_in:col_in + ksize]
             for ch_out in range(channel_out):
                 mm = np.sum(roi * weights[ch_out]) + bias[ch_out]
-                out[ch_out, row_out, col_out] = mm
+                # float2ffloat only to saturate the values
+                out[ch_out, row_out, col_out] = float2ffloat(
+                    mm, int_bits_out, frac_bits_out)
     return out
 
 def zero_pad(array_in):
     return np.pad(array_in, ((0, 0), (1, 1), (1, 1)),
                   "constant", constant_values=0)
+
+
+def relu(array_in):
+    return np.maximum(array_in, 0)
+
+
+def leaky_relu(array_in, alpha):
+    return np.where(array_in > 0, array_in, array_in * alpha)
