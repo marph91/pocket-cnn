@@ -45,7 +45,8 @@ def create_stimuli(root, ksize, stride,
 
     # assign the outputs
     conv_out = v_float2fixedint(
-        conv(a_rand, a_weights_rand, a_bias_rand, ksize, stride),
+        conv(a_rand, a_weights_rand, a_bias_rand, ksize, stride,
+             int_bits_data_out, frac_bits_data_out),
         int_bits_data_out, frac_bits_data_out)
     filename = join(root, "gen", "output_%d_%d.csv" % (ksize, stride))
     with open(filename, "w") as outfile:
