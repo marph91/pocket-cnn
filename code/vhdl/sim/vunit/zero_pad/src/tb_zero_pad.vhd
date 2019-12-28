@@ -114,6 +114,7 @@ begin
     while i < C_IMG_WIDTH * C_IMG_HEIGHT * C_IMG_DEPTH loop
       wait until rising_edge(sl_clk) and sl_rdy = '1';
       -- TODO: check with non burst input
+      -- TODO: non burst channel = 1 working?
       sl_valid_in <= '1';
       for w in 0 to C_IMG_DEPTH-1 loop
         slv_data_in <= std_logic_vector(to_unsigned(data_src.get(i), slv_data_in'length));
