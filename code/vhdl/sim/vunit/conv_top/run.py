@@ -9,7 +9,8 @@ import numpy as np
 
 from cnn_reference import conv
 from fixfloat import v_float2fixedint, float2fixedint, float2ffloat
-from tools_vunit import random_fixed_array, array2stream
+from fixfloat import random_fixed_array
+from tools_vunit import array2stream
 from weights2files import weights2files
 
 

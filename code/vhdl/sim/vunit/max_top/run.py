@@ -8,7 +8,7 @@ import numpy as np
 
 from cnn_reference import max_pool
 from fixfloat import v_float2fixedint, v_fixedint2ffloat
-from tools_vunit import array2stream, random_fixed_array
+from tools_vunit import array2stream
 
 
 def create_stimuli(root, ksize, stride, total_bits, frac_bits, channel,

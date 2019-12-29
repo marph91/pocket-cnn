@@ -83,3 +83,9 @@ def float2pow2(number, min_exp, max_exp):
 
     sign = "1" if number < 0 else "0"
     return sign + bin(abs(exp_rounded)-1)[2:].zfill(3)
+
+
+def random_fixed_array(size, int_bits, frac_bits):
+    arr = np.random.randint(2 ** (int_bits + frac_bits),
+                            size=size, dtype=np.int)
+    return v_fixedint2ffloat(arr, int_bits, frac_bits)

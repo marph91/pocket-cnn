@@ -7,7 +7,6 @@ from vunit import VUnit
 import numpy as np
 
 from fixfloat import v_float2fixedint, float2fixedint
-from tools_vunit import random_bw, random_fixed_array
 
 
 def create_stimuli(root, ksize, stride, total_bits, channel_in, channel_out,

@@ -5,7 +5,8 @@ import numpy as np
 from vunit import VUnit
 
 from fixfloat import v_float2fixedint
-from tools_vunit import array2stream, random_fixed_array
+from fixfloat import random_fixed_array
+from tools_vunit import array2stream
 from cnn_reference import zero_pad
 
 

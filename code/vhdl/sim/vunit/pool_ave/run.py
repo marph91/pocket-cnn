@@ -6,7 +6,8 @@ from vunit import VUnit
 
 from cnn_reference import avg_pool
 from fixfloat import v_float2fixedint, float2ffloat
-from tools_vunit import array2stream, random_fixed_array
+from fixfloat import random_fixed_array
+from tools_vunit import array2stream
 
 
 def create_stimuli(root, w, h, ch, total_bits, frac_bits):
