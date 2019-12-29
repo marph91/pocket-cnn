@@ -1,16 +1,31 @@
-import json
 import os
-from os.path import join, dirname, isdir
+from os.path import join, dirname
 
 import numpy as np
+import onnx
 from vunit import VUnit
 
+from fixfloat import v_float2fixedint
 
-def create_stimuli(root):
-    # TODO: convert image to csv
-    # TODO: process cnn and add output to csv
-    # TODO: extract weights
-    pass
+import cnn_onnx.inference
+import cnn_onnx.model_zoo
+import cnn_onnx.parse_param
+import cnn_onnx.convert_weights
+import vhdl_top_template
+
+
+def create_stimuli(root, model_name):
+    model = onnx.load(join(root, model_name))
+
+    # TODO: check 256
+    in_ = np.random.randint(128, size=(1, 6, 6))
+    out_ = cnn_onnx.inference.numpy_inference(model, in_)
+
+    # TODO: array has to be transposed to yield the correct results
+    np.savetxt(join(root, "input.csv"), np.transpose(in_[0, :, :]),
+               delimiter=", ", fmt="%3d")
+    np.savetxt(join(root, "output.csv"), v_float2fixedint(out_, 8, 4),
+               delimiter=", ", fmt="%3d")
 
 
 def create_test_suite(ui):
@@ -21,15 +36,34 @@ def create_test_suite(ui):
     integration_test.add_source_files(join(root, "src", "tb_top.vhd"))
     tb_top = integration_test.entity("tb_top")
 
-    test_cases = [name for name in os.listdir(join(root, "src"))
-                  if isdir(join(root, "src", name))]
-    for test_case in test_cases:
-        if test_case.endswith("_"):
-            # temporary disable some tests
-            continue
-        with open(join(root, "src", test_case, "cnn_parameter.json")) as infile:
-            params = json.load(infile)
+    test_cnns = [cnn_onnx.model_zoo.cnn1]  # name in model zoo
+    for test_cnn in test_cnns:
+        test_case_name = test_cnn.__name__
+        test_case_root = join(root, "src", test_case_name)
+        os.makedirs(test_case_root, exist_ok=True)
 
+        # save arbitrary cnn model to file in onnx format
+        model = test_cnn()
+        onnx.save(model, join(test_case_root, "cnn_model.onnx"))
+
+        # parse parameter
+        params = cnn_onnx.parse_param.parse_param(
+            join(test_case_root, "cnn_model.onnx"))
+        # create some (redundant) dict entries
+        params["weight_dir"] = join(test_case_root, "weights")
+        params["len_weights"] = len("%s/W_%s.txt" % (
+            params["weight_dir"], params["conv_names"][0]))
+
+        # create toplevel wrapper for synthesis
+        vhdl_top_template.vhdl_top_template(
+            params, join(test_case_root, "top_wrapper.vhd"))
+
+        # convert weights
+        cnn_onnx.convert_weights.convert_weights(
+            join(test_case_root, "cnn_model.onnx"),
+            join(test_case_root, "weights"))
+
+        # setup the test
         weights = ["%s/W_%s.txt" % (params["weight_dir"], name)
                    for name in params["conv_names"]]
         bias = ["%s/B_%s.txt" % (params["weight_dir"], name)
@@ -41,7 +75,7 @@ def create_test_suite(ui):
                               for inner in params["bitwidth"]])
 
         generics = {"C_DATA_TOTAL_BITS": params["bitwidth"][0][0],
-                    "C_FOLDER": test_case,  # TODO: find a better way
+                    "C_FOLDER": test_case_name,  # TODO: find a better way
                     "C_IMG_WIDTH_IN": params["input_width"],
                     "C_IMG_HEIGHT_IN": params["input_height"],
                     "C_PE": params["pe"],
@@ -59,9 +93,10 @@ def create_test_suite(ui):
                     "STR_WEIGHTS_INIT": ", ".join(weights),
                     "STR_BIAS_INIT": ", ".join(bias),
                     }
-        tb_top.add_config(name=test_case, generics=generics,
-                          pre_config=create_stimuli(join(
-                              root, "src", test_case)))
+        tb_top.add_config(name=test_case_name, generics=generics,
+                          pre_config=create_stimuli(
+                              join(root, "src", test_case_name),
+                              "cnn_model.onnx"))
         tb_top.set_attribute(".integration_test", None)
 
 
