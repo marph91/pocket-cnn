@@ -310,3 +310,63 @@ def conv_3x1_1x1_max_2x2_one_channel():
     # Create the model (ModelProto)
     model_def = helper.make_model(graph_def)
     return model_def
+
+
+def conv_3x1_1x1_max_2x1():
+    """6x6 -> 4x4 -> 3x3"""
+    # create cnn in onnx representation
+    graph_gen = GraphGenerator((1, 6, 6), (4, 1, 1))
+
+    graph_gen.add(*make_scale("scale1", "data", (16, 0)))
+    graph_gen.add(*make_conv_quant("conv1", "scale1", "scale1", 1, 4, 3, 1, 0))
+    graph_gen.add(*make_relu("relu1", "conv1"))
+    graph_gen.add(*make_pool_max("max1", "relu1", 2, 1))
+    graph_gen.add(*make_conv_quant("conv2", "max1", "conv1", 4, 8, 1, 1, 0))
+    graph_gen.add(*make_relu("relu2", "conv2"))
+    graph_gen.add(*make_pool_ave("ave1", "relu2"))
+
+    graph_def = graph_gen.get_graph("cnn", "data_out", "ave1_out")
+
+    # Create the model (ModelProto)
+    model_def = helper.make_model(graph_def)
+    return model_def
+
+
+def conv_3x2_1x1_max_2x1():
+    """9x9 -> 4x4 -> 3x3"""
+    # create cnn in onnx representation
+    graph_gen = GraphGenerator((1, 9, 9), (4, 1, 1))
+
+    graph_gen.add(*make_scale("scale1", "data", (16, 0)))
+    graph_gen.add(*make_conv_quant("conv1", "scale1", "scale1", 1, 4, 3, 2, 0))
+    graph_gen.add(*make_relu("relu1", "conv1"))
+    graph_gen.add(*make_pool_max("max1", "relu1", 2, 1))
+    graph_gen.add(*make_conv_quant("conv2", "max1", "conv1", 4, 8, 1, 1, 0))
+    graph_gen.add(*make_relu("relu2", "conv2"))
+    graph_gen.add(*make_pool_ave("ave1", "relu2"))
+
+    graph_def = graph_gen.get_graph("cnn", "data_out", "ave1_out")
+
+    # Create the model (ModelProto)
+    model_def = helper.make_model(graph_def)
+    return model_def
+
+
+def conv_2x1_1x1_max_3x2():
+    """8x8 -> 7x7 -> 3x3"""
+    # create cnn in onnx representation
+    graph_gen = GraphGenerator((1, 8, 8), (4, 1, 1))
+
+    graph_gen.add(*make_scale("scale1", "data", (16, 0)))
+    graph_gen.add(*make_conv_quant("conv1", "scale1", "scale1", 1, 4, 2, 1, 0))
+    graph_gen.add(*make_relu("relu1", "conv1"))
+    graph_gen.add(*make_pool_max("max1", "relu1", 3, 2))
+    graph_gen.add(*make_conv_quant("conv2", "max1", "conv1", 4, 8, 1, 1, 0))
+    graph_gen.add(*make_relu("relu2", "conv2"))
+    graph_gen.add(*make_pool_ave("ave1", "relu2"))
+
+    graph_def = graph_gen.get_graph("cnn", "data_out", "ave1_out")
+
+    # Create the model (ModelProto)
+    model_def = helper.make_model(graph_def)
+    return model_def
