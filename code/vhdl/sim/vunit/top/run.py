@@ -27,8 +27,7 @@ def create_stimuli(root, model_name):
     in_ = np.random.randint(128, size=shape)
     out_ = cnn_onnx.inference.numpy_inference(model, in_)
 
-    # TODO: array has to be transposed to yield the correct results
-    np.savetxt(join(root, "input.csv"), np.transpose(in_[0, :, :]),
+    np.savetxt(join(root, "input.csv"), in_[0, :, :],
                delimiter=", ", fmt="%3d")
     np.savetxt(join(root, "output.csv"), v_float2fixedint(out_, 4, 4),
                delimiter=", ", fmt="%3d")
@@ -45,6 +44,8 @@ def create_test_suite(ui):
     test_cnns = [  # name in model zoo
         cnn_onnx.model_zoo.conv_3x1_1x1_max_2x2,
         cnn_onnx.model_zoo.conv_3x1_1x1_max_2x2_leaky_relu,
+        cnn_onnx.model_zoo.conv_3x1_1x1_max_2x2_nonsquare_input,
+        cnn_onnx.model_zoo.conv_3x1_1x1_max_2x2_odd_input,
     ]
     for test_cnn in test_cnns:
         test_case_name = test_cnn.__name__

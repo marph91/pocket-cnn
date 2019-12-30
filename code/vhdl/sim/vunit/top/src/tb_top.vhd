@@ -219,8 +219,8 @@ begin
     sl_start <= '0';
     int_pixel_cnt <= 0;
 
-    for x in 0 to data_src.width-1 loop
-      for y in 0 to data_src.height-1 loop
+    for y in 0 to data_src.height-1 loop
+      for x in 0 to data_src.width-1 loop -- width increments faster than height
         for z in 0 to data_src.depth-1 loop
           wait until rising_edge(sl_clk) and sl_rdy = '1' and sl_valid_in = '0';
           sl_valid_in <= '1';
