@@ -6,6 +6,7 @@ import argparse
 import os
 
 import numpy as np
+import PIL.Image
 
 from fixfloat import float2fixed
 
