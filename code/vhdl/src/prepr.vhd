@@ -25,7 +25,8 @@ architecture behavioral of prepr is
   constant C_INT_BITS : integer range 1 to 16 := C_TOTAL_BITS - C_FRAC_BITS;
 begin
   oslv_data <= to_slv(resize(
-    -- convert/scale input (8 bit greyscale) to fixed point required by net (from caffe: /64 -> q2.6)
+    -- convert/scale input (8 bit greyscale) to fixed point required by net
+    -- TODO: sfixed or fixed?
     to_sfixed('0' & islv_data, C_TOTAL_BITS-C_SHIFT, -C_SHIFT),
       C_INT_BITS-1, -C_FRAC_BITS, fixed_wrap, fixed_round));
   osl_valid <= isl_valid;

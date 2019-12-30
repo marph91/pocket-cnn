@@ -1,1 +1,0 @@
-/home/workspace/picocnn/cnn_models/tests/test_net_2/

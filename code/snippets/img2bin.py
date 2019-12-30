@@ -10,6 +10,14 @@ from fixfloat import float2fixed
 import tools_common as common
 
 
+def load_image(path, width, height, mode="L"):
+    """Load an image."""
+    image = PIL.Image.open(path)
+    image = np.asarray(image.convert(mode).resize(
+        (width, height), PIL.Image.BILINEAR))
+    return image
+
+
 def img2bin(source, dest, val_line=1):
     """Write image to binary file."""
     common.create_dir(dest)
