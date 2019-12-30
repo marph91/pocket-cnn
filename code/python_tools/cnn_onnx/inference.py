@@ -69,7 +69,8 @@ def numpy_inference(onnx_model, input_):
         elif node.op_type == "Relu":
             next_input = cnn_reference.relu(next_input)
         elif node.op_type == "LeakyRelu":
-            next_input = cnn_reference.leaky_relu(next_input, alpha=0.125)
+            next_input = cnn_reference.leaky_relu(
+                next_input, 0.125, int_bits_out, frac_bits_out)
     return next_input
 
 

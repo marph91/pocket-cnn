@@ -110,7 +110,7 @@ def parse_param(model):
             relu.append(1)
             leaky_relu.append(0)
         elif node.op_type == "LeakyRelu":
-            relu.append(0)
+            relu.append(1)
             leaky_relu.append(1)
 
     # pe == number of conv layers

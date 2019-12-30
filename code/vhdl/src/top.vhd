@@ -17,8 +17,8 @@ entity top is
 	  C_SCALE : integer range 0 to 256;
 
     -- 0 - preprocessing, 1 to C_PE - pe, C_PE+1 - average
-    C_RELU : std_logic_vector(1 to C_PE);
-    C_LEAKY_RELU : std_logic_vector(1 to C_PE);
+    C_RELU : std_logic_vector(C_PE downto 1); -- slv gets turned around after parsing
+    C_LEAKY_RELU : std_logic_vector(C_PE downto 1);
 
 	  C_PAD: t_int_array_1d(1 to C_PE);
 

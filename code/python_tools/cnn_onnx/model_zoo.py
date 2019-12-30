@@ -216,20 +216,38 @@ class GraphGenerator:
         return graph_def
 
 
-def cnn1():
+def conv_3x1_1x1_max_2x2():
     # create cnn in onnx representation
     graph_gen = GraphGenerator((1, 6, 6), (4, 1, 1))
 
     graph_gen.add(*make_scale("scale1", "data", (16, 0)))
     graph_gen.add(*make_conv_quant("conv1", "scale1", "scale1", 1, 4, 3, 1, 0))
-    # graph_gen.add(*make_leaky_relu("lrelu1", "conv1"))  # TODO: fix
     graph_gen.add(*make_relu("lrelu1", "conv1"))
     graph_gen.add(*make_pool_max("max1", "lrelu1", 2, 2))
     graph_gen.add(*make_conv_quant("conv2", "max1", "conv1", 4, 8, 1, 1, 0))
     graph_gen.add(*make_relu("relu2", "conv2"))
     graph_gen.add(*make_pool_ave("ave1", "relu2"))
 
-    graph_def = graph_gen.get_graph("simple_net", "data_out", "ave1_out")
+    graph_def = graph_gen.get_graph("cnn", "data_out", "ave1_out")
+
+    # Create the model (ModelProto)
+    model_def = helper.make_model(graph_def)
+    return model_def
+
+
+def conv_3x1_1x1_max_2x2_leaky_relu():
+    # create cnn in onnx representation
+    graph_gen = GraphGenerator((1, 6, 6), (4, 1, 1))
+
+    graph_gen.add(*make_scale("scale1", "data", (16, 0)))
+    graph_gen.add(*make_conv_quant("conv1", "scale1", "scale1", 1, 4, 3, 1, 0))
+    graph_gen.add(*make_leaky_relu("lrelu1", "conv1"))
+    graph_gen.add(*make_pool_max("max1", "lrelu1", 2, 2))
+    graph_gen.add(*make_conv_quant("conv2", "max1", "conv1", 4, 8, 1, 1, 0))
+    graph_gen.add(*make_relu("lrelu2", "conv2"))
+    graph_gen.add(*make_pool_ave("ave1", "lrelu2"))
+
+    graph_def = graph_gen.get_graph("cnn", "data_out", "ave1_out")
 
     # Create the model (ModelProto)
     model_def = helper.make_model(graph_def)

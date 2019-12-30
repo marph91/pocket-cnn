@@ -1,6 +1,6 @@
 import numpy as np
 
-from fixfloat import float2ffloat
+from fixfloat import float2ffloat, v_float2ffloat
 
 
 def scale(array_in, factor):
@@ -62,5 +62,7 @@ def relu(array_in):
     return np.maximum(array_in, 0)
 
 
-def leaky_relu(array_in, alpha):
-    return np.where(array_in > 0, array_in, array_in * alpha)
+def leaky_relu(array_in, alpha, int_bits_out, frac_bits_out):
+    return np.where(
+        array_in > 0, array_in,
+        v_float2ffloat(array_in*alpha, int_bits_out, frac_bits_out))

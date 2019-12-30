@@ -73,6 +73,12 @@ def float2ffloat(number, int_bits, frac_bits):
         -2**(int_bits-1))
 
 
+def v_float2ffloat(array, int_bits, frac_bits):
+    """vectorized float2ffloat function"""
+    vector_float2ffloat = np.vectorize(float2ffloat, otypes=[np.float])
+    return vector_float2ffloat(array, int_bits, frac_bits)
+
+
 def float2pow2(number, min_exp, max_exp):
     """converts floating point to power-of-two number, but stored as float"""
     if number == 0:

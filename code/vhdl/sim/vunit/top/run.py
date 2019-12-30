@@ -42,7 +42,10 @@ def create_test_suite(ui):
     integration_test.add_source_files(join(root, "src", "tb_top.vhd"))
     tb_top = integration_test.entity("tb_top")
 
-    test_cnns = [cnn_onnx.model_zoo.cnn1]  # name in model zoo
+    test_cnns = [  # name in model zoo
+        cnn_onnx.model_zoo.conv_3x1_1x1_max_2x2,
+        cnn_onnx.model_zoo.conv_3x1_1x1_max_2x2_leaky_relu,
+    ]
     for test_cnn in test_cnns:
         test_case_name = test_cnn.__name__
         test_case_root = join(root, "src", test_case_name)
