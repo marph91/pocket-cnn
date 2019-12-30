@@ -57,6 +57,7 @@ architecture behavioral of top is
   type t_img_size_array is array (1 to C_PE) of integer range 1 to 512;
 
   -- calculate the image size at every layer
+  -- size_new = (size_old + 2*pad - ksize) / stride + 1
   function f_calc_size (size : in integer range 1 to 512) return t_img_size_array is
     variable v_a_size : t_img_size_array;
     variable v_int_size_conv : integer range 1 to 512;
@@ -65,11 +66,11 @@ architecture behavioral of top is
     for i in 2 to C_PE loop
       -- stride conv just useful if no pooling layer in pe (either reduce image dimensions in conv OR pool)
       -- ite to protect from division by 0
-      v_int_size_conv := (v_a_size(i-1) + 2*C_PAD(i-1) - (C_CONV_KSIZE(i-1) - C_CONV_STRIDE(i-1))) /
-                          C_CONV_STRIDE(i-1);
+      v_int_size_conv := (v_a_size(i-1) + 2*C_PAD(i-1) - C_CONV_KSIZE(i-1)) /
+                          C_CONV_STRIDE(i-1) + 1;
       if (C_POOL_STRIDE(i-1) > 0) then
-        v_a_size(i) := (v_int_size_conv - (C_POOL_KSIZE(i-1) - C_POOL_STRIDE(i-1))) /
-                        C_POOL_STRIDE(i-1);
+        v_a_size(i) := (v_int_size_conv - C_POOL_KSIZE(i-1)) /
+                        C_POOL_STRIDE(i-1) + 1;
       else
         v_a_size(i) := v_int_size_conv;
       end if;
