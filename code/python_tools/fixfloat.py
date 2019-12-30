@@ -42,6 +42,12 @@ def fixedint2ffloat(number, int_bits, frac_bits):
     return fixed2float(bin(int(number))[2:].zfill(int_bits + frac_bits), int_bits, frac_bits)
 
 
+def v_fixedint2ffloat(array, int_bits, frac_bits):
+    """vectorized fixedint2ffloat function"""
+    vector_fixedint2ffloat = np.vectorize(fixedint2ffloat, otypes=[np.float])
+    return vector_fixedint2ffloat(array, int_bits, frac_bits)
+
+
 def fixed2float(number, int_bits, frac_bits):
     """converts binary signed fixed point to floating point number"""
     if number[0] == "1":
@@ -64,7 +70,13 @@ def float2ffloat(number, int_bits, frac_bits):
     """converts floating point to fixed point number, but stored as float"""
     return max(min(py3round(
         number*2**frac_bits)/2**frac_bits, 2**(int_bits-1) - 2**-frac_bits),
-               -2**(int_bits-1))
+        -2**(int_bits-1))
+
+
+def v_float2ffloat(array, int_bits, frac_bits):
+    """vectorized float2ffloat function"""
+    vector_float2ffloat = np.vectorize(float2ffloat, otypes=[np.float])
+    return vector_float2ffloat(array, int_bits, frac_bits)
 
 
 def float2pow2(number, min_exp, max_exp):
@@ -77,3 +89,9 @@ def float2pow2(number, min_exp, max_exp):
 
     sign = "1" if number < 0 else "0"
     return sign + bin(abs(exp_rounded)-1)[2:].zfill(3)
+
+
+def random_fixed_array(size, int_bits, frac_bits):
+    arr = np.random.randint(2 ** (int_bits + frac_bits),
+                            size=size, dtype=np.int)
+    return v_fixedint2ffloat(arr, int_bits, frac_bits)

@@ -28,7 +28,7 @@ def weights2files(kernel, bias, data_bits, frac_bits, layer_name, mem_init):
             if (ch_in+1) % shape[1] == 0:
                 line_b.append(str(
                     float2fixed(bias[int((ch+1) / (shape[1] * shape[2] *
-                                         shape[3])-1)],
+                                                   shape[3])-1)],
                                 int_bits, frac_bits)))
                 line_b.append("\n")
                 debug_b.append(str(

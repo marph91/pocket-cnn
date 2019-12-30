@@ -3,16 +3,25 @@
 """Convert images to a binary representation."""
 
 import argparse
+import os
 
 import numpy as np
+import PIL.Image
 
 from fixfloat import float2fixed
-import tools_common as common
+
+
+def load_image(path, width, height, mode="L"):
+    """Load an image."""
+    image = PIL.Image.open(path)
+    image = np.asarray(image.convert(mode).resize(
+        (width, height), PIL.Image.BILINEAR))
+    return image
 
 
 def img2bin(source, dest, val_line=1):
     """Write image to binary file."""
-    common.create_dir(dest)
+    os.makedirs(dest, exist_ok=True)
 
     img_fixed, img_float, img_bin = [], [], []
     tmp_fixed, tmp_float = [], []
@@ -48,7 +57,6 @@ if __name__ == "__main__":
     PARSER.add_argument("val_line", type=int, help="values per line (1 or 4)")
     ARGS = PARSER.parse_args()
 
-    IMG = common.load_image(ARGS.input_image, ARGS.output_height,
-                            ARGS.output_width)
+    IMG = load_image(ARGS.input_image, ARGS.output_height, ARGS.output_width)
 
     img2bin(IMG, ARGS.output_destination, ARGS.val_line)
