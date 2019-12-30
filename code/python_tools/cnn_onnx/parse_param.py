@@ -63,10 +63,6 @@ def parse_param(model):
                 assert pad == pad_
             padding.append(pad)
 
-            ksize, stride = get_kernel_params(params)
-            conv_kernel.append(ksize)
-            conv_stride.append(stride)
-
             conv_names.append(node.input[3].split("_", 1)[0])
 
             data_bits, frac_bits_in, frac_bits_out = (
@@ -87,12 +83,17 @@ def parse_param(model):
             channel.append(shape[0])
 
             if pool_possible:
-                assert len(pool_kernel) == len(conv_kernel) - 1
-                assert len(pool_stride) == len(conv_stride) - 1
+                assert (len(pool_kernel) == len(conv_kernel) -
+                        1, "%d %d" % (len(pool_kernel), len(conv_kernel)))
+                assert (len(pool_stride) == len(conv_stride) -
+                        1, "%d %d" % (len(pool_stride), len(conv_stride)))
                 pool_kernel.append(0)
                 pool_stride.append(0)
             else:
                 pool_possible = True
+            ksize, stride = get_kernel_params(params)
+            conv_kernel.append(ksize)
+            conv_stride.append(stride)
         elif node.op_type == "GlobalAveragePool":
             if pool_possible and len(pool_kernel) != len(conv_kernel):
                 assert len(pool_kernel) == len(conv_kernel) - 1
