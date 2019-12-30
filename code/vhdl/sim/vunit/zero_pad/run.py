@@ -38,12 +38,12 @@ def create_test_suite(ui):
     for width, height, channel in (config_one_ch, config_multiple_ch):
         id_ = "one" if channel == 1 else "multiple"
         tb_zero_pad.add_config(name="%s_channel" % id_,
-                            generics={"id": id_,
-                                      "C_IMG_WIDTH": width,
-                                      "C_IMG_HEIGHT": height,
-                                      "C_IMG_DEPTH": channel},
-                            pre_config=create_arrays(root, width, height,
-                                                     channel))
+                               generics={"id": id_,
+                                         "C_IMG_WIDTH": width,
+                                         "C_IMG_HEIGHT": height,
+                                         "C_IMG_DEPTH": channel},
+                               pre_config=create_arrays(root, width, height,
+                                                        channel))
     tb_zero_pad.set_attribute(".unittest", None)
 
 

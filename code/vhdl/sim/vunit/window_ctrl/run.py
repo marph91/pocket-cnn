@@ -14,13 +14,14 @@ def create_stimuli(root, ksize, stride, total_bits, channel_in, channel_out,
     # vunit import from csv can only handle datatype integer.
     # Therefore the random fixed point values have to be converted to
     # corresponding integer values.
-    a_rand = np.random.randint(2 ** total_bits, size=(channel_in, height, width))
+    a_rand = np.random.randint(
+        2 ** total_bits, size=(channel_in, height, width))
 
     # put the array in a stream based shape (channel > width > height)
     a_rand_stream = np.transpose(a_rand, (1, 2, 0)).flatten()
     np.savetxt(join(root, "src", "input_%d_%d.csv" % (ksize, stride)), a_rand_stream[None],
                delimiter=", ", fmt="%3d")
-    
+
     # assign the outputs
     rois = []
     # - (stride - 1) to provide only outputs, where the full kernel fits
@@ -30,7 +31,7 @@ def create_stimuli(root, ksize, stride, total_bits, channel_in, channel_out,
             rois.append(roi)
     with open(join(root, "src", "output_%d_%d.csv" % (ksize, stride)), "w") as outfile:
         for r in rois:
-            r_stream = r.flatten() # ksize * ksize > channel
+            r_stream = r.flatten()  # ksize * ksize > channel
             # add None to get second dimension and comma separation
             np.savetxt(outfile, r_stream[None], delimiter=", ", fmt="%3d")
 
@@ -52,7 +53,7 @@ def create_test_suite(ui):
         channel_out = randint(1, 16)
         width = randint(ksize, 16)
         height = randint(ksize, 16)
-        
+
         generics = {"C_DATA_TOTAL_BITS": total_bits,
                     "C_CH_IN": channel_in,
                     "C_CH_OUT": channel_out,

@@ -49,7 +49,7 @@ def create_test_suite(ui):
         channel = randint(1, 16)  # TODO: test larger values in nightly runs
         width = randint(ksize, 16)
         height = randint(ksize, 16)
-        
+
         generics = {"C_TOTAL_BITS": total_bits,
                     "C_FRAC_BITS": frac_bits,
                     "C_CH": channel,

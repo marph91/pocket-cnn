@@ -80,25 +80,26 @@ def create_test_suite(ui):
         bitwidth = "; ".join([", ".join(str(item) for item in inner)
                               for inner in params["bitwidth"]])
 
-        generics = {"C_DATA_TOTAL_BITS": params["bitwidth"][0][0],
-                    "C_FOLDER": test_case_name,  # TODO: find a better way
-                    "C_IMG_WIDTH_IN": params["input_width"],
-                    "C_IMG_HEIGHT_IN": params["input_height"],
-                    "C_PE": params["pe"],
-                    "C_SCALE": params["scale"],
-                    "C_RELU": "".join(map(str, params["relu"])),
-                    "C_LEAKY_RELU": "".join(map(str, params["leaky_relu"])),
-                    "C_PAD": ", ".join(map(str, params["pad"])),
-                    "C_CONV_KSIZE": ", ".join(map(str, params["conv_kernel"])),
-                    "C_CONV_STRIDE": ", ".join(map(str, params["conv_stride"])),
-                    "C_POOL_KSIZE": ", ".join(map(str, params["pool_kernel"])),
-                    "C_POOL_STRIDE": ", ".join(map(str, params["pool_stride"])),
-                    "C_CH": ", ".join(map(str, params["channel"])),
-                    "C_BITWIDTH": bitwidth,
-                    "C_STR_LENGTH": params["len_weights"],
-                    "STR_WEIGHTS_INIT": ", ".join(weights),
-                    "STR_BIAS_INIT": ", ".join(bias),
-                    }
+        generics = {
+            "C_DATA_TOTAL_BITS": params["bitwidth"][0][0],
+            "C_FOLDER": test_case_name,  # TODO: find a better way
+            "C_IMG_WIDTH_IN": params["input_width"],
+            "C_IMG_HEIGHT_IN": params["input_height"],
+            "C_PE": params["pe"],
+            "C_SCALE": params["scale"],
+            "C_RELU": "".join(map(str, params["relu"])),
+            "C_LEAKY_RELU": "".join(map(str, params["leaky_relu"])),
+            "C_PAD": ", ".join(map(str, params["pad"])),
+            "C_CONV_KSIZE": ", ".join(map(str, params["conv_kernel"])),
+            "C_CONV_STRIDE": ", ".join(map(str, params["conv_stride"])),
+            "C_POOL_KSIZE": ", ".join(map(str, params["pool_kernel"])),
+            "C_POOL_STRIDE": ", ".join(map(str, params["pool_stride"])),
+            "C_CH": ", ".join(map(str, params["channel"])),
+            "C_BITWIDTH": bitwidth,
+            "C_STR_LENGTH": params["len_weights"],
+            "STR_WEIGHTS_INIT": ", ".join(weights),
+            "STR_BIAS_INIT": ", ".join(bias),
+        }
         tb_top.add_config(name=test_case_name, generics=generics,
                           pre_config=create_stimuli(
                               join(root, "src", test_case_name),

@@ -52,6 +52,7 @@ def conv(array_in, weights, bias, ksize, stride, int_bits_out, frac_bits_out):
                     mm, int_bits_out, frac_bits_out)
     return out
 
+
 def zero_pad(array_in):
     return np.pad(array_in, ((0, 0), (1, 1), (1, 1)),
                   "constant", constant_values=0)

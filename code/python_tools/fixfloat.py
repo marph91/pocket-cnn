@@ -70,7 +70,7 @@ def float2ffloat(number, int_bits, frac_bits):
     """converts floating point to fixed point number, but stored as float"""
     return max(min(py3round(
         number*2**frac_bits)/2**frac_bits, 2**(int_bits-1) - 2**-frac_bits),
-               -2**(int_bits-1))
+        -2**(int_bits-1))
 
 
 def float2pow2(number, min_exp, max_exp):

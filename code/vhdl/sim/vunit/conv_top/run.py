@@ -77,8 +77,10 @@ def create_test_suite(ui):
         width = randint(ksize, 16)
         height = randint(ksize, 16)
 
-        weights_file = join(os.getcwd(), root, "gen", "W_conv_%d_%d.txt" % (ksize, stride))
-        bias_file = join(os.getcwd(), root, "gen", "B_conv_%d_%d.txt" % (ksize, stride))
+        weights_file = join(os.getcwd(), root, "gen",
+                            "W_conv_%d_%d.txt" % (ksize, stride))
+        bias_file = join(os.getcwd(), root, "gen",
+                         "B_conv_%d_%d.txt" % (ksize, stride))
         generics = {"C_DATA_TOTAL_BITS": total_bits_data,
                     "C_DATA_FRAC_BITS_IN": frac_bits_data_in,
                     "C_DATA_FRAC_BITS_OUT": frac_bits_data_out,

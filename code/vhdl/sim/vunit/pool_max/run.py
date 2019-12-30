@@ -19,7 +19,8 @@ def create_stimuli(root, pool_dim, total_bits, frac_bits):
                delimiter=", ", fmt="%3d")
 
     # use atleast_1d to fulfill 1d requirement of savetxt
-    a_out = np.atleast_1d(v_float2fixedint(np.max(a_rand), int_bits, frac_bits))
+    a_out = np.atleast_1d(v_float2fixedint(
+        np.max(a_rand), int_bits, frac_bits))
     np.savetxt(join(root, "src", "output%d.csv" % pool_dim), a_out,
                delimiter=", ", fmt="%3d")
 
@@ -39,9 +40,9 @@ def create_test_suite(ui):
         generics = {"C_KSIZE": pool_dim, "C_TOTAL_BITS": total_bits,
                     "C_FRAC_BITS": frac_bits}
         tb_pool_max.add_config(name="dim=%d" % (pool_dim),
-                                generics=generics,
-                                pre_config=create_stimuli(root, pool_dim,
-                                                          total_bits, frac_bits))
+                               generics=generics,
+                               pre_config=create_stimuli(root, pool_dim,
+                                                         total_bits, frac_bits))
         tb_pool_max.set_attribute(".unittest", None)
 
 
