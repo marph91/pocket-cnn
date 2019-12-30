@@ -31,6 +31,14 @@ cd picocnn/code/vhdl/sim/vunit/
 python3 run_all.py
 ```
 
+## Supported layers
+
+- Convolution (Kernel: 1x1, 2x2, 3x3, Stride: 1, 2, 3)
+- Maximum Pooling (Kernel: 2x2, 3x3, Stride: 1, 2, 3)
+- Average Pooling (Quantized factor: 1 / height * width to 16 bit)
+- Zero Padding (only same padding at each edge)
+- ReLU, Leaky ReLU (only with alpha = 0.125)
+
 # TODO
 
 - Add more documentation.
