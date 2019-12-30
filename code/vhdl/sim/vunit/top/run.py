@@ -14,11 +14,17 @@ import cnn_onnx.convert_weights
 import vhdl_top_template
 
 
+# somehow the onnx members aren't detected properly
+# pylint: disable=no-member
+
+
 def create_stimuli(root, model_name):
     model = onnx.load(join(root, model_name))
+    shape = [
+        s.dim_value for s in model.graph.input[0].type.tensor_type.shape.dim]
 
     # TODO: check 256
-    in_ = np.random.randint(128, size=(1, 6, 6))
+    in_ = np.random.randint(128, size=shape)
     out_ = cnn_onnx.inference.numpy_inference(model, in_)
 
     # TODO: array has to be transposed to yield the correct results

@@ -81,6 +81,7 @@ if __name__ == "__main__":
     # load model and calculate inference
     MODEL = onnx.load(MODEL_DEF.graph.name + ".onnx")
     onnx.checker.check_model(MODEL)
-    # TODO: get input shape of the model
+    shape = [
+        s.dim_value for s in MODEL.graph.input[0].type.tensor_type.shape.dim]
     OUTPUT = numpy_inference(
-        MODEL, np.random.randint(256, size=(1, 6, 6)).astype(np.float))
+        MODEL, np.random.randint(256, size=shape).astype(np.float))
