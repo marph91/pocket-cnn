@@ -48,6 +48,8 @@ def create_test_suite(ui):
         cnn_onnx.model_zoo.conv_3x1_1x1_max_2x2_odd_input,
         # cnn_onnx.model_zoo.conv_3x1_1x1_max_2x2_one_channel,  # TODO: fix
         # cnn_onnx.model_zoo.conv_3x1_1x1_max_2x1,  # TODO: fix
+        cnn_onnx.model_zoo.conv_3x1_1x1_max_3x1,
+        cnn_onnx.model_zoo.conv_3x1_1x1_max_3x3,
         cnn_onnx.model_zoo.conv_3x2_1x1_max_2x1,
         cnn_onnx.model_zoo.conv_2x1_1x1_max_3x2,
         cnn_onnx.model_zoo.conv_3x3_2x2_1x1,
