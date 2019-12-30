@@ -11,6 +11,7 @@ import cnn_onnx.inference
 import cnn_onnx.model_zoo
 import cnn_onnx.parse_param
 import cnn_onnx.convert_weights
+from tools_vunit import array2stream
 import vhdl_top_template
 
 
@@ -27,7 +28,7 @@ def create_stimuli(root, model_name):
     in_ = np.random.randint(128, size=shape)
     out_ = cnn_onnx.inference.numpy_inference(model, in_)
 
-    np.savetxt(join(root, "input.csv"), in_[0, :, :],
+    np.savetxt(join(root, "input.csv"), array2stream(in_),
                delimiter=", ", fmt="%3d")
     np.savetxt(join(root, "output.csv"), v_float2fixedint(out_, 4, 4),
                delimiter=", ", fmt="%3d")
@@ -46,7 +47,7 @@ def create_test_suite(ui):
         cnn_onnx.model_zoo.conv_3x1_1x1_max_2x2_leaky_relu,
         cnn_onnx.model_zoo.conv_3x1_1x1_max_2x2_nonsquare_input,
         cnn_onnx.model_zoo.conv_3x1_1x1_max_2x2_odd_input,
-        # cnn_onnx.model_zoo.conv_3x1_1x1_max_2x2_colored_input,  # TODO: fix
+        cnn_onnx.model_zoo.conv_3x1_1x1_max_2x2_colored_input,  # TODO: fix
         # cnn_onnx.model_zoo.conv_3x1_1x1_max_2x2_one_channel,  # TODO: fix
         # cnn_onnx.model_zoo.conv_3x1_1x1_max_2x1,  # TODO: fix
         cnn_onnx.model_zoo.conv_3x1_1x1_max_3x1,

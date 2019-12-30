@@ -114,6 +114,9 @@ architecture behavioral of tb_top is
 
   signal int_pixel_cnt    : integer;
 
+  constant C_CH_ARRAY     : t_int_array_1d := decode_integer_array(C_CH, 0);
+  constant C_IMG_DEPTH_IN : integer := C_CH_ARRAY(0);
+
   shared variable data_src : array_t;
   shared variable data_ref : array_t;
 
@@ -137,7 +140,7 @@ begin
     C_CONV_STRIDE => decode_integer_array(C_CONV_STRIDE, 1),
     C_POOL_KSIZE => decode_integer_array(C_POOL_KSIZE, 1),
     C_POOL_STRIDE => decode_integer_array(C_POOL_STRIDE, 1),
-    C_CH => decode_integer_array(C_CH, 0), 
+    C_CH => C_CH_ARRAY, 
     -- 0 - bitwidth data, 1 - bitwidth frac data in, 2 - bitwidth frac data out
     -- 3 - bitwidth weights, 4 - bitwidth frac weights
     C_BITWIDTH => decode_integer_array(C_BITWIDTH, 1),
@@ -174,8 +177,6 @@ begin
                   data_check_done and
                   rising_edge(sl_clk));
     end procedure;
-
-    variable v_channel_tmp : t_int_array_1d(0 to C_PE) := decode_integer_array(C_CH, 0);
   begin
     test_runner_setup(runner, runner_cfg);
     -- don't stop integration tests when one value is wrong
@@ -184,12 +185,12 @@ begin
     data_ref.load_csv(tb_path & C_FOLDER & "/output.csv");
 
     -- check whether the image dimensions between loaded data and parameter file fit
-    check_equal(data_src.width, C_IMG_WIDTH_IN, "input_width");
-    check_equal(data_src.height, C_IMG_HEIGHT_IN, "input_height");
+    check_equal(data_src.width, C_IMG_WIDTH_IN * C_IMG_HEIGHT_IN * C_IMG_DEPTH_IN, "input_width");
+    check_equal(data_src.height, 1, "input_height");
     check_equal(data_src.depth, 1, "input_depth");
     check_equal(data_ref.width, 1, "output_width");
     -- last channel is equivalent to the amount of classes
-    check_equal(data_ref.height, v_channel_tmp(C_PE), "output_width");
+    check_equal(data_ref.height, C_CH_ARRAY(C_PE), "output_width");
     check_equal(data_ref.depth, 1, "output_width");
     run_test;
     test_runner_cleanup(runner);
@@ -202,9 +203,15 @@ begin
   clk_gen(sl_clk, C_CLK_PERIOD);
 
   stimuli_process : process
+    variable i : integer := 0;
   begin
     wait until rising_edge(sl_clk) and sl_start_test = '1';
     stimuli_done <= false;
+
+    report ("Sending image of size " &
+            to_string(C_IMG_WIDTH_IN) & "x" &
+            to_string(C_IMG_HEIGHT_IN) & "x" &
+            to_string(C_IMG_DEPTH_IN));
 
     wait until rising_edge(sl_clk);
     sl_rst_n <= '1';
@@ -219,21 +226,17 @@ begin
     sl_start <= '0';
     int_pixel_cnt <= 0;
 
-    for y in 0 to data_src.height-1 loop
-      for x in 0 to data_src.width-1 loop -- width increments faster than height
-        for z in 0 to data_src.depth-1 loop
-          wait until rising_edge(sl_clk) and sl_rdy = '1' and sl_valid_in = '0';
-          sl_valid_in <= '1';
-          slv_data_in <= std_logic_vector(to_signed(data_src.get(x, y, z), C_DATA_TOTAL_BITS));
-          int_pixel_cnt <= int_pixel_cnt + 1;
-          wait until rising_edge(sl_clk);
-          sl_valid_in <= '0';
-          -- delay, because else too much data would be sent in
-          wait until rising_edge(sl_clk);
-          wait until rising_edge(sl_clk);
-          wait until rising_edge(sl_clk);
-        end loop;
+    while i < C_IMG_WIDTH_IN * C_IMG_HEIGHT_IN * C_IMG_DEPTH_IN loop
+      wait until rising_edge(sl_clk) and sl_rdy = '1';
+      sl_valid_in <= '1';
+      for w in 0 to C_IMG_DEPTH_IN-1 loop
+        slv_data_in <= std_logic_vector(to_unsigned(data_src.get(i), slv_data_in'length));
+        report_position(i, C_IMG_HEIGHT_IN, C_IMG_WIDTH_IN, C_IMG_DEPTH_IN,
+                        "input: ", ", val=" & to_string(data_src.get(i)));
+        wait until rising_edge(sl_clk);
+        i := i + 1;
       end loop;
+      sl_valid_in <= '0';
     end loop;
 
     stimuli_done <= true;
