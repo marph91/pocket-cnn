@@ -57,7 +57,6 @@ if __name__ == "__main__":
     PARSER.add_argument("val_line", type=int, help="values per line (1 or 4)")
     ARGS = PARSER.parse_args()
 
-    IMG = common.load_image(ARGS.input_image, ARGS.output_height,
-                            ARGS.output_width)
+    IMG = load_image(ARGS.input_image, ARGS.output_height, ARGS.output_width)
 
     img2bin(IMG, ARGS.output_destination, ARGS.val_line)
