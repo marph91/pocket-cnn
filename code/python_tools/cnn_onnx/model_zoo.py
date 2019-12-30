@@ -273,6 +273,20 @@ def conv_3x1_1x1_max_2x2_odd_input():
     return helper.make_model(graph_def)
 
 
+def conv_3x1_1x1_max_2x2_colored_input():
+    graph_gen = GraphGenerator((3, 6, 6), (4, 1, 1))
+    graph_gen.add(*make_scale("scale1", "data", (16, 0)))
+    graph_gen.add(*make_conv_quant("conv1", "scale1", "scale1", 3, 4, 3, 1, 0))
+    graph_gen.add(*make_relu("relu1", "conv1"))
+    graph_gen.add(*make_pool_max("max1", "relu1", 2, 2))
+    graph_gen.add(*make_conv_quant("conv2", "max1", "conv1", 4, 8, 1, 1, 0))
+    graph_gen.add(*make_relu("relu2", "conv2"))
+    graph_gen.add(*make_pool_ave("ave1", "relu2"))
+
+    graph_def = graph_gen.get_graph("cnn", "data_out", "ave1_out")
+    return helper.make_model(graph_def)
+
+
 def conv_3x1_1x1_max_2x2_one_channel():
     graph_gen = GraphGenerator((1, 6, 6), (4, 1, 1))
     graph_gen.add(*make_scale("scale1", "data", (16, 0)))
