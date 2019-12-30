@@ -95,7 +95,7 @@ begin
   );
   gen_array_1d: for i in 0 to C_KSIZE-1 generate
     gen_array_2d: for j in 0 to C_KSIZE-1 generate
-      a_weights_mm_in(i, j) <= slv_ram_weights(((i+j*C_KSIZE)+1)*C_DATA_TOTAL_BITS-1 downto ((i+j*C_KSIZE))*C_DATA_TOTAL_BITS);
+      a_weights_mm_in(i, j) <= slv_ram_weights(((i+j*C_KSIZE)+1)*C_WEIGHTS_TOTAL_BITS-1 downto (i+j*C_KSIZE)*C_WEIGHTS_TOTAL_BITS);
     end generate;
   end generate;
 

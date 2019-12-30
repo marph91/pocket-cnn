@@ -83,10 +83,10 @@ def parse_param(model):
             channel.append(shape[0])
 
             if pool_possible:
-                assert (len(pool_kernel) == len(conv_kernel) -
-                        1, "%d %d" % (len(pool_kernel), len(conv_kernel)))
-                assert (len(pool_stride) == len(conv_stride) -
-                        1, "%d %d" % (len(pool_stride), len(conv_stride)))
+                assert len(pool_kernel) == len(conv_kernel) - 1, \
+                    "%d %d" % (len(pool_kernel), len(conv_kernel))
+                assert len(pool_stride) == len(conv_stride) - 1, \
+                    "%d %d" % (len(pool_stride), len(conv_stride))
                 pool_kernel.append(0)
                 pool_stride.append(0)
             else:

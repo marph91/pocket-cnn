@@ -92,6 +92,7 @@ begin
   clk_gen(sl_clk, C_CLK_PERIOD);
 
   stimuli_process : process
+    variable i : integer := 0;
   begin
     wait until rising_edge(sl_clk) and sl_start = '1';
     stimuli_done <= false;
@@ -101,13 +102,16 @@ begin
             to_string(C_IMG_HEIGHT) & "x" &
             to_string(C_IMG_DEPTH));
 
-    for i in 0 to C_IMG_HEIGHT*C_IMG_WIDTH*C_IMG_DEPTH-1 loop
-      -- TODO: inner loop until C_IMG_DEPTH, how it is in the real cnn
-      report_position(i, C_IMG_HEIGHT, C_IMG_WIDTH, C_IMG_DEPTH,
-                      "input: ", ", val=" & to_string(data_src.get(i)));
-      sl_valid_in <= '1';
-      slv_data_in <= std_logic_vector(to_unsigned(data_src.get(i), slv_data_in'length));
+    while i < C_IMG_WIDTH * C_IMG_HEIGHT * C_IMG_DEPTH loop
       wait until rising_edge(sl_clk);
+      sl_valid_in <= '1';
+      for w in 0 to C_IMG_DEPTH-1 loop
+        slv_data_in <= std_logic_vector(to_unsigned(data_src.get(i), slv_data_in'length));
+        report_position(i, C_IMG_HEIGHT, C_IMG_WIDTH, C_IMG_DEPTH,
+                        "input: ", ", val=" & to_string(data_src.get(i)));
+        wait until rising_edge(sl_clk);
+        i := i + 1;
+      end loop;
       sl_valid_in <= '0';
     end loop;
 

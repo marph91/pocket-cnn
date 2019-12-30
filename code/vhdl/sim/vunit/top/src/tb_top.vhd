@@ -1,14 +1,14 @@
 library ieee;
   use ieee.std_logic_1164.all;
   use ieee.numeric_std.all;
+-- library std is predefined: https://www.hdlworks.com/hdl_corner/vhdl_ref/VHDLContents/LibraryClause.htm
+  use std.textio.all;
 
 library sim;
   use sim.common.all;
 library cnn_lib;
 library util;
   use util.cnn_pkg.all;
-
-use std.textio.all; -- TODO: needed?
 
 library vunit_lib;
   context vunit_lib.vunit_context;
