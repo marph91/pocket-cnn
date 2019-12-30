@@ -3,11 +3,11 @@
 """Convert images to a binary representation."""
 
 import argparse
+import os
 
 import numpy as np
 
 from fixfloat import float2fixed
-import tools_common as common
 
 
 def load_image(path, width, height, mode="L"):
@@ -20,7 +20,7 @@ def load_image(path, width, height, mode="L"):
 
 def img2bin(source, dest, val_line=1):
     """Write image to binary file."""
-    common.create_dir(dest)
+    os.makedirs(dest, exist_ok=True)
 
     img_fixed, img_float, img_bin = [], [], []
     tmp_fixed, tmp_float = [], []

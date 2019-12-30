@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 import argparse
 import math
+import os
 
 import onnx
 from onnx import numpy_helper
-import tools_common as common
 from weights2files import weights2files
 
 
@@ -17,7 +17,7 @@ def convert_weights(model, mem_init=""):
     save to file.
     """
     # create dir
-    common.create_dir(mem_init + "/")
+    os.makedirs(mem_init, exist_ok=True)
 
     # load the model
     net = onnx.load(model)
