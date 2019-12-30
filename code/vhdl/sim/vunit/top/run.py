@@ -30,7 +30,7 @@ def create_stimuli(root, model_name):
     # TODO: array has to be transposed to yield the correct results
     np.savetxt(join(root, "input.csv"), np.transpose(in_[0, :, :]),
                delimiter=", ", fmt="%3d")
-    np.savetxt(join(root, "output.csv"), v_float2fixedint(out_, 8, 4),
+    np.savetxt(join(root, "output.csv"), v_float2fixedint(out_, 4, 4),
                delimiter=", ", fmt="%3d")
 
 
