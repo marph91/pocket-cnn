@@ -36,7 +36,7 @@ def create_stimuli(root, stage, ksize, total_bits_data, frac_bits_data,
 
     sum_ = np.sum(a_rand * a_weights_rand)
 
-    additions = 0 if ksize == 1 else int(math.log(ksize - 1, 2) * 2)
+    additions = 0 if ksize == 1 else int(math.log2(ksize - 1) * 2)
     # use atleast_1d to fulfill 1d requirement of savetxt
     a_out = np.atleast_1d(float2fixedint(
         sum_, int_bits_data + int_bits_weight + additions + 1 + sign_bit,

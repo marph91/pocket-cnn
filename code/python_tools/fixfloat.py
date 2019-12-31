@@ -84,7 +84,7 @@ def float2pow2(number, min_exp, max_exp):
     if number == 0:
         exp_rounded = min_exp
     else:
-        exp = math.log(abs(number), 2)
+        exp = math.log2(abs(number))
         exp_rounded = int(max(min(py3round(exp), max_exp), min_exp))
 
     sign = "1" if number < 0 else "0"
