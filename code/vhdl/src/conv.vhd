@@ -41,7 +41,7 @@ architecture behavioral of conv is
   -- for BRAM
   constant C_BRAM_DATA_WIDTH : integer := C_WEIGHTS_TOTAL_BITS*(C_KSIZE*C_KSIZE);
   constant C_BRAM_SIZE : integer := C_CH_IN*C_CH_OUT;
-  signal usig_addr_cnt : unsigned(log2(C_BRAM_SIZE - 1) - 1 downto 0) := (others => '0');
+  signal usig_addr_cnt : unsigned(log2(C_BRAM_SIZE) - 1 downto 0) := (others => '0');
   constant C_BRAM_ADDR_WIDTH : integer := usig_addr_cnt'LENGTH;
   signal slv_ram_weights : std_logic_vector(C_BRAM_DATA_WIDTH-1 downto 0);
 

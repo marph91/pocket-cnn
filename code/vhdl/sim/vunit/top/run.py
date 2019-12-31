@@ -46,7 +46,8 @@ def create_test_suite(ui):
         cnn_onnx.model_zoo.conv_3x1_1x1_max_2x2_leaky_relu,
         cnn_onnx.model_zoo.conv_3x1_1x1_max_2x2_nonsquare_input,
         cnn_onnx.model_zoo.conv_3x1_1x1_max_2x2_odd_input,
-        cnn_onnx.model_zoo.conv_3x1_1x1_max_2x2_colored_input,  # TODO: fix
+        cnn_onnx.model_zoo.conv_3x1_1x1_max_2x2_colored_input,
+        cnn_onnx.model_zoo.conv_3x1_1x1_max_2x2_odd_channel,
         # cnn_onnx.model_zoo.conv_3x1_1x1_max_2x2_one_channel,  # TODO: fix
         # cnn_onnx.model_zoo.conv_3x1_1x1_max_2x1,  # TODO: fix
         cnn_onnx.model_zoo.conv_3x1_1x1_max_3x1,
