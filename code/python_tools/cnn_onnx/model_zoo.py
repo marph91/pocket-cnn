@@ -218,7 +218,8 @@ class GraphGenerator:
 
 def conv_3x1_1x1_max_2x2():
     """Baseline model"""
-    graph_gen = GraphGenerator((1, 6, 6), (4, 1, 1))
+    # TODO: is the output size relevant at all?
+    graph_gen = GraphGenerator((1, 6, 6), (8, 1, 1))
     graph_gen.add(*make_scale("scale1", "data", (16, 0)))
     graph_gen.add(*make_conv_quant("conv1", "scale1", "scale1", 1, 4, 3, 1, 0))
     graph_gen.add(*make_relu("relu1", "conv1"))
@@ -232,7 +233,7 @@ def conv_3x1_1x1_max_2x2():
 
 
 def conv_3x1_1x1_max_2x2_leaky_relu():
-    graph_gen = GraphGenerator((1, 6, 6), (4, 1, 1))
+    graph_gen = GraphGenerator((1, 6, 6), (8, 1, 1))
     graph_gen.add(*make_scale("scale1", "data", (16, 0)))
     graph_gen.add(*make_conv_quant("conv1", "scale1", "scale1", 1, 4, 3, 1, 0))
     graph_gen.add(*make_leaky_relu("lrelu1", "conv1"))
@@ -246,7 +247,7 @@ def conv_3x1_1x1_max_2x2_leaky_relu():
 
 
 def conv_3x1_1x1_max_2x2_nonsquare_input():
-    graph_gen = GraphGenerator((1, 5, 9), (4, 1, 1))
+    graph_gen = GraphGenerator((1, 5, 9), (8, 1, 1))
     graph_gen.add(*make_scale("scale1", "data", (16, 0)))
     graph_gen.add(*make_conv_quant("conv1", "scale1", "scale1", 1, 4, 3, 1, 0))
     graph_gen.add(*make_relu("relu1", "conv1"))
@@ -260,7 +261,7 @@ def conv_3x1_1x1_max_2x2_nonsquare_input():
 
 
 def conv_3x1_1x1_max_2x2_odd_input():
-    graph_gen = GraphGenerator((1, 7, 7), (4, 1, 1))
+    graph_gen = GraphGenerator((1, 7, 7), (8, 1, 1))
     graph_gen.add(*make_scale("scale1", "data", (16, 0)))
     graph_gen.add(*make_conv_quant("conv1", "scale1", "scale1", 1, 4, 3, 1, 0))
     graph_gen.add(*make_relu("relu1", "conv1"))
@@ -274,7 +275,7 @@ def conv_3x1_1x1_max_2x2_odd_input():
 
 
 def conv_3x1_1x1_max_2x2_colored_input():
-    graph_gen = GraphGenerator((3, 6, 6), (4, 1, 1))
+    graph_gen = GraphGenerator((3, 6, 6), (8, 1, 1))
     graph_gen.add(*make_scale("scale1", "data", (16, 0)))
     graph_gen.add(*make_conv_quant("conv1", "scale1", "scale1", 3, 4, 3, 1, 0))
     graph_gen.add(*make_relu("relu1", "conv1"))
@@ -290,7 +291,7 @@ def conv_3x1_1x1_max_2x2_colored_input():
 def conv_3x1_1x1_max_2x2_odd_channel():
     """The channel depth is specified on purpose. There was a bug with channel
     depth = 2^x+1."""
-    graph_gen = GraphGenerator((1, 6, 6), (4, 1, 1))
+    graph_gen = GraphGenerator((1, 6, 6), (9, 1, 1))
     graph_gen.add(*make_scale("scale1", "data", (16, 0)))
     graph_gen.add(*make_conv_quant("conv1", "scale1", "scale1", 1, 5, 3, 1, 0))
     graph_gen.add(*make_relu("relu1", "conv1"))
@@ -304,7 +305,7 @@ def conv_3x1_1x1_max_2x2_odd_channel():
 
 
 def conv_3x1_1x1_max_2x2_one_channel():
-    graph_gen = GraphGenerator((1, 6, 6), (4, 1, 1))
+    graph_gen = GraphGenerator((1, 6, 6), (1, 1, 1))
     graph_gen.add(*make_scale("scale1", "data", (16, 0)))
     graph_gen.add(*make_conv_quant("conv1", "scale1", "scale1", 1, 1, 3, 1, 0))
     graph_gen.add(*make_relu("relu1", "conv1"))
@@ -319,7 +320,7 @@ def conv_3x1_1x1_max_2x2_one_channel():
 
 def conv_3x1_1x1_max_2x1():
     """6x6 -> 4x4 -> 3x3"""
-    graph_gen = GraphGenerator((1, 6, 6), (4, 1, 1))
+    graph_gen = GraphGenerator((1, 6, 6), (8, 1, 1))
     graph_gen.add(*make_scale("scale1", "data", (16, 0)))
     graph_gen.add(*make_conv_quant("conv1", "scale1", "scale1", 1, 4, 3, 1, 0))
     graph_gen.add(*make_relu("relu1", "conv1"))
@@ -334,7 +335,7 @@ def conv_3x1_1x1_max_2x1():
 
 def conv_3x2_1x1_max_2x1():
     """9x9 -> 4x4 -> 3x3"""
-    graph_gen = GraphGenerator((1, 9, 9), (4, 1, 1))
+    graph_gen = GraphGenerator((1, 9, 9), (8, 1, 1))
     graph_gen.add(*make_scale("scale1", "data", (16, 0)))
     graph_gen.add(*make_conv_quant("conv1", "scale1", "scale1", 1, 4, 3, 2, 0))
     graph_gen.add(*make_relu("relu1", "conv1"))
@@ -349,7 +350,7 @@ def conv_3x2_1x1_max_2x1():
 
 def conv_2x1_1x1_max_3x2():
     """8x8 -> 7x7 -> 3x3"""
-    graph_gen = GraphGenerator((1, 8, 8), (4, 1, 1))
+    graph_gen = GraphGenerator((1, 8, 8), (8, 1, 1))
     graph_gen.add(*make_scale("scale1", "data", (16, 0)))
     graph_gen.add(*make_conv_quant("conv1", "scale1", "scale1", 1, 4, 2, 1, 0))
     graph_gen.add(*make_relu("relu1", "conv1"))
@@ -364,7 +365,7 @@ def conv_2x1_1x1_max_3x2():
 
 def conv_3x3_2x2_1x1():
     """12x12 -> 4x4 -> 2x2"""
-    graph_gen = GraphGenerator((1, 8, 8), (4, 1, 1))
+    graph_gen = GraphGenerator((1, 8, 8), (8, 1, 1))
     graph_gen.add(*make_scale("scale1", "data", (16, 0)))
     graph_gen.add(*make_conv_quant("conv1", "scale1", "scale1", 1, 4, 3, 3, 0))
     graph_gen.add(*make_relu("relu1", "conv1"))
@@ -380,7 +381,7 @@ def conv_3x3_2x2_1x1():
 
 def conv_3x1_1x1_max_3x1():
     """6x6 -> 4x4 -> 2x2"""
-    graph_gen = GraphGenerator((1, 6, 6), (4, 1, 1))
+    graph_gen = GraphGenerator((1, 6, 6), (8, 1, 1))
     graph_gen.add(*make_scale("scale1", "data", (16, 0)))
     graph_gen.add(*make_conv_quant("conv1", "scale1", "scale1", 1, 4, 3, 1, 0))
     graph_gen.add(*make_relu("relu1", "conv1"))
@@ -395,7 +396,7 @@ def conv_3x1_1x1_max_3x1():
 
 def conv_3x1_1x1_max_3x3():
     """8x8 -> 6x6 -> 2x2"""
-    graph_gen = GraphGenerator((1, 8, 8), (4, 1, 1))
+    graph_gen = GraphGenerator((1, 8, 8), (8, 1, 1))
     graph_gen.add(*make_scale("scale1", "data", (16, 0)))
     graph_gen.add(*make_conv_quant("conv1", "scale1", "scale1", 1, 4, 3, 1, 0))
     graph_gen.add(*make_relu("relu1", "conv1"))
@@ -409,7 +410,7 @@ def conv_3x1_1x1_max_3x3():
 
 
 def conv_3x1_1x1_max_2x2_padding():
-    graph_gen = GraphGenerator((1, 4, 4), (4, 1, 1))
+    graph_gen = GraphGenerator((1, 4, 4), (8, 1, 1))
     graph_gen.add(*make_scale("scale1", "data", (16, 0)))
     graph_gen.add(*make_conv_quant("conv1", "scale1", "scale1", 1, 4, 3, 1, 1))
     graph_gen.add(*make_relu("relu1", "conv1"))
