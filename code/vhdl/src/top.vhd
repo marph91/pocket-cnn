@@ -94,21 +94,8 @@ architecture behavioral of top is
   signal sl_output_finish : std_logic := '0';
 
 begin
-  -----------------------------------
-  -- Stage 0 (preprocessing input)
-  -----------------------------------
-  i_prepr : entity cnn_lib.prepr
-  generic map (
-    C_TOTAL_BITS => C_BITWIDTH(1, 0),
-    C_FRAC_BITS  => C_BITWIDTH(1, 1),
-    C_SHIFT      => log2(C_SCALE)
-  )
-  port map (
-    isl_valid => isl_valid,
-    islv_data => islv_data,
-    oslv_data => a_data_out(0),
-    osl_valid => sl_output_valid(0)
-  );
+  a_data_out(0) <= islv_data;
+  sl_output_valid(0) <= isl_valid;
 
   slv_rdy(C_PE+1) <= isl_get;
   gen_stages : for i in 1 to C_PE generate
