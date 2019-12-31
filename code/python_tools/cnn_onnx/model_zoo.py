@@ -440,3 +440,23 @@ def conv_4x3x1_1x1():
 
     graph_def = graph_gen.get_graph("cnn", "data_out", "ave1_out")
     return helper.make_model(graph_def)
+
+
+def conv_2x_3x1_1x1_max_2x2():
+    """14x14 -> 12x12 -> 6x6 -> 4x4 -> 2x2"""
+    graph_gen = GraphGenerator((1, 14, 14), (8, 1, 1))
+    graph_gen.add(*make_scale("scale1", "data", (16, 0)))
+    graph_gen.add(*make_conv_quant("conv1", "scale1", "scale1", 1, 8, 3, 1, 0))
+    graph_gen.add(*make_relu("relu1", "conv1"))
+    graph_gen.add(*make_pool_max("max1", "relu1", 2, 2))
+    graph_gen.add(*make_conv_quant("conv2", "max1", "conv1", 8, 16, 3, 1, 0))
+    graph_gen.add(*make_relu("relu2", "conv2"))
+    graph_gen.add(*make_pool_max("max2", "relu2", 2, 2))
+    graph_gen.add(*make_conv_quant("conv3", "max2", "conv2", 16, 32, 1, 1, 0))
+    graph_gen.add(*make_relu("relu3", "conv3"))
+    graph_gen.add(*make_conv_quant("conv4", "relu3", "conv3", 32, 8, 1, 1, 0))
+    graph_gen.add(*make_relu("relu4", "conv4"))
+    graph_gen.add(*make_pool_ave("ave1", "relu4"))
+
+    graph_def = graph_gen.get_graph("cnn", "data_out", "ave1_out")
+    return helper.make_model(graph_def)
