@@ -93,6 +93,15 @@ architecture behavioral of top is
   signal int_data_out_cnt : integer range 0 to C_CH(C_CH'RIGHT) := 0;
   signal sl_output_finish : std_logic := '0';
 
+  function f_is_first_stage(stage : in integer range 1 to 100) return integer is
+  begin
+    if stage = 1 then
+      return 1;
+    else
+      return 0;
+    end if;
+  end f_is_first_stage;
+
 begin
   a_data_out(0) <= islv_data;
   sl_output_valid(0) <= isl_valid;
@@ -104,6 +113,8 @@ begin
     -----------------------------------
     i_stage : entity cnn_lib.pe
     generic map (
+      C_FIRST_STAGE        => f_is_first_stage(i),
+
       C_DATA_TOTAL_BITS    => C_BITWIDTH(i, 0),
       C_DATA_FRAC_BITS_IN  => C_BITWIDTH(i, 1),
       C_DATA_FRAC_BITS_OUT => C_BITWIDTH(i, 2),

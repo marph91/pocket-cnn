@@ -21,6 +21,7 @@ entity tb_mm is
     runner_cfg            : string;
     tb_path               : string;
 
+    C_FIRST_STAGE         : integer;
     C_DATA_TOTAL_BITS     : integer;
     C_DATA_FRAC_BITS_IN   : integer;
     C_WEIGHTS_TOTAL_BITS  : integer;
@@ -36,7 +37,7 @@ architecture tb of tb_mm is
   signal a_data_in,
          a_weights_in : t_slv_array_2d(0 to C_KSIZE-1, 0 to C_KSIZE-1) := (others => (others => (others => '0')));
   signal sl_valid_out : std_logic := '0';
-  signal slv_data_out : std_logic_vector(C_DATA_TOTAL_BITS+C_WEIGHTS_TOTAL_BITS+log2(C_KSIZE-1)*2 downto 0) := (others => '0');
+  signal slv_data_out : std_logic_vector(C_DATA_TOTAL_BITS+C_WEIGHTS_TOTAL_BITS+log2(C_KSIZE-1)*2+C_FIRST_STAGE downto 0) := (others => '0');
 
   signal sl_start : std_logic := '0';
 
@@ -48,6 +49,8 @@ architecture tb of tb_mm is
 begin
   dut : entity cnn_lib.mm
   generic map (
+    C_FIRST_STAGE         => C_FIRST_STAGE,
+
     C_DATA_TOTAL_BITS     => C_DATA_TOTAL_BITS,
     C_DATA_FRAC_BITS_IN   => C_DATA_FRAC_BITS_IN,
     C_WEIGHTS_TOTAL_BITS  => C_WEIGHTS_TOTAL_BITS,
@@ -82,14 +85,21 @@ begin
 
   begin
     test_runner_setup(runner, runner_cfg);
-    report ("bitwidths: " &
+    report ("first stage: " & to_string(C_FIRST_STAGE) & " " &
+            "bitwidths: " &
             to_string(C_DATA_TOTAL_BITS) & " " &
             to_string(C_DATA_FRAC_BITS_IN) & " " &
             to_string(C_WEIGHTS_TOTAL_BITS) & " " &
             to_string(C_WEIGHTS_FRAC_BITS));
-    data_src.load_csv(tb_path & "input_data" & to_string(C_KSIZE) & ".csv");
-    weights_src.load_csv(tb_path & "input_weights" & to_string(C_KSIZE) & ".csv");
-    data_ref.load_csv(tb_path & "output" & to_string(C_KSIZE) & ".csv");
+    if C_FIRST_STAGE = 1 then
+      data_src.load_csv(tb_path & "input_data_stage1.csv");
+      weights_src.load_csv(tb_path & "input_weights_stage1.csv");
+      data_ref.load_csv(tb_path & "output_stage1.csv");
+    else
+      data_src.load_csv(tb_path & "input_data" & to_string(C_KSIZE) & ".csv");
+      weights_src.load_csv(tb_path & "input_weights" & to_string(C_KSIZE) & ".csv");
+      data_ref.load_csv(tb_path & "output" & to_string(C_KSIZE) & ".csv");
+    end if;
 
     check_equal(data_src.width, C_KSIZE, "input_width");
     check_equal(data_src.height, C_KSIZE, "input_height");
@@ -140,7 +150,7 @@ begin
     report (to_string(slv_data_out) & " " & to_string(data_ref.get(0, 0)));
     report to_string(C_DATA_TOTAL_BITS+C_WEIGHTS_TOTAL_BITS+log2(C_KSIZE-1)*2);
     check_equal(slv_data_out, std_logic_vector(to_unsigned(data_ref.get(0, 0),
-      C_DATA_TOTAL_BITS+C_WEIGHTS_TOTAL_BITS+log2(C_KSIZE-1)*2+1)));
+      C_DATA_TOTAL_BITS+C_WEIGHTS_TOTAL_BITS+log2(C_KSIZE-1)*2+1+C_FIRST_STAGE)));
     
     report ("Done checking");
     data_check_done <= true;

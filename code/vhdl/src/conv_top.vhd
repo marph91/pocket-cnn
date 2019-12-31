@@ -5,6 +5,8 @@ library util;
 
 entity conv_top is
   generic (
+    C_FIRST_STAGE         : integer range 0 to 1;
+
     C_DATA_TOTAL_BITS     : integer range 1 to 16 := 8;
     C_DATA_FRAC_BITS_IN   : integer range 0 to 16 := 4;
     C_DATA_FRAC_BITS_OUT  : integer range 0 to 16 := 4;
@@ -66,6 +68,7 @@ begin
 
   i_conv : entity work.conv
   generic map (
+    C_FIRST_STAGE         => C_FIRST_STAGE,
     C_DATA_TOTAL_BITS     => C_DATA_TOTAL_BITS,
     C_DATA_FRAC_BITS_IN   => C_DATA_FRAC_BITS_IN,
     C_DATA_FRAC_BITS_OUT  => C_DATA_FRAC_BITS_OUT,

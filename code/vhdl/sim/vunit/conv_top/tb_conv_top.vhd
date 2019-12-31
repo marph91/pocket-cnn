@@ -21,6 +21,8 @@ entity tb_conv_top is
     runner_cfg            : string;
     tb_path               : string;
 
+    C_FIRST_STAGE         : integer;
+
     C_DATA_TOTAL_BITS     : integer;
     C_DATA_FRAC_BITS_IN   : integer;
     C_DATA_FRAC_BITS_OUT  : integer;
@@ -58,6 +60,8 @@ architecture tb of tb_conv_top is
 begin
   dut : entity cnn_lib.conv_top
   generic map(
+    C_FIRST_STAGE         => C_FIRST_STAGE,
+
     C_DATA_TOTAL_BITS     => C_DATA_TOTAL_BITS,
     C_DATA_FRAC_BITS_IN   => C_DATA_FRAC_BITS_IN,
     C_DATA_FRAC_BITS_OUT  => C_DATA_FRAC_BITS_OUT,
@@ -102,7 +106,8 @@ begin
 
   begin
     test_runner_setup(runner, runner_cfg);
-    report ("bitwidths: " &
+    report ("first stage: " & to_string(C_FIRST_STAGE) & " " &
+            "bitwidths: " &
             to_string(C_DATA_TOTAL_BITS) & " " &
             to_string(C_DATA_FRAC_BITS_IN) & " " &
             to_string(C_WEIGHTS_TOTAL_BITS) & " " &

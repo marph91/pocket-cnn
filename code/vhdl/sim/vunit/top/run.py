@@ -24,8 +24,7 @@ def create_stimuli(root, model_name):
     shape = [
         s.dim_value for s in model.graph.input[0].type.tensor_type.shape.dim]
 
-    # TODO: check 256
-    in_ = np.random.randint(128, size=shape)
+    in_ = np.random.randint(256, size=shape)
     out_ = cnn_onnx.inference.numpy_inference(model, in_)
 
     np.savetxt(join(root, "input.csv"), array2stream(in_),

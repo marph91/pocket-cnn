@@ -91,7 +91,9 @@ def float2pow2(number, min_exp, max_exp):
     return sign + bin(abs(exp_rounded)-1)[2:].zfill(3)
 
 
-def random_fixed_array(size, int_bits, frac_bits):
+def random_fixed_array(size, int_bits, frac_bits, signed=True):
     arr = np.random.randint(2 ** (int_bits + frac_bits),
                             size=size, dtype=np.int)
-    return v_fixedint2ffloat(arr, int_bits, frac_bits)
+    # manually extend the bitwidth to implicitly create unsigned values
+    int_bits_sign = 0 if signed else 1
+    return v_fixedint2ffloat(arr, int_bits + int_bits_sign, frac_bits)

@@ -7,6 +7,8 @@ library util;
 
 entity pe is
   generic (
+    C_FIRST_STAGE         : integer range 0 to 1; 
+
     C_DATA_TOTAL_BITS     : integer range 1 to 16 := 8;
     C_DATA_FRAC_BITS_IN   : integer range 0 to 16 := 4;
     C_DATA_FRAC_BITS_OUT  : integer range 0 to 16 := 4;
@@ -190,6 +192,8 @@ begin
   -- convolution
   i_conv_top : entity work.conv_top
   generic map(
+    C_FIRST_STAGE         => C_FIRST_STAGE,
+
     C_DATA_TOTAL_BITS     => C_DATA_TOTAL_BITS,
     C_DATA_FRAC_BITS_IN   => C_DATA_FRAC_BITS_IN,
     C_DATA_FRAC_BITS_OUT  => C_DATA_FRAC_BITS_OUT,

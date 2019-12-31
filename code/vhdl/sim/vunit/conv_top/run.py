@@ -81,7 +81,13 @@ def create_test_suite(ui):
                             "W_conv_%d_%d.txt" % (ksize, stride))
         bias_file = join(os.getcwd(), root, "gen",
                          "B_conv_%d_%d.txt" % (ksize, stride))
-        generics = {"C_DATA_TOTAL_BITS": total_bits_data,
+        
+        # TODO: add test for first stage
+        #       functionality is already ensured by toplevel tests and
+        #       partially by mm test
+        stage = 2
+        generics = {"C_FIRST_STAGE": int(stage == 1),
+                    "C_DATA_TOTAL_BITS": total_bits_data,
                     "C_DATA_FRAC_BITS_IN": frac_bits_data_in,
                     "C_DATA_FRAC_BITS_OUT": frac_bits_data_out,
                     "C_WEIGHTS_TOTAL_BITS": total_bits_weight,
@@ -94,7 +100,8 @@ def create_test_suite(ui):
                     "C_STRIDE": stride,
                     "STR_WEIGHTS_INIT": weights_file,
                     "STR_BIAS_INIT": bias_file}
-        tb_conv_top.add_config(name="dim=%d_stride=%d" % (ksize, stride),
+        tb_conv_top.add_config(name="stage=%d_dim=%d_stride=%d" % (
+                                   stage, ksize, stride),
                                generics=generics,
                                pre_config=create_stimuli(root, ksize, stride,
                                                          total_bits_data,

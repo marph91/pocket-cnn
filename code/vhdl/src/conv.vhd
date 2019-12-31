@@ -9,6 +9,8 @@ library util;
 
 entity conv is
   generic (
+    C_FIRST_STAGE         : integer range 0 to 1;
+
     C_DATA_TOTAL_BITS     : integer range 1 to 16 := 8;
     C_DATA_FRAC_BITS_IN   : integer range 0 to 16 := 4;
     C_DATA_FRAC_BITS_OUT  : integer range 0 to 16 := 4;
@@ -49,7 +51,7 @@ architecture behavioral of conv is
 
   -- +log2(C_CH_IN)-1 because all C_CH_IN are summed up -> broaden data width to avoid overflow
   -- new bitwidth = log2(C_CH_IN*(2^old bitwidth-1)) = log2(C_CH_IN) + old bitwidth -> new bw = lb(64) + 8 = 14
-  constant C_SUM_TOTAL_BITS : integer range 1 to 32 := C_DATA_TOTAL_BITS+C_WEIGHTS_TOTAL_BITS+1+log2(C_KSIZE-1)*2+log2(C_CH_IN);
+  constant C_SUM_TOTAL_BITS : integer range 1 to 32 := C_DATA_TOTAL_BITS+C_WEIGHTS_TOTAL_BITS+1+log2(C_KSIZE-1)*2+log2(C_CH_IN)+C_FIRST_STAGE;
   constant C_SUM_FRAC_BITS : integer range 0 to 32 := C_DATA_FRAC_BITS_IN+C_WEIGHTS_FRAC_BITS;
   constant C_SUM_INT_BITS : integer range 1 to 32 := C_SUM_TOTAL_BITS-C_SUM_FRAC_BITS;
   signal sfix_sum : sfixed(C_SUM_INT_BITS-1 downto -C_SUM_FRAC_BITS) := (others => '0');
@@ -118,10 +120,13 @@ begin
 
   i_mm : entity work.mm
   generic map (
+    C_FIRST_STAGE         => C_FIRST_STAGE,
+
     C_DATA_TOTAL_BITS     => C_DATA_TOTAL_BITS,
     C_DATA_FRAC_BITS_IN   => C_DATA_FRAC_BITS_IN,
     C_WEIGHTS_TOTAL_BITS  => C_WEIGHTS_TOTAL_BITS,
     C_WEIGHTS_FRAC_BITS   => C_WEIGHTS_FRAC_BITS,
+
     C_KSIZE               => C_KSIZE
   )
   port map (
