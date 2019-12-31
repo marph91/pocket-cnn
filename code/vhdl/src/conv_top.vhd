@@ -66,14 +66,19 @@ begin
     osl_rdy   => osl_rdy
   );
 
+  -- TODO: collect all data, i. e. move bram here
+  --       wb and bram data should be available at the same cycle
+
   i_conv : entity work.conv
   generic map (
     C_FIRST_STAGE         => C_FIRST_STAGE,
+
     C_DATA_TOTAL_BITS     => C_DATA_TOTAL_BITS,
     C_DATA_FRAC_BITS_IN   => C_DATA_FRAC_BITS_IN,
     C_DATA_FRAC_BITS_OUT  => C_DATA_FRAC_BITS_OUT,
     C_WEIGHTS_TOTAL_BITS  => C_WEIGHTS_TOTAL_BITS,
     C_WEIGHTS_FRAC_BITS   => C_WEIGHTS_FRAC_BITS,
+
     C_KSIZE               => C_KSIZE,
     C_CH_IN               => C_CH_IN,
     C_CH_OUT              => C_CH_OUT,
