@@ -28,3 +28,4 @@ code/vhdl/sim/vunit/top/src/*/weights/**
 
 # other files
 notes.txt
+vivado/**
