@@ -31,7 +31,7 @@ architecture behavioral of bram is
   type t_ram is array(0 to C_SIZE - 1) of std_logic_vector(C_DATA_WIDTH - 1 downto 0);
 
   -- load content from file to bram
-  impure function load_content (filename : in string) return t_ram is
+  impure function load_content(filename : in string) return t_ram is
     file ram_file : text open read_mode is filename;
     variable ram_file_line : line;
     variable a_ram : t_ram;
@@ -46,7 +46,9 @@ architecture behavioral of bram is
   end function;
 
   -- check whether the filename is valid
-  impure function init_ram (filename : in string) return t_ram is
+  -- TODO: Why the two functions have to be separated?
+  --       Merging them results in a failure without error message.
+  impure function init_ram(filename : in string) return t_ram is
     variable a_ram : t_ram;
   begin
     if filename'LENGTH > 0 then
