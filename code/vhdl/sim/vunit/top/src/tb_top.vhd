@@ -34,8 +34,8 @@ entity tb_top is
     C_CH              : string;
     C_BITWIDTH        : string;
     C_STR_LENGTH      : integer;
-    STR_WEIGHTS_INIT  : string;
-    STR_BIAS_INIT     : string
+    C_WEIGHTS_INIT    : string;
+    C_BIAS_INIT       : string
   );
 end tb_top;
 
@@ -145,8 +145,8 @@ begin
     -- 3 - bitwidth weights, 4 - bitwidth frac weights
     C_BITWIDTH => decode_integer_array(C_BITWIDTH, 1),
     C_STR_LENGTH => C_STR_LENGTH,
-    STR_WEIGHTS_INIT => decode_string_array(STR_WEIGHTS_INIT),
-    STR_BIAS_INIT => decode_string_array(STR_BIAS_INIT)
+    C_WEIGHTS_INIT => decode_string_array(C_WEIGHTS_INIT),
+    C_BIAS_INIT => decode_string_array(C_BIAS_INIT)
   )
   port map (
     isl_clk     => sl_clk,

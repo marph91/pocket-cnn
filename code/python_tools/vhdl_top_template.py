@@ -61,9 +61,9 @@ begin\n\
 " + bws + "\
       " + str(pe) + " => (" + ", ".join(map(str, bitwidth[pe-1])) + ")),\n\
     C_STR_LENGTH => " + str(param["len_weights"]) + ",\n\
-    STR_WEIGHTS_INIT => (\n\
+    C_WEIGHTS_INIT => (\n\
 " + weight_dirs + "      \"" + param["weight_dir"] + "/W_" + conv_names[pe-1] + ".txt\"),\n\
-    STR_BIAS_INIT => (\n\
+    C_BIAS_INIT => (\n\
 " + bias_dirs + "      \"" + param["weight_dir"] + "/B_" + conv_names[pe-1] + ".txt\")\n\
   )\n\
   port map (\n\

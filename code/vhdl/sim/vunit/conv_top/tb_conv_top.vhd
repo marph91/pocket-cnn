@@ -36,8 +36,8 @@ entity tb_conv_top is
 
     C_KSIZE               : integer;
     C_STRIDE              : integer;
-    STR_WEIGHTS_INIT      : string;
-    STR_BIAS_INIT         : string
+    C_WEIGHTS_INIT        : string;
+    C_BIAS_INIT           : string
   );
 end entity;
 
@@ -74,8 +74,8 @@ begin
     C_CH_OUT          => C_CH_OUT,
     C_IMG_WIDTH       => C_IMG_WIDTH,
     C_IMG_HEIGHT      => C_IMG_HEIGHT,
-    STR_WEIGHTS_INIT  => STR_WEIGHTS_INIT,
-    STR_BIAS_INIT     => STR_BIAS_INIT
+    C_WEIGHTS_INIT  => C_WEIGHTS_INIT,
+    C_BIAS_INIT     => C_BIAS_INIT
   )
   port map(
     isl_clk   => sl_clk,

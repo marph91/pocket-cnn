@@ -113,8 +113,8 @@ def create_test_suite(ui):
             "C_CH": ", ".join(map(str, params["channel"])),
             "C_BITWIDTH": bitwidth,
             "C_STR_LENGTH": params["len_weights"],
-            "STR_WEIGHTS_INIT": ", ".join(weights),
-            "STR_BIAS_INIT": ", ".join(bias),
+            "C_WEIGHTS_INIT": ", ".join(weights),
+            "C_BIAS_INIT": ", ".join(bias),
         }
         tb_top.add_config(name=test_case_name, generics=generics,
                           pre_config=create_stimuli(

@@ -27,8 +27,8 @@ entity pe is
     C_PAD             : integer range 0 to 1 := 0;
     C_RELU            : std_logic := '0';
     C_LEAKY           : std_logic := '0';
-    STR_WEIGHTS_INIT  : string := "";
-    STR_BIAS_INIT     : string := ""
+    C_WEIGHTS_INIT    : string := "";
+    C_BIAS_INIT       : string := ""
   );
   port (
     isl_clk   : in std_logic;
@@ -206,8 +206,8 @@ begin
     C_CH_OUT          => C_CH_OUT,
     C_IMG_WIDTH       => C_IMG_WIDTH+2*C_PAD,
     C_IMG_HEIGHT      => C_IMG_HEIGHT+2*C_PAD,
-    STR_WEIGHTS_INIT  => STR_WEIGHTS_INIT,
-    STR_BIAS_INIT     => STR_BIAS_INIT
+    C_WEIGHTS_INIT    => C_WEIGHTS_INIT,
+    C_BIAS_INIT       => C_BIAS_INIT
   )
   port map(
     isl_clk   => isl_clk,

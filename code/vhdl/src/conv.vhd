@@ -21,7 +21,7 @@ entity conv is
     C_CH_OUT          : integer range 1 to 512 := 8;
 
     C_KSIZE           : integer range 1 to 3 := 3;
-    STR_BIAS_INIT     : string := ""
+    C_BIAS_INIT       : string := ""
   );
   port (
     isl_clk       : in std_logic;
@@ -74,7 +74,7 @@ begin
     C_ADDR_WIDTH  => C_BRAM_ADDR_WIDTH_B,
     C_SIZE        => C_CH_OUT,
     C_OUTPUT_REG  => 0, -- TODO: check timing
-    STR_INIT      => STR_BIAS_INIT
+    C_INIT        => C_BIAS_INIT
   )
   port map (
     isl_clk   => isl_clk,
