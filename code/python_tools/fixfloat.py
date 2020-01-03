@@ -1,6 +1,10 @@
+"""Functions for converting between fixed and floating point formats."""
+
 import math
 import numpy as np
 
+
+# TODO: add tests
 
 def py3round(val):
     """get rounding behaviour of python3 in python2 (round to nearest even)"""
