@@ -31,7 +31,7 @@ def img2bin(source, dest, val_line=1):
         item_fixed = str(float2fixed(item, 9, 0))[1:]
         tmp_fixed.insert(0, item_fixed)
         tmp_float.insert(0, "%s %d " % (item_fixed, item))
-        img_bin.append(int(item_fixed, 2).to_bytes(1, byteorder='big'))
+        img_bin.append(int(item_fixed, 2).to_bytes(1, byteorder="big"))
 
         if (index+1) % val_line == 0:
             img_fixed.extend(tmp_fixed + ["\n"])
