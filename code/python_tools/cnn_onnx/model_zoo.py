@@ -1,7 +1,6 @@
 import math
 from typing import Any, List, Tuple
 
-import numpy as np
 from onnx import helper
 from onnx import TensorProto
 

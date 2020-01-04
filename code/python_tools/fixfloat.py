@@ -43,7 +43,8 @@ def v_float2fixedint(array, int_bits: int, frac_bits: int):
 
 
 def fixedint2ffloat(number: float, int_bits: int, frac_bits: int) -> float:
-    return fixed2float(bin(int(number))[2:].zfill(int_bits + frac_bits), int_bits, frac_bits)
+    return fixed2float(bin(int(number))[2:].zfill(int_bits + frac_bits),
+                       int_bits, frac_bits)
 
 
 def v_fixedint2ffloat(array, int_bits: int, frac_bits: int):
@@ -85,7 +86,7 @@ def float2pow2(number: float, min_exp: int, max_exp: int) -> str:
 
 
 def random_fixed_array(size: tuple, int_bits: int, frac_bits: int,
-                       signed: bool=True):
+                       signed: bool = True):
     arr = np.random.randint(2 ** (int_bits + frac_bits),
                             size=size, dtype=np.int)
     # manually extend the bitwidth to implicitly create unsigned values
