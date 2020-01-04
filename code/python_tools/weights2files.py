@@ -1,9 +1,11 @@
+import os
+
 import numpy as np
 
 from fixfloat import float2fixed
 
 
-def weights2files(kernel, bias, data_bits, frac_bits, layer_name, mem_init):
+def weights2files(kernel, bias, data_bits, frac_bits, layer_name, output_dir):
     """Write quantized data of weights and bias to files.
     input:
         kernel numpy array
@@ -11,10 +13,12 @@ def weights2files(kernel, bias, data_bits, frac_bits, layer_name, mem_init):
         data_bits int
         frac_bits int
         layer string
-        mem_init string
+        output_dir string
     output:
         None (written files)
     """
+    os.makedirs(output_dir, exist_ok = True)
+
     line_w, line_b, debug_w, debug_b = [], [], [], []
     shape = kernel.shape
     int_bits = data_bits - frac_bits
@@ -38,11 +42,11 @@ def weights2files(kernel, bias, data_bits, frac_bits, layer_name, mem_init):
             debug_w.append("\n")
             ch_in += 1
 
-    with open(mem_init + "/W_" + layer_name + ".txt", "w") as outfile:
+    with open(output_dir + "/W_" + layer_name + ".txt", "w") as outfile:
         outfile.write("".join(line_w))
-    with open(mem_init + "/W_" + layer_name + "_debug.txt", "w") as outfile:
+    with open(output_dir + "/W_" + layer_name + "_debug.txt", "w") as outfile:
         outfile.write("".join(debug_w))
-    with open(mem_init + "/B_" + layer_name + ".txt", "w") as outfile:
+    with open(output_dir + "/B_" + layer_name + ".txt", "w") as outfile:
         outfile.write("".join(line_b))
-    with open(mem_init + "/B_" + layer_name + "_debug.txt", "w") as outfile:
+    with open(output_dir + "/B_" + layer_name + "_debug.txt", "w") as outfile:
         outfile.write("".join(debug_b))
