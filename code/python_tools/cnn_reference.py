@@ -17,8 +17,8 @@ def avg_pool(array_in):
 
 def max_pool(array_in, ksize, stride):
     channel, height, width = array_in.shape
-    out = np.zeros((channel, int((height - (ksize - stride)) / stride),
-                    int((width - (ksize - stride)) / stride)))
+    out = np.zeros((channel, int((height - ksize) / stride) + 1,
+                    int((width - ksize) / stride) + 1))
     # - (stride - 1) to provide only outputs, where the full kernel fits
     max_height = height - (ksize - stride) - (stride - 1)
     max_width = width - (ksize - stride) - (stride - 1)
@@ -37,8 +37,8 @@ def conv(array_in, weights, bias, ksize, stride, int_bits_out, frac_bits_out):
     assert channel_out == bias.shape[0]
     assert ksize_w1 == ksize_w2 == ksize
 
-    out = np.zeros((channel_out, int((height - (ksize - stride)) / stride),
-                    int((width - (ksize - stride)) / stride)))
+    out = np.zeros((channel_out, int((height - ksize) / stride) + 1,
+                    int((width - ksize) / stride) + 1))
     # - (stride - 1) to provide only outputs, where the full kernel fits
     max_height = height - (ksize - stride) - (stride - 1)
     max_width = width - (ksize - stride) - (stride - 1)
