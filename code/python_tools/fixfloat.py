@@ -6,8 +6,6 @@ from random import randint
 import numpy as np
 
 
-# TODO: add tests
-
 def py3round(val: float) -> float:
     """Get rounding behaviour of python3 in python2 (round to nearest even)."""
     if abs(round(val) - val) == 0.5:
@@ -21,7 +19,7 @@ def float2fixed(number: float, int_bits: int, frac_bits: int) -> str:
         if number < -2 ** (int_bits - 1):
             return "1" + "0" * (int_bits + frac_bits - 1)
         fixed_nr = bin(int(
-            2**(int_bits + frac_bits) - py3round(abs(number)* 2**frac_bits)))
+            2**(int_bits + frac_bits) - py3round(abs(number) * 2**frac_bits)))
         return fixed_nr[-(int_bits + frac_bits):].zfill(int_bits + frac_bits)
     else:
         if number > 2 ** (int_bits - 1) - 2 ** -frac_bits:
