@@ -9,6 +9,8 @@ from fixfloat import random_fixed_array
 
 # somehow the onnx members aren't detected properly
 # pylint: disable=no-member
+# allow more expressive names for the cnn models
+# pylint: disable=invalid-name
 
 
 def make_conv_quant(last_layer_info: tuple, name: str,

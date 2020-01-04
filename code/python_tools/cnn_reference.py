@@ -47,10 +47,10 @@ def conv(array_in, weights, bias, ksize: int, stride: int,
         for col_out, col_in in enumerate(range(0, max_width, stride)):
             roi = array_in[:, row_in:row_in + ksize, col_in:col_in + ksize]
             for ch_out in range(channel_out):
-                mm = np.sum(roi * weights[ch_out]) + bias[ch_out]
+                result = np.sum(roi * weights[ch_out]) + bias[ch_out]
                 # float2ffloat only to saturate the values
                 out[ch_out, row_out, col_out] = float2ffloat(
-                    mm, int_bits_out, frac_bits_out)
+                    result, int_bits_out, frac_bits_out)
     return out
 
 

@@ -14,20 +14,20 @@ def weights2files(kernel, bias, data_bits: int, frac_bits: int,
     shape = kernel.shape
     int_bits = data_bits - frac_bits
     ch_in = 0
-    for ch, item in enumerate(np.nditer(kernel)):
+    for ch_out, item in enumerate(np.nditer(kernel)):
         sfix = float2fixed(item, int_bits, frac_bits)
 
         line_w.append(str(sfix))
         debug_w.append(str(item) + " ")
-        if (ch+1) % (shape[2] * shape[3]) == 0:
+        if (ch_out+1) % (shape[2] * shape[3]) == 0:
             if (ch_in+1) % shape[1] == 0:
                 line_b.append(str(
-                    float2fixed(bias[int((ch+1) / (shape[1] * shape[2] *
-                                                   shape[3])-1)],
+                    float2fixed(bias[int((ch_out+1) / (shape[1] * shape[2] *
+                                                       shape[3])-1)],
                                 int_bits, frac_bits)))
                 line_b.append("\n")
                 debug_b.append(str(
-                    bias[int((ch+1) / (shape[1] * shape[2] * shape[3])-1)]))
+                    bias[int((ch_out+1) / (shape[1]*shape[2]*shape[3])-1)]))
                 debug_b.append("\n")
             line_w.append("\n")
             debug_w.append("\n")

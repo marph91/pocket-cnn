@@ -62,9 +62,9 @@ def fixed2float(number: str, int_bits: int, frac_bits: int) -> float:
 
 def float2ffloat(number: float, int_bits: int, frac_bits: int) -> float:
     """converts floating point to fixed point number, but stored as float"""
-    return max(min(py3round(
-        number*2**frac_bits)/2**frac_bits, 2**(int_bits-1) - 2**-frac_bits),
-        -2**(int_bits-1))
+    return max(min(
+        py3round(number * 2**frac_bits) / 2**frac_bits,
+        2 ** (int_bits - 1) - 2 ** -frac_bits), -2 ** (int_bits - 1))
 
 
 def v_float2ffloat(array, int_bits: int, frac_bits: int):

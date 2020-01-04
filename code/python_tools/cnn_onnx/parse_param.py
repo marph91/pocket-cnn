@@ -120,7 +120,7 @@ def parse_param(model: str) -> dict:
             leaky_relu.append(1)
 
     # pe == number of conv layers
-    pe = len(conv_kernel)
+    pelem = len(conv_kernel)
     param_dict = {
         "channel": channel,
         "input_height": input_height,
@@ -135,7 +135,7 @@ def parse_param(model: str) -> dict:
         "pool_kernel": pool_kernel,
         "pool_stride": pool_stride,
         "bitwidth": bitwidth,
-        "pe": pe}
+        "pe": pelem}
     return param_dict
 
 
