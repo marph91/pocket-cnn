@@ -6,9 +6,8 @@ from vunit import VUnit
 
 import numpy as np
 
-from cnn_reference import max_pool
+from cnn_reference import flatten, max_pool
 from fixfloat import v_float2fixedint, v_fixedint2ffloat
-from tools_vunit import array2stream
 
 
 def create_stimuli(root, ksize, stride, total_bits, frac_bits, channel,
@@ -19,7 +18,7 @@ def create_stimuli(root, ksize, stride, total_bits, frac_bits, channel,
     # corresponding integer values.
     a_rand = np.random.randint(2 ** total_bits, size=(channel, height, width))
     np.savetxt(join(root, "src", "input_%d_%d.csv" % (ksize, stride)),
-               array2stream(a_rand), delimiter=", ", fmt="%3d")
+               flatten(a_rand), delimiter=", ", fmt="%3d")
 
     a_rand_ffloat = v_fixedint2ffloat(a_rand, int_bits, frac_bits)
 
@@ -29,7 +28,7 @@ def create_stimuli(root, ksize, stride, total_bits, frac_bits, channel,
         max_pool(a_rand_ffloat, ksize, stride),
         int_bits, frac_bits)
     with open(filename, "w") as outfile:
-        np.savetxt(outfile, array2stream(max_out), delimiter=", ", fmt="%3d")
+        np.savetxt(outfile, flatten(max_out), delimiter=", ", fmt="%3d")
 
 
 def create_test_suite(ui):

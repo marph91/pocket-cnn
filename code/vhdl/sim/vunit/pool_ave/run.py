@@ -4,17 +4,16 @@ from random import randint
 import numpy as np
 from vunit import VUnit
 
-from cnn_reference import avg_pool
+from cnn_reference import avg_pool, flatten
 from fixfloat import v_float2fixedint, float2ffloat
 from fixfloat import random_fixed_array
-from tools_vunit import array2stream
 
 
 def create_stimuli(root, w, h, ch, total_bits, frac_bits):
     int_bits = total_bits - frac_bits
     a_rand = random_fixed_array((ch, h, w), int_bits, frac_bits)
     a_in = v_float2fixedint(a_rand, int_bits, frac_bits)
-    np.savetxt(join(root, "src", "input.csv"), array2stream(a_in), delimiter=", ",
+    np.savetxt(join(root, "src", "input.csv"), flatten(a_in), delimiter=", ",
                fmt="%3d")
 
     a_out = v_float2fixedint(avg_pool(a_rand), int_bits, frac_bits)

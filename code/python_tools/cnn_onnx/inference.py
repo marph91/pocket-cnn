@@ -1,5 +1,5 @@
-# https://github.com/onnx/onnx/blob/477a9b87715d614f8b7540a69c144b177275baa2/docs/PythonAPIOverview.md
-# https://stackoverflow.com/questions/52402448/how-to-read-individual-layers-weight-bias-values-from-onnx-model
+"""Calculate the inference of a CNN model in ONNX format with the self defined
+functions."""
 
 import math
 
@@ -8,7 +8,7 @@ import onnx
 from onnx import numpy_helper
 
 import cnn_reference
-import cnn_onnx.model_zoo
+from cnn_onnx import model_zoo, parse_param
 
 
 # somehow the onnx members aren't detected properly
@@ -16,53 +16,38 @@ import cnn_onnx.model_zoo
 
 
 def numpy_inference(onnx_model, input_):
+    """Calculate the inference of a given input with a given model."""
     weights_dict = {}
     for init in onnx_model.graph.initializer:
         weights_dict[init.name] = numpy_helper.to_array(init)
 
     next_input = input_
     for node in onnx_model.graph.node:
-        params = {}
-        for attribute in node.attribute:
-            if attribute.name in ["strides", "pads", "kernel_shape"]:
-                params[attribute.name] = attribute.ints
-            else:
-                params[attribute.name] = attribute.i
-
-        def get_kernel_params(params):
-            ksize = params["kernel_shape"][0]
-            for ksize_ in params["kernel_shape"]:
-                assert ksize == ksize_
-            stride = params["strides"][0]
-            for stride_ in params["strides"]:
-                assert stride == stride_
-            return ksize, stride
+        params = parse_param.parse_node_params(node)
 
         if node.op_type == "Conv":
             assert False, "Layer not supported"
         elif node.op_type == "QLinearConv":
-            pad = params["pads"][0]
-            assert pad in [0, 1]
-            for pad_ in params["pads"]:
-                assert pad == pad_
-            if pad == 1:
-                next_input = cnn_reference.zero_pad(next_input)
+            pad = parse_param.get_pad(params)
+            if pad:
+                next_input = cnn_reference.zero_pad(next_input, pad)
 
-            ksize, stride = get_kernel_params(params)
+            ksize, stride = parse_param.get_kernel_params(params)
             weights = weights_dict[node.input[3]]
             bias = weights_dict[node.input[8]]
 
-            frac_bits_out = int(math.log2(weights_dict[node.input[4]]))
-            int_bits_out = 8 - frac_bits_out
+            bitwidth = (
+                8 - int(math.log2(weights_dict[node.input[4]])),
+                int(math.log2(weights_dict[node.input[4]]))
+            )
 
             next_input = cnn_reference.conv(
-                next_input, weights, bias, ksize, stride,
-                int_bits_out, frac_bits_out)
+                next_input, weights, bias, (ksize, stride), bitwidth)
         elif node.op_type == "QuantizeLinear":
             next_input = cnn_reference.scale(
                 next_input, weights_dict[node.input[1]])
         elif node.op_type == "MaxPool":
-            ksize, stride = get_kernel_params(params)
+            ksize, stride = parse_param.get_kernel_params(params)
             next_input = cnn_reference.max_pool(next_input, ksize, stride)
         elif node.op_type == "GlobalAveragePool":
             next_input = cnn_reference.avg_pool(next_input)
@@ -70,19 +55,18 @@ def numpy_inference(onnx_model, input_):
             next_input = cnn_reference.relu(next_input)
         elif node.op_type == "LeakyRelu":
             next_input = cnn_reference.leaky_relu(
-                next_input, 0.125, int_bits_out, frac_bits_out)
+                next_input, 0.125, bitwidth)
     return next_input
 
 
 if __name__ == "__main__":
     # save arbitrary cnn model to file in onnx format
-    MODEL_DEF = cnn_onnx.model_zoo.conv_3x1_1x1_max_2x2()
+    MODEL_DEF = model_zoo.conv_3x1_1x1_max_2x2()
     onnx.save(MODEL_DEF, MODEL_DEF.graph.name + ".onnx")
 
     # load model and calculate inference
     MODEL = onnx.load(MODEL_DEF.graph.name + ".onnx")
     onnx.checker.check_model(MODEL)
-    SHAPE = [
-        s.dim_value for s in MODEL.graph.input[0].type.tensor_type.shape.dim]
+    SHAPE = parse_param.parse_param(MODEL)
     OUTPUT = numpy_inference(
         MODEL, np.random.randint(256, size=SHAPE).astype(np.float))

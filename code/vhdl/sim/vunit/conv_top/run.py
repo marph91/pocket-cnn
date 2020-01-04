@@ -7,10 +7,9 @@ from vunit import VUnit
 
 import numpy as np
 
-from cnn_reference import conv
+from cnn_reference import conv, flatten
 from fixfloat import v_float2fixedint, float2fixedint, float2ffloat
 from fixfloat import random_fixed_array
-from tools_vunit import array2stream
 from weights2files import weights2files
 
 
@@ -29,29 +28,29 @@ def create_stimuli(root, ksize, stride,
         (channel_in, height, width), int_bits_data_in, frac_bits_data_in)
     a_in = v_float2fixedint(a_rand, int_bits_data_in, frac_bits_data_in)
     np.savetxt(join(root, "gen", "input_%d_%d.csv" % (ksize, stride)),
-               array2stream(a_in), delimiter=", ", fmt="%3d")
+               flatten(a_in), delimiter=", ", fmt="%3d")
 
     int_bits_weight = total_bits_weight - frac_bits_weight
     a_weights_rand = random_fixed_array(
         (channel_out, channel_in, ksize, ksize),
         int_bits_weight, frac_bits_weight)
     a_bias_rand = random_fixed_array(
-        (channel_out), int_bits_weight, frac_bits_weight)
+        (channel_out,), int_bits_weight, frac_bits_weight)
 
     # weights and bias to txt
     weights2files(
         a_weights_rand, a_bias_rand,
-        total_bits_weight, frac_bits_weight,
+        (int_bits_weight, frac_bits_weight),
         "conv_%d_%d" % (ksize, stride), join(root, "gen"))
 
     # assign the outputs
     conv_out = v_float2fixedint(
-        conv(a_rand, a_weights_rand, a_bias_rand, ksize, stride,
-             int_bits_data_out, frac_bits_data_out),
+        conv(a_rand, a_weights_rand, a_bias_rand, (ksize, stride),
+             (int_bits_data_out, frac_bits_data_out)),
         int_bits_data_out, frac_bits_data_out)
     filename = join(root, "gen", "output_%d_%d.csv" % (ksize, stride))
     with open(filename, "w") as outfile:
-        np.savetxt(outfile, array2stream(conv_out), delimiter=", ", fmt="%3d")
+        np.savetxt(outfile, flatten(conv_out), delimiter=", ", fmt="%3d")
 
 
 def create_test_suite(ui):

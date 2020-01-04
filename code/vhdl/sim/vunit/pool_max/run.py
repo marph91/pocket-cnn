@@ -4,8 +4,7 @@ from vunit import VUnit
 import numpy as np
 
 from fixfloat import v_float2fixedint
-from fixfloat import random_fixed_array
-from tools_vunit import random_bw
+from fixfloat import random_fixed_array, random_bw
 
 
 def create_stimuli(root, pool_dim, total_bits, frac_bits):

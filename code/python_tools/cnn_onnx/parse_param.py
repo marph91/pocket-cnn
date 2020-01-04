@@ -1,10 +1,9 @@
-#!/usr/bin/env python3
+"""Utilities to parse data from an ONNX model."""
 
 import argparse
 import json
 import math
-
-from typing import List
+from typing import List, Tuple
 
 import onnx
 from onnx import numpy_helper
@@ -16,7 +15,44 @@ from vhdl_top_template import vhdl_top_template
 # pylint: disable=no-member
 
 
+def parse_node_params(node) -> dict:
+    """Parse the parameter of a specific node."""
+    params = {}
+    for attribute in node.attribute:
+        if attribute.name in ["strides", "pads", "kernel_shape"]:
+            params[attribute.name] = attribute.ints
+        else:
+            params[attribute.name] = attribute.i
+    return params
+
+
+def get_kernel_params(node_params: dict) -> Tuple[int, int]:
+    """Obtain and validate the kernel parameter."""
+    ksize = node_params["kernel_shape"][0]
+    for ksize_ in node_params["kernel_shape"]:
+        assert ksize == ksize_
+    stride = node_params["strides"][0]
+    for stride_ in node_params["strides"]:
+        assert stride == stride_
+    return ksize, stride
+
+
+def get_pad(node_params: dict) -> int:
+    """Obtain and validate the padding size."""
+    pad = node_params["pads"][0]
+    assert pad in [0, 1]
+    for pad_ in node_params["pads"]:
+        assert pad == pad_
+    return pad
+
+
+def get_input_shape(net) -> list:
+    """Obtain the input shape in a processable format."""
+    return [s.dim_value for s in net.graph.input[0].type.tensor_type.shape.dim]
+
+
 def parse_param(model: str) -> dict:
+    """Parse an ONNX model into a python dictionary."""
     net = onnx.load(model)
 
     relu: List[int] = []
@@ -30,9 +66,6 @@ def parse_param(model: str) -> dict:
     bitwidth: List[List[int]] = []
     channel: List[int] = []
 
-    _, input_height, input_width = [
-        s.dim_value for s in net.graph.input[0].type.tensor_type.shape.dim]
-
     weights_dict = {}
     for init in net.graph.initializer:
         weights_dict[init.name] = numpy_helper.to_array(init)
@@ -41,42 +74,25 @@ def parse_param(model: str) -> dict:
 
     nodes = net.graph.node
     for node in nodes:
-        params = {}
-        for attribute in node.attribute:
-            if attribute.name in ["strides", "pads", "kernel_shape"]:
-                params[attribute.name] = attribute.ints
-            else:
-                params[attribute.name] = attribute.i
-
-        def get_kernel_params(params):
-            ksize = params["kernel_shape"][0]
-            for ksize_ in params["kernel_shape"]:
-                assert ksize == ksize_
-            stride = params["strides"][0]
-            for stride_ in params["strides"]:
-                assert stride == stride_
-            return ksize, stride
+        params = parse_node_params(node)
 
         if node.op_type == "QuantizeLinear":
             scale = int(weights_dict[node.input[1]])
         elif node.op_type == "Conv":
             assert False, "Layer not supported"
         elif node.op_type == "QLinearConv":
-            pad = params["pads"][0]
-            assert pad in [0, 1]
-            for pad_ in params["pads"]:
-                assert pad == pad_
+            pad = get_pad(params)
             padding.append(pad)
 
             conv_names.append(node.input[3].split("_", 1)[0])
 
-            data_bits, frac_bits_in, frac_bits_out = (
-                8,
-                int(8 - math.log2(weights_dict[node.input[1]])),
-                int(8 - math.log2(weights_dict[node.input[6]])))
-            data_bits_weights, frac_bits_weights = (
-                8,
-                int(8 - math.log2(weights_dict[node.input[4]])))
+            data_bits = 8
+            frac_bits_in, frac_bits_out = (
+                int(data_bits - math.log2(weights_dict[node.input[1]])),
+                int(data_bits - math.log2(weights_dict[node.input[6]])))
+            data_bits_weights = 8
+            frac_bits_weights = (
+                int(data_bits - math.log2(weights_dict[node.input[4]])))
             bitwidth.append([data_bits, frac_bits_in, frac_bits_out,
                              data_bits_weights, frac_bits_weights])
 
@@ -121,6 +137,7 @@ def parse_param(model: str) -> dict:
 
     # pe == number of conv layers
     pelem = len(conv_kernel)
+    _, input_height, input_width = get_input_shape(net)
     param_dict = {
         "channel": channel,
         "input_height": input_height,

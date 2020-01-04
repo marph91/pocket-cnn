@@ -11,7 +11,7 @@ import cnn_onnx.inference
 import cnn_onnx.model_zoo
 import cnn_onnx.parse_param
 import cnn_onnx.convert_weights
-from tools_vunit import array2stream
+from cnn_reference import flatten
 import vhdl_top_template
 
 
@@ -21,13 +21,12 @@ import vhdl_top_template
 
 def create_stimuli(root, model_name):
     model = onnx.load(join(root, model_name))
-    shape = [
-        s.dim_value for s in model.graph.input[0].type.tensor_type.shape.dim]
+    shape = cnn_onnx.parse_param.get_input_shape(model)
 
     in_ = np.random.randint(256, size=shape)
     out_ = cnn_onnx.inference.numpy_inference(model, in_)
 
-    np.savetxt(join(root, "input.csv"), array2stream(in_),
+    np.savetxt(join(root, "input.csv"), flatten(in_),
                delimiter=", ", fmt="%3d")
     np.savetxt(join(root, "output.csv"), v_float2fixedint(out_, 4, 4),
                delimiter=", ", fmt="%3d")

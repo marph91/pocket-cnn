@@ -1,5 +1,9 @@
+"""Generate a toplevel template. It is needed for synthesis.
+Previously it was used for cocotb compatibility, too."""
+
+
 def vhdl_top_template(param: dict, output_file: str) -> None:
-    """"Generating a VHDL toplevel wrapper with all needed CNN parameter."""
+    """"Generate a VHDL toplevel wrapper with all needed CNN parameter."""
     pelem = param["pe"]
     conv_names = param["conv_names"]
     bitwidth = param["bitwidth"]
@@ -16,8 +20,7 @@ def vhdl_top_template(param: dict, output_file: str) -> None:
     # write parameter into file
     with open(output_file, "w") as outfile:
         outfile.write("\
--- generated file!\n\
--- used to provide cocotb compatibility and toplevel for synthesis\n\n\
+-- Generated file - do not modify!\n\
 library ieee;\n\
   use ieee.std_logic_1164.all;\n\
 library util;\n\

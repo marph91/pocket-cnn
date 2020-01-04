@@ -1,4 +1,6 @@
-#!/usr/bin/env python3
+"""Utility to convert ONNX weights in a format, which can be loaded
+in the VHDL design at simulation and synthesis."""
+
 import argparse
 import math
 
@@ -13,8 +15,7 @@ from weights2files import weights2files
 
 def convert_weights(model: str, output_dir: str = "weights") -> None:
     """Extract weights from model, convert them into binary fixed point and
-    save to file.
-    """
+    save to file."""
     net = onnx.load(model)
 
     weights_dict = {}
@@ -27,13 +28,12 @@ def convert_weights(model: str, output_dir: str = "weights") -> None:
             kernel = weights_dict[node.input[3]]
             bias = weights_dict[node.input[8]]
 
-            layer = node.input[3].split("_", 1)[0]
-            data_bits = 8
-            frac_bits = int(
-                data_bits - math.log2(weights_dict[node.input[4]]))
-
-            weights2files(kernel, bias, data_bits, frac_bits, layer,
-                          output_dir)
+            layer_name = node.input[3].split("_", 1)[0]
+            bitwidth = (
+                8 - int(math.log2(weights_dict[node.input[4]])),
+                int(math.log2(weights_dict[node.input[4]]))
+            )
+            weights2files(kernel, bias, bitwidth, layer_name, output_dir)
 
 
 if __name__ == "__main__":

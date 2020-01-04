@@ -1,21 +1,24 @@
+"""Utility to convert weights in a format, which can be loaded
+in the VHDL design at simulation and synthesis."""
+
 import os
+from typing import Tuple
 
 import numpy as np
 
 from fixfloat import float2fixed
 
 
-def weights2files(kernel, bias, data_bits: int, frac_bits: int,
+def weights2files(kernel, bias, bitwidth: Tuple[int, int],
                   layer_name: str, output_dir: str) -> None:
     """Write quantized data of weights and bias to files."""
     os.makedirs(output_dir, exist_ok=True)
 
     line_w, line_b, debug_w, debug_b = [], [], [], []
     shape = kernel.shape
-    int_bits = data_bits - frac_bits
     ch_in = 0
     for ch_out, item in enumerate(np.nditer(kernel)):
-        sfix = float2fixed(item, int_bits, frac_bits)
+        sfix = float2fixed(item, *bitwidth)
 
         line_w.append(str(sfix))
         debug_w.append(str(item) + " ")
@@ -24,7 +27,7 @@ def weights2files(kernel, bias, data_bits: int, frac_bits: int,
                 line_b.append(str(
                     float2fixed(bias[int((ch_out+1) / (shape[1] * shape[2] *
                                                        shape[3])-1)],
-                                int_bits, frac_bits)))
+                                *bitwidth)))
                 line_b.append("\n")
                 debug_b.append(str(
                     bias[int((ch_out+1) / (shape[1]*shape[2]*shape[3])-1)]))

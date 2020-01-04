@@ -6,8 +6,7 @@ from vunit import VUnit
 
 from fixfloat import v_float2fixedint
 from fixfloat import random_fixed_array
-from tools_vunit import array2stream
-from cnn_reference import zero_pad
+from cnn_reference import flatten, zero_pad
 
 
 def create_arrays(root, w, h, ch):
@@ -16,12 +15,12 @@ def create_arrays(root, w, h, ch):
     a_rand = random_fixed_array((ch, h, w), 8, 0)
     a_in = v_float2fixedint(a_rand, 8, 0)
     np.savetxt(join(root, "src", "input_%s.csv" % id_),
-               array2stream(a_in), delimiter=", ",
+               flatten(a_in), delimiter=", ",
                fmt="%3d")
 
     a_out = v_float2fixedint(zero_pad(a_rand), 8, 0)
     np.savetxt(join(root, "src", "output_%s.csv" % id_),
-               array2stream(a_out), delimiter=", ",
+               flatten(a_out), delimiter=", ",
                fmt="%3d")
 
 
