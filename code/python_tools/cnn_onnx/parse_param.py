@@ -138,7 +138,7 @@ if __name__ == "__main__":
     PARSER = argparse.ArgumentParser()
     PARSER.add_argument("model", type=str, help="Path to the model")
     PARSER.add_argument("weight_dir", type=str, help="Directory of weights")
-    PARSER.add_argument("param_file", type=str,
+    PARSER.add_argument("output_file", type=str,
                         help="Output directory and filename of toplevel")
     ARGS = PARSER.parse_args()
 
@@ -147,7 +147,7 @@ if __name__ == "__main__":
     PARAMS["weight_dir"] = ARGS.weight_dir
     PARAMS["len_weights"] = len("%s/W_%s.txt" % (
         PARAMS["weight_dir"], PARAMS["conv_names"][0]))
-    vhdl_top_template(PARAMS, ARGS.param_file)
+    vhdl_top_template(PARAMS, ARGS.output_file)
 
     with open("cnn_parameter.json", "w") as outfile:
         json.dump(PARAMS, outfile, indent=2)

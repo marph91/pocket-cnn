@@ -1,4 +1,4 @@
-def vhdl_top_template(param, param_file):
+def vhdl_top_template(param : dict, output_file : str) -> None:
     """"Generating a VHDL toplevel wrapper with all needed CNN parameter."""
     pe = param["pe"]
     conv_names = param["conv_names"]
@@ -14,7 +14,7 @@ def vhdl_top_template(param, param_file):
         bias_dirs += "      \"%s/B_%s.txt\",\n" % (param["weight_dir"], name)
 
     # write parameter into file
-    with open(param_file, "w") as outfile:
+    with open(output_file, "w") as outfile:
         outfile.write("\
 -- generated file!\n\
 -- used to provide cocotb compatibility and toplevel for synthesis\n\n\
