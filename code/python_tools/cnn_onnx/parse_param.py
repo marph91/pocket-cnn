@@ -4,6 +4,8 @@ import argparse
 import json
 import math
 
+from typing import List
+
 import onnx
 from onnx import numpy_helper
 
@@ -14,16 +16,19 @@ from vhdl_top_template import vhdl_top_template
 # pylint: disable=no-member
 
 
-def parse_param(model):
+def parse_param(model: str) -> dict:
     net = onnx.load(model)
 
-    relu, leaky_relu = [], []
-    padding = []
-    conv_names, conv_kernel, conv_stride = [], [], []
-    pool_kernel, pool_stride = [], []
-    bitwidth = []
-
-    channel = []
+    relu: List[int] = []
+    leaky_relu: List[int] = []
+    padding: List[int] = []
+    conv_names: List[str] = []
+    conv_kernel: List[int] = []
+    conv_stride: List[int] = []
+    pool_kernel: List[int] = []
+    pool_stride: List[int] = []
+    bitwidth: List[List[int]] = []
+    channel: List[int] = []
 
     _, input_height, input_width = [
         s.dim_value for s in net.graph.input[0].type.tensor_type.shape.dim]

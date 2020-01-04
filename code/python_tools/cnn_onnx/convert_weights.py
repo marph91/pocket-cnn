@@ -11,7 +11,7 @@ from weights2files import weights2files
 # pylint: disable=no-member
 
 
-def convert_weights(model, output_dir="weights"):
+def convert_weights(model: str, output_dir: str="weights") -> None:
     """Extract weights from model, convert them into binary fixed point and
     save to file.
     """

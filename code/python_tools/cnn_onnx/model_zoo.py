@@ -1,4 +1,5 @@
 import math
+from typing import Any, List, Tuple
 
 import numpy as np
 from onnx import helper
@@ -11,8 +12,9 @@ from fixfloat import random_fixed_array
 # pylint: disable=no-member
 
 
-def make_conv_quant(last_layer_info, name,
-                    ch_in, ch_out, ksize, stride, pad):
+def make_conv_quant(last_layer_info: tuple, name: str,
+                    ch_in: int, ch_out: int, ksize: int, stride: int,
+                    pad: int) -> Tuple[Any, List[Any]]:
     total_bits = 8
     weights_scale = 16
 

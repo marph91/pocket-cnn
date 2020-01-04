@@ -5,18 +5,9 @@ import numpy as np
 from fixfloat import float2fixed
 
 
-def weights2files(kernel, bias, data_bits, frac_bits, layer_name, output_dir):
-    """Write quantized data of weights and bias to files.
-    input:
-        kernel numpy array
-        bias numpy array
-        data_bits int
-        frac_bits int
-        layer string
-        output_dir string
-    output:
-        None (written files)
-    """
+def weights2files(kernel, bias, data_bits: int, frac_bits: int,
+                  layer_name: str, output_dir: str) -> None:
+    """Write quantized data of weights and bias to files."""
     os.makedirs(output_dir, exist_ok = True)
 
     line_w, line_b, debug_w, debug_b = [], [], [], []

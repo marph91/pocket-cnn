@@ -76,7 +76,7 @@ def numpy_inference(onnx_model, input_):
 
 if __name__ == "__main__":
     # save arbitrary cnn model to file in onnx format
-    MODEL_DEF = cnn_onnx.model_zoo.cnn1()
+    MODEL_DEF = cnn_onnx.model_zoo.conv_3x1_1x1_max_2x2()
     onnx.save(MODEL_DEF, MODEL_DEF.graph.name + ".onnx")
 
     # load model and calculate inference

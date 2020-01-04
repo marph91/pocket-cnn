@@ -30,7 +30,8 @@ def max_pool(array_in, ksize, stride):
     return out
 
 
-def conv(array_in, weights, bias, ksize, stride, int_bits_out, frac_bits_out):
+def conv(array_in, weights, bias, ksize: int, stride: int,
+         int_bits_out: int, frac_bits_out: int):
     channel_in, height, width = array_in.shape
     channel_out, channel_in_w, ksize_w1, ksize_w2 = weights.shape
     assert channel_in == channel_in_w
@@ -62,7 +63,8 @@ def relu(array_in):
     return np.maximum(array_in, 0)
 
 
-def leaky_relu(array_in, alpha, int_bits_out, frac_bits_out):
+def leaky_relu(array_in, alpha: float,
+               int_bits_out: int, frac_bits_out: int):
     return np.where(
         array_in > 0, array_in,
         v_float2ffloat(array_in*alpha, int_bits_out, frac_bits_out))

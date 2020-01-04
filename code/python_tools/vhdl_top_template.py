@@ -1,4 +1,4 @@
-def vhdl_top_template(param : dict, output_file : str) -> None:
+def vhdl_top_template(param: dict, output_file: str) -> None:
     """"Generating a VHDL toplevel wrapper with all needed CNN parameter."""
     pe = param["pe"]
     conv_names = param["conv_names"]

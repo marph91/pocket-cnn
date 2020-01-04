@@ -2,7 +2,7 @@ from random import randint
 import numpy as np
 
 
-def random_bw(max_bw=16):
+def random_bw(max_bw: int=16):
     bits = randint(1, max_bw)
     int_bits = randint(1, bits)
     frac_bits = bits - int_bits
