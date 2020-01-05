@@ -283,8 +283,8 @@ begin
       C_KSIZE       => C_POOL_KSIZE,
       C_STRIDE      => C_POOL_STRIDE,
       C_CH          => C_CH_OUT,
-      C_IMG_WIDTH   => (C_IMG_WIDTH+2*C_PAD-(C_CONV_KSIZE-C_CONV_STRIDE))/C_CONV_STRIDE,
-      C_IMG_HEIGHT  => (C_IMG_HEIGHT+2*C_PAD-(C_CONV_KSIZE-C_CONV_STRIDE))/C_CONV_STRIDE
+      C_IMG_WIDTH   => (C_IMG_WIDTH + 2 * C_PAD - C_CONV_KSIZE) / C_CONV_STRIDE + 1,
+      C_IMG_HEIGHT  => (C_IMG_HEIGHT + 2 * C_PAD - C_CONV_KSIZE) / C_CONV_STRIDE + 1
     )
     port map (
       isl_clk   => isl_clk,
