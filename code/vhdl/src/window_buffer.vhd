@@ -27,31 +27,32 @@ architecture behavior of window_buffer is
   signal int_ch_cnt : integer range 0 to C_CH-1 := 0;
 
   signal sl_valid_out : std_logic := '0';
-  signal a_data_out : t_slv_array_2d(0 to C_KSIZE-1, 0 to C_KSIZE-1) := (others => (others => (others => '0')));
 
-  signal a_win : t_slv_array_2d(0 to C_KSIZE*C_KSIZE - 1, 0 to C_CH - 1) := (others => (others => (others => '0')));
-  --TODO: signal a_win : t_slv_array_3d(0 to C_KSIZE-1, 0 to C_KSIZE - 1, 0 to C_CH - 1) := (others => (others => (others => (others => '0'))));
-  type t_win_array is array (0 to C_CH - 1) of t_slv_array_1d(0 to C_KSIZE*C_KSIZE - 1);
-  signal a_win : t_win_array := (others => (others => (others => '0')));
+  type t_win_buffer is array (0 to C_CH - 1) of t_slv_array_2d(0 to C_KSIZE - 1, 0 to C_KSIZE - 1);
+  signal a_win_buffer : t_win_buffer := (others => (others => (others => (others => '0'))));
 
 begin
   proc_shift_data : process(isl_clk)
   begin
     if rising_edge(isl_clk) then
       if isl_valid = '1' then
-        -- shift pixel (each pixel gets shifted to the next position and the buffer gets wrapped)
-        for pixel in 1 to C_KSIZE*C_KSIZE-1 loop
-          a_win(0)(pixel) <= a_win(C_CH-1)(pixel-1);
+        -- shift columns (each column gets shifted to the next position and the buffer gets wrapped)
+        for col in 1 to C_KSIZE-1 loop
+          for row in 0 to C_KSIZE-1 loop
+            a_win_buffer(0)(col, row) <= a_win_buffer(C_CH-1)(col-1, row);
+          end loop;
         end loop;
 
         -- insert new input column
         for col in 0 to C_KSIZE - 1 loop
-          a_win(0)(col*C_KSIZE) <= ia_data(col);
+          for row in 0 to C_KSIZE-1 loop
+            a_win_buffer(0)(0, row) <= ia_data(row);
+          end loop;
         end loop;
 
         -- shift channels (except of the first one, which was the last output and will be discarded now)
         for ch in 1 to C_CH-1 loop
-          a_win(ch) <= a_win(ch-1);
+          a_win_buffer(ch) <= a_win_buffer(ch-1);
         end loop;
       end if;
     end if;
@@ -73,12 +74,6 @@ begin
     end if;
   end process proc_window_buffer;
 
-  output_gen_1d : for i in 0 to C_KSIZE-1 generate
-    output_gen_2d : for j in 0 to C_KSIZE-1 generate
-      a_data_out(i, j) <= a_win(0)(i+j*C_KSIZE);
-    end generate;
-  end generate;
-
-  oa_data <= a_data_out;
+  oa_data <= a_win_buffer(0);
   osl_valid <= sl_valid_out;
 end architecture behavior;
