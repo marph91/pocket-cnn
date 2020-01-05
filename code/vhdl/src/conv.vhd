@@ -50,10 +50,8 @@ architecture behavioral of conv is
   signal slv_mm_data_out : std_logic_vector(C_SUM_TOTAL_BITS-log2(C_CH_IN)-1 downto 0);
   signal sl_mm_valid_out : std_logic := '0';
   signal sl_mm_valid_out_d1 : std_logic := '0';
-  signal sl_mm_valid_out_d2 : std_logic := '0';
 
   signal sl_valid_out : std_logic := '0';
-  signal sl_valid_out_d1 : std_logic := '0';
   signal slv_data_out : std_logic_vector(C_DATA_TOTAL_BITS-1 downto 0);
   signal int_mm_out_cnt : integer range 0 to C_CH_IN*C_CH_OUT-1 := 0;
 
@@ -124,6 +122,8 @@ begin
   begin
     if rising_edge(isl_clk) then
       if isl_ce = '1' then
+        sl_mm_valid_out_d1 <= sl_mm_valid_out;
+
         if sl_mm_valid_out = '1' then
           if int_mm_out_cnt < C_CH_IN-1 then
             int_mm_out_cnt <= int_mm_out_cnt+1;
@@ -137,39 +137,34 @@ begin
               int_addr_cnt_b <= 0;
             end if;
           end if;
+
+          -- assign the first value (bias)
           if int_mm_out_cnt = 0 then
-            v_sfix_sum := (others => '0');
+            v_sfix_sum := resize(to_sfixed(C_BIAS(int_addr_cnt_b)(0, 0),
+              C_WEIGHTS_TOTAL_BITS-C_WEIGHTS_FRAC_BITS-1, -C_WEIGHTS_FRAC_BITS),
+              C_SUM_INT_BITS-1, -C_SUM_FRAC_BITS, fixed_wrap, fixed_truncate);
           end if;
           
+          -- always resize the values -> sfix_sum should be big enough
           v_sfix_sum := resize(
             v_sfix_sum + to_sfixed(slv_mm_data_out,
               C_SUM_INT_BITS-log2(C_CH_IN)-1, -C_SUM_FRAC_BITS),
             C_SUM_INT_BITS-1, -C_SUM_FRAC_BITS, fixed_wrap, fixed_truncate);
           sfix_sum <= v_sfix_sum;
-          slv_bias <= C_BIAS(int_addr_cnt_b)(0, 0);
         end if;
 
         if sl_mm_valid_out_d1 = '1' then
-          -- for i in 0 to C_CH_OUT-1
-          sfix_sum_bias <= sfix_sum + to_sfixed(slv_bias,
-            C_WEIGHTS_TOTAL_BITS-C_WEIGHTS_FRAC_BITS-1, -C_WEIGHTS_FRAC_BITS);
-        end if;
-
-        if sl_mm_valid_out_d2 = '1' then
           -- resize/round only at this point
-          slv_data_out <= to_slv(resize(sfix_sum_bias,
+          slv_data_out <= to_slv(resize(sfix_sum,
             C_DATA_TOTAL_BITS-C_DATA_FRAC_BITS_OUT-1, -C_DATA_FRAC_BITS_OUT,
             fixed_saturate, fixed_round));
         end if;
 
-        sl_mm_valid_out_d1 <= sl_mm_valid_out;
-        sl_mm_valid_out_d2 <= sl_mm_valid_out_d1;
-        sl_valid_out <= sl_mm_valid_out_d2 when int_mm_out_cnt = 0 and not (C_CH_IN > 1 and sl_valid_out = '1') else '0';
-        sl_valid_out_d1 <= sl_valid_out;
+        sl_valid_out <= sl_mm_valid_out_d1 when int_mm_out_cnt = 0 else '0';
       end if;
     end if;
   end process proc_data;
 
   oslv_data <= slv_data_out;
-  osl_valid <= sl_valid_out_d1 when C_CH_IN > 1 else sl_valid_out;
+  osl_valid <= sl_valid_out;
 end behavioral;
