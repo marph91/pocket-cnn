@@ -57,9 +57,11 @@ Add an example, which contains the full workflow:
 The tag `weights_in_bram` marks the last commit with:
 - Weights and bias stored in BRAM.
 - Using DSP for the matrix multiplications.
+
 &rarr; This got depracated by "Direct Hardware Mapping".
 
 The tag `cocotb_caffe` marks the last commit with:
 - Cocotb testbenches.
 - Integration of caffe and pytorch.
+
 &rarr; This got deprecated by using VUnit as test runner and ONNX as CNN format.
