@@ -41,8 +41,8 @@ end conv_top;
 
 architecture behavioral of conv_top is
   -- window control
-  signal a_win_data_out, a_win_data_out_d1 : t_slv_array_2d(0 to C_KSIZE-1, 0 to C_KSIZE-1) := (others => (others => (others => '0')));
-  signal sl_win_valid_out, sl_win_valid_out_d1 : std_logic := '0';
+  signal a_win_data_out : t_slv_array_2d(0 to C_KSIZE-1, 0 to C_KSIZE-1) := (others => (others => (others => '0')));
+  signal sl_win_valid_out : std_logic := '0';
 
   -- weights
   constant C_WEIGHTS : t_weights_array := init_weights(C_WEIGHTS_INIT, C_CH_IN*C_CH_OUT, C_KSIZE, 8);
@@ -93,12 +93,13 @@ begin
     isl_clk    => isl_clk,
     isl_rst_n  => isl_rst_n,
     isl_ce     => isl_ce,
-    isl_valid  => sl_win_valid_out_d1,
-    ia_data    => a_win_data_out_d1,
+    isl_valid  => sl_win_valid_out,
+    ia_data    => a_win_data_out,
     ia_weights => a_weights,
     oslv_data  => oslv_data,
     osl_valid  => osl_valid
   );
+  a_weights <= C_WEIGHTS(int_addr_cnt);
 
   proc_data : process(isl_clk)
   begin
@@ -106,11 +107,7 @@ begin
       if isl_rst_n = '0' then
         int_addr_cnt <= 0;
       elsif isl_ce = '1' then
-        -- delay window control data for synchronisation with weights
-        a_win_data_out_d1 <= a_win_data_out;
-        sl_win_valid_out_d1 <= sl_win_valid_out;
-
-        -- weight BRAM addresses depend on window control
+        -- weight addresses depend on window control
         if sl_win_valid_out = '1' then
           if int_addr_cnt < C_WEIGHTS'HIGH then
             int_addr_cnt <= int_addr_cnt + 1;
@@ -118,8 +115,6 @@ begin
             int_addr_cnt <= 0;
           end if;
         end if;
-
-        a_weights <= C_WEIGHTS(int_addr_cnt);
       end if;
     end if;
   end process;
