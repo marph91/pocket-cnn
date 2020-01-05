@@ -31,30 +31,27 @@ architecture behavior of window_buffer is
 
   signal a_win : t_slv_array_2d(0 to C_KSIZE*C_KSIZE - 1, 0 to C_CH - 1) := (others => (others => (others => '0')));
   --TODO: signal a_win : t_slv_array_3d(0 to C_KSIZE-1, 0 to C_KSIZE - 1, 0 to C_CH - 1) := (others => (others => (others => (others => '0'))));
+  type t_win_array is array (0 to C_CH - 1) of t_slv_array_1d(0 to C_KSIZE*C_KSIZE - 1);
+  signal a_win : t_win_array := (others => (others => (others => '0')));
 
 begin
   proc_shift_data : process(isl_clk)
   begin
     if rising_edge(isl_clk) then
-      -- TODO: look for other possibility to replace loops
-      --       -> multidimensional slice not allowed
       if isl_valid = '1' then
-        -- shift pixel
-        for i in 1 to C_KSIZE*C_KSIZE-1 loop
-          a_win(i, 0) <= a_win(i-1, C_CH-1);
+        -- shift pixel (each pixel gets shifted to the next position and the buffer gets wrapped)
+        for pixel in 1 to C_KSIZE*C_KSIZE-1 loop
+          a_win(0)(pixel) <= a_win(C_CH-1)(pixel-1);
         end loop;
 
         -- insert new input column
-        for i in 0 to C_KSIZE - 1 loop
-          -- normal input
-          a_win(i*C_KSIZE, 0) <= ia_data(i);
+        for col in 0 to C_KSIZE - 1 loop
+          a_win(0)(col*C_KSIZE) <= ia_data(col);
         end loop;
 
-        -- shift channels
-        for i in 0 to C_KSIZE*C_KSIZE-1 loop
-          for j in 1 to C_CH-1 loop
-            a_win(i, j) <= a_win(i, j-1);
-          end loop;
+        -- shift channels (except of the first one, which was the last output and will be discarded now)
+        for ch in 1 to C_CH-1 loop
+          a_win(ch) <= a_win(ch-1);
         end loop;
       end if;
     end if;
@@ -78,7 +75,7 @@ begin
 
   output_gen_1d : for i in 0 to C_KSIZE-1 generate
     output_gen_2d : for j in 0 to C_KSIZE-1 generate
-      a_data_out(i, j) <= a_win(i+j*C_KSIZE, 0);
+      a_data_out(i, j) <= a_win(0)(i+j*C_KSIZE);
     end generate;
   end generate;
 
