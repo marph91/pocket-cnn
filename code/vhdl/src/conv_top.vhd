@@ -44,12 +44,9 @@ architecture behavioral of conv_top is
   signal a_win_data_out, a_win_data_out_d1 : t_slv_array_2d(0 to C_KSIZE-1, 0 to C_KSIZE-1) := (others => (others => (others => '0')));
   signal sl_win_valid_out, sl_win_valid_out_d1 : std_logic := '0';
 
-  -- weights and bias (BRAM)
-  constant C_BRAM_DATA_WIDTH : integer := C_WEIGHTS_TOTAL_BITS*(C_KSIZE*C_KSIZE);
-  constant C_BRAM_SIZE : integer := C_CH_IN*C_CH_OUT;
-  signal usig_addr_cnt : unsigned(log2(C_BRAM_SIZE) - 1 downto 0) := (others => '0');
-  constant C_BRAM_ADDR_WIDTH : integer := usig_addr_cnt'LENGTH;
-  signal slv_weights : std_logic_vector(C_BRAM_DATA_WIDTH-1 downto 0);
+  -- weights
+  constant C_WEIGHTS : t_weights_array := init_weights(C_WEIGHTS_INIT, C_CH_IN*C_CH_OUT, C_KSIZE, 8);
+  signal int_addr_cnt : integer range 0 to C_WEIGHTS'HIGH := 0;
   signal a_weights : t_slv_array_2d(0 to C_KSIZE-1, 0 to C_KSIZE-1) := (others => (others => (others => '0')));
 
 begin
@@ -77,28 +74,6 @@ begin
     osl_rdy   => osl_rdy
   );
 
-  i_bram_weights : entity work.bram
-  generic map(
-    C_DATA_WIDTH  => C_BRAM_DATA_WIDTH,
-    C_ADDR_WIDTH  => C_BRAM_ADDR_WIDTH,
-    C_SIZE        => C_BRAM_SIZE,
-    C_OUTPUT_REG  => 0, -- TODO: check timing
-    C_INIT        => C_WEIGHTS_INIT
-  )
-  port map (
-    isl_clk   => isl_clk,
-    isl_en    => '1',
-    isl_we    => '0',
-    islv_addr => std_logic_vector(usig_addr_cnt),
-    islv_data => (others => '0'),
-    oslv_data => slv_weights
-  );
-  gen_array_1d: for i in 0 to C_KSIZE-1 generate
-    gen_array_2d: for j in 0 to C_KSIZE-1 generate
-      a_weights(i, j) <= slv_weights(((i+j*C_KSIZE)+1)*C_WEIGHTS_TOTAL_BITS-1 downto (i+j*C_KSIZE)*C_WEIGHTS_TOTAL_BITS);
-    end generate;
-  end generate;
-
   i_conv : entity work.conv
   generic map (
     C_FIRST_STAGE         => C_FIRST_STAGE,
@@ -112,7 +87,7 @@ begin
     C_KSIZE               => C_KSIZE,
     C_CH_IN               => C_CH_IN,
     C_CH_OUT              => C_CH_OUT,
-    C_BIAS_INIT         => C_BIAS_INIT
+    C_BIAS_INIT           => C_BIAS_INIT
   )
   port map (
     isl_clk    => isl_clk,
@@ -129,21 +104,22 @@ begin
   begin
     if rising_edge(isl_clk) then
       if isl_rst_n = '0' then
-        usig_addr_cnt <= (others => '0');
-        -- usig_addr_cnt_b <= (others => '0');
+        int_addr_cnt <= 0;
       elsif isl_ce = '1' then
-        -- delay window control data for synchronisation with weight BRAM 
+        -- delay window control data for synchronisation with weights
         a_win_data_out_d1 <= a_win_data_out;
         sl_win_valid_out_d1 <= sl_win_valid_out;
 
         -- weight BRAM addresses depend on window control
         if sl_win_valid_out = '1' then
-          if usig_addr_cnt < C_BRAM_SIZE-1 then
-            usig_addr_cnt <= unsigned(usig_addr_cnt) + 1;
+          if int_addr_cnt < C_WEIGHTS'HIGH then
+            int_addr_cnt <= int_addr_cnt + 1;
           else
-            usig_addr_cnt <= (others => '0');
+            int_addr_cnt <= 0;
           end if;
         end if;
+
+        a_weights <= C_WEIGHTS(int_addr_cnt);
       end if;
     end if;
   end process;

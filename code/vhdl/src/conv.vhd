@@ -1,3 +1,4 @@
+  use std.textio.all;
 library ieee;
   use ieee.std_logic_1164.all;
   use ieee.numeric_std.all;
@@ -57,8 +58,8 @@ architecture behavioral of conv is
   signal int_mm_out_cnt : integer range 0 to C_CH_IN*C_CH_OUT-1 := 0;
 
   -- bias
-  signal usig_addr_cnt_b : unsigned(log2(C_CH_OUT) - 1 downto 0) := (others => '0');
-  constant C_BRAM_ADDR_WIDTH_B : integer := usig_addr_cnt_b'LENGTH;
+  constant C_BIAS : t_weights_array := init_weights(C_BIAS_INIT, C_CH_OUT, 1, 8);
+  signal int_addr_cnt_b : integer range 0 to C_BIAS'HIGH := 0;
   signal slv_bias : std_logic_vector(C_WEIGHTS_TOTAL_BITS-1 downto 0);
 
   -- debug
@@ -68,23 +69,6 @@ architecture behavioral of conv is
   signal int_pixel_out_cnt : integer := 0;
 
 begin
-  i_bram_bias : entity work.bram
-  generic map(
-    C_DATA_WIDTH  => C_WEIGHTS_TOTAL_BITS,
-    C_ADDR_WIDTH  => C_BRAM_ADDR_WIDTH_B,
-    C_SIZE        => C_CH_OUT,
-    C_OUTPUT_REG  => 0, -- TODO: check timing
-    C_INIT        => C_BIAS_INIT
-  )
-  port map (
-    isl_clk   => isl_clk,
-    isl_en    => '1',
-    isl_we    => '0',
-    islv_addr => std_logic_vector(usig_addr_cnt_b),
-    islv_data => (others => '0'),
-    oslv_data => slv_bias
-  );
-
   i_mm : entity work.mm
   generic map (
     C_FIRST_STAGE         => C_FIRST_STAGE,
@@ -147,10 +131,10 @@ begin
             int_mm_out_cnt <= 0;
 
             -- bias BRAM addresses depend on output channel
-            if usig_addr_cnt_b < C_CH_OUT-1 then
-              usig_addr_cnt_b <= unsigned(usig_addr_cnt_b)+1;
+            if int_addr_cnt_b < C_CH_OUT-1 then
+              int_addr_cnt_b <= int_addr_cnt_b + 1;
             else
-              usig_addr_cnt_b <= (others => '0');
+              int_addr_cnt_b <= 0;
             end if;
           end if;
           if int_mm_out_cnt = 0 then
@@ -162,9 +146,11 @@ begin
               C_SUM_INT_BITS-log2(C_CH_IN)-1, -C_SUM_FRAC_BITS),
             C_SUM_INT_BITS-1, -C_SUM_FRAC_BITS, fixed_wrap, fixed_truncate);
           sfix_sum <= v_sfix_sum;
+          slv_bias <= C_BIAS(int_addr_cnt_b)(0, 0);
         end if;
 
         if sl_mm_valid_out_d1 = '1' then
+          -- for i in 0 to C_CH_OUT-1
           sfix_sum_bias <= sfix_sum + to_sfixed(slv_bias,
             C_WEIGHTS_TOTAL_BITS-C_WEIGHTS_FRAC_BITS-1, -C_WEIGHTS_FRAC_BITS);
         end if;
