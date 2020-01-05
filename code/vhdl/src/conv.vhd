@@ -130,7 +130,7 @@ begin
           else
             int_mm_out_cnt <= 0;
 
-            -- bias BRAM addresses depend on output channel
+            -- bias addresses depend on output channel
             if int_addr_cnt_b < C_CH_OUT-1 then
               int_addr_cnt_b <= int_addr_cnt_b + 1;
             else
@@ -145,7 +145,7 @@ begin
               C_SUM_INT_BITS-1, -C_SUM_FRAC_BITS, fixed_wrap, fixed_truncate);
           end if;
           
-          -- always resize the values -> sfix_sum should be big enough
+          -- always resize the values -> without round, sfix_sum should be big enough
           v_sfix_sum := resize(
             v_sfix_sum + to_sfixed(slv_mm_data_out,
               C_SUM_INT_BITS-log2(C_CH_IN)-1, -C_SUM_FRAC_BITS),
@@ -154,7 +154,7 @@ begin
         end if;
 
         if sl_mm_valid_out_d1 = '1' then
-          -- resize/round only at this point
+          -- resize with round only at this point
           slv_data_out <= to_slv(resize(sfix_sum,
             C_DATA_TOTAL_BITS-C_DATA_FRAC_BITS_OUT-1, -C_DATA_FRAC_BITS_OUT,
             fixed_saturate, fixed_round));

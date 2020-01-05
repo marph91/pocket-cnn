@@ -40,8 +40,8 @@ architecture behavioral of pool_ave is
   signal sl_input_valid_d3 : std_logic := '0';
 
   signal sfix_average : sfixed(C_INTW_SUM+1 downto -C_FRAC_BITS-C_FRACW_REZI) := (others => '0'); -- mult: A'left + B'left + 1 downto -(A'right + B'right)
-  attribute use_dsp48 : string;
-  attribute use_dsp48 of sfix_average : signal is "yes";
+  attribute use_dsp : string;
+  attribute use_dsp of sfix_average : signal is "yes";
   signal sfix_average_d1 : sfixed(C_INTW_SUM+1 downto -C_FRAC_BITS-C_FRACW_REZI) := (others => '0');
 
   -- TODO: try real instead of sfixed
