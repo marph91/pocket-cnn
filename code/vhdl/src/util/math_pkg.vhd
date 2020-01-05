@@ -6,7 +6,7 @@ package math_pkg is
   function max(l, r : integer) return integer;
   function max(l, r : sfixed) return sfixed;
   function min(l, r : integer) return integer;
-end package math_pkg;
+end math_pkg;
 
 package body math_pkg is
   -- compute the binary logarithm

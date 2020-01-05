@@ -43,7 +43,7 @@ architecture behavioral of mm is
     of sfixed(C_DATA_INT_BITS+C_WEIGHTS_TOTAL_BITS-C_WEIGHTS_FRAC_BITS-1+C_FIRST_STAGE downto -C_DATA_FRAC_BITS_IN-C_WEIGHTS_FRAC_BITS);
   signal a_data_mult : t_sfix_mult_array_2d(0 to C_KSIZE-1, 0 to C_KSIZE-1) := (others => (others => (others => '0')));
   attribute use_dsp : string;
-  attribute use_dsp of a_data_mult : signal is "yes";
+  attribute use_dsp of a_data_mult : signal is "no";
   signal a_data_mult_d1 : t_sfix_mult_array_2d(0 to C_KSIZE-1, 0 to C_KSIZE-1) := (others => (others => (others => '0')));
 
   -- add bits to avoid using FIXED_SATURATE and avoid overflow
