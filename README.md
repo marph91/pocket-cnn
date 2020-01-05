@@ -37,9 +37,6 @@ python3 run_all.py
 
 # TODO
 
-- Add more documentation.
-- Clean up code and folder structure.
-
 ## Testing
 - Add more tests.
 - Use a second simulator, f. e. modelsim or nvc.
@@ -55,8 +52,14 @@ Add an example, which contains the full workflow:
 - Exporting to ONNX
 - Generating the hardware description with picocnn
 
-# Further notes
+# History
 
-The legacy tag `cocotb_caffe` contains:
+The tag `weights_in_bram` marks the last commit with:
+- Weights and bias stored in BRAM.
+- Using DSP for the matrix multiplications.
+&rarr; This got depracated by "Direct Hardware Mapping".
+
+The tag `cocotb_caffe` marks the last commit with:
 - Cocotb testbenches.
-- Integration of caffe and pytorch without the intermediate representaion in ONNX.
+- Integration of caffe and pytorch.
+&rarr; This got deprecated by using VUnit as test runner and ONNX as CNN format.
