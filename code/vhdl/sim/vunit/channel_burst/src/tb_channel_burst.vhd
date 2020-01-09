@@ -88,7 +88,7 @@ begin
     wait until rising_edge(sl_clk);
     for x in 0 to data_src_ref.width-1 loop
       sl_valid_in <= '1';
-      slv_data_in <= std_logic_vector(to_signed(data_src_ref.get(x), C_DATA_WIDTH));
+      slv_data_in <= std_logic_vector(to_unsigned(data_src_ref.get(x), C_DATA_WIDTH));
       report_position(x, 1, 1, C_CH,
                       "input: ", ", val=" & to_string(data_src_ref.get(x)));
       wait until rising_edge(sl_clk);

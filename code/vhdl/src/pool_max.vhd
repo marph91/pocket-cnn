@@ -27,9 +27,9 @@ end pool_max;
 architecture behavioral of pool_max is
   constant C_INT_BITS : integer range 1 to 16 := C_TOTAL_BITS - C_FRAC_BITS;
 
-  signal sl_input_valid_d1 : std_logic := '0';
+  signal isl_valid_d1,
+         sl_output_valid : std_logic := '0';
   signal slv_data_out : std_logic_vector(C_TOTAL_BITS-1 downto 0);
-  signal sl_output_valid : std_logic := '0';
 
   signal a_max_tmp : t_sfix_array_1d(0 to C_KSIZE-1)(C_INT_BITS-1 downto -C_FRAC_BITS) := (others => (others => '0'));
 
@@ -46,25 +46,29 @@ begin
   begin
     if rising_edge(isl_clk) then
       if isl_ce = '1' then
+        isl_valid_d1 <= isl_valid;
+        sl_output_valid <= isl_valid_d1;
+
         -- Stage 1
-        for j in 0 to C_KSIZE-1 loop
-          v_a_current_max(j) := to_sfixed(ia_data(0, j), C_INT_BITS-1, -C_FRAC_BITS);
-          for i in 1 to C_KSIZE-1 loop
-            v_sfix_new_value := to_sfixed(ia_data(i, j), C_INT_BITS-1, -C_FRAC_BITS);
-            v_a_current_max(j) := max(v_sfix_new_value, v_a_current_max(j));
+        if isl_valid = '1' then
+          for j in 0 to C_KSIZE-1 loop
+            v_a_current_max(j) := to_sfixed(ia_data(0, j), C_INT_BITS-1, -C_FRAC_BITS);
+            for i in 1 to C_KSIZE-1 loop
+              v_sfix_new_value := to_sfixed(ia_data(i, j), C_INT_BITS-1, -C_FRAC_BITS);
+              v_a_current_max(j) := max(v_sfix_new_value, v_a_current_max(j));
+            end loop;
           end loop;
-        end loop;
-        a_max_tmp <= v_a_current_max;
+          a_max_tmp <= v_a_current_max;
+        end if;
 
         -- Stage 2
-        v_sfix_current_max_tmp := a_max_tmp(0);
-        for j in 1 to C_KSIZE-1 loop
-          v_sfix_current_max_tmp := max(a_max_tmp(j), v_sfix_current_max_tmp);
-        end loop;
-        slv_data_out <= to_slv(v_sfix_current_max_tmp);
-
-        sl_input_valid_d1 <= isl_valid;
-        sl_output_valid <= sl_input_valid_d1;
+        if isl_valid_d1 = '1' then
+          v_sfix_current_max_tmp := a_max_tmp(0);
+          for j in 1 to C_KSIZE-1 loop
+            v_sfix_current_max_tmp := max(a_max_tmp(j), v_sfix_current_max_tmp);
+          end loop;
+          slv_data_out <= to_slv(v_sfix_current_max_tmp);
+        end if;
       end if;
     end if;
   end process;
