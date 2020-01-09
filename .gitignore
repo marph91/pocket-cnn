@@ -19,6 +19,7 @@ cnn_parameter.json
 *.o
 *.so
 *.vcd
+*.xml
 code/vhdl/sim/vunit/vunit_out/**
 code/vhdl/sim/vunit/*/vunit_out/**
 code/vhdl/sim/vunit/*/gen/**
