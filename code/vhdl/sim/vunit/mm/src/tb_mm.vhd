@@ -19,7 +19,6 @@ library vunit_lib;
 entity tb_mm is
   generic (
     runner_cfg            : string;
-    tb_path               : string;
 
     C_FIRST_STAGE         : integer;
     C_DATA_TOTAL_BITS     : integer;
@@ -92,13 +91,13 @@ begin
             to_string(C_WEIGHTS_TOTAL_BITS) & " " &
             to_string(C_WEIGHTS_FRAC_BITS));
     if C_FIRST_STAGE = 1 then
-      data_src.load_csv(tb_path & "input_data_stage1.csv");
-      weights_src.load_csv(tb_path & "input_weights_stage1.csv");
-      data_ref.load_csv(tb_path & "output_stage1.csv");
+      data_src.load_csv(tb_path(runner_cfg) & "input_data_stage1.csv");
+      weights_src.load_csv(tb_path(runner_cfg) & "input_weights_stage1.csv");
+      data_ref.load_csv(tb_path(runner_cfg) & "output_stage1.csv");
     else
-      data_src.load_csv(tb_path & "input_data" & to_string(C_KSIZE) & ".csv");
-      weights_src.load_csv(tb_path & "input_weights" & to_string(C_KSIZE) & ".csv");
-      data_ref.load_csv(tb_path & "output" & to_string(C_KSIZE) & ".csv");
+      data_src.load_csv(tb_path(runner_cfg) & "input_data" & to_string(C_KSIZE) & ".csv");
+      weights_src.load_csv(tb_path(runner_cfg) & "input_weights" & to_string(C_KSIZE) & ".csv");
+      data_ref.load_csv(tb_path(runner_cfg) & "output" & to_string(C_KSIZE) & ".csv");
     end if;
 
     check_equal(data_src.width, C_KSIZE, "input_width");

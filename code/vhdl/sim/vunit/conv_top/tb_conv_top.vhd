@@ -19,7 +19,6 @@ library vunit_lib;
 entity tb_conv_top is
   generic (
     runner_cfg            : string;
-    tb_path               : string;
 
     C_FIRST_STAGE         : integer;
 
@@ -112,8 +111,8 @@ begin
             to_string(C_DATA_FRAC_BITS_IN) & " " &
             to_string(C_WEIGHTS_TOTAL_BITS) & " " &
             to_string(C_WEIGHTS_FRAC_BITS));
-    data_src.load_csv(tb_path & "gen/input_" & to_string(C_KSIZE) & "_" & to_string(C_STRIDE) & ".csv");
-    data_ref.load_csv(tb_path & "gen/output_" & to_string(C_KSIZE) & "_" & to_string(C_STRIDE) & ".csv");
+    data_src.load_csv(tb_path(runner_cfg) & "gen/input_" & to_string(C_KSIZE) & "_" & to_string(C_STRIDE) & ".csv");
+    data_ref.load_csv(tb_path(runner_cfg) & "gen/output_" & to_string(C_KSIZE) & "_" & to_string(C_STRIDE) & ".csv");
 
     check_equal(data_src.width, C_IMG_WIDTH*C_IMG_HEIGHT*C_CH_IN, "input_width");
     check_equal(data_src.height, 1, "input_height");

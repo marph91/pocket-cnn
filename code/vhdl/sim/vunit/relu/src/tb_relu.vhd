@@ -14,7 +14,6 @@ library vunit_lib;
 entity tb_relu is
   generic (
     runner_cfg    : string;
-    tb_path       : string;
     ref_file      : string;
     sample_cnt    : integer;
     C_LEAKY       : std_logic := '0';
@@ -68,8 +67,8 @@ begin
 
   begin
     test_runner_setup(runner, runner_cfg);
-    data_src.load_csv(tb_path & "input.csv");
-    data_ref.load_csv(tb_path & ref_file);
+    data_src.load_csv(tb_path(runner_cfg) & "input.csv");
+    data_ref.load_csv(tb_path(runner_cfg) & ref_file);
     run_test;
     test_runner_cleanup(runner);
     wait;

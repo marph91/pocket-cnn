@@ -17,7 +17,7 @@ library vunit_lib;
 entity tb_top is
   generic (
     runner_cfg        : string;
-    tb_path           : string;
+
     C_FOLDER          : string;
     C_DATA_TOTAL_BITS : integer;
     C_IMG_WIDTH_IN    : integer;
@@ -181,8 +181,8 @@ begin
     test_runner_setup(runner, runner_cfg);
     -- don't stop integration tests when one value is wrong
     set_stop_level(failure);
-    data_src.load_csv(tb_path & C_FOLDER & "/input.csv");
-    data_ref.load_csv(tb_path & C_FOLDER & "/output.csv");
+    data_src.load_csv(tb_path(runner_cfg) & C_FOLDER & "/input.csv");
+    data_ref.load_csv(tb_path(runner_cfg) & C_FOLDER & "/output.csv");
 
     -- check whether the image dimensions between loaded data and parameter file fit
     check_equal(data_src.width, C_IMG_WIDTH_IN * C_IMG_HEIGHT_IN * C_IMG_DEPTH_IN, "input_width");

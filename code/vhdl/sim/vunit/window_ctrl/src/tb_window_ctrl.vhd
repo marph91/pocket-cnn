@@ -19,7 +19,6 @@ library vunit_lib;
 entity tb_window_ctrl is
   generic (
     runner_cfg        : string;
-    tb_path           : string;
 
     C_DATA_TOTAL_BITS : integer;
 
@@ -100,8 +99,8 @@ begin
             to_string(C_KSIZE) & "x" &
             to_string(C_CH_OUT));
 
-    data_src.load_csv(tb_path & "input_" & to_string(C_KSIZE) & "_" & to_string(C_STRIDE) & ".csv");
-    data_ref.load_csv(tb_path & "output_" & to_string(C_KSIZE) & "_" & to_string(C_STRIDE) & ".csv");
+    data_src.load_csv(tb_path(runner_cfg) & "input_" & to_string(C_KSIZE) & "_" & to_string(C_STRIDE) & ".csv");
+    data_ref.load_csv(tb_path(runner_cfg) & "output_" & to_string(C_KSIZE) & "_" & to_string(C_STRIDE) & ".csv");
 
     check_equal(data_src.width, C_IMG_WIDTH*C_IMG_HEIGHT*C_CH_IN, "input_width");
     check_equal(data_src.height, 1, "input_height");

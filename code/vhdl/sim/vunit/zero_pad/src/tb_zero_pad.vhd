@@ -14,7 +14,6 @@ library vunit_lib;
 entity tb_zero_pad is
   generic (
     runner_cfg      : string;
-    tb_path         : string;
     id              : string;
     C_IMG_WIDTH     : integer;
     C_IMG_HEIGHT    : integer;
@@ -78,8 +77,8 @@ begin
 
   begin
     test_runner_setup(runner, runner_cfg);
-    data_src.load_csv(tb_path & "input_" & id & ".csv");
-    data_ref.load_csv(tb_path & "output_" & id & ".csv");
+    data_src.load_csv(tb_path(runner_cfg) & "input_" & id & ".csv");
+    data_ref.load_csv(tb_path(runner_cfg) & "output_" & id & ".csv");
     check_equal(data_src.width, C_IMG_WIDTH * C_IMG_HEIGHT * C_IMG_DEPTH, "input_width");
     check_equal(data_src.height, 1, "input_height");
     check_equal(data_src.depth, 1, "input_depth");

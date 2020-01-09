@@ -14,7 +14,6 @@ library vunit_lib;
 entity tb_channel_burst is
   generic (
     runner_cfg    : string;
-    tb_path       : string;
     interval      : integer;
     C_DATA_WIDTH  : integer;
     C_CH          : integer
@@ -68,7 +67,7 @@ begin
 
   begin
     test_runner_setup(runner, runner_cfg);
-    data_src_ref.load_csv(tb_path & "input_output.csv");
+    data_src_ref.load_csv(tb_path(runner_cfg) & "input_output.csv");
 
     check_equal(data_src_ref.width, C_CH, "output_width");
     check_equal(data_src_ref.height, 1, "output_height");

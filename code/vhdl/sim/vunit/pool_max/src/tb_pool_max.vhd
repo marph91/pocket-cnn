@@ -18,7 +18,6 @@ library vunit_lib;
 entity tb_pool_max is
   generic (
     runner_cfg    : string;
-    tb_path       : string;
     C_KSIZE       : integer := 6;
     C_TOTAL_BITS  : integer := 6;
     C_FRAC_BITS   : integer := 3
@@ -71,8 +70,8 @@ begin
 
   begin
     test_runner_setup(runner, runner_cfg);
-    data_src.load_csv(tb_path & "input" & to_string(C_KSIZE) & ".csv");
-    data_ref.load_csv(tb_path & "output" & to_string(C_KSIZE) & ".csv");
+    data_src.load_csv(tb_path(runner_cfg) & "input" & to_string(C_KSIZE) & ".csv");
+    data_ref.load_csv(tb_path(runner_cfg) & "output" & to_string(C_KSIZE) & ".csv");
     run_test;
     test_runner_cleanup(runner);
     wait;
