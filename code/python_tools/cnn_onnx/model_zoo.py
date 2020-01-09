@@ -321,7 +321,7 @@ def conv_3x1_1x1_max_2x1():
     graph_gen.add(make_scale, "scale1", (16, 0))
     graph_gen.add(make_conv_quant, "conv1", 1, 4, (3, 1, 0))
     graph_gen.add(make_relu, "relu1")
-    graph_gen.add(make_pool_max, "max1", "relu1", 2, 1)
+    graph_gen.add(make_pool_max, "max1", 2, 1)
     graph_gen.add(make_conv_quant, "conv2", 4, 8, (1, 1, 0))
     graph_gen.add(make_relu, "relu2")
     graph_gen.add(make_pool_ave, "ave1")
