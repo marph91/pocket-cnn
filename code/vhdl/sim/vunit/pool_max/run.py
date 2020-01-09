@@ -42,7 +42,6 @@ def create_test_suite(ui):
                                generics=generics,
                                pre_config=create_stimuli(root, pool_dim,
                                                          total_bits, frac_bits))
-        tb_pool_max.set_attribute(".unittest", None)
 
 
 if __name__ == "__main__":

@@ -41,7 +41,6 @@ def create_test_suite(ui):
                            pre_config=create_stimuli(root, width, height,
                                                      channel, total_bits,
                                                      frac_bits))
-    tb_pool_ave.set_attribute(".unittest", None)
 
 
 if __name__ == "__main__":

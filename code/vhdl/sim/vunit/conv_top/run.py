@@ -110,7 +110,6 @@ def create_test_suite(ui):
                                                          frac_bits_weight,
                                                          channel_in, channel_out,
                                                          width, height))
-        tb_conv_top.set_attribute(".unittest", None)
 
 
 if __name__ == "__main__":

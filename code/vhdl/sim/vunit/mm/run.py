@@ -74,7 +74,6 @@ def create_test_suite(ui):
                                                    frac_bits_data,
                                                    total_bits_weight,
                                                    frac_bits_weight))
-        tb_mm.set_attribute(".unittest", None)
 
 
 if __name__ == "__main__":

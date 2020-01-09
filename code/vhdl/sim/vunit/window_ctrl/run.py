@@ -69,7 +69,6 @@ def create_test_suite(ui):
                                                             channel_in,
                                                             channel_out,
                                                             width, height))
-        tb_window_ctrl.set_attribute(".unittest", None)
 
 
 if __name__ == "__main__":

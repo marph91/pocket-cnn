@@ -43,7 +43,6 @@ def create_test_suite(ui):
                                          "C_IMG_DEPTH": channel},
                                pre_config=create_arrays(root, width, height,
                                                         channel))
-    tb_zero_pad.set_attribute(".unittest", None)
 
 
 if __name__ == "__main__":

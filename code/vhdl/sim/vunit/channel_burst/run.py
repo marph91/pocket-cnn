@@ -27,7 +27,6 @@ def create_test_suite(ui):
         tb_channel_burst.add_config(name="interval=%d" % (interval),
                                     generics=generics,
                                     pre_config=create_stimuli(root, bits, channel))
-        tb_channel_burst.set_attribute(".unittest", None)
 
 
 if __name__ == "__main__":

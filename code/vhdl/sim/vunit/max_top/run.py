@@ -62,7 +62,6 @@ def create_test_suite(ui):
                                                         total_bits, frac_bits,
                                                         channel,
                                                         width, height))
-        tb_max_top.set_attribute(".unittest", None)
 
 
 if __name__ == "__main__":

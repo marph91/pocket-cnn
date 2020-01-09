@@ -119,7 +119,6 @@ def create_test_suite(ui):
                           pre_config=create_stimuli(
                               join(root, "src", test_case_name),
                               "cnn_model.onnx"))
-        tb_top.set_attribute(".integration_test", None)
 
 
 if __name__ == "__main__":
