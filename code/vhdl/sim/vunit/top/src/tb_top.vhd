@@ -112,8 +112,6 @@ architecture behavioral of tb_top is
   signal sl_valid_out     : std_logic;
   signal sl_finish        : std_logic;
 
-  signal int_pixel_cnt    : integer;
-
   constant C_CH_ARRAY     : t_int_array_1d := decode_integer_array(C_CH, 0);
   constant C_IMG_DEPTH_IN : integer := C_CH_ARRAY(0);
 
@@ -224,7 +222,6 @@ begin
     sl_start <= '1';
     wait until rising_edge(sl_clk);
     sl_start <= '0';
-    int_pixel_cnt <= 0;
 
     while i < C_IMG_WIDTH_IN * C_IMG_HEIGHT_IN * C_IMG_DEPTH_IN loop
       wait until rising_edge(sl_clk) and sl_rdy = '1';
@@ -252,6 +249,7 @@ begin
       check_equal(slv_data_out, data_ref.get(x));
     end loop;
 
+    wait until sl_finish = '1';
     report ("Done checking");
     data_check_done <= true;
   end process;

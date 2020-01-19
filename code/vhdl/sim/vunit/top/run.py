@@ -36,7 +36,7 @@ def create_test_suite(ui):
     root = dirname(__file__)
 
     ui.add_array_util()
-    integration_test = ui.add_library("integration_test")
+    integration_test = ui.add_library("integration_test", allow_duplicate=True)
     integration_test.add_source_files(join(root, "src", "tb_top.vhd"))
     tb_top = integration_test.entity("tb_top")
 

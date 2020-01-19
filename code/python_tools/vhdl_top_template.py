@@ -25,6 +25,7 @@ library ieee;\n\
   use ieee.std_logic_1164.all;\n\
 library util;\n\
   use util.cnn_pkg.all;\n\n\
+library cnn_lib;\n\n\
 entity top_wrapper is\n\
   port (\n\
     isl_clk    : in std_logic;\n\
@@ -44,7 +45,7 @@ entity top_wrapper is\n\
 end top_wrapper;\n\n\
 architecture behavioral of top_wrapper is\n\
 begin\n\
-  i_top : entity work.top\n\
+  i_top : entity cnn_lib.top\n\
   generic map (\n\
     C_DATA_TOTAL_BITS => " + str(bitwidth[0][0]) + ",\n\
     C_IMG_WIDTH_IN => " + str(param["input_width"]) + ",\n\

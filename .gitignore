@@ -24,6 +24,7 @@ code/vhdl/sim/vunit/vunit_out/**
 code/vhdl/sim/vunit/*/vunit_out/**
 code/vhdl/sim/vunit/*/gen/**
 code/vhdl/sim/vunit/top/src/*/weights/**
+code/vhdl/sim/vunit/top_wrapper/src/*/weights/**
 
 # CNN models
 *.onnx
