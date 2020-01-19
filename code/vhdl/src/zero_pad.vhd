@@ -33,102 +33,97 @@ architecture behavioral of zero_pad is
   constant C_IMG_HEIGHT_OUT : integer := C_IMG_HEIGHT + C_PAD_TOP + C_PAD_BOTTOM;
 
   -- counter
-  signal int_ch : integer range 0 to C_CH := 0;
+  signal int_ch_in : integer range 0 to C_CH-1 := 0;
   signal int_ch_out : integer range 0 to C_CH := 0;
-  signal int_row : integer range 0 to C_IMG_HEIGHT := 0;
-  signal int_col : integer range 0 to C_IMG_WIDTH := 0;
-  signal int_data_in_cnt : integer range 0 to C_IMG_HEIGHT*C_IMG_WIDTH := 0;
-  signal int_data_out_cnt : integer range 0 to C_IMG_HEIGHT_OUT*C_IMG_WIDTH_OUT := 0;
-
-  signal int_values_to_pad : integer range 0 to (C_IMG_WIDTH_OUT + C_PAD_LEFT)*C_CH+1 := 0;
-  signal int_burst : integer range 0 to C_CH := 0;
+  signal int_row : integer range 0 to C_IMG_HEIGHT-1 := 0;
+  signal int_col : integer range 0 to C_IMG_WIDTH-1 := 0;
+  signal int_pixel_to_pad : integer range 0 to C_IMG_WIDTH_OUT + C_PAD_LEFT + 1 := 0;
 
   signal sl_output_valid : std_logic := '0';
   signal slv_data_out : std_logic_vector(C_DATA_WIDTH - 1 downto 0);
   signal sl_rdy : std_logic := '0';
 
+  type t_states IS (IDLE, PAD, PAD_PIXEL, FORWARD_DATA);
+  signal state : t_states := IDLE;
+
 begin
-  proc_cnt : process(isl_clk)
+  proc_pad: process(isl_clk)
   begin
     if rising_edge(isl_clk) then
-      if isl_rst_n = '0' then
-        int_data_out_cnt <= 0;
-        int_data_in_cnt <= 0;
-      elsif isl_start = '1' then
-        int_values_to_pad <= (C_IMG_WIDTH_OUT + C_PAD_LEFT)*C_CH;
-        int_data_out_cnt <= 0;
-        int_data_in_cnt <= 0;
+      if isl_start = '1' then
+        -- padding at the start of the image
+        int_pixel_to_pad <= C_IMG_WIDTH_OUT + C_PAD_LEFT;
         -- prevent problems with STRIDE /= KERNEL_SIZE at multiple images
         int_row <= 0;
         int_col <= 0;
       elsif isl_valid = '1' then
-        if int_ch < C_CH-1 then
-          int_ch <= int_ch+1;
+        if int_ch_in < C_CH-1 then
+          int_ch_in <= int_ch_in+1;
         else
-          int_ch <= 0;
-          int_data_in_cnt <= int_data_in_cnt+1;
-          if int_col = C_IMG_WIDTH-1 then
+          int_ch_in <= 0;
+          if int_col < C_IMG_WIDTH-1 then
+            int_col <= int_col+1;
+          else
             int_col <= 0;
-            int_values_to_pad <= (C_PAD_RIGHT + C_PAD_LEFT)*C_CH+1; -- +1, because if output_valid=1 one gets subtracted immediately
-            if int_row = C_IMG_HEIGHT-1 then
-              int_row <= 0;
-              if C_PAD_BOTTOM > 0 then
-                int_values_to_pad <= (C_IMG_WIDTH_OUT + C_PAD_RIGHT)*C_CH+1;
-              else
-                -- overwrites int_values_to_pad from previous int_col iteration
-                int_values_to_pad <= 0;
-              end if;
-            else
+            -- padding after each row
+            int_pixel_to_pad <= C_PAD_RIGHT + C_PAD_LEFT;
+            if int_row < C_IMG_HEIGHT-1 then
               int_row <= int_row+1;
+            else
+              int_row <= 0;
+              -- padding at the end of the image
+              if C_PAD_BOTTOM > 0 then
+                int_pixel_to_pad <= C_IMG_WIDTH_OUT + C_PAD_RIGHT;
+              else
+                int_pixel_to_pad <= 0;
+              end if;
+            end if;
+          end if;
+        end if;
+      end if;
+
+      case state is
+        when IDLE =>
+          sl_rdy <= '0';
+          if int_pixel_to_pad > 0 then
+            state <= PAD;
+          end if;
+
+        when PAD =>
+          if int_pixel_to_pad > 0 then
+            if isl_get = '1' then
+              state <= PAD_PIXEL;
+              int_pixel_to_pad <= int_pixel_to_pad-1;
             end if;
           else
-            int_col <= int_col+1;
+            state <= FORWARD_DATA;
           end if;
-        end if;
-      elsif sl_output_valid = '1' then
-        if int_values_to_pad > 0 then
-          int_values_to_pad <= int_values_to_pad-1;
-        end if;
-        if int_ch_out < C_CH-1 then
-            int_ch_out <= int_ch_out+1;
-        else
-          int_data_out_cnt <= int_data_out_cnt+1;
-          int_ch_out <= 0;
-        end if;
-      end if;
-    end if;
-  end process proc_cnt;
 
-  proc_pad: process(isl_clk)
-  begin
-    if rising_edge(isl_clk) then
-      if isl_ce = '1' then
-        if isl_start = '1' then
-          sl_rdy <= '0';
-        elsif isl_valid = '1' then
-          slv_data_out <= islv_data;
-          sl_output_valid <= '1';
-        elsif int_values_to_pad /= 0 then
-          sl_rdy <= '0';
-          slv_data_out <= (others => '0');
-          if isl_get = '1' and sl_output_valid = '0' then
+        when PAD_PIXEL =>
+          if int_ch_out < C_CH then
+            int_ch_out <= int_ch_out+1;
             sl_output_valid <= '1';
-            int_burst <= C_CH-1;
-          elsif int_burst > 0 then
-            sl_output_valid <= '1';
-            int_burst <= int_burst-1;
+            slv_data_out <= (others => '0');
           else
+            int_ch_out <= 0;
             sl_output_valid <= '0';
+            state <= PAD;
           end if;
-        else
-          sl_output_valid <= '0';
+
+        when FORWARD_DATA =>
           sl_rdy <= '1';
-        end if;
-      end if;
+          slv_data_out <= islv_data;
+          sl_output_valid <= isl_valid;
+          if int_pixel_to_pad > 0 then
+            state <= PAD;
+            sl_rdy <= '0';
+          end if;
+
+      end case;
     end if;
-  end process proc_pad;
+  end process;
 
   osl_valid <= sl_output_valid;
   oslv_data <= slv_data_out;
-  osl_rdy <= sl_rdy and isl_get and not isl_start;
+  osl_rdy <= sl_rdy and isl_get;
 end architecture;
