@@ -92,7 +92,8 @@ begin
                       "input: ", ", val=" & to_string(data_src_ref.get(x)));
       wait until rising_edge(sl_clk);
       sl_valid_in <= '0';
-      for i in 1 to interval loop
+      -- If interval = 1, the code inside the loop gets exectuted never!
+      for i in 2 to interval loop
         wait until rising_edge(sl_clk);
       end loop;
     end loop;
