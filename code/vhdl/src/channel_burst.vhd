@@ -94,10 +94,7 @@ begin
         int_ch_to_burst <= int_ch_to_burst-1;
       end if;
 
-      if isl_start = '1' then
-        -- prevent problems with STRIDE /= KERNEL_SIZE at multiple images
-        int_ch_out_cnt <= 0;
-      elsif sl_bursted = '1' or sl_valid_out = '1' then
+      if isl_start = '0' and (sl_bursted = '1' or sl_valid_out = '1') then
         if int_ch_out_cnt < C_CH-1 then
           int_ch_out_cnt <= int_ch_out_cnt+1;
         else
