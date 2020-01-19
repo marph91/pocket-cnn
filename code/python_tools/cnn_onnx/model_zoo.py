@@ -210,7 +210,7 @@ class GraphGenerator:
 # model definitions
 
 def conv_3x1_1x1_max_2x2():
-    """Baseline model."""
+    """Baseline model. size: 6x6 -> 4x4 -> 2x2"""
     graph_gen = GraphGenerator()
     graph_gen.add(make_scale, "scale1", (16, 0))
     graph_gen.add(make_conv_quant, "conv1", 1, 4, (3, 1, 0))
