@@ -97,9 +97,8 @@ architecture behavioral of top is
   begin
     if stage = 1 then
       return 1;
-    else
-      return 0;
     end if;
+    return 0;
   end f_is_first_stage;
 
 begin
