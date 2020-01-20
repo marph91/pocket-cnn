@@ -32,11 +32,18 @@ architecture behavior of window_buffer is
   signal a_win_buffer : t_win_buffer := (others => (others => (others => (others => '0'))));
 
 begin
-  proc_shift_data : process(isl_clk)
+  proc_shift_data: process(isl_clk)
   begin
     if rising_edge(isl_clk) then
       if isl_valid = '1' then
-        -- shift columns (each column gets shifted to the next position and the buffer gets wrapped)
+        -- shift channel (except of first one, which gets assigned later)
+        for ch in 1 to C_CH-1 loop
+          a_win_buffer(ch) <= a_win_buffer(ch-1);
+        end loop;
+
+        -- shift columns and wrap last channel:
+        -- each column gets shifted to the next position and
+        -- the last channel of the buffer gets wrapped
         for col in 1 to C_KSIZE-1 loop
           for row in 0 to C_KSIZE-1 loop
             a_win_buffer(0)(col, row) <= a_win_buffer(C_CH-1)(col-1, row);
@@ -49,16 +56,11 @@ begin
             a_win_buffer(0)(0, row) <= ia_data(row);
           end loop;
         end loop;
-
-        -- shift channels (except of the first one, which was the last output and will be discarded now)
-        for ch in 1 to C_CH-1 loop
-          a_win_buffer(ch) <= a_win_buffer(ch-1);
-        end loop;
       end if;
     end if;
   end process proc_shift_data;
 
-  proc_window_buffer : process(isl_clk)
+  proc_valid_out: process(isl_clk)
   begin
     if rising_edge(isl_clk) then
       if isl_ce = '1' then
@@ -72,7 +74,7 @@ begin
         sl_valid_out <= isl_valid;
       end if;
     end if;
-  end process proc_window_buffer;
+  end process;
 
   oa_data <= a_win_buffer(0);
   osl_valid <= sl_valid_out;

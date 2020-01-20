@@ -50,6 +50,11 @@ begin
   proc_pad: process(isl_clk)
   begin
     if rising_edge(isl_clk) then
+      -- Determine the image position to set int_pixel_to_pad.
+      -- There are three posibilities for padding:
+      -- 1. at the start of the image
+      -- 2. after each row
+      -- 3. at the end of the image
       if isl_start = '1' then
         -- padding at the start of the image
         int_pixel_to_pad <= C_IMG_WIDTH_OUT + C_PAD_LEFT;
@@ -82,6 +87,7 @@ begin
         end if;
       end if;
 
+      -- states are dependent on current state and int_pixel_to_pad
       case state is
         when IDLE =>
           sl_rdy <= '0';

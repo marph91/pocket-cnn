@@ -149,7 +149,6 @@ begin
           else
             int_ch_in_cnt <= 0;
             int_pixel_in_cnt <= int_pixel_in_cnt+1;
-            -- TODO: function for converting between col, row and pixel_cnt
             if int_col < C_IMG_WIDTH-1 then
               int_col <= int_col+1;
             else
