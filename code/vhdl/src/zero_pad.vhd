@@ -61,6 +61,7 @@ begin
         -- prevent problems with STRIDE /= KERNEL_SIZE at multiple images
         int_row <= 0;
         int_col <= 0;
+        state <= IDLE;
       elsif isl_valid = '1' then
         if int_ch_in < C_CH-1 then
           int_ch_in <= int_ch_in+1;
