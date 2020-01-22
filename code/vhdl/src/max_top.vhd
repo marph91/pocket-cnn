@@ -19,7 +19,6 @@ entity max_top is
     isl_clk   : in std_logic;
     isl_rst_n : in std_logic;
     isl_ce    : in std_logic;
-    isl_get   : in std_logic;
     isl_start : in std_logic;
     isl_valid : in std_logic;
     islv_data : in std_logic_vector(C_TOTAL_BITS-1 downto 0);
@@ -49,7 +48,6 @@ begin
     isl_clk   => isl_clk,
     isl_rst_n => isl_rst_n,
     isl_ce    => isl_ce,
-    isl_get   => isl_get,
     isl_start => isl_start,
     isl_valid => isl_valid,
     islv_data => islv_data,

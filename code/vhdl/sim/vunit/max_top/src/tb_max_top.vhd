@@ -41,7 +41,6 @@ architecture tb of tb_max_top is
   signal slv_data_out : std_logic_vector(C_TOTAL_BITS-1 downto 0) := (others => '0');
   signal sl_valid_out : std_logic := '0';
   signal sl_rdy : std_logic := '0';
-  signal sl_get : std_logic := '1';
 
   signal sl_start : std_logic := '0';
 
@@ -66,7 +65,6 @@ begin
     isl_clk   => sl_clk,
     isl_rst_n => '1',
     isl_ce    => '1',
-    isl_get   => sl_get,
     isl_start => sl_start,
     isl_valid => sl_valid_in,
     islv_data => slv_data_in,

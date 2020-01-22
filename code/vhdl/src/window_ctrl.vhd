@@ -23,7 +23,6 @@ entity window_ctrl is
     isl_clk   : in std_logic;
     isl_rst_n : in std_logic;
     isl_ce    : in std_logic;
-    isl_get   : in std_logic;
     isl_start : in std_logic;
     isl_valid : in std_logic;
     islv_data : in std_logic_vector(C_DATA_TOTAL_BITS-1 downto 0);
@@ -150,7 +149,6 @@ begin
       isl_clk     => isl_clk,
       isl_reset   => isl_rst_n,
       isl_ce      => isl_ce,
-      -- TODO: isl_get??
       isl_valid   => sl_selector_valid_out,
       ia_data     => a_selector_data_out,
       oa_data     => a_repeater_data_out,
@@ -218,5 +216,5 @@ begin
   osl_valid <= sl_repeater_valid_out;
   -- use sl_lb_valid_out and sl_wb_valid_out to get two less cycles of sl_rdy = '1'
   -- else too much data would get sent in
-  osl_rdy <= isl_get and sl_repeater_rdy and not (sl_lb_valid_out or sl_wb_valid_out);
+  osl_rdy <= sl_repeater_rdy and not (sl_lb_valid_out or sl_wb_valid_out);
 end behavioral;
