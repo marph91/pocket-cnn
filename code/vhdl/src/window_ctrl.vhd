@@ -65,7 +65,7 @@ architecture behavioral of window_ctrl is
   signal sl_output_valid : std_logic := '0';
   signal a_data_out : t_slv_array_2d(0 to C_KSIZE-1, 0 to C_KSIZE-1) := (others => (others => (others => '0')));
 begin
-  gen_buffer : if C_KSIZE = 1 generate
+  gen_window_buffer : if C_KSIZE = 1 generate
     sl_chb_valid_in <= isl_valid;
     a_chb_data_in(0, 0) <= islv_data;
   else generate
@@ -108,26 +108,32 @@ begin
     a_chb_data_in <= a_wb_data_out;
   end generate;
 
-  -- channel buffer
-  i_channel_buffer : entity work.channel_buffer
-  generic map(
-    C_DATA_WIDTH  => C_DATA_TOTAL_BITS,
-    C_CH          => C_CH_IN,
-    C_REPEAT      => C_CH_OUT,
-    C_KSIZE       => C_KSIZE
-  )
-  port map(
-    isl_clk     => isl_clk,
-    isl_reset   => isl_rst_n,
-    isl_ce      => isl_ce,
-    isl_repeat  => sl_chb_repeat,
-    isl_valid   => sl_chb_valid_in,
-    ia_data     => a_chb_data_in,
-    oa_data     => a_chb_data_out,
-    osl_valid   => sl_chb_valid_out,
-    osl_rdy     => sl_chb_rdy
-  );
-  sl_chb_repeat <= '1' when int_pixel_in_cnt >= (C_KSIZE-1)*C_IMG_WIDTH+C_KSIZE-1 else '0';
+  gen_channel_repeater : if C_CH_OUT > 1 generate
+    -- channel buffer
+    i_channel_repeater : entity work.channel_repeater
+    generic map(
+      C_DATA_WIDTH  => C_DATA_TOTAL_BITS,
+      C_CH          => C_CH_IN,
+      C_REPEAT      => C_CH_OUT,
+      C_KSIZE       => C_KSIZE
+    )
+    port map(
+      isl_clk     => isl_clk,
+      isl_reset   => isl_rst_n,
+      isl_ce      => isl_ce,
+      isl_repeat  => sl_chb_repeat,
+      isl_valid   => sl_chb_valid_in,
+      ia_data     => a_chb_data_in,
+      oa_data     => a_chb_data_out,
+      osl_valid   => sl_chb_valid_out,
+      osl_rdy     => sl_chb_rdy
+    );
+    sl_chb_repeat <= '1' when int_pixel_in_cnt >= (C_KSIZE-1)*C_IMG_WIDTH+C_KSIZE-1 else '0';
+  else generate
+    a_chb_data_out <= a_chb_data_in;
+    sl_chb_valid_out <= sl_chb_valid_in;
+    sl_chb_rdy <= '1';
+  end generate;
 
   proc_cnt : process(isl_clk)
   begin
@@ -192,7 +198,8 @@ begin
     if rising_edge(isl_clk) then
       if isl_ce = '1' then
         a_data_out <= a_chb_data_out;
-        if sl_chb_valid_in_d1 = '1' and
+        if ((C_CH_OUT > 1 and sl_chb_valid_in_d1 = '1') or
+            (C_CH_OUT = 1 and sl_chb_valid_in = '1')) and
             int_pixel_in_cnt >= (C_KSIZE-1)*C_IMG_WIDTH+C_KSIZE-1 and
             (int_row+1-C_KSIZE+C_STRIDE) mod C_STRIDE = 0 and
             (int_col+1-C_KSIZE+C_STRIDE) mod C_STRIDE = 0 and
