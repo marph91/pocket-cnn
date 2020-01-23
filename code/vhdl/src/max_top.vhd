@@ -13,9 +13,7 @@ entity max_top is
     C_IMG_HEIGHT  : integer range 1 to 512 := 16;
 
     C_KSIZE       : integer range 0 to 16 := 4;
-    C_STRIDE      : integer range 1 to 3 := 1;
-
-    C_PARALLEL    : integer range 0 to 1 := 0
+    C_STRIDE      : integer range 1 to 3 := 1
   );
   port (
     isl_clk   : in std_logic;
@@ -31,7 +29,7 @@ entity max_top is
 end max_top;
 
 architecture behavioral of max_top is
-  signal a_win_data_out : t_weights_array(0 to C_PARALLEL*(C_CH-1))(0 to C_KSIZE-1, 0 to C_KSIZE-1) := (others => (others => (others => (others => '0'))));
+  signal a_win_data_out : t_weights_array(0 to 0)(0 to C_KSIZE-1, 0 to C_KSIZE-1) := (others => (others => (others => (others => '0'))));
   signal slv_win_valid_out : std_logic := '0';
 
 begin
@@ -58,8 +56,6 @@ begin
     osl_rdy   => osl_rdy
   );
 
-  -- TODO: parallelize
-  -- for ch in C_PARALLEL*C_CH_IN generate
   i_max : entity work.pool_max
   generic map (
     C_KSIZE       => C_KSIZE,
