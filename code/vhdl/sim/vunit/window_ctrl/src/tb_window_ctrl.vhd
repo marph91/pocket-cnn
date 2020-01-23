@@ -28,7 +28,9 @@ entity tb_window_ctrl is
     C_IMG_HEIGHT      : integer;
 
     C_KSIZE           : integer;
-    C_STRIDE          : integer
+    C_STRIDE          : integer;
+
+    C_PARALLEL        : integer := 0
   );
 end entity;
 
@@ -36,7 +38,7 @@ architecture tb of tb_window_ctrl is
   signal sl_clk : std_logic := '0';
   signal sl_valid_in : std_logic := '0';
   signal slv_data_in : std_logic_vector(C_DATA_TOTAL_BITS-1 downto 0) := (others => '0');
-  signal a_data_out : t_slv_array_2d(0 to C_KSIZE-1, 0 to C_KSIZE-1);
+  signal a_data_out : t_weights_array(0 to C_PARALLEL*(C_CH_IN-1))(0 to C_KSIZE-1, 0 to C_KSIZE-1);
   signal sl_valid_out : std_logic := '0';
   signal sl_rdy : std_logic := '0';
 
@@ -160,9 +162,9 @@ begin
           wait until rising_edge(sl_clk) and sl_valid_out = '1';
           for x in 0 to C_KSIZE-1 loop
             for y in 0 to C_KSIZE-1 loop
-              report to_string(a_data_out(C_KSIZE-1-x, C_KSIZE-1-y)) &
+              report to_string(a_data_out(0)(C_KSIZE-1-x, C_KSIZE-1-y)) &
                     " " & to_string(data_ref.get(ch_in*C_KSIZE*C_KSIZE+x+y*C_KSIZE, pos));
-              check_equal(a_data_out(C_KSIZE-1-x, C_KSIZE-1-y), data_ref.get(ch_in*C_KSIZE*C_KSIZE+x+y*C_KSIZE, pos),
+              check_equal(a_data_out(0)(C_KSIZE-1-x, C_KSIZE-1-y), data_ref.get(ch_in*C_KSIZE*C_KSIZE+x+y*C_KSIZE, pos),
                           "pos=" & to_string(pos) & ", ch_in=" & to_string(ch_in) & ", ch_out=" & to_string(ch_out));
             end loop;
           end loop;

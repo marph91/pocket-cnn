@@ -23,7 +23,9 @@ entity conv_top is
     C_KSIZE           : integer range 1 to 3 := 3;
     C_STRIDE          : integer range 1 to 3 := 1;
     C_WEIGHTS_INIT    : string := "";
-    C_BIAS_INIT       : string := ""
+    C_BIAS_INIT       : string := "";
+
+    C_PARALLEL        : integer range 0 to 1 := 0
   );
   port (
     isl_clk   : in std_logic;
@@ -40,13 +42,13 @@ end conv_top;
 
 architecture behavioral of conv_top is
   -- window control
-  signal a_win_data_out : t_slv_array_2d(0 to C_KSIZE-1, 0 to C_KSIZE-1) := (others => (others => (others => '0')));
+  signal a_win_data_out : t_weights_array(0 to C_PARALLEL*(C_CH_IN-1))(0 to C_KSIZE-1, 0 to C_KSIZE-1) := (others => (others => (others => (others => '0'))));
   signal sl_win_valid_out : std_logic := '0';
 
   -- weights
   constant C_WEIGHTS : t_weights_array := init_weights(C_WEIGHTS_INIT, C_CH_IN*C_CH_OUT, C_KSIZE, 8);
-  signal int_addr_cnt : integer range 0 to C_WEIGHTS'HIGH := 0;
-  signal a_weights : t_slv_array_2d(0 to C_KSIZE-1, 0 to C_KSIZE-1) := (others => (others => (others => '0')));
+  signal int_addr_cnt : integer range 0 to C_CH_IN*C_CH_OUT := 0;
+  signal a_weights : t_weights_array(0 to C_PARALLEL*(C_CH_IN-1))(0 to C_KSIZE-1, 0 to C_KSIZE-1) := (others => (others => (others => (others => '0'))));
 
 begin
   i_window_ctrl : entity work.window_ctrl
@@ -92,12 +94,13 @@ begin
     isl_rst_n  => isl_rst_n,
     isl_ce     => isl_ce,
     isl_valid  => sl_win_valid_out,
-    ia_data    => a_win_data_out,
-    ia_weights => a_weights,
+    ia_data    => a_win_data_out(0),
+    ia_weights => a_weights(0),
     oslv_data  => oslv_data,
     osl_valid  => osl_valid
   );
-  a_weights <= C_WEIGHTS(int_addr_cnt);
+  a_weights(0) <= C_WEIGHTS(int_addr_cnt);
+
 
   proc_data : process(isl_clk)
   begin
@@ -107,7 +110,7 @@ begin
       elsif isl_ce = '1' then
         -- weight addresses depend on window control
         if sl_win_valid_out = '1' then
-          if int_addr_cnt < C_WEIGHTS'HIGH then
+          if int_addr_cnt < C_CH_IN*C_CH_OUT-1 then
             int_addr_cnt <= int_addr_cnt + 1;
           else
             int_addr_cnt <= 0;

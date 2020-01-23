@@ -11,7 +11,9 @@ entity channel_repeater is
     C_CH          : integer range 1 to 512 := 16;
 
     C_REPEAT      : integer range 1 to 512 := 32;
-    C_KSIZE       : integer range 1 to 3 := 3
+    C_KSIZE       : integer range 1 to 3 := 3;
+
+    C_PARALLEL    : integer range 0 to 1 := 0
   );
   port(
     isl_clk     : in std_logic;
@@ -19,7 +21,7 @@ entity channel_repeater is
     isl_ce      : in std_logic;
     isl_valid   : in std_logic;
     ia_data     : in t_slv_array_2d(0 to C_KSIZE-1, 0 to C_KSIZE-1);
-    oa_data     : out t_slv_array_2d(0 to C_KSIZE-1, 0 to C_KSIZE-1);
+    oa_data     : out t_weights_array(0 to C_PARALLEL*(C_CH-1))(0 to C_KSIZE-1, 0 to C_KSIZE-1);
     osl_valid   : out std_logic;
     osl_rdy     : out std_logic
   );
@@ -31,8 +33,7 @@ architecture behavior of channel_repeater is
   signal int_ch_out_cnt : integer range 0 to C_CH-1 := 0;
   signal int_repeat_cnt : integer range 0 to C_REPEAT-1 := 0;
 
-  type t_1d_array is array (natural range <>) of t_slv_array_2d(0 to C_KSIZE-1, 0 to C_KSIZE-1);
-  signal a_ch : t_1d_array(0 to C_CH-1) := (others => (others => (others => (others => '0'))));
+  signal a_ch : t_weights_array(0 to C_CH-1)(0 to C_KSIZE-1, 0 to C_KSIZE-1) := (others => (others => (others => (others => '0'))));
 
 begin
   proc_data : process(isl_clk)
@@ -44,7 +45,7 @@ begin
           for i in 1 to C_CH-1 loop
             a_ch(i) <= a_ch(i-1);
           end loop;
-        elsif sl_valid_out = '1' then
+        elsif C_PARALLEL = 0 and sl_valid_out = '1' then
           a_ch(0) <= a_ch(C_CH-1);
           for i in 1 to C_CH-1 loop
             a_ch(i) <= a_ch(i-1);
@@ -68,10 +69,19 @@ begin
         end if;
 
         if sl_valid_out = '1' then
-          if int_ch_out_cnt < C_CH-1 then
-            int_ch_out_cnt <= int_ch_out_cnt+1;
+          if C_PARALLEL = 0 then
+            if int_ch_out_cnt < C_CH-1 then
+              int_ch_out_cnt <= int_ch_out_cnt+1;
+            else
+              int_ch_out_cnt <= 0;
+              if int_repeat_cnt < C_REPEAT-1 then
+                int_repeat_cnt <= int_repeat_cnt+1;
+              else
+                int_repeat_cnt <= 0;
+                sl_valid_out <= '0';
+              end if;
+            end if;
           else
-            int_ch_out_cnt <= 0;
             if int_repeat_cnt < C_REPEAT-1 then
               int_repeat_cnt <= int_repeat_cnt+1;
             else
@@ -85,6 +95,10 @@ begin
   end process proc_counter;
 
   osl_rdy <= not (sl_valid_out or isl_valid);
-  oa_data <= a_ch(0);
   osl_valid <= sl_valid_out;
+  gen_output: if C_PARALLEL = 0 generate
+    oa_data(0) <= a_ch(0);
+  else generate
+    oa_data <= a_ch;
+  end generate;
 end architecture behavior;
