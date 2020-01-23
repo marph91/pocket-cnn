@@ -27,7 +27,6 @@ architecture behavior of channel_burst is
   signal sl_valid_in : std_logic := '0';
   signal slv_data_in : std_logic_vector(C_DATA_WIDTH-1 downto 0);
 
-  signal sl_data_rdy : std_logic := '0';
   signal sl_valid_out : std_logic := '0';
   signal sl_rdy : std_logic := '0';
 
@@ -36,6 +35,7 @@ architecture behavior of channel_burst is
 
   signal usig_index_buffer_in,
          usig_index_buffer_out : unsigned(0 downto 0) := "0";
+  signal int_data_cnt : integer range 0 to 2 := 0;
 
   type t_1d_array is array (natural range 0 to 1) of t_slv_array_1d(0 to C_CH-1);
   signal a_ch : t_1d_array := (others => (others => (others => '0')));
@@ -80,13 +80,13 @@ begin
           int_ch_in_cnt <= int_ch_in_cnt+1;
         else
           int_ch_in_cnt <= 0;
-          sl_data_rdy <= '1';
+          int_data_cnt <= int_data_cnt + 1;
           usig_index_buffer_in <= not usig_index_buffer_in;
         end if;
       end if;
 
       -- buffer current data until the next element is ready
-      if sl_data_rdy = '1' and isl_get = '1' then
+      if int_data_cnt > 0 and isl_get = '1' then
         sl_valid_out <= '1';
       end if;
 
@@ -97,9 +97,7 @@ begin
           int_ch_out_cnt <= 0;
           sl_valid_out <= '0';
           sl_rdy <= '1';
-          -- TODO: check if this works with multiple input images.
-          --       I. e. when the initial buffer indice are different.
-          sl_data_rdy <= '1' when usig_index_buffer_out = usig_index_buffer_in else '0';
+          int_data_cnt <= int_data_cnt - 1;
           usig_index_buffer_out <= not usig_index_buffer_out;
         end if;
       end if;
