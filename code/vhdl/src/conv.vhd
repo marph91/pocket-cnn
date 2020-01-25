@@ -155,6 +155,7 @@ begin
           
           for ch_in in 0 to C_PARALLEL*(C_CH_IN-1) loop
             -- always resize the values -> without round, sfix_sum should be big enough
+            -- TODO: adder tree needed?
             v_sfix_sum := resize(
               v_sfix_sum + to_sfixed(slv_mm_data_out(ch_in),
                 C_SUM_INT_BITS-log2(C_CH_IN)-1, -C_SUM_FRAC_BITS),
