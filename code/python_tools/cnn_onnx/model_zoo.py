@@ -250,7 +250,7 @@ def conv_3x1_1x1_max_2x2_nonsquare_input():
     graph_gen.add(make_relu, "relu2")
     graph_gen.add(make_pool_ave, "ave1")
 
-    graph_def = graph_gen.get_graph("cnn", (1, 5, 9), (8, 1, 1))
+    graph_def = graph_gen.get_graph("cnn", (1, 4, 8), (8, 1, 1))
     return helper.make_model(graph_def)
 
 
