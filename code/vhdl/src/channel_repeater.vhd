@@ -60,28 +60,19 @@ begin
     if rising_edge(isl_clk) then
       if isl_ce = '1' then
         if isl_valid = '1' then
-          sl_valid_out <= '1';
-          if int_ch_in_cnt < C_CH-1 then
+          if C_PARALLEL = 1 and int_ch_in_cnt < C_CH-1 then
             int_ch_in_cnt <= int_ch_in_cnt+1;
           else
             int_ch_in_cnt <= 0;
+            sl_valid_out <= '1';
           end if;
         end if;
 
         if sl_valid_out = '1' then
-          if C_PARALLEL = 0 then
-            if int_ch_out_cnt < C_CH-1 then
-              int_ch_out_cnt <= int_ch_out_cnt+1;
-            else
-              int_ch_out_cnt <= 0;
-              if int_repeat_cnt < C_REPEAT-1 then
-                int_repeat_cnt <= int_repeat_cnt+1;
-              else
-                int_repeat_cnt <= 0;
-                sl_valid_out <= '0';
-              end if;
-            end if;
+          if C_PARALLEL = 0 and int_ch_out_cnt < C_CH-1 then
+            int_ch_out_cnt <= int_ch_out_cnt+1;
           else
+            int_ch_out_cnt <= 0;
             if int_repeat_cnt < C_REPEAT-1 then
               int_repeat_cnt <= int_repeat_cnt+1;
             else
@@ -96,7 +87,7 @@ begin
 
   osl_rdy <= not (sl_valid_out or isl_valid);
   osl_valid <= sl_valid_out;
-  gen_output: if C_PARALLEL = 0 generate
+  gen_output_data: if C_PARALLEL = 0 generate
     oa_data(0) <= a_ch(0);
   else generate
     oa_data <= a_ch;

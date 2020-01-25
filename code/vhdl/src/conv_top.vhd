@@ -25,7 +25,7 @@ entity conv_top is
     C_WEIGHTS_INIT    : string := "";
     C_BIAS_INIT       : string := "";
 
-    C_PARALLEL        : integer range 0 to 1 := 0
+    C_PARALLEL        : integer range 0 to 1 := 1
   );
   port (
     isl_clk   : in std_logic;
@@ -60,7 +60,9 @@ begin
     C_CH_IN       => C_CH_IN,
     C_CH_OUT      => C_CH_OUT,
     C_IMG_WIDTH   => C_IMG_WIDTH,
-    C_IMG_HEIGHT  => C_IMG_HEIGHT
+    C_IMG_HEIGHT  => C_IMG_HEIGHT,
+
+    C_PARALLEL    => C_PARALLEL
   )
   port map (
     isl_clk   => isl_clk,
@@ -87,30 +89,38 @@ begin
     C_KSIZE               => C_KSIZE,
     C_CH_IN               => C_CH_IN,
     C_CH_OUT              => C_CH_OUT,
-    C_BIAS_INIT           => C_BIAS_INIT
+    C_BIAS_INIT           => C_BIAS_INIT,
+
+    C_PARALLEL            => C_PARALLEL
   )
   port map (
     isl_clk    => isl_clk,
     isl_rst_n  => isl_rst_n,
     isl_ce     => isl_ce,
     isl_valid  => sl_win_valid_out,
-    ia_data    => a_win_data_out(0),
-    ia_weights => a_weights(0),
+    ia_data    => a_win_data_out,
+    ia_weights => a_weights,
     oslv_data  => oslv_data,
     osl_valid  => osl_valid
   );
-  a_weights(0) <= C_WEIGHTS(int_addr_cnt);
-
+  gen_weights: for ch_in in 0 to C_PARALLEL*(C_CH_IN-1) generate
+    gen_weights_inner: if C_PARALLEL = 0 generate
+      a_weights(ch_in) <= C_WEIGHTS(int_addr_cnt+ch_in);
+    else generate
+      -- TODO: check why channel have to be switched
+      a_weights(C_CH_IN-ch_in-1) <= C_WEIGHTS(int_addr_cnt*C_CH_IN+ch_in);
+    end generate;
+  end generate;
 
   proc_data : process(isl_clk)
   begin
     if rising_edge(isl_clk) then
-      if isl_rst_n = '0' then
-        int_addr_cnt <= 0;
-      elsif isl_ce = '1' then
+      if isl_ce = '1' then
         -- weight addresses depend on window control
         if sl_win_valid_out = '1' then
-          if int_addr_cnt < C_CH_IN*C_CH_OUT-1 then
+          if C_PARALLEL = 0 and int_addr_cnt < C_CH_IN*C_CH_OUT-1 then
+            int_addr_cnt <= int_addr_cnt + 1;
+          elsif C_PARALLEL = 1 and int_addr_cnt < C_CH_OUT-1 then
             int_addr_cnt <= int_addr_cnt + 1;
           else
             int_addr_cnt <= 0;

@@ -145,7 +145,9 @@ begin
       C_DATA_WIDTH  => C_DATA_TOTAL_BITS,
       C_CH          => C_CH_IN,
       C_REPEAT      => C_CH_OUT,
-      C_KSIZE       => C_KSIZE
+      C_KSIZE       => C_KSIZE,
+
+      C_PARALLEL    => C_PARALLEL
     )
     port map(
       isl_clk     => isl_clk,
