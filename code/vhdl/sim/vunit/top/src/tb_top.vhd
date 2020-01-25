@@ -196,7 +196,7 @@ begin
   end process;
 
   -- stop integration tests if they are stuck 
-  test_runner_watchdog(runner, 50 ms);
+  test_runner_watchdog(runner, 20 ms);
 
   clk_gen(sl_clk, C_CLK_PERIOD);
 
