@@ -168,14 +168,12 @@ begin
   proc_cnt: process(isl_clk)
   begin
     if rising_edge(isl_clk) then
-      if isl_rst_n = '0' then
-        int_pixel_in_cnt <= 0;
-        int_row <= 0;
-        int_col <= 0;
-      elsif isl_start = '1' then
+      if isl_start = '1' then
         -- have to be resetted at start because of odd kernels (3x3+2)
         -- because image dimensions aren't fitting kernel stride
+        int_ch_in_cnt <= 0;
         int_pixel_in_cnt <= 0;
+        int_pixel_out_cnt <= 0;
         int_row <= 0;
         int_col <= 0;
       elsif isl_ce = '1' then

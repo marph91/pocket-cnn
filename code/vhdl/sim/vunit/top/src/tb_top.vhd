@@ -119,6 +119,8 @@ architecture behavioral of tb_top is
   shared variable data_ref : array_t;
 
   signal sl_start_test : std_logic := '0';
+  signal int_input_cnt : integer := 0;
+  signal sl_img_finished : std_logic := '0';
 
   signal data_check_done, stimuli_done : boolean := false;
 
@@ -196,12 +198,11 @@ begin
   end process;
 
   -- stop integration tests if they are stuck 
-  test_runner_watchdog(runner, 20 ms);
+  test_runner_watchdog(runner, 200 us);
 
   clk_gen(sl_clk, C_CLK_PERIOD);
 
-  stimuli_process : process
-    variable i : integer := 0;
+  proc_stimuli: process
   begin
     wait until rising_edge(sl_clk) and sl_start_test = '1';
     stimuli_done <= false;
@@ -218,41 +219,63 @@ begin
     sl_start <= '0';
     sl_valid_in <= '0';
     slv_data_in <= (others => '0');
-    wait until rising_edge(sl_clk);
-    sl_start <= '1';
-    wait until rising_edge(sl_clk);
-    sl_start <= '0';
 
-    while i < C_IMG_WIDTH_IN * C_IMG_HEIGHT_IN * C_IMG_DEPTH_IN loop
-      wait until rising_edge(sl_clk) and sl_rdy = '1';
-      sl_valid_in <= '1';
-      for w in 0 to C_IMG_DEPTH_IN-1 loop
-        slv_data_in <= std_logic_vector(to_unsigned(data_src.get(i), slv_data_in'length));
-        report_position(i, C_IMG_HEIGHT_IN, C_IMG_WIDTH_IN, C_IMG_DEPTH_IN,
-                        "input: ", ", val=" & to_string(data_src.get(i)));
-        wait until rising_edge(sl_clk);
-        i := i + 1;
-      end loop;
-      sl_valid_in <= '0';
-      -- one more waiting cycle, because else padding would accept too much input data
-      -- TODO: fix it (send data as long as sl_rdy = '1')
+    for images in 0 to 1 loop
       wait until rising_edge(sl_clk);
+      sl_start <= '1';
+      int_input_cnt <= 0;
+      wait until rising_edge(sl_clk);
+      sl_start <= '0';
+      wait until rising_edge(sl_clk);
+
+      while sl_img_finished = '0' loop
+        wait until rising_edge(sl_clk) and sl_rdy = '1';
+        if int_input_cnt < C_IMG_WIDTH_IN * C_IMG_HEIGHT_IN * C_IMG_DEPTH_IN then
+          sl_valid_in <= '1';
+          for w in 0 to C_IMG_DEPTH_IN-1 loop
+            int_input_cnt <= int_input_cnt + 1;
+            slv_data_in <= std_logic_vector(to_unsigned(data_src.get(int_input_cnt), slv_data_in'length));
+            report_position(int_input_cnt, C_IMG_HEIGHT_IN, C_IMG_WIDTH_IN, C_IMG_DEPTH_IN,
+                            "input: ", ", val=" & to_string(data_src.get(int_input_cnt)));
+            wait until rising_edge(sl_clk);
+          end loop;
+          sl_valid_in <= '0';
+          -- one more waiting cycle, because else padding would accept too much input data
+          -- TODO: fix it (send data as long as sl_rdy = '1')
+          wait until rising_edge(sl_clk);
+        end if;
+      end loop;
     end loop;
 
     stimuli_done <= true;
   end process;
 
-  data_check_process : process
+  proc_img_finished: process(sl_clk)
+  begin
+    if rising_edge(sl_clk) then
+      if sl_start = '1' then
+        sl_img_finished <= '0';
+      elsif sl_finish = '1' then
+        sl_img_finished <= '1';
+      end if;
+    end if;
+  end process;
+
+  proc_data_check: process
   begin
     wait until rising_edge(sl_clk) and sl_start = '1';
     data_check_done <= false;
 
-    for x in 0 to data_ref.height-1 loop
-      wait until rising_edge(sl_clk) and sl_valid_out = '1';
-      check_equal(slv_data_out, data_ref.get(x));
+    for images in 0 to 1 loop
+      for x in 0 to data_ref.height-1 loop
+        wait until rising_edge(sl_clk) and sl_valid_out = '1';
+        report_position(x, data_ref.height, 1, 1,
+                        "output: ", ", val=" & to_string(data_ref.get(x)));
+        check_equal(slv_data_out, data_ref.get(x));
+      end loop;
+      wait until rising_edge(sl_clk) and sl_finish = '1';
     end loop;
 
-    wait until sl_finish = '1';
     report ("Done checking");
     data_check_done <= true;
   end process;

@@ -67,10 +67,7 @@ begin
     variable v_sfix_sum : sfixed(C_INTW_SUM-1 downto -C_FRAC_BITS);
   begin
     if rising_edge(isl_clk) then
-      if isl_rst_n = '0' then
-        a_ch_buffer <= (others => (others => '0'));
-        int_data_in_cnt <= 0;
-      elsif isl_ce = '1' then
+      if isl_ce = '1' then
         if isl_start = '1' then
           a_ch_buffer <= (others => (others => '0'));
           int_data_in_cnt <= 0;
