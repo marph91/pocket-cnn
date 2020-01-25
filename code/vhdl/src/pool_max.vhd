@@ -27,8 +27,8 @@ end pool_max;
 architecture behavioral of pool_max is
   constant C_INT_BITS : integer range 1 to 16 := C_TOTAL_BITS - C_FRAC_BITS;
 
-  signal isl_valid_d1,
-         sl_output_valid : std_logic := '0';
+  signal isl_valid_d1 : std_logic := '0';
+  signal sl_output_valid : std_logic := '0';
   signal slv_data_out : std_logic_vector(C_TOTAL_BITS-1 downto 0);
 
   signal a_max_tmp : t_sfix_array_1d(0 to C_KSIZE-1)(C_INT_BITS-1 downto -C_FRAC_BITS) := (others => (others => '0'));

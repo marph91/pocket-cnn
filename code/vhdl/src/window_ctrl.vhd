@@ -17,7 +17,9 @@ entity window_ctrl is
     C_IMG_HEIGHT      : integer range 1 to 512 := 8;
 
     C_KSIZE           : integer range 1 to 3 := 3;
-    C_STRIDE          : integer range 1 to 3 := 1
+    C_STRIDE          : integer range 1 to 3 := 1;
+
+    C_PARALLEL        : integer range 0 to 1 := 0
   );
   port (
     isl_clk   : in std_logic;
@@ -26,7 +28,7 @@ entity window_ctrl is
     isl_start : in std_logic;
     isl_valid : in std_logic;
     islv_data : in std_logic_vector(C_DATA_TOTAL_BITS-1 downto 0);
-    oa_data   : out t_slv_array_2d(0 to C_KSIZE-1, 0 to C_KSIZE-1);
+    oa_data   : out t_kernel_array(0 to C_PARALLEL*(C_CH_IN-1))(0 to C_KSIZE-1, 0 to C_KSIZE-1);
     osl_valid : out std_logic;
     osl_rdy   : out std_logic
   );
@@ -61,7 +63,7 @@ architecture behavioral of window_ctrl is
 
   -- for channel repeater
   signal sl_repeater_valid_out : std_logic := '0';
-  signal a_repeater_data_out : t_slv_array_2d(0 to C_KSIZE-1, 0 to C_KSIZE-1) := (others => (others => (others => '0')));
+  signal a_repeater_data_out : t_kernel_array(0 to C_PARALLEL*(C_CH_IN-1))(0 to C_KSIZE-1, 0 to C_KSIZE-1) := (others => (others => (others => (others => '0'))));
   signal sl_repeater_rdy : std_logic := '0';
 
   signal sl_output_valid : std_logic := '0';
@@ -143,7 +145,9 @@ begin
       C_DATA_WIDTH  => C_DATA_TOTAL_BITS,
       C_CH          => C_CH_IN,
       C_REPEAT      => C_CH_OUT,
-      C_KSIZE       => C_KSIZE
+      C_KSIZE       => C_KSIZE,
+
+      C_PARALLEL    => C_PARALLEL
     )
     port map(
       isl_clk     => isl_clk,
@@ -157,7 +161,7 @@ begin
     );
   else generate
     sl_repeater_valid_out <= sl_selector_valid_out;
-    a_repeater_data_out <= a_selector_data_out;
+    a_repeater_data_out(0) <= a_selector_data_out;
     sl_repeater_rdy <= '1';
   end generate;
 

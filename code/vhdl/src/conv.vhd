@@ -22,15 +22,17 @@ entity conv is
     C_CH_OUT          : integer range 1 to 512 := 8;
 
     C_KSIZE           : integer range 1 to 3 := 3;
-    C_BIAS_INIT       : string := ""
+    C_BIAS_INIT       : string := "";
+
+    C_PARALLEL        : integer range 0 to 1 := 0
   );
   port (
     isl_clk       : in std_logic;
     isl_rst_n     : in std_logic;
     isl_ce        : in std_logic;
     isl_valid     : in std_logic;
-    ia_data       : in t_slv_array_2d(0 to C_KSIZE-1, 0 to C_KSIZE-1);
-    ia_weights    : in t_slv_array_2d(0 to C_KSIZE-1, 0 to C_KSIZE-1);
+    ia_data       : in t_kernel_array(0 to C_PARALLEL*(C_CH_IN-1))(0 to C_KSIZE-1, 0 to C_KSIZE-1);
+    ia_weights    : in t_kernel_array(0 to C_PARALLEL*(C_CH_IN-1))(0 to C_KSIZE-1, 0 to C_KSIZE-1);
     oslv_data     : out std_logic_vector(C_DATA_TOTAL_BITS-1 downto 0);
     osl_valid     : out std_logic
   );
@@ -47,8 +49,9 @@ architecture behavioral of conv is
   signal sfix_sum_bias : sfixed(C_SUM_INT_BITS downto -C_SUM_FRAC_BITS) := (others => '0');
 
   -- convolution
-  signal slv_mm_data_out : std_logic_vector(C_SUM_TOTAL_BITS-log2(C_CH_IN)-1 downto 0);
-  signal sl_mm_valid_out : std_logic := '0';
+  type t_slv_array is array(natural range <>) of std_logic_vector;
+  signal slv_mm_data_out : t_slv_array(0 to C_PARALLEL*(C_CH_IN-1))(C_SUM_TOTAL_BITS-log2(C_CH_IN)-1 downto 0);
+  signal sl_mm_valid_out : std_logic_vector(C_PARALLEL*(C_CH_IN-1) downto 0) := (others => '0');
   signal sl_mm_valid_out_d1 : std_logic := '0';
 
   signal sl_valid_out : std_logic := '0';
@@ -56,7 +59,7 @@ architecture behavioral of conv is
   signal int_mm_out_cnt : integer range 0 to C_CH_IN*C_CH_OUT-1 := 0;
 
   -- bias
-  constant C_BIAS : t_weights_array := init_weights(C_BIAS_INIT, C_CH_OUT, 1, 8);
+  constant C_BIAS : t_kernel_array := init_weights(C_BIAS_INIT, C_CH_OUT, 1, 8);
   signal int_addr_cnt_b : integer range 0 to C_BIAS'HIGH := 0;
   signal slv_bias : std_logic_vector(C_WEIGHTS_TOTAL_BITS-1 downto 0);
 
@@ -67,27 +70,29 @@ architecture behavioral of conv is
   signal int_pixel_out_cnt : integer := 0;
 
 begin
-  i_mm : entity work.mm
-  generic map (
-    C_FIRST_STAGE         => C_FIRST_STAGE,
+  gen_mm: for ch_in in 0 to C_PARALLEL*(C_CH_IN-1) generate
+    i_mm : entity work.mm
+    generic map (
+      C_FIRST_STAGE         => C_FIRST_STAGE,
 
-    C_DATA_TOTAL_BITS     => C_DATA_TOTAL_BITS,
-    C_DATA_FRAC_BITS_IN   => C_DATA_FRAC_BITS_IN,
-    C_WEIGHTS_TOTAL_BITS  => C_WEIGHTS_TOTAL_BITS,
-    C_WEIGHTS_FRAC_BITS   => C_WEIGHTS_FRAC_BITS,
+      C_DATA_TOTAL_BITS     => C_DATA_TOTAL_BITS,
+      C_DATA_FRAC_BITS_IN   => C_DATA_FRAC_BITS_IN,
+      C_WEIGHTS_TOTAL_BITS  => C_WEIGHTS_TOTAL_BITS,
+      C_WEIGHTS_FRAC_BITS   => C_WEIGHTS_FRAC_BITS,
 
-    C_KSIZE               => C_KSIZE
-  )
-  port map (
-    isl_clk       => isl_clk,
-    isl_rst_n     => isl_rst_n,
-    isl_ce        => isl_ce,
-    isl_valid     => isl_valid,
-    ia_data       => ia_data,
-    ia_weights    => ia_weights,
-    oslv_data     => slv_mm_data_out,
-    osl_valid     => sl_mm_valid_out
-  );
+      C_KSIZE               => C_KSIZE
+    )
+    port map (
+      isl_clk       => isl_clk,
+      isl_rst_n     => isl_rst_n,
+      isl_ce        => isl_ce,
+      isl_valid     => isl_valid,
+      ia_data       => ia_data(ch_in),
+      ia_weights    => ia_weights(ch_in),
+      oslv_data     => slv_mm_data_out(ch_in),
+      osl_valid     => sl_mm_valid_out(ch_in)
+    );
+  end generate;
 
   proc_cnt : process(isl_clk)
   begin
@@ -97,7 +102,10 @@ begin
         int_pixel_out_cnt <= 0;
       elsif isl_ce = '1' then
         if isl_valid = '1' then
-          if int_ch_in_cnt < C_CH_IN*C_CH_OUT-1 then
+          -- parallel: max addr = C_CH_OUT-1
+          -- serial: max addr = C_CH_IN*C_CH_OUT-1
+          -- TODO: look for easier conversion
+          if int_ch_in_cnt < (C_CH_IN-C_PARALLEL*C_CH_IN+C_PARALLEL)*C_CH_OUT-1 then
             int_ch_in_cnt <= int_ch_in_cnt+1;
           else
             int_ch_in_cnt <= 0;
@@ -122,10 +130,10 @@ begin
   begin
     if rising_edge(isl_clk) then
       if isl_ce = '1' then
-        sl_mm_valid_out_d1 <= sl_mm_valid_out;
+        sl_mm_valid_out_d1 <= sl_mm_valid_out(0);
 
-        if sl_mm_valid_out = '1' then
-          if int_mm_out_cnt < C_CH_IN-1 then
+        if sl_mm_valid_out(0) = '1' then
+          if C_PARALLEL = 0 and int_mm_out_cnt < C_CH_IN-1 then
             int_mm_out_cnt <= int_mm_out_cnt+1;
           else
             int_mm_out_cnt <= 0;
@@ -145,11 +153,13 @@ begin
               C_SUM_INT_BITS-1, -C_SUM_FRAC_BITS, fixed_wrap, fixed_truncate);
           end if;
           
-          -- always resize the values -> without round, sfix_sum should be big enough
-          v_sfix_sum := resize(
-            v_sfix_sum + to_sfixed(slv_mm_data_out,
-              C_SUM_INT_BITS-log2(C_CH_IN)-1, -C_SUM_FRAC_BITS),
-            C_SUM_INT_BITS-1, -C_SUM_FRAC_BITS, fixed_wrap, fixed_truncate);
+          for ch_in in 0 to C_PARALLEL*(C_CH_IN-1) loop
+            -- always resize the values -> without round, sfix_sum should be big enough
+            v_sfix_sum := resize(
+              v_sfix_sum + to_sfixed(slv_mm_data_out(ch_in),
+                C_SUM_INT_BITS-log2(C_CH_IN)-1, -C_SUM_FRAC_BITS),
+              C_SUM_INT_BITS-1, -C_SUM_FRAC_BITS, fixed_wrap, fixed_truncate);
+          end loop;
           sfix_sum <= v_sfix_sum;
         end if;
 

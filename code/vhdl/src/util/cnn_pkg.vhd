@@ -18,7 +18,7 @@ package cnn_pkg is
   type t_str_array_1d is array (natural range <>) of string;
 
   type t_ram is array(natural range <>) of std_logic_vector;
-  type t_weights_array is array (natural range <>) of t_slv_array_2d;
+  type t_kernel_array is array (natural range <>) of t_slv_array_2d;
 
   impure function load_content(constant C_NAME : in string;
                                constant C_SIZE : in integer;
@@ -26,7 +26,7 @@ package cnn_pkg is
   impure function init_weights(constant C_NAME : in string;
                                constant C_SIZE : in integer;
                                constant C_KSIZE : in integer;
-                               constant C_BITS : in integer) return t_weights_array;
+                               constant C_BITS : in integer) return t_kernel_array;
 end cnn_pkg;
 
 package body cnn_pkg is
@@ -52,10 +52,10 @@ package body cnn_pkg is
   impure function init_weights(constant C_NAME : in string;
                                constant C_SIZE : in integer;
                                constant C_KSIZE : in integer;
-                               constant C_BITS : in integer) return t_weights_array is
+                               constant C_BITS : in integer) return t_kernel_array is
     constant C_WIDTH : integer := C_BITS*C_KSIZE*C_KSIZE;
     variable a_ram : t_ram(0 to C_SIZE-1)(C_WIDTH-1 downto 0);
-    variable a_ram_weights : t_weights_array(0 to C_SIZE-1)(0 to C_KSIZE-1, 0 to C_KSIZE-1);
+    variable a_ram_weights : t_kernel_array(0 to C_SIZE-1)(0 to C_KSIZE-1, 0 to C_KSIZE-1);
   begin
     if C_NAME'LENGTH > 0 then
       a_ram := load_content(C_NAME, C_SIZE, C_WIDTH);
