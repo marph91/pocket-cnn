@@ -21,7 +21,7 @@ entity channel_repeater is
     isl_ce      : in std_logic;
     isl_valid   : in std_logic;
     ia_data     : in t_slv_array_2d(0 to C_KSIZE-1, 0 to C_KSIZE-1);
-    oa_data     : out t_weights_array(0 to C_PARALLEL*(C_CH-1))(0 to C_KSIZE-1, 0 to C_KSIZE-1);
+    oa_data     : out t_kernel_array(0 to C_PARALLEL*(C_CH-1))(0 to C_KSIZE-1, 0 to C_KSIZE-1);
     osl_valid   : out std_logic;
     osl_rdy     : out std_logic
   );
@@ -33,7 +33,7 @@ architecture behavior of channel_repeater is
   signal int_ch_out_cnt : integer range 0 to C_CH-1 := 0;
   signal int_repeat_cnt : integer range 0 to C_REPEAT-1 := 0;
 
-  signal a_ch : t_weights_array(0 to C_CH-1)(0 to C_KSIZE-1, 0 to C_KSIZE-1) := (others => (others => (others => (others => '0'))));
+  signal a_ch : t_kernel_array(0 to C_CH-1)(0 to C_KSIZE-1, 0 to C_KSIZE-1) := (others => (others => (others => (others => '0'))));
 
 begin
   proc_data : process(isl_clk)

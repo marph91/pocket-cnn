@@ -42,13 +42,13 @@ end conv_top;
 
 architecture behavioral of conv_top is
   -- window control
-  signal a_win_data_out : t_weights_array(0 to C_PARALLEL*(C_CH_IN-1))(0 to C_KSIZE-1, 0 to C_KSIZE-1) := (others => (others => (others => (others => '0'))));
+  signal a_win_data_out : t_kernel_array(0 to C_PARALLEL*(C_CH_IN-1))(0 to C_KSIZE-1, 0 to C_KSIZE-1) := (others => (others => (others => (others => '0'))));
   signal sl_win_valid_out : std_logic := '0';
 
   -- weights
-  constant C_WEIGHTS : t_weights_array := init_weights(C_WEIGHTS_INIT, C_CH_IN*C_CH_OUT, C_KSIZE, 8);
+  constant C_WEIGHTS : t_kernel_array := init_weights(C_WEIGHTS_INIT, C_CH_IN*C_CH_OUT, C_KSIZE, 8);
   signal int_addr_cnt : integer range 0 to C_CH_IN*C_CH_OUT := 0;
-  signal a_weights : t_weights_array(0 to C_PARALLEL*(C_CH_IN-1))(0 to C_KSIZE-1, 0 to C_KSIZE-1) := (others => (others => (others => (others => '0'))));
+  signal a_weights : t_kernel_array(0 to C_PARALLEL*(C_CH_IN-1))(0 to C_KSIZE-1, 0 to C_KSIZE-1) := (others => (others => (others => (others => '0'))));
 
 begin
   i_window_ctrl : entity work.window_ctrl

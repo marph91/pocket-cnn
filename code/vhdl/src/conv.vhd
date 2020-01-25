@@ -31,8 +31,8 @@ entity conv is
     isl_rst_n     : in std_logic;
     isl_ce        : in std_logic;
     isl_valid     : in std_logic;
-    ia_data       : in t_weights_array(0 to C_PARALLEL*(C_CH_IN-1))(0 to C_KSIZE-1, 0 to C_KSIZE-1);
-    ia_weights    : in t_weights_array(0 to C_PARALLEL*(C_CH_IN-1))(0 to C_KSIZE-1, 0 to C_KSIZE-1);
+    ia_data       : in t_kernel_array(0 to C_PARALLEL*(C_CH_IN-1))(0 to C_KSIZE-1, 0 to C_KSIZE-1);
+    ia_weights    : in t_kernel_array(0 to C_PARALLEL*(C_CH_IN-1))(0 to C_KSIZE-1, 0 to C_KSIZE-1);
     oslv_data     : out std_logic_vector(C_DATA_TOTAL_BITS-1 downto 0);
     osl_valid     : out std_logic
   );
@@ -59,7 +59,7 @@ architecture behavioral of conv is
   signal int_mm_out_cnt : integer range 0 to C_CH_IN*C_CH_OUT-1 := 0;
 
   -- bias
-  constant C_BIAS : t_weights_array := init_weights(C_BIAS_INIT, C_CH_OUT, 1, 8);
+  constant C_BIAS : t_kernel_array := init_weights(C_BIAS_INIT, C_CH_OUT, 1, 8);
   signal int_addr_cnt_b : integer range 0 to C_BIAS'HIGH := 0;
   signal slv_bias : std_logic_vector(C_WEIGHTS_TOTAL_BITS-1 downto 0);
 

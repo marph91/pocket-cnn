@@ -28,7 +28,7 @@ entity window_ctrl is
     isl_start : in std_logic;
     isl_valid : in std_logic;
     islv_data : in std_logic_vector(C_DATA_TOTAL_BITS-1 downto 0);
-    oa_data   : out t_weights_array(0 to C_PARALLEL*(C_CH_IN-1))(0 to C_KSIZE-1, 0 to C_KSIZE-1);
+    oa_data   : out t_kernel_array(0 to C_PARALLEL*(C_CH_IN-1))(0 to C_KSIZE-1, 0 to C_KSIZE-1);
     osl_valid : out std_logic;
     osl_rdy   : out std_logic
   );
@@ -63,7 +63,7 @@ architecture behavioral of window_ctrl is
 
   -- for channel repeater
   signal sl_repeater_valid_out : std_logic := '0';
-  signal a_repeater_data_out : t_weights_array(0 to C_PARALLEL*(C_CH_IN-1))(0 to C_KSIZE-1, 0 to C_KSIZE-1) := (others => (others => (others => (others => '0'))));
+  signal a_repeater_data_out : t_kernel_array(0 to C_PARALLEL*(C_CH_IN-1))(0 to C_KSIZE-1, 0 to C_KSIZE-1) := (others => (others => (others => (others => '0'))));
   signal sl_repeater_rdy : std_logic := '0';
 
   signal sl_output_valid : std_logic := '0';
