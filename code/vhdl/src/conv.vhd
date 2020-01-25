@@ -102,9 +102,10 @@ begin
         int_pixel_out_cnt <= 0;
       elsif isl_ce = '1' then
         if isl_valid = '1' then
-          if C_PARALLEL = 0 and int_ch_in_cnt < C_CH_IN*C_CH_OUT-1 then
-            int_ch_in_cnt <= int_ch_in_cnt+1;
-          elsif C_PARALLEL = 1 and int_ch_in_cnt < C_CH_OUT-1 then
+          -- parallel: max addr = C_CH_OUT-1
+          -- serial: max addr = C_CH_IN*C_CH_OUT-1
+          -- TODO: look for easier conversion
+          if int_ch_in_cnt < (C_CH_IN-C_PARALLEL*C_CH_IN+C_PARALLEL)*C_CH_OUT-1 then
             int_ch_in_cnt <= int_ch_in_cnt+1;
           else
             int_ch_in_cnt <= 0;

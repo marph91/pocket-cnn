@@ -118,9 +118,10 @@ begin
       if isl_ce = '1' then
         -- weight addresses depend on window control
         if sl_win_valid_out = '1' then
-          if C_PARALLEL = 0 and int_addr_cnt < C_CH_IN*C_CH_OUT-1 then
-            int_addr_cnt <= int_addr_cnt + 1;
-          elsif C_PARALLEL = 1 and int_addr_cnt < C_CH_OUT-1 then
+          -- parallel: max addr = C_CH_OUT-1
+          -- serial: max addr = C_CH_IN*C_CH_OUT-1
+          -- TODO: look for easier conversion
+          if int_addr_cnt < (C_CH_IN-C_PARALLEL*C_CH_IN+C_PARALLEL)*C_CH_OUT-1 then
             int_addr_cnt <= int_addr_cnt + 1;
           else
             int_addr_cnt <= 0;
