@@ -65,11 +65,6 @@ architecture behavioral of pe is
   signal sl_pad_rdy : std_logic := '0';
   signal sl_pad_get : std_logic := '0';
 
-  -- convolution channel burst
-  signal slv_conv_data_in : std_logic_vector(C_DATA_TOTAL_BITS-1 downto 0);
-  signal sl_conv_input_valid : std_logic := '0';
-  signal sl_conv_burst_rdy : std_logic := '0';
-
   -- convolution
   signal slv_conv_data_out : std_logic_vector(C_DATA_TOTAL_BITS-1 downto 0);
   signal sl_conv_output_valid : std_logic := '0';
@@ -78,11 +73,6 @@ architecture behavioral of pe is
   -- relu
   signal slv_relu_data_out : std_logic_vector(C_DATA_TOTAL_BITS-1 downto 0);
   signal sl_relu_output_valid : std_logic := '0';
-
-  -- maxpool channel burst
-  signal slv_pool_burst_data_in : std_logic_vector(C_DATA_TOTAL_BITS-1 downto 0);
-  signal sl_pool_burst_input_valid : std_logic := '0';
-  signal sl_pool_burst_rdy : std_logic := '0';
 
   -- maxpool
   signal slv_pool_data_in : std_logic_vector(C_DATA_TOTAL_BITS-1 downto 0);
@@ -134,7 +124,7 @@ begin
     slv_pad_data_out <= islv_data;
     sl_pad_rdy <= '1';
   else generate
-    sl_pad_get <= sl_conv_burst_rdy and sl_conv_rdy;
+    sl_pad_get <= sl_conv_rdy;
     i_zero_pad : entity work.zero_pad
     generic map(
       C_DATA_WIDTH  => C_DATA_TOTAL_BITS,
@@ -157,30 +147,6 @@ begin
       oslv_data => slv_pad_data_out,
       osl_valid => sl_pad_output_valid,
       osl_rdy   => sl_pad_rdy
-    );
-  end generate;
-
-  -- burst
-  gen_burst : if C_CH_IN = 1 generate
-    slv_conv_data_in <= slv_pad_data_out;
-    sl_conv_input_valid <= sl_pad_output_valid;
-    sl_conv_burst_rdy <= '1';
-  else generate
-    i_channel_burst_conv : entity work.channel_burst
-    generic map(
-      C_DATA_WIDTH  => C_DATA_TOTAL_BITS,
-      C_CH          => C_CH_IN
-    )
-    port map(
-      isl_clk   => isl_clk,
-      isl_reset => isl_rst_n,
-      isl_get   => sl_conv_rdy,
-      isl_start => isl_start,
-      isl_valid => sl_pad_output_valid,
-      islv_data => slv_pad_data_out,
-      oslv_data => slv_conv_data_in,
-      osl_valid => sl_conv_input_valid,
-      osl_rdy   => sl_conv_burst_rdy
     );
   end generate;
 
@@ -209,8 +175,8 @@ begin
     isl_rst_n => isl_rst_n,
     isl_ce    => isl_ce,
     isl_start => isl_start,
-    isl_valid => sl_conv_input_valid,
-    islv_data => slv_conv_data_in,
+    isl_valid => sl_pad_output_valid,
+    islv_data => slv_pad_data_out,
     osl_valid => sl_conv_output_valid,
     oslv_data => slv_conv_data_out,
     osl_rdy   => sl_conv_rdy
@@ -252,23 +218,6 @@ begin
 
   -- max pooling
   gen_pool : if C_POOL_KSIZE > 0 generate
-    i_channel_burst_max : entity work.channel_burst
-    generic map(
-      C_DATA_WIDTH  => C_DATA_TOTAL_BITS,
-      C_CH          => C_CH_OUT
-    )
-    port map(
-      isl_clk   => isl_clk,
-      isl_reset => isl_rst_n,
-      isl_get   => '1',
-      isl_start => isl_start,
-      isl_valid => sl_pool_input_valid,
-      islv_data => slv_pool_data_in,
-      oslv_data => slv_pool_burst_data_in,
-      osl_valid => sl_pool_burst_input_valid,
-      osl_rdy   => sl_pool_burst_rdy
-    );
-
     i_max_top : entity work.max_top
     generic map (
       C_TOTAL_BITS  => C_DATA_TOTAL_BITS,
@@ -285,8 +234,8 @@ begin
       isl_rst_n => isl_rst_n,
       isl_ce    => isl_ce,
       isl_start => isl_start,
-      isl_valid => sl_pool_burst_input_valid,
-      islv_data => slv_pool_burst_data_in,
+      isl_valid => sl_pool_input_valid,
+      islv_data => slv_pool_data_in,
       oslv_data => oslv_data,
       osl_valid => osl_valid,
       osl_rdy   => sl_pool_rdy
@@ -298,5 +247,5 @@ begin
     end generate;
   end generate;
 
-  osl_rdy <= sl_pad_rdy and sl_conv_burst_rdy and sl_conv_rdy and isl_get;
+  osl_rdy <= sl_pad_rdy and sl_conv_rdy and isl_get;
 end behavioral;
