@@ -73,7 +73,7 @@ def make_conv_quant(last_layer_info: tuple, name: str, ch_in: int, ch_out: int,
         ),
         helper.make_tensor(
             name=name + "_zero_point",
-            data_type=TensorProto.FLOAT,
+            data_type=TensorProto.UINT8,
             dims=(1,),
             vals=[0]
         ),
@@ -85,7 +85,7 @@ def make_conv_quant(last_layer_info: tuple, name: str, ch_in: int, ch_out: int,
         ),
         helper.make_tensor(
             name=name + "_weights_zero_point",
-            data_type=TensorProto.FLOAT,
+            data_type=TensorProto.UINT8,
             dims=(1,),
             vals=[0]
         ),
@@ -158,7 +158,7 @@ def make_scale(name_prev: str, name: str,
         ),
         helper.make_tensor(
             name=name + "_zero_point",
-            data_type=TensorProto.FLOAT,
+            data_type=TensorProto.UINT8,
             dims=(1,),
             vals=[quant[1]]
         ),
