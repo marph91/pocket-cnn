@@ -58,6 +58,7 @@ def create_test_suite(ui):
         cnn_onnx.model_zoo.conv_4x3x1_1x1,
         cnn_onnx.model_zoo.conv_2x_3x1_1x1_max_2x2,
         cnn_onnx.model_zoo.conv_2x_3x1_1x1_max_2x2_padding,  # TODO: fix
+        # cnn_onnx.model_zoo.conv_2x_3x1_1x1_max_2x2_mt  # TODO: fix
     ]
     for test_cnn in test_cnns:
         test_case_name = test_cnn.__name__

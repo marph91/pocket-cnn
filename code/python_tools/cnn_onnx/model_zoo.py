@@ -481,3 +481,24 @@ def conv_2x_3x1_1x1_max_2x2_padding():
 
     graph_def = graph_gen.get_graph("cnn", (1, 14, 14), (8, 1, 1))
     return helper.make_model(graph_def)
+
+
+def conv_2x_3x1_1x1_max_2x2_mt():
+    """Model of my master thesis, for comparison.
+    size: 48, 24 -> 24x12 -> 12x6"""
+    graph_gen = GraphGenerator()
+    graph_gen.add(make_scale, "scale1", (16, 0))
+    graph_gen.add(make_conv_quant, "conv1", 1, 16, (3, 1, 1))
+    graph_gen.add(make_relu, "relu1")
+    graph_gen.add(make_pool_max, "max1", 2, 2)
+    graph_gen.add(make_conv_quant, "conv2", 16, 32, (3, 1, 1))
+    graph_gen.add(make_relu, "relu2")
+    graph_gen.add(make_pool_max, "max2", 2, 2)
+    graph_gen.add(make_conv_quant, "conv3", 32, 64, (1, 1, 0))
+    graph_gen.add(make_relu, "relu3")
+    graph_gen.add(make_conv_quant, "conv4", 64, 2, (1, 1, 0))
+    graph_gen.add(make_relu, "relu4")
+    graph_gen.add(make_pool_ave, "ave1")
+
+    graph_def = graph_gen.get_graph("cnn", (1, 48, 24), (2, 1, 1))
+    return helper.make_model(graph_def)
