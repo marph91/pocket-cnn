@@ -29,7 +29,7 @@ def make_conv_quant(last_layer_info: tuple, name: str, ch_in: int, ch_out: int,
     # Create a node (NodeProto)
     node_def = helper.make_node(
         "QLinearConv",
-        inputs=[*last_layer_info,
+        inputs=[last_layer_info[0] + "_out", *last_layer_info[1:],
                 name + "_weights",
                 name + "_weights_scale", name + "_weights_zero_point",
                 name + "_scale", name + "_zero_point",
@@ -140,9 +140,11 @@ def make_pool_ave(name_prev: str, name: str) -> Tuple[Any, List[Any]]:
 def make_scale(name_prev: str, name: str,
                quant: tuple) -> Tuple[Any, List[Any]]:
     """Create a scale node and corresponding quantization information."""
+    input_ = (name_prev[0] if name_prev[0] == "data_in"
+              else name_prev[0] + "_out")
     node_def = helper.make_node(
         "QuantizeLinear",
-        inputs=[name_prev[0] + "_out", name + "_scale", name + "_zero_point"],
+        inputs=[input_, name + "_scale", name + "_zero_point"],
         outputs=[name + "_out"],
     )
 
