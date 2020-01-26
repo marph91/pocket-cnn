@@ -55,25 +55,25 @@ class ProcessingElement:
     """Represents a processing element (PE) in the hardware design.
     Each PE has to contain exactly one convolution with optional
     activation function and maximum pooling."""
-    def __init__(self, param):
+    def __init__(self, param: dict):
         self.relu = 0
         self.leaky_relu = 0
         self.pool_param = (0, 0)
         self.param = param
 
-    def set_activation(self, type_):
+    def set_activation(self, type_: str):
         """Set the activation function of the PE. Possible only once."""
         assert self.relu == 0 and self.leaky_relu == 0
         self.relu = 1
         if type_ == "LeakyRelu":
             self.leaky_relu = 1
 
-    def set_max_pool(self, ksize, stride):
+    def set_max_pool(self, ksize: int, stride: int):
         """Set the maximum pooling parameter of the PE. Possible only once."""
         assert self.pool_param == (0, 0)
         self.pool_param = (ksize, stride)
 
-    def get_param(self):
+    def get_param(self) -> dict:
         """Get all parameter of the PE as dict."""
         self.param.update({
             "relu": self.relu,
