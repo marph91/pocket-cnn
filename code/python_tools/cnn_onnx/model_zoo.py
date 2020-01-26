@@ -318,7 +318,7 @@ def conv_3x1_1x1_max_2x2_one_channel():
 
 
 def conv_3x1_1x1_max_2x1():
-    """size: 6x6 -> 4x4 -> 3x3"""
+    """size: 12x12 -> 10x10 -> 9x9"""
     graph_gen = GraphGenerator()
     graph_gen.add(make_scale, "scale1", (16, 0))
     graph_gen.add(make_conv_quant, "conv1", 1, 4, (3, 1, 0))
@@ -328,12 +328,12 @@ def conv_3x1_1x1_max_2x1():
     graph_gen.add(make_relu, "relu2")
     graph_gen.add(make_pool_ave, "ave1")
 
-    graph_def = graph_gen.get_graph("cnn", (1, 6, 6), (8, 1, 1))
+    graph_def = graph_gen.get_graph("cnn", (1, 12, 12), (8, 1, 1))
     return helper.make_model(graph_def)
 
 
 def conv_3x2_1x1_max_2x1():
-    """size: 9x9 -> 4x4 -> 3x3"""
+    """size: 17x17 -> 8x8 -> 7x7"""
     graph_gen = GraphGenerator()
     graph_gen.add(make_scale, "scale1", (16, 0))
     graph_gen.add(make_conv_quant, "conv1", 1, 4, (3, 2, 0))
@@ -343,12 +343,12 @@ def conv_3x2_1x1_max_2x1():
     graph_gen.add(make_relu, "relu2")
     graph_gen.add(make_pool_ave, "ave1")
 
-    graph_def = graph_gen.get_graph("cnn", (1, 9, 9), (8, 1, 1))
+    graph_def = graph_gen.get_graph("cnn", (1, 17, 17), (8, 1, 1))
     return helper.make_model(graph_def)
 
 
 def conv_2x1_1x1_max_3x2():
-    """size: 8x8 -> 7x7 -> 3x3"""
+    """size: 16x16 -> 15x15 -> 7x7"""
     graph_gen = GraphGenerator()
     graph_gen.add(make_scale, "scale1", (16, 0))
     graph_gen.add(make_conv_quant, "conv1", 1, 4, (2, 1, 0))
@@ -358,7 +358,7 @@ def conv_2x1_1x1_max_3x2():
     graph_gen.add(make_relu, "relu2")
     graph_gen.add(make_pool_ave, "ave1")
 
-    graph_def = graph_gen.get_graph("cnn", (1, 8, 8), (8, 1, 1))
+    graph_def = graph_gen.get_graph("cnn", (1, 16, 16), (8, 1, 1))
     return helper.make_model(graph_def)
 
 
@@ -379,7 +379,7 @@ def conv_3x3_2x2_1x1():
 
 
 def conv_3x1_1x1_max_3x1():
-    """size: 6x6 -> 4x4 -> 2x2"""
+    """size: 12x12 -> 10x10 -> 8x8"""
     graph_gen = GraphGenerator()
     graph_gen.add(make_scale, "scale1", (16, 0))
     graph_gen.add(make_conv_quant, "conv1", 1, 4, (3, 1, 0))
@@ -389,12 +389,12 @@ def conv_3x1_1x1_max_3x1():
     graph_gen.add(make_relu, "relu2")
     graph_gen.add(make_pool_ave, "ave1")
 
-    graph_def = graph_gen.get_graph("cnn", (1, 6, 6), (8, 1, 1))
+    graph_def = graph_gen.get_graph("cnn", (1, 12, 12), (8, 1, 1))
     return helper.make_model(graph_def)
 
 
 def conv_3x1_1x1_max_3x3():
-    """size: 8x8 -> 6x6 -> 2x2"""
+    """size: 14x14 -> 12x12 -> 4x4"""
     graph_gen = GraphGenerator()
     graph_gen.add(make_scale, "scale1", (16, 0))
     graph_gen.add(make_conv_quant, "conv1", 1, 4, (3, 1, 0))
@@ -404,7 +404,7 @@ def conv_3x1_1x1_max_3x3():
     graph_gen.add(make_relu, "relu2")
     graph_gen.add(make_pool_ave, "ave1")
 
-    graph_def = graph_gen.get_graph("cnn", (1, 8, 8), (8, 1, 1))
+    graph_def = graph_gen.get_graph("cnn", (1, 14, 14), (8, 1, 1))
     return helper.make_model(graph_def)
 
 
