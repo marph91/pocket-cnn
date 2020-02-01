@@ -132,9 +132,37 @@ def make_pool_ave(name_prev: str, name: str) -> Tuple[Any, List[Any]]:
     return node_def, []
 
 
-def make_scale(name_prev: str, name: str,
+def make_dequant(name_prev: str, name: str,
+                 quant: tuple) -> Tuple[Any, List[Any]]:
+    """Create a quantization node, which converts fixedint to float."""
+    input_ = name_prev[0] + "_out"
+    node_def = helper.make_node(
+        "DequantizeLinear",
+        inputs=[input_, name + "_scale", name + "_zero_point"],
+        outputs=[name + "_out"],
+    )
+
+    # quantization parameter
+    initializer = [
+        helper.make_tensor(
+            name=name + "_scale",
+            data_type=TensorProto.FLOAT,
+            dims=(1,),
+            vals=[quant[0]]
+        ),
+        helper.make_tensor(
+            name=name + "_zero_point",
+            data_type=TensorProto.UINT8,
+            dims=(1,),
+            vals=[quant[1]]
+        ),
+    ]
+    return node_def, initializer
+
+
+def make_quant(name_prev: str, name: str,
                quant: tuple) -> Tuple[Any, List[Any]]:
-    """Create a scale node and corresponding quantization information."""
+    """Create a quantization node, which converts float to fixedint."""
     input_ = (name_prev[0] if name_prev[0] == "data_in"
               else name_prev[0] + "_out")
     node_def = helper.make_node(
@@ -164,8 +192,8 @@ def make_scale(name_prev: str, name: str,
 class GraphGenerator:
     """Utility to simplify creation of ONNX CNN models a bit."""
     def __init__(self):
-        self.previous_layer_name = "data_in"
-        self.last_quant_name = None
+        self.last_layer_name = "data_in"
+        self.last_quant_name = "data_in"
 
         self.node_defs = []
         self.initializers = []
@@ -173,26 +201,43 @@ class GraphGenerator:
     def add(self, func, *args):
         """Add a function, which generates a node definition and optionally
         initializer. The function represents a layer of the CNN."""
-        last_layer_info = [self.previous_layer_name]
+        last_layer_info = [self.last_layer_name]
         if func.__name__ == "make_conv_quant":
-            assert self.last_quant_name is not None
             last_layer_info.extend([self.last_quant_name + "_scale",
                                     self.last_quant_name + "_zero_point"])
+
+            scale = 1 if self.last_quant_name == "data_in" else 16
+            node_def, initializer = make_quant(
+                last_layer_info, args[0] + "_quant", (scale, 0))
+            self.node_defs.append(node_def)
+            self.initializers.extend(initializer)
+
+            last_layer_info = [args[0] + "_quant", args[0] + "_quant_scale",
+                               args[0] + "_quant_zero_point"]
 
         node_def, initializer = func(last_layer_info, *args)
         self.node_defs.append(node_def)
         self.initializers.extend(initializer)
 
-        if func.__name__ in ["make_scale", "make_conv_quant"]:
-            self.last_quant_name = args[0]
-        self.previous_layer_name = args[0]
+        if func.__name__ == "make_conv_quant":
+            last_layer_info = [args[0], args[0] + "_scale",
+                               args[0] + "_zero_point"]
+            node_def, initializer = make_dequant(
+                last_layer_info, args[0] + "_dequant", (16, 0))
+            self.node_defs.append(node_def)
+            self.initializers.extend(initializer)
+
+            self.last_quant_name = args[0] + "_dequant"
+            self.last_layer_name = self.last_quant_name
+        else:
+            self.last_layer_name = args[0]
 
     def get_graph(self, graph_name, shape_in, shape_out):
         """Generate a graph, based on the added layers."""
         data_in = helper.make_tensor_value_info(
             "data_in", TensorProto.FLOAT, shape_in)
         data_out = helper.make_tensor_value_info(
-            self.previous_layer_name + "_out", TensorProto.FLOAT, shape_out)
+            self.last_layer_name + "_out", TensorProto.FLOAT, shape_out)
 
         graph_def = helper.make_graph(
             self.node_defs,
@@ -209,7 +254,6 @@ class GraphGenerator:
 def conv_3x1_1x1_max_2x2():
     """Baseline model. size: 6x6 -> 4x4 -> 2x2"""
     graph_gen = GraphGenerator()
-    graph_gen.add(make_scale, "scale1", (16, 0))
     graph_gen.add(make_conv_quant, "conv1", 1, 4, (3, 1, 0))
     graph_gen.add(make_relu, "relu1")
     graph_gen.add(make_pool_max, "max1", 2, 2)
@@ -224,7 +268,6 @@ def conv_3x1_1x1_max_2x2():
 def conv_3x1_1x1_max_2x2_leaky_relu():
     """Baseline model with one leaky relu."""
     graph_gen = GraphGenerator()
-    graph_gen.add(make_scale, "scale1", (16, 0))
     graph_gen.add(make_conv_quant, "conv1", 1, 4, (3, 1, 0))
     graph_gen.add(make_relu, "relu1")
     graph_gen.add(make_pool_max, "max1", 2, 2)
@@ -239,7 +282,6 @@ def conv_3x1_1x1_max_2x2_leaky_relu():
 def conv_3x1_1x1_max_2x2_nonsquare_input():
     """Baseline model with a nonsquare input."""
     graph_gen = GraphGenerator()
-    graph_gen.add(make_scale, "scale1", (16, 0))
     graph_gen.add(make_conv_quant, "conv1", 1, 4, (3, 1, 0))
     graph_gen.add(make_relu, "relu1")
     graph_gen.add(make_pool_max, "max1", 2, 2)
@@ -254,7 +296,6 @@ def conv_3x1_1x1_max_2x2_nonsquare_input():
 def conv_3x1_1x1_max_2x2_odd_input():
     """Baseline model with an odd input."""
     graph_gen = GraphGenerator()
-    graph_gen.add(make_scale, "scale1", (16, 0))
     graph_gen.add(make_conv_quant, "conv1", 1, 4, (3, 1, 0))
     graph_gen.add(make_relu, "relu1")
     graph_gen.add(make_pool_max, "max1", 2, 2)
@@ -269,7 +310,6 @@ def conv_3x1_1x1_max_2x2_odd_input():
 def conv_3x1_1x1_max_2x2_colored_input():
     """Baseline model with a colored input, i. e. three input channel."""
     graph_gen = GraphGenerator()
-    graph_gen.add(make_scale, "scale1", (16, 0))
     graph_gen.add(make_conv_quant, "conv1", 3, 4, (3, 1, 0))
     graph_gen.add(make_relu, "relu1")
     graph_gen.add(make_pool_max, "max1", 2, 2)
@@ -285,7 +325,6 @@ def conv_3x1_1x1_max_2x2_odd_channel():
     """Baseline model with an odd number of channel. The channel depth is
     specified on purpose. There was a bug with channel depth = 2^x+1."""
     graph_gen = GraphGenerator()
-    graph_gen.add(make_scale, "scale1", (16, 0))
     graph_gen.add(make_conv_quant, "conv1", 1, 5, (3, 1, 0))
     graph_gen.add(make_relu, "relu1")
     graph_gen.add(make_pool_max, "max1", 2, 2)
@@ -300,7 +339,6 @@ def conv_3x1_1x1_max_2x2_odd_channel():
 def conv_3x1_1x1_max_2x2_one_channel():
     """Baseline model with only one channel in every layer."""
     graph_gen = GraphGenerator()
-    graph_gen.add(make_scale, "scale1", (16, 0))
     graph_gen.add(make_conv_quant, "conv1", 1, 1, (3, 1, 0))
     graph_gen.add(make_relu, "relu1")
     graph_gen.add(make_pool_max, "max1", 2, 2)
@@ -315,7 +353,6 @@ def conv_3x1_1x1_max_2x2_one_channel():
 def conv_3x1_1x1_max_2x1():
     """size: 12x12 -> 10x10 -> 9x9"""
     graph_gen = GraphGenerator()
-    graph_gen.add(make_scale, "scale1", (16, 0))
     graph_gen.add(make_conv_quant, "conv1", 1, 4, (3, 1, 0))
     graph_gen.add(make_relu, "relu1")
     graph_gen.add(make_pool_max, "max1", 2, 1)
@@ -330,7 +367,6 @@ def conv_3x1_1x1_max_2x1():
 def conv_3x2_1x1_max_2x1():
     """size: 17x17 -> 8x8 -> 7x7"""
     graph_gen = GraphGenerator()
-    graph_gen.add(make_scale, "scale1", (16, 0))
     graph_gen.add(make_conv_quant, "conv1", 1, 4, (3, 2, 0))
     graph_gen.add(make_relu, "relu1")
     graph_gen.add(make_pool_max, "max1", 2, 1)
@@ -345,7 +381,6 @@ def conv_3x2_1x1_max_2x1():
 def conv_2x1_1x1_max_3x2():
     """size: 16x16 -> 15x15 -> 7x7"""
     graph_gen = GraphGenerator()
-    graph_gen.add(make_scale, "scale1", (16, 0))
     graph_gen.add(make_conv_quant, "conv1", 1, 4, (2, 1, 0))
     graph_gen.add(make_relu, "relu1")
     graph_gen.add(make_pool_max, "max1", 3, 2)
@@ -360,7 +395,6 @@ def conv_2x1_1x1_max_3x2():
 def conv_3x3_2x2_1x1():
     """size: 12x12 -> 4x4 -> 2x2"""
     graph_gen = GraphGenerator()
-    graph_gen.add(make_scale, "scale1", (16, 0))
     graph_gen.add(make_conv_quant, "conv1", 1, 4, (3, 3, 0))
     graph_gen.add(make_relu, "relu1")
     graph_gen.add(make_conv_quant, "conv2", 4, 6, (2, 2, 0))
@@ -376,7 +410,6 @@ def conv_3x3_2x2_1x1():
 def conv_3x1_1x1_max_3x1():
     """size: 12x12 -> 10x10 -> 8x8"""
     graph_gen = GraphGenerator()
-    graph_gen.add(make_scale, "scale1", (16, 0))
     graph_gen.add(make_conv_quant, "conv1", 1, 4, (3, 1, 0))
     graph_gen.add(make_relu, "relu1")
     graph_gen.add(make_pool_max, "max1", 3, 1)
@@ -391,7 +424,6 @@ def conv_3x1_1x1_max_3x1():
 def conv_3x1_1x1_max_3x3():
     """size: 14x14 -> 12x12 -> 4x4"""
     graph_gen = GraphGenerator()
-    graph_gen.add(make_scale, "scale1", (16, 0))
     graph_gen.add(make_conv_quant, "conv1", 1, 4, (3, 1, 0))
     graph_gen.add(make_relu, "relu1")
     graph_gen.add(make_pool_max, "max1", 3, 3)
@@ -406,7 +438,6 @@ def conv_3x1_1x1_max_3x3():
 def conv_3x1_1x1_max_2x2_padding():
     """size: 4x4 -> 4x4 -> 2x2"""
     graph_gen = GraphGenerator()
-    graph_gen.add(make_scale, "scale1", (16, 0))
     graph_gen.add(make_conv_quant, "conv1", 1, 4, (3, 1, 1))
     graph_gen.add(make_relu, "relu1")
     graph_gen.add(make_pool_max, "max1", 2, 2)
@@ -421,7 +452,6 @@ def conv_3x1_1x1_max_2x2_padding():
 def conv_4x3x1_1x1():
     """size: 10x10 -> 8x8 -> 6x6 -> 4x4 -> 2x2"""
     graph_gen = GraphGenerator()
-    graph_gen.add(make_scale, "scale1", (16, 0))
     graph_gen.add(make_conv_quant, "conv1", 1, 8, (3, 1, 0))
     graph_gen.add(make_relu, "relu1")
     graph_gen.add(make_conv_quant, "conv2", 8, 10, (3, 1, 0))
@@ -441,7 +471,6 @@ def conv_4x3x1_1x1():
 def conv_2x_3x1_1x1_max_2x2():
     """size: 14x14 -> 12x12 -> 6x6 -> 4x4 -> 2x2"""
     graph_gen = GraphGenerator()
-    graph_gen.add(make_scale, "scale1", (16, 0))
     graph_gen.add(make_conv_quant, "conv1", 1, 8, (3, 1, 0))
     graph_gen.add(make_relu, "relu1")
     graph_gen.add(make_pool_max, "max1", 2, 2)
@@ -461,7 +490,6 @@ def conv_2x_3x1_1x1_max_2x2():
 def conv_2x_3x1_1x1_max_2x2_padding():
     """size: 8x8 -> 8x8 -> 4x4 -> 4x4 -> 2x2"""
     graph_gen = GraphGenerator()
-    graph_gen.add(make_scale, "scale1", (16, 0))
     graph_gen.add(make_conv_quant, "conv1", 1, 8, (3, 1, 1))
     graph_gen.add(make_relu, "relu1")
     graph_gen.add(make_pool_max, "max1", 2, 2)
@@ -482,7 +510,6 @@ def conv_2x_3x1_1x1_max_2x2_mt():
     """Model of my master thesis, for comparison.
     size: 48, 24 -> 24x12 -> 12x6"""
     graph_gen = GraphGenerator()
-    graph_gen.add(make_scale, "scale1", (16, 0))
     graph_gen.add(make_conv_quant, "conv1", 1, 16, (3, 1, 1))
     graph_gen.add(make_relu, "relu1")
     graph_gen.add(make_pool_max, "max1", 2, 2)

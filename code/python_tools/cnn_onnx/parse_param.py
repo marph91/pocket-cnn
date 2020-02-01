@@ -115,8 +115,8 @@ def parse_param(model: str) -> dict:
     for node in net.graph.node:
         params = parse_node_params(node)
 
-        if node.op_type == "QuantizeLinear":
-            param_dict["scale"] = int(weights_dict[node.input[1]])
+        if node.op_type in ["QuantizeLinear", "DequantizeLinear"]:
+            pass  # these layers are only used for ONNX internally
         elif node.op_type == "QLinearConv":
             if pelem:
                 pes.append(pelem)
@@ -128,10 +128,10 @@ def parse_param(model: str) -> dict:
                 "channel": weights_dict[node.input[3]].shape[0],
                 "bitwidth": [  # data, frac in, frac out, weight, weight frac
                     8,
-                    int(8 - math.log2(weights_dict[node.input[1]])),
-                    int(8 - math.log2(weights_dict[node.input[6]])),
+                    int(math.log2(weights_dict[node.input[1]])),
+                    int(math.log2(weights_dict[node.input[6]])),
                     8,
-                    int(8 - math.log2(weights_dict[node.input[4]])),
+                    int(math.log2(weights_dict[node.input[4]])),
                 ],
                 "pad": get_pad(params),
             }
