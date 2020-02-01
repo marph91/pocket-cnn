@@ -81,8 +81,10 @@ def fixedint2ffloat(number: float, int_bits: int, frac_bits: int) -> float:
     >>> fixedint2ffloat(-2, 4, 4)
     Traceback (most recent call last):
         ...
-    ValueError: invalid literal for int() with base 2: '00000b10'
+    ValueError: Negative values not supported.
     """
+    if number < 0:
+        raise ValueError("Negative values not supported.")
     return fixed2float(bin(int(number))[2:].zfill(int_bits + frac_bits),
                        int_bits, frac_bits)
 
