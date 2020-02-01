@@ -70,7 +70,7 @@ def v_float2fixedint(array, int_bits: int, frac_bits: int):
 
 
 def fixedint2ffloat(number: float, int_bits: int, frac_bits: int) -> float:
-    """Convert a binary fixed string to a fixed float number.
+    """Convert a fixed point integer to a fixed float number.
 
     >>> fixedint2ffloat(255, 4, 4)
     -0.0625

@@ -51,7 +51,6 @@ begin\n\
     C_IMG_WIDTH_IN => " + str(param["input_width"]) + ",\n\
     C_IMG_HEIGHT_IN => " + str(param["input_height"]) + ",\n\
     C_PE => " + str(pelem) + ",\n\
-    C_SCALE => " + str(param["scale"]) + ", \n\
     -- 0 - input, 1 to C_PE - pe, C_PE+1 - average pooling\n\
     C_CH => (" + ", ".join(map(str, param["channel"])) + "),\n\
     C_RELU => \"" + "".join(map(str, param["relu"])) + "\",\n\

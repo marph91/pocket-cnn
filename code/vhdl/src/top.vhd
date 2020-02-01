@@ -14,8 +14,6 @@ entity top is
 
 	  C_PE : integer range 1 to 100;
 
-	  C_SCALE : integer range 0 to 256;
-
     -- 0 - input, 1 to C_PE - pe, C_PE+1 - average
     C_RELU : std_logic_vector(C_PE downto 1); -- slv gets turned around after parsing
     C_LEAKY_RELU : std_logic_vector(C_PE downto 1);

@@ -23,7 +23,6 @@ entity tb_top is
     C_IMG_WIDTH_IN    : integer;
     C_IMG_HEIGHT_IN   : integer;
     C_PE              : integer;
-    C_SCALE           : integer;
     C_RELU            : string;
     C_LEAKY_RELU      : string;
     C_PAD             : string;
@@ -131,7 +130,6 @@ begin
     C_IMG_WIDTH_IN => C_IMG_WIDTH_IN,
     C_IMG_HEIGHT_IN => C_IMG_HEIGHT_IN,
     C_PE => C_PE,
-    C_SCALE => C_SCALE,
     -- 0 - preprocessing, 1 to C_PE - pe, C_PE+1 - average
     C_RELU => str_to_slv(C_RELU),
     C_LEAKY_RELU => str_to_slv(C_LEAKY_RELU),
