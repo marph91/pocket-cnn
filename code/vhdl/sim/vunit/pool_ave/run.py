@@ -11,12 +11,12 @@ from fixfloat import random_fixed_array
 
 def create_stimuli(root, w, h, ch, total_bits, frac_bits):
     int_bits = total_bits - frac_bits
-    a_rand = np.random.randint(256, size=(ch, h, w), dtype=np.uint8)
-    np.savetxt(join(root, "src", "input.csv"), flatten(a_rand), delimiter=", ",
-               fmt="%3d")
+    a_rand = np.random.randint(256, size=(1, ch, h, w), dtype=np.uint8)
+    np.savetxt(join(root, "src", "input.csv"), flatten(a_rand),
+               delimiter=", ", fmt="%3d")
 
     a_out = avg_pool(a_rand, (int_bits, frac_bits))
-    np.savetxt(join(root, "src", "output.csv"), a_out[None], delimiter=", ",
+    np.savetxt(join(root, "src", "output.csv"), a_out, delimiter=", ",
                fmt="%3d")
 
 

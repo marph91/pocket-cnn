@@ -12,16 +12,14 @@ from cnn_reference import flatten, zero_pad
 def create_arrays(root, w, h, ch):
     id_ = "one" if ch == 1 else "multiple"
 
-    a_rand = random_fixed_array((ch, h, w), 8, 0)
+    a_rand = random_fixed_array((1, ch, h, w), 8, 0)
     a_in = v_float2fixedint(a_rand, 8, 0)
     np.savetxt(join(root, "src", "input_%s.csv" % id_),
-               flatten(a_in), delimiter=", ",
-               fmt="%3d")
+               flatten(a_in), delimiter=", ", fmt="%3d")
 
     a_out = v_float2fixedint(zero_pad(a_rand), 8, 0)
     np.savetxt(join(root, "src", "output_%s.csv" % id_),
-               flatten(a_out), delimiter=", ",
-               fmt="%3d")
+               flatten(a_out), delimiter=", ", fmt="%3d")
 
 
 def create_test_suite(ui):

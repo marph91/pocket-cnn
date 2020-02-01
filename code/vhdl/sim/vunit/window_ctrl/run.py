@@ -15,11 +15,11 @@ def create_stimuli(root, ksize, stride, total_bits, channel_in, channel_out,
     # Therefore the random fixed point values have to be converted to
     # corresponding integer values.
     a_rand = np.random.randint(
-        2 ** total_bits, size=(channel_in, height, width))
+        2 ** total_bits, size=(1, channel_in, height, width))
 
     # put the array in a stream based shape (channel > width > height)
-    a_rand_stream = np.transpose(a_rand, (1, 2, 0)).flatten()
-    np.savetxt(join(root, "src", "input_%d_%d.csv" % (ksize, stride)), a_rand_stream[None],
+    a_rand_stream = np.transpose(a_rand, (0, 2, 3, 1)).flatten()[None]
+    np.savetxt(join(root, "src", "input_%d_%d.csv" % (ksize, stride)), a_rand_stream,
                delimiter=", ", fmt="%3d")
 
     # assign the outputs
@@ -27,13 +27,13 @@ def create_stimuli(root, ksize, stride, total_bits, channel_in, channel_out,
     # - (stride - 1) to provide only outputs, where the full kernel fits
     for row in range(0, height - (ksize - stride) - (stride - 1), stride):
         for col in range(0, width - (ksize - stride) - (stride - 1), stride):
-            roi = a_rand[:, row:row + ksize, col:col + ksize]
+            roi = a_rand[0, :, row:row + ksize, col:col + ksize]
             rois.append(roi)
     with open(join(root, "src", "output_%d_%d.csv" % (ksize, stride)), "w") as outfile:
         for r in rois:
-            r_stream = r.flatten()  # ksize * ksize > channel
             # add None to get second dimension and comma separation
-            np.savetxt(outfile, r_stream[None], delimiter=", ", fmt="%3d")
+            # ksize * ksize > channel
+            np.savetxt(outfile, r.flatten()[None], delimiter=", ", fmt="%3d")
 
 
 def create_test_suite(ui):

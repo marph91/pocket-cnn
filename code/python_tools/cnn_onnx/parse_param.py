@@ -89,11 +89,11 @@ def parse_param(model: str) -> dict:
     net = onnx.load(model)
 
     input_shape = get_input_shape(net)
-    assert input_shape[0] in [1, 3]
+    assert input_shape[1] in [1, 3]
     param_dict = {
-        "channel": [input_shape[0]],
-        "input_height": input_shape[1],
-        "input_width": input_shape[2],
+        "channel": [input_shape[1]],
+        "input_height": input_shape[2],
+        "input_width": input_shape[3],
         "relu": [],
         "leaky_relu": [],
         "pad": [],

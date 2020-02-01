@@ -217,7 +217,7 @@ def conv_3x1_1x1_max_2x2():
     graph_gen.add(make_relu, "relu2")
     graph_gen.add(make_pool_ave, "ave1")
 
-    graph_def = graph_gen.get_graph("cnn", (1, 6, 6), (8, 1, 1))
+    graph_def = graph_gen.get_graph("cnn", (1, 1, 6, 6), (8, 1, 1))
     return helper.make_model(graph_def)
 
 
@@ -232,7 +232,7 @@ def conv_3x1_1x1_max_2x2_leaky_relu():
     graph_gen.add(make_leaky_relu, "lrelu2")
     graph_gen.add(make_pool_ave, "ave1")
 
-    graph_def = graph_gen.get_graph("cnn", (1, 6, 6), (8, 1, 1))
+    graph_def = graph_gen.get_graph("cnn", (1, 1, 6, 6), (8, 1, 1))
     return helper.make_model(graph_def)
 
 
@@ -247,7 +247,7 @@ def conv_3x1_1x1_max_2x2_nonsquare_input():
     graph_gen.add(make_relu, "relu2")
     graph_gen.add(make_pool_ave, "ave1")
 
-    graph_def = graph_gen.get_graph("cnn", (1, 4, 8), (8, 1, 1))
+    graph_def = graph_gen.get_graph("cnn", (1, 1, 4, 8), (8, 1, 1))
     return helper.make_model(graph_def)
 
 
@@ -262,7 +262,7 @@ def conv_3x1_1x1_max_2x2_odd_input():
     graph_gen.add(make_relu, "relu2")
     graph_gen.add(make_pool_ave, "ave1")
 
-    graph_def = graph_gen.get_graph("cnn", (1, 7, 7), (8, 1, 1))
+    graph_def = graph_gen.get_graph("cnn", (1, 1, 7, 7), (8, 1, 1))
     return helper.make_model(graph_def)
 
 
@@ -277,7 +277,7 @@ def conv_3x1_1x1_max_2x2_colored_input():
     graph_gen.add(make_relu, "relu2")
     graph_gen.add(make_pool_ave, "ave1")
 
-    graph_def = graph_gen.get_graph("cnn", (3, 6, 6), (8, 1, 1))
+    graph_def = graph_gen.get_graph("cnn", (1, 3, 6, 6), (8, 1, 1))
     return helper.make_model(graph_def)
 
 
@@ -293,7 +293,7 @@ def conv_3x1_1x1_max_2x2_odd_channel():
     graph_gen.add(make_relu, "relu2")
     graph_gen.add(make_pool_ave, "ave1")
 
-    graph_def = graph_gen.get_graph("cnn", (1, 6, 6), (9, 1, 1))
+    graph_def = graph_gen.get_graph("cnn", (1, 1, 6, 6), (9, 1, 1))
     return helper.make_model(graph_def)
 
 
@@ -308,7 +308,7 @@ def conv_3x1_1x1_max_2x2_one_channel():
     graph_gen.add(make_relu, "relu2")
     graph_gen.add(make_pool_ave, "ave1")
 
-    graph_def = graph_gen.get_graph("cnn", (1, 6, 6), (1, 1, 1))
+    graph_def = graph_gen.get_graph("cnn", (1, 1, 6, 6), (1, 1, 1))
     return helper.make_model(graph_def)
 
 
@@ -323,7 +323,7 @@ def conv_3x1_1x1_max_2x1():
     graph_gen.add(make_relu, "relu2")
     graph_gen.add(make_pool_ave, "ave1")
 
-    graph_def = graph_gen.get_graph("cnn", (1, 12, 12), (8, 1, 1))
+    graph_def = graph_gen.get_graph("cnn", (1, 1, 12, 12), (8, 1, 1))
     return helper.make_model(graph_def)
 
 
@@ -338,7 +338,7 @@ def conv_3x2_1x1_max_2x1():
     graph_gen.add(make_relu, "relu2")
     graph_gen.add(make_pool_ave, "ave1")
 
-    graph_def = graph_gen.get_graph("cnn", (1, 17, 17), (8, 1, 1))
+    graph_def = graph_gen.get_graph("cnn", (1, 1, 17, 17), (8, 1, 1))
     return helper.make_model(graph_def)
 
 
@@ -353,7 +353,7 @@ def conv_2x1_1x1_max_3x2():
     graph_gen.add(make_relu, "relu2")
     graph_gen.add(make_pool_ave, "ave1")
 
-    graph_def = graph_gen.get_graph("cnn", (1, 16, 16), (8, 1, 1))
+    graph_def = graph_gen.get_graph("cnn", (1, 1, 16, 16), (8, 1, 1))
     return helper.make_model(graph_def)
 
 
@@ -369,7 +369,7 @@ def conv_3x3_2x2_1x1():
     graph_gen.add(make_relu, "relu3")
     graph_gen.add(make_pool_ave, "ave1")
 
-    graph_def = graph_gen.get_graph("cnn", (1, 8, 8), (8, 1, 1))
+    graph_def = graph_gen.get_graph("cnn", (1, 1, 8, 8), (8, 1, 1))
     return helper.make_model(graph_def)
 
 
@@ -384,7 +384,7 @@ def conv_3x1_1x1_max_3x1():
     graph_gen.add(make_relu, "relu2")
     graph_gen.add(make_pool_ave, "ave1")
 
-    graph_def = graph_gen.get_graph("cnn", (1, 12, 12), (8, 1, 1))
+    graph_def = graph_gen.get_graph("cnn", (1, 1, 12, 12), (8, 1, 1))
     return helper.make_model(graph_def)
 
 
@@ -399,7 +399,7 @@ def conv_3x1_1x1_max_3x3():
     graph_gen.add(make_relu, "relu2")
     graph_gen.add(make_pool_ave, "ave1")
 
-    graph_def = graph_gen.get_graph("cnn", (1, 14, 14), (8, 1, 1))
+    graph_def = graph_gen.get_graph("cnn", (1, 1, 14, 14), (8, 1, 1))
     return helper.make_model(graph_def)
 
 
@@ -414,7 +414,7 @@ def conv_3x1_1x1_max_2x2_padding():
     graph_gen.add(make_relu, "relu2")
     graph_gen.add(make_pool_ave, "ave1")
 
-    graph_def = graph_gen.get_graph("cnn", (1, 4, 4), (8, 1, 1))
+    graph_def = graph_gen.get_graph("cnn", (1, 1, 4, 4), (8, 1, 1))
     return helper.make_model(graph_def)
 
 
@@ -434,7 +434,7 @@ def conv_4x3x1_1x1():
     graph_gen.add(make_relu, "relu5")
     graph_gen.add(make_pool_ave, "ave1")
 
-    graph_def = graph_gen.get_graph("cnn", (1, 10, 10), (16, 1, 1))
+    graph_def = graph_gen.get_graph("cnn", (1, 1, 10, 10), (16, 1, 1))
     return helper.make_model(graph_def)
 
 
@@ -454,7 +454,7 @@ def conv_2x_3x1_1x1_max_2x2():
     graph_gen.add(make_relu, "relu4")
     graph_gen.add(make_pool_ave, "ave1")
 
-    graph_def = graph_gen.get_graph("cnn", (1, 14, 14), (8, 1, 1))
+    graph_def = graph_gen.get_graph("cnn", (1, 1, 14, 14), (8, 1, 1))
     return helper.make_model(graph_def)
 
 
@@ -474,7 +474,7 @@ def conv_2x_3x1_1x1_max_2x2_padding():
     graph_gen.add(make_relu, "relu4")
     graph_gen.add(make_pool_ave, "ave1")
 
-    graph_def = graph_gen.get_graph("cnn", (1, 14, 14), (8, 1, 1))
+    graph_def = graph_gen.get_graph("cnn", (1, 1, 14, 14), (8, 1, 1))
     return helper.make_model(graph_def)
 
 
@@ -495,5 +495,5 @@ def conv_2x_3x1_1x1_max_2x2_mt():
     graph_gen.add(make_relu, "relu4")
     graph_gen.add(make_pool_ave, "ave1")
 
-    graph_def = graph_gen.get_graph("cnn", (1, 48, 24), (2, 1, 1))
+    graph_def = graph_gen.get_graph("cnn", (1, 1, 48, 24), (2, 1, 1))
     return helper.make_model(graph_def)

@@ -84,10 +84,10 @@ begin
     check_equal(data_src.width, C_IMG_WIDTH_IN * C_IMG_HEIGHT_IN * C_IMG_DEPTH_IN, "input_width");
     check_equal(data_src.height, 1, "input_height");
     check_equal(data_src.depth, 1, "input_depth");
-    check_equal(data_ref.width, 1, "output_width");
     -- last channel is equivalent to the amount of classes
-    check_equal(data_ref.height, C_CLASSES, "output_width");
-    check_equal(data_ref.depth, 1, "output_width");
+    check_equal(data_ref.width, C_CLASSES, "output_width");
+    check_equal(data_ref.height, 1, "output_height");
+    check_equal(data_ref.depth, 1, "output_depth");
     run_test;
     test_runner_cleanup(runner);
     wait;
@@ -142,7 +142,7 @@ begin
     wait until rising_edge(sl_clk) and sl_start = '1';
     data_check_done <= false;
 
-    for x in 0 to data_ref.height-1 loop
+    for x in 0 to data_ref.width-1 loop
       wait until rising_edge(sl_clk) and sl_valid_out = '1';
       check_equal(slv_data_out, data_ref.get(x));
     end loop;

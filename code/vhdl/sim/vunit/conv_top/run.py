@@ -21,15 +21,20 @@ def create_stimuli(root, ksize, stride,
                    width, height):
     int_bits_data_in = total_bits_data - frac_bits_data_in
     int_bits_data_out = total_bits_data - frac_bits_data_out
-    a_rand = np.random.randint(256, size=(channel_in, height, width), dtype=np.uint8)
+    a_rand = np.random.randint(256, size=(1, channel_in, height, width),
+                               dtype=np.uint8)
     np.savetxt(join(root, "gen", "input_%d_%d.csv" % (ksize, stride)),
                flatten(a_rand), delimiter=", ", fmt="%3d")
 
     int_bits_weight = total_bits_weight - frac_bits_weight
-    a_weights_rand = np.random.randint(256, size=(channel_out, channel_in, ksize, ksize), dtype=np.uint8)
-    a_weights_ffloat = v_fixedint2ffloat(a_weights_rand, int_bits_weight, frac_bits_weight)
+
+    a_weights_rand = np.random.randint(
+        256, size=(channel_out, channel_in, ksize, ksize), dtype=np.uint8)
+    a_weights_ffloat = v_fixedint2ffloat(
+        a_weights_rand, int_bits_weight, frac_bits_weight)
     a_bias_rand = np.random.randint(256, size=(channel_out,), dtype=np.int32)
-    a_bias_ffloat = v_fixedint2ffloat(a_bias_rand, int_bits_weight, frac_bits_weight)
+    a_bias_ffloat = v_fixedint2ffloat(
+        a_bias_rand, int_bits_weight, frac_bits_weight)
 
     # weights and bias to txt
     weights2files(

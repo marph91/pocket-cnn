@@ -14,7 +14,8 @@ def create_stimuli(root, ksize, stride, total_bits, frac_bits, channel,
                    width, height):
     int_bits = total_bits - frac_bits
 
-    a_rand = np.random.randint(2 ** total_bits, size=(channel, height, width))
+    a_rand = np.random.randint(2 ** total_bits,
+                               size=(1, channel, height, width))
     np.savetxt(join(root, "src", "input_%d_%d.csv" % (ksize, stride)),
                flatten(a_rand), delimiter=", ", fmt="%3d")
 
