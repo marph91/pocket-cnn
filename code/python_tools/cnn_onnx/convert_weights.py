@@ -6,7 +6,9 @@ import math
 
 import onnx
 from onnx import numpy_helper
+
 from weights2files import weights2files
+from fixfloat import v_fixedint2ffloat
 
 
 # somehow the onnx members aren't detected properly
@@ -33,7 +35,10 @@ def convert_weights(model: str, output_dir: str = "weights") -> None:
                 8 - int(math.log2(weights_dict[node.input[4]])),
                 int(math.log2(weights_dict[node.input[4]]))
             )
-            weights2files(kernel, bias, bitwidth, layer_name, output_dir)
+            kernel_flt = v_fixedint2ffloat(kernel, *bitwidth)
+            bias_flt = v_fixedint2ffloat(bias, *bitwidth)
+            weights2files(kernel_flt, bias_flt,
+                          bitwidth, layer_name, output_dir)
 
 
 if __name__ == "__main__":

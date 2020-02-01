@@ -23,12 +23,12 @@ def create_stimuli(root, model_name):
     model = onnx.load(join(root, model_name))
     shape = cnn_onnx.parse_param.get_input_shape(model)
 
-    in_ = np.random.randint(256, size=shape)
+    in_ = np.random.randint(256, size=shape, dtype=np.uint8)
     out_ = cnn_onnx.inference.numpy_inference(model, in_)
 
     np.savetxt(join(root, "input.csv"), flatten(in_),
                delimiter=", ", fmt="%3d")
-    np.savetxt(join(root, "output.csv"), v_float2fixedint(out_, 4, 4),
+    np.savetxt(join(root, "output.csv"), out_,
                delimiter=", ", fmt="%3d")
 
 
@@ -103,7 +103,6 @@ def create_test_suite(ui):
             "C_IMG_WIDTH_IN": params["input_width"],
             "C_IMG_HEIGHT_IN": params["input_height"],
             "C_PE": params["pe"],
-            "C_SCALE": params["scale"],
             "C_RELU": "".join(map(str, params["relu"])),
             "C_LEAKY_RELU": "".join(map(str, params["leaky_relu"])),
             "C_PAD": ", ".join(map(str, params["pad"])),

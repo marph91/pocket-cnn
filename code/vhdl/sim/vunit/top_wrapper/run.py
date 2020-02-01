@@ -28,7 +28,7 @@ def create_stimuli(root, model_name):
 
     np.savetxt(join(root, "input.csv"), flatten(in_),
                delimiter=", ", fmt="%3d")
-    np.savetxt(join(root, "output.csv"), v_float2fixedint(out_, 4, 4),
+    np.savetxt(join(root, "output.csv"), out_,
                delimiter=", ", fmt="%3d")
 
 

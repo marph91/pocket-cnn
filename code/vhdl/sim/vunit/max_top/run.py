@@ -13,20 +13,14 @@ from fixfloat import v_float2fixedint, v_fixedint2ffloat
 def create_stimuli(root, ksize, stride, total_bits, frac_bits, channel,
                    width, height):
     int_bits = total_bits - frac_bits
-    # vunit import from csv can only handle datatype integer.
-    # Therefore the random fixed point values have to be converted to
-    # corresponding integer values.
+
     a_rand = np.random.randint(2 ** total_bits, size=(channel, height, width))
     np.savetxt(join(root, "src", "input_%d_%d.csv" % (ksize, stride)),
                flatten(a_rand), delimiter=", ", fmt="%3d")
 
-    a_rand_ffloat = v_fixedint2ffloat(a_rand, int_bits, frac_bits)
-
     # assign the outputs
     filename = join(root, "src", "output_%d_%d.csv" % (ksize, stride))
-    max_out = v_float2fixedint(
-        max_pool(a_rand_ffloat, ksize, stride),
-        int_bits, frac_bits)
+    max_out = max_pool(a_rand, ksize, stride, (int_bits, frac_bits))
     with open(filename, "w") as outfile:
         np.savetxt(outfile, flatten(max_out), delimiter=", ", fmt="%3d")
 

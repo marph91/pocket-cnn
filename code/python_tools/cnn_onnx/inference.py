@@ -22,6 +22,7 @@ def numpy_inference(onnx_model, input_):
         weights_dict[init.name] = numpy_helper.to_array(init)
 
     next_input = input_
+    first_layer = True  # first layer is unsigned
     for node in onnx_model.graph.node:
         params = parse_param.parse_node_params(node)
 
@@ -36,26 +37,35 @@ def numpy_inference(onnx_model, input_):
             weights = weights_dict[node.input[3]]
             bias = weights_dict[node.input[8]]
 
+            # bitwidths: int in, frac in, int out, frac out,
+            #            int weights, frac weights
+            bitwidth_next = (
+                8 - int(math.log2(weights_dict[node.input[6]])),
+                int(math.log2(weights_dict[node.input[6]])),
+            )
             bitwidth = (
+                8 + int(first_layer) -
+                int(math.log2(weights_dict[node.input[1]])),
+                int(math.log2(weights_dict[node.input[1]])),
+                *bitwidth_next,
                 8 - int(math.log2(weights_dict[node.input[4]])),
-                int(math.log2(weights_dict[node.input[4]]))
+                int(math.log2(weights_dict[node.input[4]])),
             )
 
             next_input = cnn_reference.conv(
                 next_input, weights, bias, (ksize, stride), bitwidth)
-        elif node.op_type == "QuantizeLinear":
-            next_input = cnn_reference.scale(
-                next_input, weights_dict[node.input[1]])
+            first_layer = False
         elif node.op_type == "MaxPool":
             ksize, stride = parse_param.get_kernel_params(params)
-            next_input = cnn_reference.max_pool(next_input, ksize, stride)
+            next_input = cnn_reference.max_pool(
+                next_input, ksize, stride, bitwidth_next)
         elif node.op_type == "GlobalAveragePool":
-            next_input = cnn_reference.avg_pool(next_input)
+            next_input = cnn_reference.avg_pool(next_input, bitwidth_next)
         elif node.op_type == "Relu":
-            next_input = cnn_reference.relu(next_input)
+            next_input = cnn_reference.relu(next_input, bitwidth_next)
         elif node.op_type == "LeakyRelu":
             next_input = cnn_reference.leaky_relu(
-                next_input, 0.125, bitwidth)
+                next_input, 0.125, bitwidth_next)
     return next_input
 
 
@@ -69,4 +79,4 @@ if __name__ == "__main__":
     onnx.checker.check_model(MODEL)
     SHAPE = parse_param.parse_param(MODEL)
     OUTPUT = numpy_inference(
-        MODEL, np.random.randint(256, size=SHAPE).astype(np.float))
+        MODEL, np.random.randint(256, size=SHAPE).astype(np.uint8))

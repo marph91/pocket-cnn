@@ -1,14 +1,11 @@
 """Model zoo for generating various CNN models in ONNX format.
 Includes helper functions as well as the model definitions."""
 
-import math
 from typing import Any, List, Tuple
 
+import numpy as np
 from onnx import helper
 from onnx import TensorProto
-
-from fixfloat import random_fixed_array
-
 
 # somehow the onnx members aren't detected properly
 # pylint: disable=no-member
@@ -17,14 +14,12 @@ from fixfloat import random_fixed_array
 
 # helper functions
 
+
 def make_conv_quant(last_layer_info: tuple, name: str, ch_in: int, ch_out: int,
                     param: Tuple[int, int, int]) -> Tuple[Any, List[Any]]:
     """Create a convolution node and corresponding (random) weights."""
     weights_scale = 16
     ksize, stride, pad = param
-
-    frac_bits = int(math.log2(weights_scale))
-    int_bits = 8 - frac_bits
 
     # Create a node (NodeProto)
     node_def = helper.make_node(
@@ -42,22 +37,22 @@ def make_conv_quant(last_layer_info: tuple, name: str, ch_in: int, ch_out: int,
 
     initializer = []
 
-    np_array = random_fixed_array(
-        (ch_out, ch_in, ksize, ksize), int_bits, frac_bits)
+    np_array = np.random.randint(2 ** 8, size=(ch_out, ch_in, ksize, ksize),
+                                 dtype=np.uint8)
     initializer.append(
         helper.make_tensor(
             name=name + "_weights",
-            data_type=TensorProto.FLOAT,
+            data_type=TensorProto.UINT8,
             dims=(ch_out, ch_in, ksize, ksize),
             vals=np_array.reshape(ch_out * ch_in * ksize * ksize).tolist()
         )
     )
 
-    np_array = random_fixed_array((ch_out,), int_bits, frac_bits)
+    np_array = np.random.randint(2 ** 8, size=(ch_out,), dtype=np.int32)
     initializer.append(
         helper.make_tensor(
             name=name + "_bias",
-            data_type=TensorProto.FLOAT,
+            data_type=TensorProto.INT32,
             dims=(ch_out,),
             vals=np_array.reshape(ch_out).tolist()
         )
