@@ -25,8 +25,10 @@ def create_stimuli(root, ksize, stride, total_bits, channel_in, channel_out,
     # assign the outputs
     rois = []
     # - (stride - 1) to provide only outputs, where the full kernel fits
-    for row in range(0, height - (ksize - stride) - (stride - 1), stride):
-        for col in range(0, width - (ksize - stride) - (stride - 1), stride):
+    max_height = height - (ksize - stride) - (stride - 1)
+    max_width = width - (ksize - stride) - (stride - 1)
+    for row in range(0, max_height, stride):
+        for col in range(0, max_width, stride):
             roi = a_rand[0, :, row:row + ksize, col:col + ksize]
             rois.append(roi)
     with open(join(root, "src", "output_%d_%d.csv" % (ksize, stride)), "w") as outfile:

@@ -8,8 +8,6 @@ from vunit import VUnit
 import numpy as np
 
 from cnn_reference import conv, flatten
-from fixfloat import v_float2fixedint, float2fixedint, float2ffloat
-from fixfloat import random_fixed_array, v_fixedint2ffloat
 from weights2files import weights2files
 
 
