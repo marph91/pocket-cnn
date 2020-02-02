@@ -3,6 +3,7 @@ from os.path import join, dirname
 
 import numpy as np
 import onnx
+import onnxruntime as rt
 from vunit import VUnit
 
 from fixfloat import v_float2fixedint
@@ -25,6 +26,13 @@ def create_stimuli(root, model_name):
 
     in_ = np.random.randint(256, size=shape, dtype=np.uint8)
     out_ = cnn_onnx.inference.numpy_inference(model, in_)
+
+    # ONNX runtime prediction, TODO: doesn't work right now
+    # https://github.com/microsoft/onnxruntime/issues/2964
+    # sess = rt.InferenceSession(join(root, model_name))
+    # input_name = sess.get_inputs()[0].name
+    # pred_onnx = sess.run(None, {input_name: in_.astype(np.float32)})[0]
+    # print(pred_onnx)
 
     np.savetxt(join(root, "input.csv"), flatten(in_),
                delimiter=", ", fmt="%3d")

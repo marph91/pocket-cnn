@@ -28,17 +28,16 @@ def create_stimuli(root, ksize, stride,
 
     int_bits_weight = total_bits_weight - frac_bits_weight
 
+    scale = 2 ** frac_bits_weight
     a_weights_rand = np.random.randint(
-        256, size=(channel_out, channel_in, ksize, ksize), dtype=np.uint8)
-    a_weights_ffloat = v_fixedint2ffloat(
-        a_weights_rand, int_bits_weight, frac_bits_weight)
-    a_bias_rand = np.random.randint(256, size=(channel_out,), dtype=np.int32)
-    a_bias_ffloat = v_fixedint2ffloat(
-        a_bias_rand, int_bits_weight, frac_bits_weight)
+        -2 ** 7, 2 ** 7 - 1, size=(channel_out, channel_in, ksize, ksize),
+        dtype=np.int8)
+    a_bias_rand = np.random.randint(
+        -2 ** 7, 2 ** 7 - 1, size=(channel_out,), dtype=np.int8)
 
     # weights and bias to txt
     weights2files(
-        a_weights_ffloat, a_bias_ffloat,
+        a_weights_rand / scale, a_bias_rand / scale,
         (int_bits_weight, frac_bits_weight),
         "conv_%d_%d" % (ksize, stride), join(root, "gen"))
 

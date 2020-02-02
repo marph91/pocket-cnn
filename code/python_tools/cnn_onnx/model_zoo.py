@@ -37,18 +37,19 @@ def make_conv_quant(last_layer_info: tuple, name: str, ch_in: int, ch_out: int,
 
     initializer = []
 
-    np_array = np.random.randint(2 ** 8, size=(ch_out, ch_in, ksize, ksize),
-                                 dtype=np.uint8)
+    np_array = np.random.randint(
+        -2 ** 7, 2 ** 7 - 1, size=(ch_out, ch_in, ksize, ksize), dtype=np.int8)
     initializer.append(
         helper.make_tensor(
             name=name + "_weights",
-            data_type=TensorProto.UINT8,
+            data_type=TensorProto.INT8,
             dims=(ch_out, ch_in, ksize, ksize),
             vals=np_array.reshape(ch_out * ch_in * ksize * ksize).tolist()
         )
     )
 
-    np_array = np.random.randint(2 ** 8, size=(ch_out,), dtype=np.int32)
+    np_array = np.random.randint(-2 ** 7, 2 ** 7 - 1, size=(ch_out,),
+                                 dtype=np.int32)
     initializer.append(
         helper.make_tensor(
             name=name + "_bias",
@@ -68,7 +69,7 @@ def make_conv_quant(last_layer_info: tuple, name: str, ch_in: int, ch_out: int,
         ),
         helper.make_tensor(
             name=name + "_zero_point",
-            data_type=TensorProto.UINT8,
+            data_type=TensorProto.INT8,
             dims=(1,),
             vals=[0]
         ),
@@ -80,7 +81,7 @@ def make_conv_quant(last_layer_info: tuple, name: str, ch_in: int, ch_out: int,
         ),
         helper.make_tensor(
             name=name + "_weights_zero_point",
-            data_type=TensorProto.UINT8,
+            data_type=TensorProto.INT8,
             dims=(1,),
             vals=[0]
         ),
@@ -152,7 +153,7 @@ def make_dequant(name_prev: str, name: str,
         ),
         helper.make_tensor(
             name=name + "_zero_point",
-            data_type=TensorProto.UINT8,
+            data_type=TensorProto.INT8,
             dims=(1,),
             vals=[quant[1]]
         ),
@@ -181,7 +182,7 @@ def make_quant(name_prev: str, name: str,
         ),
         helper.make_tensor(
             name=name + "_zero_point",
-            data_type=TensorProto.UINT8,
+            data_type=TensorProto.INT8,
             dims=(1,),
             vals=[quant[1]]
         ),

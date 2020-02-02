@@ -56,8 +56,8 @@ def conv(array_in, weights, bias, param: Tuple[int, int],
     assert batch == 1, "batch size != 1 not supported"
 
     array_in_flt = v_fixedint2ffloat(array_in, *bitwidth[:2])
-    weights_flt = v_fixedint2ffloat(weights, *bitwidth[4:])
-    bias_flt = v_fixedint2ffloat(bias, *bitwidth[4:])
+    weights_flt = weights / 2 ** bitwidth[5]
+    bias_flt = bias / 2 ** bitwidth[5]
 
     out = np.zeros((1, channel_out, int((height - ksize) / stride) + 1,
                     int((width - ksize) / stride) + 1), dtype=np.uint8)

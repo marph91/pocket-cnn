@@ -35,9 +35,8 @@ def convert_weights(model: str, output_dir: str = "weights") -> None:
                 8 - int(math.log2(weights_dict[node.input[4]])),
                 int(math.log2(weights_dict[node.input[4]]))
             )
-            kernel_flt = v_fixedint2ffloat(kernel, *bitwidth)
-            bias_flt = v_fixedint2ffloat(bias, *bitwidth)
-            weights2files(kernel_flt, bias_flt,
+            scale = weights_dict[node.input[4]]
+            weights2files(kernel / scale, bias / scale,
                           bitwidth, layer_name, output_dir)
 
 
