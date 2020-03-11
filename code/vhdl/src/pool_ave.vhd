@@ -31,7 +31,7 @@ architecture behavioral of pool_ave is
   constant C_INT_BITS : integer range 1 to 16 := C_TOTAL_BITS - C_FRAC_BITS;
 
   -- temporary higher int width to prevent overflow while summing up channel/pixel
-  -- new bitwidth = log2(C_IMG_HEIGHT*C_IMG_WIDTH*(2^old bitwidth)) = log2(C_IMG_HEIGHT*C_IMG_WIDTH) + old bitwidth -> new bw = lb(16*(2^8-1)) = 12
+  -- new bitwidth = log2(C_IMG_HEIGHT*C_IMG_WIDTH*(2^old bitwidth)) = log2(C_IMG_HEIGHT*C_IMG_WIDTH) + old bitwidth -> new bw = lb(16*(2^7)) = 12
   constant C_INTW_SUM : integer range 1 to C_INT_BITS+log2(C_IMG_HEIGHT*C_IMG_WIDTH) := C_INT_BITS+log2(C_IMG_HEIGHT*C_IMG_WIDTH);
   constant C_FRACW_REZI : integer range 1 to 16 := 16;
 

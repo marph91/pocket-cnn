@@ -33,8 +33,8 @@ architecture tb of tb_zero_pad is
   signal sl_rdy : std_logic := '0';
   signal sl_get : std_logic := '1';
 
-  shared variable data_src : array_t;
-  shared variable data_ref : array_t;
+  shared variable data_src : integer_array_t;
+  shared variable data_ref : integer_array_t;
   signal data_check_done, stimuli_done : boolean := false;
 begin
   dut : entity cnn_lib.zero_pad
@@ -77,8 +77,8 @@ begin
 
   begin
     test_runner_setup(runner, runner_cfg);
-    data_src.load_csv(tb_path(runner_cfg) & "input_" & id & ".csv");
-    data_ref.load_csv(tb_path(runner_cfg) & "output_" & id & ".csv");
+    data_src := load_csv(tb_path(runner_cfg) & "input_" & id & ".csv");
+    data_ref := load_csv(tb_path(runner_cfg) & "output_" & id & ".csv");
     check_equal(data_src.width, C_IMG_WIDTH * C_IMG_HEIGHT * C_IMG_DEPTH, "input_width");
     check_equal(data_src.height, 1, "input_height");
     check_equal(data_src.depth, 1, "input_depth");
@@ -116,9 +116,9 @@ begin
       -- TODO: non burst channel = 1 working?
       sl_valid_in <= '1';
       for w in 0 to C_IMG_DEPTH-1 loop
-        slv_data_in <= std_logic_vector(to_unsigned(data_src.get(i), slv_data_in'length));
+        slv_data_in <= std_logic_vector(to_unsigned(get(data_src, i), slv_data_in'length));
         report_position(i, C_IMG_HEIGHT, C_IMG_WIDTH, C_IMG_DEPTH,
-                        "input: ", ", val=" & to_string(data_src.get(i)));
+                        "input: ", ", val=" & to_string(get(data_src, i)));
         wait until rising_edge(sl_clk);
         i := i + 1;
       end loop;
@@ -136,7 +136,7 @@ begin
     for i in 0 to (C_IMG_WIDTH+2) * (C_IMG_HEIGHT+2) * C_IMG_DEPTH - 1 loop
       wait until rising_edge(sl_clk) and sl_valid_out = '1';
       report_position(i, C_IMG_HEIGHT+2, C_IMG_WIDTH+2, C_IMG_DEPTH, "output: ");
-      check_equal(slv_data_out, std_logic_vector(to_unsigned(data_ref.get(i), slv_data_out'length)));
+      check_equal(slv_data_out, std_logic_vector(to_unsigned(get(data_ref, i), slv_data_out'length)));
     end loop;
     report ("Done checking.");
     data_check_done <= true;

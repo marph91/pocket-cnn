@@ -31,8 +31,8 @@ architecture tb of tb_relu is
 
   signal sl_start : std_logic := '0';
 
-  shared variable data_src : array_t;
-  shared variable data_ref : array_t;
+  shared variable data_src : integer_array_t;
+  shared variable data_ref : integer_array_t;
 
   signal data_check_done, stimuli_done : boolean := false;
 begin
@@ -67,8 +67,8 @@ begin
 
   begin
     test_runner_setup(runner, runner_cfg);
-    data_src.load_csv(tb_path(runner_cfg) & "input.csv");
-    data_ref.load_csv(tb_path(runner_cfg) & ref_file);
+    data_src := load_csv(tb_path(runner_cfg) & "input.csv");
+    data_ref := load_csv(tb_path(runner_cfg) & ref_file);
     run_test;
     test_runner_cleanup(runner);
     wait;
@@ -84,7 +84,7 @@ begin
     wait until rising_edge(sl_clk);
     sl_valid_in <= '1';
     for x in 0 to sample_cnt-1 loop
-      slv_data_in <= std_logic_vector(to_signed(data_src.get(x), C_TOTAL_BITS));
+      slv_data_in <= std_logic_vector(to_signed(get(data_src, x), C_TOTAL_BITS));
       wait until rising_edge(sl_clk);
     end loop;
     sl_valid_in <= '0';
@@ -99,8 +99,8 @@ begin
 
     for x in 0 to sample_cnt-1 loop
       wait until rising_edge(sl_clk) and sl_valid_out = '1';
-      report (to_string(slv_data_out) & " " & to_string(data_ref.get(x)));
-      check_equal(slv_data_out, data_ref.get(x));
+      report (to_string(slv_data_out) & " " & to_string(get(data_ref, x)));
+      check_equal(slv_data_out, get(data_ref, x));
     end loop;
 
     report ("Done checking");

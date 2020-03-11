@@ -44,8 +44,8 @@ architecture tb of tb_window_ctrl is
 
   signal sl_start : std_logic := '0';
 
-  shared variable data_src : array_t;
-  shared variable data_ref : array_t;
+  shared variable data_src : integer_array_t;
+  shared variable data_ref : integer_array_t;
 
   signal data_check_done, stimuli_done : boolean := false;
 begin
@@ -99,8 +99,8 @@ begin
             to_string(C_KSIZE) & "x" &
             to_string(C_CH_OUT));
 
-    data_src.load_csv(tb_path(runner_cfg) & "input_" & to_string(C_KSIZE) & "_" & to_string(C_STRIDE) & ".csv");
-    data_ref.load_csv(tb_path(runner_cfg) & "output_" & to_string(C_KSIZE) & "_" & to_string(C_STRIDE) & ".csv");
+    data_src := load_csv(tb_path(runner_cfg) & "input_" & to_string(C_KSIZE) & "_" & to_string(C_STRIDE) & ".csv");
+    data_ref := load_csv(tb_path(runner_cfg) & "output_" & to_string(C_KSIZE) & "_" & to_string(C_STRIDE) & ".csv");
 
     check_equal(data_src.width, C_IMG_WIDTH*C_IMG_HEIGHT*C_CH_IN, "input_width");
     check_equal(data_src.height, 1, "input_height");
@@ -132,9 +132,9 @@ begin
       wait until rising_edge(sl_clk) and sl_rdy = '1';
       sl_valid_in <= '1';
       for ch_in in 0 to C_CH_IN-1 loop
-        slv_data_in <= std_logic_vector(to_unsigned(data_src.get(i), slv_data_in'length));
+        slv_data_in <= std_logic_vector(to_unsigned(get(data_src, i), slv_data_in'length));
         report_position(i, C_IMG_HEIGHT, C_IMG_WIDTH, C_CH_IN,
-                        "input: ", ", val=" & to_string(data_src.get(i)));
+                        "input: ", ", val=" & to_string(get(data_src, i)));
         wait until rising_edge(sl_clk);
         i := i + 1;
       end loop;
@@ -163,8 +163,8 @@ begin
           for x in 0 to C_KSIZE-1 loop
             for y in 0 to C_KSIZE-1 loop
               report to_string(a_data_out(0)(C_KSIZE-1-x, C_KSIZE-1-y)) &
-                    " " & to_string(data_ref.get(ch_in*C_KSIZE*C_KSIZE+x+y*C_KSIZE, pos));
-              check_equal(a_data_out(0)(C_KSIZE-1-x, C_KSIZE-1-y), data_ref.get(ch_in*C_KSIZE*C_KSIZE+x+y*C_KSIZE, pos),
+                    " " & to_string(get(data_ref, ch_in*C_KSIZE*C_KSIZE+x+y*C_KSIZE, pos));
+              check_equal(a_data_out(0)(C_KSIZE-1-x, C_KSIZE-1-y), get(data_ref, ch_in*C_KSIZE*C_KSIZE+x+y*C_KSIZE, pos),
                           "pos=" & to_string(pos) & ", ch_in=" & to_string(ch_in) & ", ch_out=" & to_string(ch_out));
             end loop;
           end loop;

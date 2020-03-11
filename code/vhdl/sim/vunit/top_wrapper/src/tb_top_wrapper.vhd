@@ -33,13 +33,13 @@ architecture behavioral of tb_top_wrapper is
   signal sl_get           : std_logic := '0';
   signal sl_start         : std_logic := '0';
   signal sl_valid_in      : std_logic := '0';
-  signal slv_data_in      : std_logic_vector(8-1 downto 0);
-  signal slv_data_out     : std_logic_vector(8-1 downto 0);
+  signal slv_data_in      : std_logic_vector(7 downto 0);
+  signal slv_data_out     : std_logic_vector(7 downto 0);
   signal sl_valid_out     : std_logic := '0';
   signal sl_finish        : std_logic := '0';
 
-  shared variable data_src : array_t;
-  shared variable data_ref : array_t;
+  shared variable data_src : integer_array_t;
+  shared variable data_ref : integer_array_t;
 
   signal sl_start_test : std_logic := '0';
 
@@ -77,8 +77,8 @@ begin
     test_runner_setup(runner, runner_cfg);
     -- don't stop integration tests when one value is wrong
     set_stop_level(failure);
-    data_src.load_csv(tb_path(runner_cfg) & C_FOLDER & "/input.csv");
-    data_ref.load_csv(tb_path(runner_cfg) & C_FOLDER & "/output.csv");
+    data_src := load_csv(tb_path(runner_cfg) & C_FOLDER & "/input.csv");
+    data_ref := load_csv(tb_path(runner_cfg) & C_FOLDER & "/output.csv");
 
     -- check whether the image dimensions between loaded data and parameter file fit
     check_equal(data_src.width, C_IMG_WIDTH_IN * C_IMG_HEIGHT_IN * C_IMG_DEPTH_IN, "input_width");
@@ -125,9 +125,9 @@ begin
       wait until rising_edge(sl_clk) and sl_rdy = '1';
       sl_valid_in <= '1';
       for w in 0 to C_IMG_DEPTH_IN-1 loop
-        slv_data_in <= std_logic_vector(to_unsigned(data_src.get(i), slv_data_in'length));
+        slv_data_in <= std_logic_vector(to_unsigned(get(data_src, i), slv_data_in'length));
         report_position(i, C_IMG_HEIGHT_IN, C_IMG_WIDTH_IN, C_IMG_DEPTH_IN,
-                        "input: ", ", val=" & to_string(data_src.get(i)));
+                        "input: ", ", val=" & to_string(get(data_src, i)));
         wait until rising_edge(sl_clk);
         i := i + 1;
       end loop;
@@ -144,7 +144,7 @@ begin
 
     for x in 0 to data_ref.width-1 loop
       wait until rising_edge(sl_clk) and sl_valid_out = '1';
-      check_equal(slv_data_out, data_ref.get(x));
+      check_equal(slv_data_out, get(data_ref, x));
     end loop;
 
     wait until sl_finish = '1';

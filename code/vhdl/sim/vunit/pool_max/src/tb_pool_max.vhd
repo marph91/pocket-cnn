@@ -33,8 +33,8 @@ architecture tb of tb_pool_max is
 
   signal sl_start : std_logic := '0';
 
-  shared variable data_src : array_t;
-  shared variable data_ref : array_t;
+  shared variable data_src : integer_array_t;
+  shared variable data_ref : integer_array_t;
 
   signal data_check_done, stimuli_done : boolean := false;
 begin
@@ -70,8 +70,8 @@ begin
 
   begin
     test_runner_setup(runner, runner_cfg);
-    data_src.load_csv(tb_path(runner_cfg) & "input" & to_string(C_KSIZE) & ".csv");
-    data_ref.load_csv(tb_path(runner_cfg) & "output" & to_string(C_KSIZE) & ".csv");
+    data_src := load_csv(tb_path(runner_cfg) & "input" & to_string(C_KSIZE) & ".csv");
+    data_ref := load_csv(tb_path(runner_cfg) & "output" & to_string(C_KSIZE) & ".csv");
     run_test;
     test_runner_cleanup(runner);
     wait;
@@ -92,7 +92,7 @@ begin
     sl_valid_in <= '1';
     for x in 0 to C_KSIZE-1 loop
       for y in 0 to C_KSIZE-1 loop
-        a_data_in(x, y) <= std_logic_vector(to_unsigned(data_src.get(x, y), C_TOTAL_BITS));
+        a_data_in(x, y) <= std_logic_vector(to_unsigned(get(data_src, x, y), C_TOTAL_BITS));
       end loop;
     end loop;
     wait until rising_edge(sl_clk);
@@ -106,8 +106,8 @@ begin
     wait until rising_edge(sl_clk) and sl_start = '1';
     data_check_done <= false;
     wait until rising_edge(sl_clk) and sl_valid_out = '1';
-    report (to_string(slv_data_out) & " " & to_string(data_ref.get(0, 0)));
-    check_equal(slv_data_out, std_logic_vector(to_unsigned(data_ref.get(0, 0), C_TOTAL_BITS)));
+    report (to_string(slv_data_out) & " " & to_string(get(data_ref, 0, 0)));
+    check_equal(slv_data_out, std_logic_vector(to_unsigned(get(data_ref, 0, 0), C_TOTAL_BITS)));
     report ("Done checking");
     data_check_done <= true;
   end process;

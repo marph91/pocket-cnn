@@ -44,8 +44,8 @@ architecture tb of tb_max_top is
 
   signal sl_start : std_logic := '0';
 
-  shared variable data_src : array_t;
-  shared variable data_ref : array_t;
+  shared variable data_src : integer_array_t;
+  shared variable data_ref : integer_array_t;
 
   signal data_check_done, stimuli_done : boolean := false;
 begin
@@ -95,8 +95,8 @@ begin
             to_string(C_IMG_HEIGHT) & "x" &
             to_string(C_CH));
 
-    data_src.load_csv(tb_path(runner_cfg) & "input_" & to_string(C_KSIZE) & "_" & to_string(C_STRIDE) & ".csv");
-    data_ref.load_csv(tb_path(runner_cfg) & "output_" & to_string(C_KSIZE) & "_" & to_string(C_STRIDE) & ".csv");
+    data_src := load_csv(tb_path(runner_cfg) & "input_" & to_string(C_KSIZE) & "_" & to_string(C_STRIDE) & ".csv");
+    data_ref := load_csv(tb_path(runner_cfg) & "output_" & to_string(C_KSIZE) & "_" & to_string(C_STRIDE) & ".csv");
 
     check_equal(data_src.width, C_IMG_WIDTH*C_IMG_HEIGHT*C_CH, "input_width");
     check_equal(data_src.height, 1, "input_height");
@@ -128,9 +128,9 @@ begin
       wait until rising_edge(sl_clk) and sl_rdy = '1';
       sl_valid_in <= '1';
       for ch_in in 0 to C_CH-1 loop
-        slv_data_in <= std_logic_vector(to_unsigned(data_src.get(i), slv_data_in'length));
+        slv_data_in <= std_logic_vector(to_unsigned(get(data_src, i), slv_data_in'length));
         report_position(i, C_IMG_HEIGHT, C_IMG_WIDTH, C_CH,
-                        "input: ", ", val=" & to_string(data_src.get(i)));
+                        "input: ", ", val=" & to_string(get(data_src, i)));
         wait until rising_edge(sl_clk);
         i := i + 1;
       end loop;
@@ -151,7 +151,7 @@ begin
     for i in 0 to C_IMG_HEIGHT_OUT*C_IMG_WIDTH_OUT*C_CH-1 loop
       wait until rising_edge(sl_clk) and sl_valid_out = '1';
       report_position(i, C_IMG_HEIGHT_OUT, C_IMG_WIDTH_OUT, C_CH, "output: ");
-      check_equal(slv_data_out, data_ref.get(i));
+      check_equal(slv_data_out, get(data_ref, i));
     end loop;
     report ("Done checking");
     data_check_done <= true;

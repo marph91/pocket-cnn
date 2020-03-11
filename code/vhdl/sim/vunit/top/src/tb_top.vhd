@@ -114,8 +114,8 @@ architecture behavioral of tb_top is
   constant C_CH_ARRAY     : t_int_array_1d := decode_integer_array(C_CH, 0);
   constant C_IMG_DEPTH_IN : integer := C_CH_ARRAY(0);
 
-  shared variable data_src : array_t;
-  shared variable data_ref : array_t;
+  shared variable data_src : integer_array_t;
+  shared variable data_ref : integer_array_t;
 
   signal sl_start_test : std_logic := '0';
   signal int_input_cnt : integer := 0;
@@ -179,8 +179,8 @@ begin
     test_runner_setup(runner, runner_cfg);
     -- don't stop integration tests when one value is wrong
     set_stop_level(failure);
-    data_src.load_csv(tb_path(runner_cfg) & C_FOLDER & "/input.csv");
-    data_ref.load_csv(tb_path(runner_cfg) & C_FOLDER & "/output.csv");
+    data_src := load_csv(tb_path(runner_cfg) & C_FOLDER & "/input.csv");
+    data_ref := load_csv(tb_path(runner_cfg) & C_FOLDER & "/output.csv");
 
     -- check whether the image dimensions between loaded data and parameter file fit
     check_equal(data_src.width, C_IMG_WIDTH_IN * C_IMG_HEIGHT_IN * C_IMG_DEPTH_IN, "input_width");
@@ -232,9 +232,9 @@ begin
           sl_valid_in <= '1';
           for w in 0 to C_IMG_DEPTH_IN-1 loop
             int_input_cnt <= int_input_cnt + 1;
-            slv_data_in <= std_logic_vector(to_unsigned(data_src.get(int_input_cnt), slv_data_in'length));
+            slv_data_in <= std_logic_vector(to_unsigned(get(data_src, int_input_cnt), slv_data_in'length));
             report_position(int_input_cnt, C_IMG_HEIGHT_IN, C_IMG_WIDTH_IN, C_IMG_DEPTH_IN,
-                            "input: ", ", val=" & to_string(data_src.get(int_input_cnt)));
+                            "input: ", ", val=" & to_string(get(data_src, int_input_cnt)));
             wait until rising_edge(sl_clk);
           end loop;
           sl_valid_in <= '0';
@@ -268,8 +268,8 @@ begin
       for x in 0 to data_ref.width-1 loop
         wait until rising_edge(sl_clk) and sl_valid_out = '1';
         report_position(x, data_ref.width, 1, 1,
-                        "output: ", ", val=" & to_string(data_ref.get(x)));
-        check_equal(slv_data_out, data_ref.get(x));
+                        "output: ", ", val=" & to_string(get(data_ref, x)));
+        check_equal(slv_data_out, get(data_ref, x));
       end loop;
       wait until rising_edge(sl_clk) and sl_finish = '1';
     end loop;
