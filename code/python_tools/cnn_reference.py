@@ -36,7 +36,7 @@ def max_pool(array_in, ksize: int, stride: int, bitwidth: Tuple[int, int]):
     max_width = width - (ksize - stride) - (stride - 1)
     for row_out, row_in in enumerate(range(0, max_height, stride)):
         for col_out, col_in in enumerate(range(0, max_width, stride)):
-            roi = array_in_flt[0,:, row_in:row_in + ksize, col_in:col_in + ksize]
+            roi = array_in_flt[0, :, row_in:row_in+ksize, col_in:col_in+ksize]
             out[0, :, row_out, col_out] = v_float2fixedint(np.amax(
                 roi.reshape(channel, -1), axis=1), *bitwidth)
     return out
@@ -66,7 +66,7 @@ def conv(array_in, weights, bias, param: Tuple[int, int],
     max_width = width - (ksize - stride) - (stride - 1)
     for row_out, row_in in enumerate(range(0, max_height, stride)):
         for col_out, col_in in enumerate(range(0, max_width, stride)):
-            roi = array_in_flt[0, :, row_in:row_in + ksize, col_in:col_in + ksize]
+            roi = array_in_flt[0, :, row_in:row_in+ksize, col_in:col_in+ksize]
             for ch_out in range(channel_out):
                 result = np.sum(roi * weights_flt[ch_out]) + bias_flt[ch_out]
                 # float2ffloat only to saturate the values

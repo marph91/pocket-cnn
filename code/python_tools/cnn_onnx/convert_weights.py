@@ -8,7 +8,6 @@ import onnx
 from onnx import numpy_helper
 
 from weights2files import weights2files
-from fixfloat import v_fixedint2ffloat
 
 
 # somehow the onnx members aren't detected properly
