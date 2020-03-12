@@ -19,7 +19,7 @@ def load_image(path, width, height, mode="L"):
     return image
 
 
-def img2bin(source, dest, val_line=1):
+def img_to_bin(source, dest, val_line=1):
     """Write image to binary file."""
     os.makedirs(dest, exist_ok=True)
 
@@ -48,15 +48,20 @@ def img2bin(source, dest, val_line=1):
         outfile.write(b"".join(img_bin))
 
 
+def main():
+    """Main function."""
+    parser = argparse.ArgumentParser()
+    parser.add_argument("input_image", type=str)
+    parser.add_argument("output_width", type=int)
+    parser.add_argument("output_height", type=int)
+    parser.add_argument("output_destination", type=str)
+    parser.add_argument("val_line", type=int, help="values per line (1 or 4)")
+    args = parser.parse_args()
+
+    img = load_image(args.input_image, args.output_height, args.output_width)
+
+    img_to_bin(img, args.output_destination, args.val_line)
+
+
 if __name__ == "__main__":
-    PARSER = argparse.ArgumentParser()
-    PARSER.add_argument("input_image", type=str)
-    PARSER.add_argument("output_width", type=int)
-    PARSER.add_argument("output_height", type=int)
-    PARSER.add_argument("output_destination", type=str)
-    PARSER.add_argument("val_line", type=int, help="values per line (1 or 4)")
-    ARGS = PARSER.parse_args()
-
-    IMG = load_image(ARGS.input_image, ARGS.output_height, ARGS.output_width)
-
-    img2bin(IMG, ARGS.output_destination, ARGS.val_line)
+    main()
