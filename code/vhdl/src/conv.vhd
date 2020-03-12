@@ -17,7 +17,7 @@ entity conv is
     C_DATA_FRAC_BITS_OUT  : integer range 0 to 16 := 4;
     C_WEIGHTS_TOTAL_BITS  : integer range 1 to 16 := 8;
     C_WEIGHTS_FRAC_BITS   : integer range 0 to 16 := 4;
-    
+
     C_CH_IN           : integer range 1 to 512 := 4;
     C_CH_OUT          : integer range 1 to 512 := 8;
 
@@ -152,7 +152,7 @@ begin
               C_WEIGHTS_TOTAL_BITS-C_WEIGHTS_FRAC_BITS-1, -C_WEIGHTS_FRAC_BITS),
               C_SUM_INT_BITS-1, -C_SUM_FRAC_BITS, fixed_wrap, fixed_truncate);
           end if;
-          
+
           for ch_in in 0 to C_PARALLEL*(C_CH_IN-1) loop
             -- always resize the values -> without round, sfix_sum should be big enough
             -- TODO: adder tree needed?

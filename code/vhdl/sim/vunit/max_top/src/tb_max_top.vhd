@@ -102,10 +102,10 @@ begin
     check_equal(data_src.height, 1, "input_height");
     check_equal(data_src.depth, 1, "input_depth");
 
-    check_equal(data_ref.width, ((C_IMG_WIDTH-(C_KSIZE-C_STRIDE))/C_STRIDE) * 
+    check_equal(data_ref.width, ((C_IMG_WIDTH-(C_KSIZE-C_STRIDE))/C_STRIDE) *
                                 ((C_IMG_HEIGHT-(C_KSIZE-C_STRIDE))/C_STRIDE) * -- number of positions of the kernel
                                 C_CH, "output_width");
-    check_equal(data_ref.height, 1, "output_height"); 
+    check_equal(data_ref.height, 1, "output_height");
     check_equal(data_ref.depth, 1, "output_depth");
     run_test;
     test_runner_cleanup(runner);

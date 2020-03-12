@@ -116,10 +116,10 @@ begin
     check_equal(data_src.height, 1, "input_height");
     check_equal(data_src.depth, 1, "input_depth");
 
-    check_equal(data_ref.width, ((C_IMG_WIDTH-(C_KSIZE-C_STRIDE))/C_STRIDE) * 
+    check_equal(data_ref.width, ((C_IMG_WIDTH-(C_KSIZE-C_STRIDE))/C_STRIDE) *
                                 ((C_IMG_HEIGHT-(C_KSIZE-C_STRIDE))/C_STRIDE) * -- number of positions of the kernel
                                 C_CH_OUT, "output_width");
-    check_equal(data_ref.height, 1, "output_height"); 
+    check_equal(data_ref.height, 1, "output_height");
     check_equal(data_ref.depth, 1, "output_depth");
     run_test;
     test_runner_cleanup(runner);
@@ -168,7 +168,7 @@ begin
       report_position(i, C_IMG_HEIGHT_OUT, C_IMG_WIDTH_OUT, C_CH_OUT, "output: ");
       check_equal(slv_data_out, std_logic_vector(to_unsigned(get(data_ref, i), slv_data_out'length)));
     end loop;
-    
+
     report ("Done checking");
     data_check_done <= true;
   end process;

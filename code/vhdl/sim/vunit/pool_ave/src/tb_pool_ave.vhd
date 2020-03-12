@@ -80,7 +80,7 @@ begin
     check_equal(data_src.depth, 1, "input_depth");
 
     check_equal(data_ref.width, C_IMG_DEPTH, "output_width");
-    check_equal(data_ref.height, 1, "output_height"); 
+    check_equal(data_ref.height, 1, "output_height");
     check_equal(data_ref.depth, 1, "output_depth");
 
     run_test;

@@ -27,8 +27,8 @@ entity tb_top is
     C_LEAKY_RELU      : string;
     C_PAD             : string;
     C_CONV_KSIZE      : string;
-	  C_CONV_STRIDE     : string;
-	  C_POOL_KSIZE      : string;
+    C_CONV_STRIDE     : string;
+    C_POOL_KSIZE      : string;
     C_POOL_STRIDE     : string;
     C_CH              : string;
     C_BITWIDTH        : string;
@@ -138,7 +138,7 @@ begin
     C_CONV_STRIDE => decode_integer_array(C_CONV_STRIDE, 1),
     C_POOL_KSIZE => decode_integer_array(C_POOL_KSIZE, 1),
     C_POOL_STRIDE => decode_integer_array(C_POOL_STRIDE, 1),
-    C_CH => C_CH_ARRAY, 
+    C_CH => C_CH_ARRAY,
     -- 0 - bitwidth data, 1 - bitwidth frac data in, 2 - bitwidth frac data out
     -- 3 - bitwidth weights, 4 - bitwidth frac weights
     C_BITWIDTH => decode_integer_array(C_BITWIDTH, 1),
@@ -195,7 +195,7 @@ begin
     wait;
   end process;
 
-  -- stop integration tests if they are stuck 
+  -- stop integration tests if they are stuck
   test_runner_watchdog(runner, 200 us);
 
   clk_gen(sl_clk, C_CLK_PERIOD);

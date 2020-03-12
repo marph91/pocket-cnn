@@ -109,7 +109,7 @@ begin
     check_equal(weights_src.depth, 1, "input_depth");
 
     check_equal(data_ref.width, 1, "output_width");
-    check_equal(data_ref.height, 1, "output_height"); 
+    check_equal(data_ref.height, 1, "output_height");
     check_equal(data_ref.depth, 1, "output_depth");
     run_test;
     test_runner_cleanup(runner);
@@ -150,7 +150,7 @@ begin
     report to_string(C_DATA_TOTAL_BITS+C_WEIGHTS_TOTAL_BITS+log2(C_KSIZE-1)*2);
     check_equal(slv_data_out, std_logic_vector(to_unsigned(get(data_ref, 0, 0),
       C_DATA_TOTAL_BITS+C_WEIGHTS_TOTAL_BITS+log2(C_KSIZE-1)*2+1+C_FIRST_STAGE)));
-    
+
     report ("Done checking");
     data_check_done <= true;
   end process;

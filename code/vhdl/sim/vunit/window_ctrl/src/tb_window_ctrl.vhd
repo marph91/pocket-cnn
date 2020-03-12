@@ -107,7 +107,7 @@ begin
     check_equal(data_src.depth, 1, "input_depth");
 
     check_equal(data_ref.width, C_KSIZE*C_KSIZE*C_CH_IN, "output_width"); -- channels, get repeated C_CH_OUT times
-    check_equal(data_ref.height, ((C_IMG_WIDTH-(C_KSIZE-C_STRIDE))/C_STRIDE) * 
+    check_equal(data_ref.height, ((C_IMG_WIDTH-(C_KSIZE-C_STRIDE))/C_STRIDE) *
                                  ((C_IMG_HEIGHT-(C_KSIZE-C_STRIDE))/C_STRIDE), "output_height"); -- number of positions of the kernel
     check_equal(data_ref.depth, 1, "output_depth");
 

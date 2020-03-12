@@ -10,42 +10,42 @@ entity top is
   generic(
     C_DATA_TOTAL_BITS : integer range 1 to 16;
     C_IMG_WIDTH_IN : integer range 2 to 512;
-	  C_IMG_HEIGHT_IN : integer range 2 to 512;
+    C_IMG_HEIGHT_IN : integer range 2 to 512;
 
-	  C_PE : integer range 1 to 100;
+    C_PE : integer range 1 to 100;
 
     -- 0 - input, 1 to C_PE - pe, C_PE+1 - average
     C_RELU : std_logic_vector(C_PE downto 1); -- slv gets turned around after parsing
     C_LEAKY_RELU : std_logic_vector(C_PE downto 1);
 
-	  C_PAD: t_int_array_1d(1 to C_PE);
+    C_PAD: t_int_array_1d(1 to C_PE);
 
-	  C_CONV_KSIZE : t_int_array_1d(1 to C_PE);
-	  C_CONV_STRIDE : t_int_array_1d(1 to C_PE);
-	  C_POOL_KSIZE : t_int_array_1d(1 to C_PE);
-	  C_POOL_STRIDE : t_int_array_1d(1 to C_PE);
+    C_CONV_KSIZE : t_int_array_1d(1 to C_PE);
+    C_CONV_STRIDE : t_int_array_1d(1 to C_PE);
+    C_POOL_KSIZE : t_int_array_1d(1 to C_PE);
+    C_POOL_STRIDE : t_int_array_1d(1 to C_PE);
 
-	  C_CH : t_int_array_1d(0 to C_PE);
+    C_CH : t_int_array_1d(0 to C_PE);
 
     -- 0 - bitwidth data, 1 - bitwidth frac data in, 2 - bitwidth frac data out
     -- 3 - bitwidth weights, 4 - bitwidth frac weights
-	  C_BITWIDTH : t_int_array_2d(1 to C_PE, 0 to 4);
+    C_BITWIDTH : t_int_array_2d(1 to C_PE, 0 to 4);
 
     C_STR_LENGTH : integer range 1 to 256;
     C_WEIGHTS_INIT : t_str_array_1d(1 to C_PE)(1 to C_STR_LENGTH);
-	  C_BIAS_INIT : t_str_array_1d(1 to C_PE)(1 to C_STR_LENGTH)
+    C_BIAS_INIT : t_str_array_1d(1 to C_PE)(1 to C_STR_LENGTH)
   );
   port (
-    isl_clk   	: in std_logic;
-    isl_rst_n 	: in std_logic;
-    isl_ce    	: in std_logic;
-    isl_get   	: in std_logic;
-    isl_start 	: in std_logic;
-    isl_valid 	: in std_logic;
-    islv_data 	: in std_logic_vector(C_DATA_TOTAL_BITS-1 downto 0);
-    oslv_data 	: out std_logic_vector(C_DATA_TOTAL_BITS-1 downto 0);
-    osl_valid 	: out std_logic;
-    osl_rdy   	: out std_logic;
+    isl_clk     : in std_logic;
+    isl_rst_n   : in std_logic;
+    isl_ce      : in std_logic;
+    isl_get     : in std_logic;
+    isl_start   : in std_logic;
+    isl_valid   : in std_logic;
+    islv_data   : in std_logic_vector(C_DATA_TOTAL_BITS-1 downto 0);
+    oslv_data   : out std_logic_vector(C_DATA_TOTAL_BITS-1 downto 0);
+    osl_valid   : out std_logic;
+    osl_rdy     : out std_logic;
     osl_finish  : out std_logic
   );
 end top;
