@@ -17,8 +17,10 @@ For synthesis:
 git clone https://gitlab.com/Marph/picocnn.git
 cd picocnn
 
-# TODO: Example for creating top_wrapper.vhd from ONNX model.
-# synthesize the design
+# create a toplevel module
+python3 code/python_tools/vhdl_top_template.py
+
+# synthesize the design with the generated toplevel module
 ```
 
 To run the tests (vunit based), execute:

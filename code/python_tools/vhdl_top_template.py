@@ -1,6 +1,13 @@
 """Generate a toplevel template. It is needed for synthesis.
 Previously it was used for cocotb compatibility, too."""
 
+import argparse
+import os
+
+import onnx
+
+from cnn_onnx import convert_weights, model_zoo, parse_param
+
 
 def vhdl_top_template(param: dict, output_file: str) -> None:
     """"Generate a VHDL toplevel wrapper with all needed CNN parameter."""
@@ -89,3 +96,41 @@ begin\n\
     osl_finish  => osl_finish\n\
   );\n\
 end behavioral;")
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--model-path", default=None,
+                        help="Path to the onnx model.")
+    parser.add_argument("--weights-path-full",
+                        default=os.path.join(os.getcwd(), "weights"),
+                        help="Full path for storing the weights.")
+    parser.add_argument("--top-name", default="top_wrapper.vhd",
+                        help="Name of the toplevel module.")
+    args = parser.parse_args()
+
+    if args.model_path is None:
+        # take an arbitrary onnx model
+        model_path = "sample_cnn_model.onnx"
+        model = model_zoo.conv_3x1_1x1_max_2x2()
+        onnx.save(model, model_path)
+    else:
+        model_path = args.model_path
+
+    # parse parameter
+    params = parse_param.parse_param(model_path)
+
+    # create some (redundant) dict entries
+    params["weight_dir"] = args.weights_path_full
+    params["len_weights"] = len("%s/W_%s.txt" % (
+        params["weight_dir"], params["conv_names"][0]))
+
+    # convert weights
+    convert_weights.convert_weights(model_path, params["weight_dir"])
+
+    # create toplevel wrapper for synthesis
+    vhdl_top_template(params, args.top_name)
+
+
+if __name__ == "__main__":
+    main()
