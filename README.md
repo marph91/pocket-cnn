@@ -56,7 +56,7 @@ python3 run_all.py
 
 ## TODO
 
-Can be found at the [documentation folder](documentation/todo.md) or in the issues.
+Can be found at the [documentation folder](documentation/todo.md) and in the issues.
 
 ## History
 
