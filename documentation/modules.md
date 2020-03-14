@@ -14,7 +14,6 @@ window_ctrl | control the stream to window assembly | before convolution and max
 line_buffer | buffer the incoming stream and assemble it to image lines | part of the window control
 window_buffer | buffer the incoming lines and assemble them to windows  | part of the window control
 channel_repeater | repeat the channels multiple times | before convolution, part of the window control
-channel_burst | buffer one pixel, then forward it when the next module is ready | before convolution and maximum pooling, part of the PE
 relu | perform the rectified linear operation | after convolution
 pool_ave | perform a global average pooling operation | at the end of the CNN
 zero_pad | pad zeros at the image borders | before convolution, part of the PE

@@ -17,6 +17,8 @@ For synthesis:
 
 ## Installation and Usage
 
+Generate a toplevel template for synthesis, which represents the CNN architecture:
+
 ```bash
 git clone https://gitlab.com/Marph/picocnn.git
 cd picocnn
@@ -27,7 +29,7 @@ python3 code/python_tools/vhdl_top_template.py
 # synthesize the design with the generated toplevel module
 ```
 
-To run the tests (vunit based), execute:
+To run the tests, simply execute:
 
 ```bash
 cd picocnn/code/vhdl/sim/vunit/
@@ -38,30 +40,13 @@ python3 run_all.py
 
 - Convolution (Kernel: 1x1, 2x2, 3x3, Stride: 1, 2, 3)
 - Maximum Pooling (Kernel: 2x2, 3x3, Stride: 1, 2, 3)
-- Average Pooling (Quantized factor: 1 / height * width to 16 bit)
+- Average Pooling (Quantized averaging factor: 1 / height * width to 16 bit)
 - Zero Padding (only same padding at each edge)
 - ReLU, Leaky ReLU (only with alpha = 0.125)
 
 ## TODO
 
-### Testing
-
-- Add more tests.
-- Use a second simulator, f. e. modelsim or nvc.
-- Use jenkins or similar CI.
-
-### HDL
-
-- Add more layers, f. e. fully connected layer.
-- Check if CE is correctly implemented and useful at all. See <http://arantxa.ii.uam.es/~ivan/spl12-clock-gating.pdf>.
-
-### CNN Frameworks
-
-Add an example, which contains the full workflow:
-
-- Pytorch/Tensorflow/... training
-- Exporting to ONNX
-- Generating the hardware description with picocnn
+Can be found at the [documentation folder](documentation/todo.md) or in the issues.
 
 ## History
 
@@ -77,4 +62,4 @@ The tag `cocotb_caffe` marks the last commit with:
 - Cocotb testbenches.
 - Integration of caffe and pytorch.
 
-&rarr; This got deprecated by using VUnit as test runner and ONNX as CNN format.
+&rarr; This got deprecated by using VUnit as test runner and ONNX as CNN representation.
