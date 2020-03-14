@@ -9,7 +9,8 @@ For tests:
 - ghdl: <https://github.com/ghdl/ghdl>
 - vunit: <https://github.com/vunit/vunit>
 - onnx: <https://github.com/onnx/onnx>
-- gtkwave (optional)
+- gtkwave <https://github.com/gtkwave/gtkwave> (optional)
+- netron <https://github.com/lutzroeder/netron> (optional)
 
 For synthesis:
 
