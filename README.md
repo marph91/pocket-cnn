@@ -15,6 +15,15 @@ For synthesis:
 - A generated top_wrapper.vhd and corresponding weight files.
 - A synthesis tool of your choice. For now, the design was synthesized only using Xilinx Vivado.
 
+## Limitations
+
+Before using the framework, you should be aware of several limitations:
+
+- It is not complete. There might be several bugs and things missing. Please open an issue.
+- There will be a different accuracy and loss due to the 8 bit quantzation.
+- Only small CNN can be synthesized, because the weights get mapped directly to LUTRAM. See also <https://arxiv.org/pdf/1712.04322.pdf>.
+- Only a [subset of layers](#supported-layers) is supported.
+
 ## Installation and Usage
 
 Generate a toplevel template for synthesis, which represents the CNN architecture:
