@@ -8,6 +8,7 @@ For tests:
 
 - ghdl: <https://github.com/ghdl/ghdl>
 - vunit: <https://github.com/vunit/vunit>
+- onnx: <https://github.com/onnx/onnx>
 - gtkwave (optional)
 
 For synthesis:

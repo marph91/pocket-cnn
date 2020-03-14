@@ -44,6 +44,7 @@
   - readability (layerwise structure?)
   - compatibility to json for vunit tests
   - compatibility to vhdl wrapper for synth
+- Synthesize the design with an open source toolchain (ghsl + ghdlsynth + yosys + nextpnr + icestorm).
 
 ## CNN Frameworks
 
