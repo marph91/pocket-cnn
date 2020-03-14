@@ -7,7 +7,7 @@ import math
 import onnx
 from onnx import numpy_helper
 
-from weights2files import weights2files
+from weights_to_files import weights_to_files
 
 
 # somehow the onnx members aren't detected properly
@@ -35,8 +35,8 @@ def convert_weights(model: str, output_dir: str = "weights") -> None:
                 int(math.log2(weights_dict[node.input[4]]))
             )
             scale = weights_dict[node.input[4]]
-            weights2files(kernel / scale, bias / scale,
-                          bitwidth, layer_name, output_dir)
+            weights_to_files(kernel / scale, bias / scale,
+                             bitwidth, layer_name, output_dir)
 
 
 if __name__ == "__main__":

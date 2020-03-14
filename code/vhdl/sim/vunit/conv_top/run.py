@@ -8,7 +8,7 @@ from vunit import VUnit
 import numpy as np
 
 from cnn_reference import conv, flatten
-from weights2files import weights2files
+from weights_to_files import weights_to_files
 
 
 def create_stimuli(root, ksize, stride,
@@ -34,7 +34,7 @@ def create_stimuli(root, ksize, stride,
         -2 ** 7, 2 ** 7 - 1, size=(channel_out,), dtype=np.int8)
 
     # weights and bias to txt
-    weights2files(
+    weights_to_files(
         a_weights_rand / scale, a_bias_rand / scale,
         (int_bits_weight, frac_bits_weight),
         "conv_%d_%d" % (ksize, stride), join(root, "gen"))
