@@ -156,6 +156,7 @@ def parse_param(model: str) -> dict:
 
 
 def main():
+    """Main function to demonstrate the usage."""
     parser = argparse.ArgumentParser()
     parser.add_argument("model", type=str, help="Path to the model.")
     parser.add_argument("output_file", type=str,
@@ -165,7 +166,7 @@ def main():
     params = parse_param(args.model)
     with open(args.output_file, "w") as outfile:
         json.dump(params, outfile, indent=2)
-    
+
 
 if __name__ == "__main__":
     main()

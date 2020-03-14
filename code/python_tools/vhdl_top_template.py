@@ -99,6 +99,7 @@ end behavioral;")
 
 
 def main():
+    """Main function to demonstrate the usage."""
     parser = argparse.ArgumentParser()
     parser.add_argument("--model-path", default=None,
                         help="Path to the onnx model.")
