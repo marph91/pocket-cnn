@@ -36,11 +36,9 @@ def weights_to_files(kernel, bias, bitwidth: Tuple[int, int],
             debug_w.append("\n")
             ch_in += 1
 
-    with open(output_dir + "/W_" + layer_name + ".txt", "w") as outfile:
-        outfile.write("".join(line_w))
-    with open(output_dir + "/W_" + layer_name + "_debug.txt", "w") as outfile:
-        outfile.write("".join(debug_w))
-    with open(output_dir + "/B_" + layer_name + ".txt", "w") as outfile:
-        outfile.write("".join(line_b))
-    with open(output_dir + "/B_" + layer_name + "_debug.txt", "w") as outfile:
-        outfile.write("".join(debug_b))
+    for name, data in (("/W_" + layer_name + ".txt", line_w),
+                       ("/W_" + layer_name + "_debug.txt", debug_w),
+                       ("/B_" + layer_name + ".txt", line_b),
+                       ("/B_" + layer_name + "_debug.txt", debug_b)):
+        with open(output_dir + name, "w") as outfile:
+            outfile.write("".join(data))
