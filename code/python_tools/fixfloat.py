@@ -76,6 +76,8 @@ def fixedint2ffloat(number: float, int_bits: int, frac_bits: int) -> float:
     -0.0625
     >>> fixedint2ffloat(0, 4, 4)
     0.0
+    >>> fixedint2ffloat(127, 4, 4)
+    7.9375
     >>> float2fixedint(fixedint2ffloat(25, 4, 4), 4, 4)
     25
     >>> fixedint2ffloat(-2, 4, 4)
