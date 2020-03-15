@@ -28,6 +28,8 @@ Before using the framework, you should be aware of several limitations:
 
 ## Installation and Usage
 
+Before using the framework, the `PYTHONPATH` has to be extended by `path/to/pocket-cnn/code/python_tools`.
+
 Generate a toplevel template for synthesis, which represents the CNN architecture:
 
 ```bash
@@ -43,7 +45,7 @@ python3 code/python_tools/vhdl_top_template.py
 To run the tests, simply execute:
 
 ```bash
-cd code/vhdl/sim/vunit/
+cd code/vhdl/sim/vunit
 python3 run_all.py
 ```
 
