@@ -1,5 +1,9 @@
 # pocket-cnn
 
+[![testsuite](https://github.com/marph91/pocket-cnn/workflows/testsuite/badge.svg)](https://github.com/marph91/pocket-cnn/actions?query=workflow%3Atestsuite)
+[![check_scripts](https://github.com/marph91/pocket-cnn/workflows/check_scripts/badge.svg)](https://github.com/marph91/pocket-cnn/actions?query=workflow%3Acheck_scripts)
+[![codecov](https://codecov.io/gh/marph91/pocket-cnn/branch/master/graph/badge.svg)](https://codecov.io/gh/marph91/pocket-cnn)
+
 pocket-cnn is a framework to map small Convolutional Neural Networks (CNN) fully on a FPGA. There is no communication outside of the FPGA needed, except of providing the image and reading the result.
 
 ## Requirements
