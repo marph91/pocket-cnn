@@ -22,4 +22,6 @@ jobs:
     - name: install pip packets
       run: pip install onnx
     - name: run_checks
-      run: code/snippets/check_scripts.sh .
+      run: |
+        export PYTHONPATH="$(pwd)/code/python_tools"
+        code/snippets/check_scripts.sh .

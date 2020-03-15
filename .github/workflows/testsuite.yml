@@ -15,6 +15,7 @@ jobs:
         run: pip install onnx
       - name: Run tests
         run: |
+          export PYTHONPATH="$(pwd)/code/python_tools"
           cd code/vhdl/sim/vunit
           python3 run_all.py
       - uses: codecov/codecov-action@v1
