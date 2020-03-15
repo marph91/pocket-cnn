@@ -28,17 +28,19 @@ def create_test_suites(prj):
         run.create_test_suite(prj)
         mod[0].close()
 
+    # avoid error "type of a shared variable must be a protected type"
+    ghdl_flags = ["-frelaxed"]
+    ghdl_elab_flags = ["-frelaxed"]
+    
     # add code coverage if gcc is available
     ghdl_version = subprocess.check_output(["ghdl", "--version"]).decode()
     if "GCC" in ghdl_version:
         prj.set_sim_option("enable_coverage", True)
-        prj.set_compile_option(
-            "ghdl.flags", ["-g", "-fprofile-arcs", "-ftest-coverage"])
-        prj.set_sim_option("ghdl.elab_flags", ["-Wl,-lgcov", "-Wl,--coverage"])
+        ghdl_flags.extend(["-g", "-fprofile-arcs", "-ftest-coverage"])
+        ghdl_elab_flags.extend(["-Wl,-lgcov", "-Wl,--coverage"])
 
-    # avoid error "type of a shared variable must be a protected type"
-    prj.set_compile_option("ghdl.flags", ["-frelaxed"])
-    prj.set_sim_option("ghdl.elab_flags", ["-frelaxed"])
+    prj.set_compile_option("ghdl.flags", ghdl_flags)
+    prj.set_sim_option("ghdl.elab_flags", ghdl_elab_flags)
 
 
 if __name__ == "__main__":
