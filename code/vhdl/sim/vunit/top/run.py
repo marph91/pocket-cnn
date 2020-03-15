@@ -3,7 +3,7 @@ from os.path import join, dirname
 
 import numpy as np
 import onnx
-import onnxruntime as rt
+# import onnxruntime as rt
 from vunit import VUnit
 
 from fixfloat import v_float2fixedint
