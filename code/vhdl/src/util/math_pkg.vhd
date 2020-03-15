@@ -3,9 +3,7 @@ library ieee;
 
 package math_pkg is
   function log2(x : integer) return integer;
-  function max(l, r : integer) return integer;
   function max(l, r : sfixed) return sfixed;
-  function min(l, r : integer) return integer;
 end math_pkg;
 
 package body math_pkg is
@@ -23,17 +21,7 @@ package body math_pkg is
     end if;
   end function log2;
 
-  -- chose the maximum of two integer
-  function max(l, r : integer) return integer is
-    begin
-    if l > r then
-      return l;
-    else
-      return r;
-    end if;
-  end max;
-
-  -- chose the maximum of two signed fixed point numbers
+  -- obtain the maximum of two signed fixed point numbers
   function max(l, r : sfixed) return sfixed is
   begin
     if l > r then
@@ -42,14 +30,4 @@ package body math_pkg is
       return r;
     end if;
   end max;
-
-  -- chose the minimum of two integer
-  function min(l, r : integer) return integer is
-    begin
-      if l < r then
-      return l;
-    else
-      return r;
-    end if;
-  end min;
 end math_pkg;
