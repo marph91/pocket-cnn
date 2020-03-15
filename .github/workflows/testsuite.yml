@@ -1,0 +1,22 @@
+name: testsuite
+
+on:
+  push:
+  schedule:
+    - cron: '0 0 * * *'
+
+jobs:
+  container:
+    runs-on: ubuntu-latest
+    container: ghdl/vunit:gcc-master
+    steps:
+      - uses: actions/checkout@v1
+      - name: install pip packets
+        run: pip install onnx
+      - name: Run tests
+        run: |
+          cd code/vhdl/sim/vunit
+          python3 run_all.py
+      - uses: codecov/codecov-action@v1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
