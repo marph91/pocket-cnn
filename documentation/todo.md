@@ -12,7 +12,7 @@
 - add code coverage
 - add ci
   - ./run_static_checks.sh
-  - cd /home/workspace/picocnn/code/vhdl/sim/vunit && ./run_all.py -p4
+  - cd /home/workspace/pocket-cnn/code/vhdl/sim/vunit && ./run_all.py -p4
   - fix "NUMERIC_STD.TO_SIGNED: vector truncated" warnings
   - consider generics as namedtuple/dataclass
 - onnxruntime:
@@ -52,7 +52,7 @@
   - Pytorch/Tensorflow/... training
   - Exporting to ONNX
   - Modifying/quantizing the model according to the HDL requirements
-  - Generating the hardware description with picocnn
+  - Generating the hardware description with pocket-cnn
 - Add a script, which converts an arbitrary ONNX model to an quantized ONNX model, which can be synthesized:
   - Document the requirements/limitations:
     - bitwidth/scale: limit to 2^x values or extend vhdl framework?

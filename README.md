@@ -1,6 +1,6 @@
-# picoCNN
+# pocket-cnn
 
-picoCNN is a framework to map small Convolutional Neural Networks (CNN) fully on a FPGA. There is no communication outside of the FPGA needed, except of providing the image and reading the result.
+pocket-cnn is a framework to map small Convolutional Neural Networks (CNN) fully on a FPGA. There is no communication outside of the FPGA needed, except of providing the image and reading the result.
 
 ## Requirements
 
@@ -31,8 +31,8 @@ Before using the framework, you should be aware of several limitations:
 Generate a toplevel template for synthesis, which represents the CNN architecture:
 
 ```bash
-git clone https://gitlab.com/Marph/picocnn.git
-cd picocnn
+git clone git@github.com:marph91/pocket-cnn.git
+cd pocket-cnn
 
 # create a toplevel module
 python3 code/python_tools/vhdl_top_template.py
@@ -43,7 +43,7 @@ python3 code/python_tools/vhdl_top_template.py
 To run the tests, simply execute:
 
 ```bash
-cd picocnn/code/vhdl/sim/vunit/
+cd code/vhdl/sim/vunit/
 python3 run_all.py
 ```
 
