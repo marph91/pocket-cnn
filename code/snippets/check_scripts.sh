@@ -6,6 +6,8 @@ if [ -z "$1" ]; then
 fi
 ROOT="$1"
 
+set -e
+
 # python checks
 # TODO: fix code in all the run.py files
 find "$ROOT" -name "*.py" -print0 | xargs -0 python3 -m doctest
