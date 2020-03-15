@@ -18,7 +18,7 @@ jobs:
     - name: install system packets
       run: |
         apt update
-        apt install --yes python3-flake8 python3-mypy pylint3 shellcheck
+        apt install --yes python3-flake8 python3-mypy pylint3 shellcheck libpython3.7-dev
     - name: install pip packets
       run: pip install onnx
     - name: run_checks
