@@ -5,6 +5,7 @@
 from glob import glob
 import imp
 import os
+import subprocess
 
 from vunit import VUnit
 
@@ -20,17 +21,20 @@ def create_test_suites(prj):
     cnn_lib = prj.add_library("cnn_lib", allow_duplicate=True)
     cnn_lib.add_source_files("../../src/*.vhd")
 
-    # TODO: add code coverage
-    # prj.set_sim_option("enable_coverage", True)
-    # prj.set_compile_option("ghdl.flags",["-g", "-fprofile-arcs", "-ftest-coverage"])
-    # prj.set_sim_option("ghdl.elab_flags",["-Wl,-lgcov", "-Wl,--coverage"])
-
     run_scripts = glob(os.path.join(root, "*", "run.py"))
     for run_script in run_scripts:
         mod = imp.find_module("run", [os.path.dirname(run_script)])
         run = imp.load_module("run", *mod)
         run.create_test_suite(prj)
         mod[0].close()
+
+    # add code coverage if gcc is available
+    ghdl_version = subprocess.check_output(["ghdl", "--version"]).decode()
+    if "GCC" in ghdl_version:
+        prj.set_sim_option("enable_coverage", True)
+        prj.set_compile_option(
+            "ghdl.flags", ["-g", "-fprofile-arcs", "-ftest-coverage"])
+        prj.set_sim_option("ghdl.elab_flags", ["-Wl,-lgcov", "-Wl,--coverage"])
 
     # avoid error "type of a shared variable must be a protected type"
     prj.set_compile_option("ghdl.flags", ["-frelaxed"])
