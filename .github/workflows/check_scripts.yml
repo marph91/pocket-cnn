@@ -16,7 +16,7 @@ jobs:
       with:
         python-version: 3.7
     - name: install system packets
-      run: sudo apt-get install flake8 mypy pylint3 shellcheck
+      run: apt install flake8 mypy pylint3 shellcheck
     - name: install pip packets
       run: pip install onnx
     - name: run_checks
