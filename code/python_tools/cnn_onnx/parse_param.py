@@ -53,7 +53,7 @@ class ProcessingElement:
     """Represents a processing element (PE) in the hardware design.
     Each PE has to contain exactly one convolution with optional
     activation function and maximum pooling."""
-    def __init__(self, param: dict):
+    def __init__(self, param: dict) -> None:
         self.relu = 0
         self.leaky_relu = 0
         self.pool_param = (0, 0)
