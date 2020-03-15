@@ -22,5 +22,5 @@ jobs:
       run: pip install onnx
     - name: run_checks
       run: |
-        export PYTHONPATH="$(pwd)/code/python_tools"
+        export PYTHONPATH="/opt/hostedtoolcache/Python/3.7.6/x64/lib/python3.7/site-packages:$(pwd)/code/python_tools"
         code/snippets/check_scripts.sh .
