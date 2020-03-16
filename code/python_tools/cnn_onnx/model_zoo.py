@@ -38,6 +38,18 @@ def conv_3x1_1x1_max_2x2_leaky_relu():
     return helper.make_model(graph_def)
 
 
+def conv_3x1_1x1_max_2x2_no_relu():
+    """Baseline model without relu."""
+    graph_gen = gg.GraphGenerator()
+    graph_gen.add(gg.make_conv_quant, "conv1", 1, 4, (3, 1, 0))
+    graph_gen.add(gg.make_pool_max, "max1", 2, 2)
+    graph_gen.add(gg.make_conv_quant, "conv2", 4, 8, (1, 1, 0))
+    graph_gen.add(gg.make_pool_ave, "ave1")
+
+    graph_def = graph_gen.get_graph("cnn", (1, 1, 6, 6), (1, 8, 1, 1))
+    return helper.make_model(graph_def)
+
+
 def conv_3x1_1x1_max_2x2_nonsquare_input():
     """Baseline model with a nonsquare input."""
     graph_gen = gg.GraphGenerator()

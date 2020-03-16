@@ -53,6 +53,7 @@ def create_test_suite(prj):
     test_cnns = [  # name in model zoo
         cnn_onnx.model_zoo.conv_3x1_1x1_max_2x2,
         cnn_onnx.model_zoo.conv_3x1_1x1_max_2x2_leaky_relu,
+        cnn_onnx.model_zoo.conv_3x1_1x1_max_2x2_no_relu,
         cnn_onnx.model_zoo.conv_3x1_1x1_max_2x2_nonsquare_input,
         # cnn_onnx.model_zoo.conv_3x1_1x1_max_2x2_odd_input,  # TODO: needed?
         cnn_onnx.model_zoo.conv_3x1_1x1_max_2x2_colored_input,
