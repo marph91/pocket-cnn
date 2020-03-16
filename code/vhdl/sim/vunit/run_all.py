@@ -11,6 +11,7 @@ from vunit import VUnit
 
 
 def create_test_suites(prj):
+    """Gather the testbenches of all modules and run them."""
     root = os.path.dirname(__file__)
 
     prj.add_array_util()
@@ -31,7 +32,7 @@ def create_test_suites(prj):
     # avoid error "type of a shared variable must be a protected type"
     ghdl_flags = ["-frelaxed"]
     ghdl_elab_flags = ["-frelaxed"]
-    
+
     # add code coverage if gcc is available
     ghdl_version = subprocess.check_output(["ghdl", "--version"]).decode()
     if "GCC" in ghdl_version:

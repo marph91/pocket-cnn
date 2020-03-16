@@ -1,5 +1,6 @@
+"""Run the testbench of the "conv_top" module."""
+
 import itertools
-import math
 import os
 from os.path import join, dirname
 from random import randint
@@ -50,12 +51,12 @@ def create_stimuli(root, ksize, stride,
         np.savetxt(outfile, flatten(conv_out), delimiter=", ", fmt="%3d")
 
 
-def create_test_suite(ui):
+def create_test_suite(prj):
     root = dirname(__file__)
     os.makedirs(join(root, "gen"), exist_ok=True)
 
-    ui.add_array_util()
-    unittest = ui.add_library("unittest", allow_duplicate=True)
+    prj.add_array_util()
+    unittest = prj.add_library("unittest", allow_duplicate=True)
     unittest.add_source_files(join(root, "*.vhd"))
     tb_conv_top = unittest.entity("tb_conv_top")
 
@@ -77,7 +78,7 @@ def create_test_suite(ui):
                             "W_conv_%d_%d.txt" % (ksize, stride))
         bias_file = join(os.getcwd(), root, "gen",
                          "B_conv_%d_%d.txt" % (ksize, stride))
-        
+
         # TODO: add test for first stage
         #       functionality is already ensured by toplevel tests and
         #       partially by mm test
@@ -96,17 +97,14 @@ def create_test_suite(ui):
                     "C_STRIDE": stride,
                     "C_WEIGHTS_INIT": weights_file,
                     "C_BIAS_INIT": bias_file}
-        tb_conv_top.add_config(name="stage=%d_dim=%d_stride=%d" % (
-                                   stage, ksize, stride),
-                               generics=generics,
-                               pre_config=create_stimuli(root, ksize, stride,
-                                                         total_bits_data,
-                                                         frac_bits_data_in,
-                                                         frac_bits_data_out,
-                                                         total_bits_weight,
-                                                         frac_bits_weight,
-                                                         channel_in, channel_out,
-                                                         width, height))
+        tb_conv_top.add_config(
+            name=f"stage={stage}_dim={ksize}_stride={stride}",
+            generics=generics,
+            pre_config=create_stimuli(root, ksize, stride,
+                                      total_bits_data,
+                                      frac_bits_data_in, frac_bits_data_out,
+                                      total_bits_weight, frac_bits_weight,
+                                      channel_in, channel_out, width, height))
 
 
 if __name__ == "__main__":

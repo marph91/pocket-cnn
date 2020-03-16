@@ -1,11 +1,11 @@
+"""Run the testbench of the "top_wrapper"."""
+
 import os
 from os.path import join, dirname
 
 import numpy as np
 import onnx
 from vunit import VUnit
-
-from fixfloat import v_float2fixedint
 
 import cnn_onnx.inference
 import cnn_onnx.model_zoo
@@ -32,11 +32,11 @@ def create_stimuli(root, model_name):
                delimiter=", ", fmt="%3d")
 
 
-def create_test_suite(ui):
+def create_test_suite(prj):
     root = dirname(__file__)
 
-    ui.add_array_util()
-    integration_test = ui.add_library("integration_test", allow_duplicate=True)
+    prj.add_array_util()
+    integration_test = prj.add_library("integration_test", allow_duplicate=True)
     integration_test.add_source_files(join(root, "src", "tb_top_wrapper.vhd"))
     tb_top_wrapper = integration_test.entity("tb_top_wrapper")
 

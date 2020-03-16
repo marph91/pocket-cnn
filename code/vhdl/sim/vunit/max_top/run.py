@@ -1,5 +1,6 @@
+"""Run the testbench of the "max_top" module."""
+
 import itertools
-import math
 from os.path import join, dirname
 from random import randint
 from vunit import VUnit
@@ -7,7 +8,6 @@ from vunit import VUnit
 import numpy as np
 
 from cnn_reference import flatten, max_pool
-from fixfloat import v_float2fixedint, v_fixedint2ffloat
 
 
 def create_stimuli(root, ksize, stride, total_bits, frac_bits, channel,
@@ -26,11 +26,11 @@ def create_stimuli(root, ksize, stride, total_bits, frac_bits, channel,
         np.savetxt(outfile, flatten(max_out), delimiter=", ", fmt="%3d")
 
 
-def create_test_suite(ui):
+def create_test_suite(prj):
     root = dirname(__file__)
 
-    ui.add_array_util()
-    unittest = ui.add_library("unittest", allow_duplicate=True)
+    prj.add_array_util()
+    unittest = prj.add_library("unittest", allow_duplicate=True)
     unittest.add_source_files(join(root, "src", "*.vhd"))
     tb_max_top = unittest.entity("tb_max_top")
 

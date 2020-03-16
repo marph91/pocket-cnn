@@ -1,3 +1,5 @@
+"""Run the testbench of the "relu" module."""
+
 from os.path import join, dirname
 
 import numpy as np
@@ -12,7 +14,7 @@ def relu(val, leaky=0):
     return str(int(fixfloat.float2fixed(out, 8, 0), 2))
 
 
-def create_stimuli(root, sample_cnt=1):
+def create_stimuli(root, sample_cnt: int = 1):
     a_in = np.random.randint(-128, high=127, size=(sample_cnt), dtype=np.int8)
     np.savetxt(join(root, "src", "input.csv"), a_in, delimiter=", ",
                fmt="%3d")
@@ -28,11 +30,11 @@ def create_stimuli(root, sample_cnt=1):
         outfile.write("\n".join(a_out_leaky))
 
 
-def create_test_suite(ui):
+def create_test_suite(prj):
     root = dirname(__file__)
 
-    ui.add_array_util()
-    unittest = ui.add_library("unittest", allow_duplicate=True)
+    prj.add_array_util()
+    unittest = prj.add_library("unittest", allow_duplicate=True)
     unittest.add_source_files(join(root, "src", "*.vhd"))
     tb_relu = unittest.entity("tb_relu")
 

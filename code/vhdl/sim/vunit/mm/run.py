@@ -1,7 +1,9 @@
+"""Run the testbench of the "mm" module."""
+
+
 import itertools
 import math
 from os.path import join, dirname
-import random
 
 import numpy as np
 from vunit import VUnit
@@ -44,11 +46,11 @@ def create_stimuli(root, stage, ksize, total_bits_data, frac_bits_data,
     np.savetxt(join(root, "src", name), a_out, delimiter=", ", fmt="%d")
 
 
-def create_test_suite(ui):
+def create_test_suite(prj):
     root = dirname(__file__)
 
-    ui.add_array_util()
-    unittest = ui.add_library("unittest", allow_duplicate=True)
+    prj.add_array_util()
+    unittest = prj.add_library("unittest", allow_duplicate=True)
     unittest.add_source_files(join(root, "src", "*.vhd"))
     tb_mm = unittest.entity("tb_mm")
 

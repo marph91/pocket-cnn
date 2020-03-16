@@ -1,3 +1,5 @@
+"""Run the testbench of the "zero_pad" module."""
+
 from os.path import join, dirname
 from random import randint
 
@@ -22,11 +24,11 @@ def create_arrays(root, w, h, ch):
                flatten(a_out), delimiter=", ", fmt="%3d")
 
 
-def create_test_suite(ui):
+def create_test_suite(prj):
     root = dirname(__file__)
 
-    ui.add_array_util()
-    unittest = ui.add_library("unittest", allow_duplicate=True)
+    prj.add_array_util()
+    unittest = prj.add_library("unittest", allow_duplicate=True)
     unittest.add_source_files(join(root, "src", "*.vhd"))
     tb_zero_pad = unittest.entity("tb_zero_pad")
 

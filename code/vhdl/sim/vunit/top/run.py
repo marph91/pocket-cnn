@@ -1,3 +1,5 @@
+"""Run the testbench of the "top" module."""
+
 import os
 from os.path import join, dirname
 
@@ -5,8 +7,6 @@ import numpy as np
 import onnx
 # import onnxruntime as rt
 from vunit import VUnit
-
-from fixfloat import v_float2fixedint
 
 import cnn_onnx.inference
 import cnn_onnx.model_zoo
@@ -40,15 +40,16 @@ def create_stimuli(root, model_name):
                delimiter=", ", fmt="%3d")
 
 
-def create_test_suite(ui):
+def create_test_suite(prj):
     root = dirname(__file__)
 
-    ui.add_array_util()
-    integration_test = ui.add_library("integration_test", allow_duplicate=True)
+    prj.add_array_util()
+    integration_test = prj.add_library(
+        "integration_test", allow_duplicate=True)
     integration_test.add_source_files(join(root, "src", "tb_top.vhd"))
     tb_top = integration_test.entity("tb_top")
 
-      # TODO: fix the failing models
+    # TODO: fix the failing models
     test_cnns = [  # name in model zoo
         cnn_onnx.model_zoo.conv_3x1_1x1_max_2x2,
         cnn_onnx.model_zoo.conv_3x1_1x1_max_2x2_leaky_relu,

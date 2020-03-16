@@ -1,3 +1,6 @@
+"""Run the testbench of the "pool_ave" module."""
+
+
 from os.path import join, dirname
 from random import randint
 
@@ -5,8 +8,6 @@ import numpy as np
 from vunit import VUnit
 
 from cnn_reference import avg_pool, flatten
-from fixfloat import v_float2fixedint, float2ffloat
-from fixfloat import random_fixed_array
 
 
 def create_stimuli(root, w, h, ch, total_bits, frac_bits):
@@ -20,11 +21,11 @@ def create_stimuli(root, w, h, ch, total_bits, frac_bits):
                fmt="%3d")
 
 
-def create_test_suite(ui):
+def create_test_suite(prj):
     root = dirname(__file__)
 
-    ui.add_array_util()
-    unittest = ui.add_library("unittest", allow_duplicate=True)
+    prj.add_array_util()
+    unittest = prj.add_library("unittest", allow_duplicate=True)
     unittest.add_source_files(join(root, "src", "*.vhd"))
     tb_pool_ave = unittest.entity("tb_pool_ave")
 
