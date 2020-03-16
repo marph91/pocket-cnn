@@ -4,9 +4,9 @@ import itertools
 import os
 from os.path import join, dirname
 from random import randint
-from vunit import VUnit
 
 import numpy as np
+from vunit import VUnit
 
 from cnn_reference import conv, flatten
 from weights_to_files import weights_to_files
@@ -63,7 +63,7 @@ def create_test_suite(prj):
     for ksize, stride in itertools.product((1, 2, 3), (1, 2, 3)):
         if stride > ksize:  # this case doesn't make sense
             continue
-        total_bits_data = 8  # TODO: fix when bitwidth is parametrizable
+        total_bits_data = 8
         frac_bits_data_in = randint(0, total_bits_data-1)
         frac_bits_data_out = randint(0, total_bits_data-1)
         total_bits_weight = 8

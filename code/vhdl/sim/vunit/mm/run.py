@@ -4,12 +4,13 @@
 import itertools
 import math
 from os.path import join, dirname
+from random import randint
 
 import numpy as np
 from vunit import VUnit
 
 from fixfloat import v_float2fixedint, float2fixedint
-from fixfloat import random_fixed_array, random_bw
+from fixfloat import random_fixed_array
 
 
 def create_stimuli(root, stage, ksize, total_bits_data, frac_bits_data,
@@ -58,11 +59,10 @@ def create_test_suite(prj):
         if ksize != 3 and stage == 1:
             # only test both stage possibilities for ksize = 3
             continue
-        total_bits_data, frac_bits_data = random_bw(max_bw=16)
-        total_bits_weight, frac_bits_weight = random_bw(max_bw=16)
-        # TODO: fix when bitwidth is parametrizable
-        total_bits_data, frac_bits_data = 8, 4
-        total_bits_weight, frac_bits_weight = 8, 5
+        total_bits_data = 8
+        frac_bits_data = randint(0, total_bits_data-1)
+        total_bits_weight = 8
+        frac_bits_weight = randint(0, total_bits_weight-1)
         generics = {"C_FIRST_STAGE": int(stage == 1),
                     "C_DATA_TOTAL_BITS": total_bits_data,
                     "C_DATA_FRAC_BITS_IN": frac_bits_data,

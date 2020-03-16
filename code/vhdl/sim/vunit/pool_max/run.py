@@ -1,12 +1,13 @@
 """Run the testbench of the "pool_max" module."""
 
 from os.path import join, dirname
-from vunit import VUnit
+from random import randint
 
 import numpy as np
+from vunit import VUnit
 
 from fixfloat import v_float2fixedint
-from fixfloat import random_fixed_array, random_bw
+from fixfloat import random_fixed_array
 
 
 def create_stimuli(root, pool_dim, total_bits, frac_bits):
@@ -35,9 +36,9 @@ def create_test_suite(prj):
     tb_pool_max = unittest.entity("tb_pool_max")
 
     for pool_dim in [2, 3]:
-        total_bits, frac_bits = random_bw(max_bw=16)
-        # TODO: fix when bitwidth is parametrizable
-        total_bits, frac_bits = 8, 4
+        total_bits = 8
+        frac_bits = randint(0, total_bits - 1)
+
         generics = {"C_KSIZE": pool_dim, "C_TOTAL_BITS": total_bits,
                     "C_FRAC_BITS": frac_bits}
         tb_pool_max.add_config(name="dim=%d" % (pool_dim),
