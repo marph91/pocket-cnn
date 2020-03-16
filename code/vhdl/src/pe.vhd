@@ -45,21 +45,7 @@ entity pe is
 end pe;
 
 architecture behavioral of pe is
-
-  -- calculate the padding at bottom (dependent of conv stride and kernel size)
-  function f_set_pad_bottom return integer is
-    variable v_pad : integer range 0 to 1 := 0;
-  begin
-    if (C_PAD > 0) and (C_PAD >= C_CONV_KSIZE - C_CONV_STRIDE) then
-      v_pad := C_PAD - (C_CONV_KSIZE - C_CONV_STRIDE);
-    else
-      v_pad := C_PAD;
-    end if;
-    return v_pad;
-  end f_set_pad_bottom;
-
   -- padding
-  constant C_PAD_BOTTOM : integer range 0 to 1 := f_set_pad_bottom;
   signal slv_pad_data_out : std_logic_vector(C_DATA_TOTAL_BITS-1 downto 0);
   signal sl_pad_output_valid : std_logic := '0';
   signal sl_pad_rdy : std_logic := '0';
@@ -132,7 +118,7 @@ begin
       C_IMG_WIDTH   => C_IMG_WIDTH,
       C_IMG_HEIGHT  => C_IMG_HEIGHT,
       C_PAD_TOP     => C_PAD,
-      C_PAD_BOTTOM  => C_PAD_BOTTOM,
+      C_PAD_BOTTOM  => C_PAD,
       C_PAD_LEFT    => C_PAD,
       C_PAD_RIGHT   => C_PAD
     )

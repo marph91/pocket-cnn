@@ -149,6 +149,20 @@ def conv_3x2_1x1_max_2x1():
     return helper.make_model(graph_def)
 
 
+def conv_3x2_1x1_max_2x1_padding():
+    """size: 15x15 -> 17x17 -> 8x8 -> 7x7"""
+    graph_gen = gg.GraphGenerator()
+    graph_gen.add(gg.make_conv_quant, "conv1", 1, 4, (3, 2, 1))
+    graph_gen.add(gg.make_relu, "relu1")
+    graph_gen.add(gg.make_pool_max, "max1", 2, 1)
+    graph_gen.add(gg.make_conv_quant, "conv2", 4, 8, (1, 1, 0))
+    graph_gen.add(gg.make_relu, "relu2")
+    graph_gen.add(gg.make_pool_ave, "ave1")
+
+    graph_def = graph_gen.get_graph("cnn", (1, 1, 15, 15), (1, 8, 1, 1))
+    return helper.make_model(graph_def)
+
+
 def conv_2x1_1x1_max_3x2():
     """size: 16x16 -> 15x15 -> 7x7"""
     graph_gen = gg.GraphGenerator()

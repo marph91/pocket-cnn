@@ -51,12 +51,13 @@ begin
   begin
     if rising_edge(isl_clk) then
       -- Determine the image position to set int_pixel_to_pad.
-      -- There are three posibilities for padding:
-      -- 1. at the start of the image
-      -- 2. after each row
-      -- 3. at the end of the image
+      -- There are three possibilities for padding:
+      --   1. at the start of the image
+      --   2. after each row
+      --   3. at the end of the image
       if isl_start = '1' then
         -- padding at the start of the image
+        -- TODO: fix for C_PAD > 1
         int_pixel_to_pad <= C_IMG_WIDTH_OUT + C_PAD_LEFT;
         -- prevent problems with STRIDE /= KERNEL_SIZE at multiple images
         int_row <= 0;
@@ -78,11 +79,8 @@ begin
             else
               int_row <= 0;
               -- padding at the end of the image
-              if C_PAD_BOTTOM > 0 then
-                int_pixel_to_pad <= C_IMG_WIDTH_OUT + C_PAD_RIGHT;
-              else
-                int_pixel_to_pad <= 0;
-              end if;
+              -- TODO: fix for C_PAD > 1
+              int_pixel_to_pad <= C_PAD_BOTTOM * (C_IMG_WIDTH_OUT + C_PAD_RIGHT);
             end if;
           end if;
         end if;
