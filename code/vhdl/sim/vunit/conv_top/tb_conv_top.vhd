@@ -135,8 +135,13 @@ begin
     stimuli_done <= false;
 
     report ("Sending image of size " &
-            to_string(C_KSIZE) & "x" &
-            to_string(C_KSIZE));
+            to_string(C_IMG_WIDTH) & "x" &
+            to_string(C_IMG_HEIGHT) & "x" &
+            to_string(C_CH_IN));
+    report ("Expecting output of size " &
+            to_string((C_IMG_WIDTH-(C_KSIZE-C_STRIDE))/C_STRIDE) & "x" &
+            to_string((C_IMG_HEIGHT-(C_KSIZE-C_STRIDE))/C_STRIDE) & "x" &
+            to_string(C_CH_OUT));
 
     wait until rising_edge(sl_clk);
 
