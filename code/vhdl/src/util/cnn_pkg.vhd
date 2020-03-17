@@ -31,7 +31,6 @@ end cnn_pkg;
 
 package body cnn_pkg is
   -- load content from file to bram
-  -- TODO: similar in bram.vhd
   impure function load_content(constant C_NAME : in string;
                                constant C_SIZE : in integer;
                                constant C_WIDTH : in integer) return t_ram is
