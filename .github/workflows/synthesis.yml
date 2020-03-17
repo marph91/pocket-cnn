@@ -1,0 +1,16 @@
+name: synthesis
+
+on:
+  push:
+  schedule:
+    - cron: '0 0 * * *'
+
+jobs:
+  synthesis:
+    runs-on: ubuntu-latest
+    container: ghdl/synth:beta
+    steps:
+      - uses: actions/checkout@v1
+      - name: Run synthesis
+        continue-on-error: true
+        run: code/snippets/synthesize.sh .
