@@ -11,6 +11,10 @@ jobs:
     container: ghdl/synth:beta
     steps:
       - uses: actions/checkout@v1
+      - name: install pip packets
+        run: pip install onnx
       - name: Run synthesis
         continue-on-error: true
-        run: code/snippets/synthesize.sh .
+        run: |
+          export PYTHONPATH="$(pwd)/code/python_tools"
+          code/snippets/synthesize.sh .
