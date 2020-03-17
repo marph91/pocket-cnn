@@ -18,7 +18,7 @@ For tests:
 
 For synthesis:
 
-- A generated top_wrapper.vhd and corresponding weight files.
+- A generated `top_wrapper.vhd` and corresponding weight files.
 - A synthesis tool of your choice. For now, the design was synthesized only using Xilinx Vivado.
 
 ## Limitations
@@ -72,7 +72,7 @@ The tag `weights_in_bram` marks the last commit with:
 - Weights and bias stored in BRAM.
 - Using DSP for the matrix multiplications.
 
-&rarr; This got depracated by "Direct Hardware Mapping".
+&rarr; This got deprecated by "Direct Hardware Mapping".
 
 The tag `cocotb_caffe` marks the last commit with:
 
