@@ -1,15 +1,20 @@
 #!/bin/sh
 
-set -e
+if [ -z "$1" ]; then
+    echo "Please specify the relative path to the root directory."
+    exit 1
+fi
+ROOT="$1"
 
-ROOT="$(pwd)/../.."
-SRC="$ROOT/code/vhdl/src"
+set -e
 
 rm -rf build
 mkdir -p build
 cd build
 
 # analyze the sources
+SRC="$ROOT/../code/vhdl/src"
+
 ghdl -a --std=08 --work=util "$SRC/util/cnn_pkg.vhd"
 ghdl -a --std=08 --work=util "$SRC/util/math_pkg.vhd"
 
@@ -34,7 +39,7 @@ ghdl -a --std=08 --work=cnn_lib "$SRC/pe.vhd"
 ghdl -a --std=08 --work=cnn_lib "$SRC/top.vhd"
 
 # create a toplevel wrapper and weights
-python3 "$ROOT/code/python_tools/vhdl_top_template.py"
+python3 "$ROOT/../code/python_tools/vhdl_top_template.py"
 
 # analyze the top wrapper
 ghdl -a --std=08 --work=cnn_lib "top_wrapper.vhd"
