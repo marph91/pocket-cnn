@@ -17,12 +17,12 @@ def create_stimuli(root, ksize, stride,
                    frac_bits_data_out,
                    total_bits_weight, frac_bits_weight,
                    channel_in, channel_out,
-                   width, height):
+                   width, height, para):
     int_bits_data_in = total_bits_data - frac_bits_data_in
     int_bits_data_out = total_bits_data - frac_bits_data_out
     a_rand = np.random.randint(256, size=(1, channel_in, height, width),
                                dtype=np.uint8)
-    np.savetxt(join(root, "gen", "input_%d_%d.csv" % (ksize, stride)),
+    np.savetxt(join(root, "gen", "input_%d_%d_%d.csv" % (ksize, stride, para)),
                flatten(a_rand), delimiter=", ", fmt="%3d")
 
     int_bits_weight = total_bits_weight - frac_bits_weight
@@ -38,7 +38,7 @@ def create_stimuli(root, ksize, stride,
     weights_to_files(
         a_weights_rand / scale, a_bias_rand / scale,
         (int_bits_weight, frac_bits_weight),
-        "conv_%d_%d" % (ksize, stride), join(root, "gen"))
+        "conv_%d_%d_%d" % (ksize, stride, para), join(root, "gen"))
 
     # assign the outputs
     conv_out = conv(
@@ -46,7 +46,7 @@ def create_stimuli(root, ksize, stride,
         (int_bits_data_in, frac_bits_data_in,
          int_bits_data_out, frac_bits_data_out,
          int_bits_weight, frac_bits_weight))
-    filename = join(root, "gen", "output_%d_%d.csv" % (ksize, stride))
+    filename = join(root, "gen", "output_%d_%d_%d.csv" % (ksize, stride, para))
     with open(filename, "w") as outfile:
         np.savetxt(outfile, flatten(conv_out), delimiter=", ", fmt="%3d")
 
@@ -60,8 +60,11 @@ def create_test_suite(prj):
     unittest.add_source_files(join(root, "*.vhd"))
     tb_conv_top = unittest.entity("tb_conv_top")
 
-    for ksize, stride in itertools.product((1, 2, 3), (1, 2, 3)):
+    for ksize, stride, para in itertools.product((1, 2, 3), (1, 2, 3), (0, 1)):
         if stride > ksize:  # this case doesn't make sense
+            continue
+        if not para and not (ksize in [1, 3] and stride == 1):
+            # only run specific cases in "non" parallel mode
             continue
         total_bits_data = 8
         frac_bits_data_in = randint(0, total_bits_data-1)
@@ -77,9 +80,9 @@ def create_test_suite(prj):
         height = randint(ksize, 16)
 
         weights_file = join(os.getcwd(), root, "gen",
-                            "W_conv_%d_%d.txt" % (ksize, stride))
+                            "W_conv_%d_%d_%d.txt" % (ksize, stride, para))
         bias_file = join(os.getcwd(), root, "gen",
-                         "B_conv_%d_%d.txt" % (ksize, stride))
+                         "B_conv_%d_%d_%d.txt" % (ksize, stride, para))
 
         # TODO: add test for first stage
         #       functionality is already ensured by toplevel tests and
@@ -98,15 +101,17 @@ def create_test_suite(prj):
                     "C_KSIZE": ksize,
                     "C_STRIDE": stride,
                     "C_WEIGHTS_INIT": weights_file,
-                    "C_BIAS_INIT": bias_file}
+                    "C_BIAS_INIT": bias_file,
+                    "C_PARALLEL": para}
         tb_conv_top.add_config(
-            name=f"stage={stage}_dim={ksize}_stride={stride}",
+            name=f"stage={stage}_dim={ksize}_stride={stride}" + "_para"*para,
             generics=generics,
             pre_config=create_stimuli(root, ksize, stride,
                                       total_bits_data,
                                       frac_bits_data_in, frac_bits_data_out,
                                       total_bits_weight, frac_bits_weight,
-                                      channel_in, channel_out, width, height))
+                                      channel_in, channel_out, width, height,
+                                      para))
 
 
 if __name__ == "__main__":
