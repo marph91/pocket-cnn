@@ -20,7 +20,6 @@ entity mm is
   );
   port (
     isl_clk       : in std_logic;
-    isl_rst_n     : in std_logic;
     isl_ce        : in std_logic;
     isl_valid     : in std_logic;
     ia_data       : in t_slv_array_2d(0 to C_KSIZE-1, 0 to C_KSIZE-1);

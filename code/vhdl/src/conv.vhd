@@ -84,7 +84,6 @@ begin
     )
     port map (
       isl_clk       => isl_clk,
-      isl_rst_n     => isl_rst_n,
       isl_ce        => isl_ce,
       isl_valid     => isl_valid,
       ia_data       => ia_data(ch_in),
