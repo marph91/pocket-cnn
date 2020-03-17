@@ -41,7 +41,7 @@ architecture behavioral of line_buffer is
   signal slv_bram_data_out : std_logic_vector(C_BRAM_DATA_WIDTH - 1 downto 0);
 
 begin
-  i_bram_buffer : entity work.bram
+  i_bram : entity work.bram
   generic map(
     C_DATA_WIDTH  => C_BRAM_DATA_WIDTH,
     C_ADDR_WIDTH  => C_BRAM_ADDR_WIDTH,
