@@ -1,7 +1,5 @@
 """Model zoo, which contains various small CNN models in ONNX format."""
 
-from onnx import helper
-
 import cnn_onnx.graph_generator as gg
 
 # somehow the onnx members aren't detected properly
@@ -19,9 +17,7 @@ def conv_3x1_1x1_max_2x2():
     graph_gen.add(gg.make_conv_quant, "conv2", 4, 8, (1, 1, 0))
     graph_gen.add(gg.make_relu, "relu2")
     graph_gen.add(gg.make_pool_ave, "ave1")
-
-    graph_def = graph_gen.get_graph("cnn", (1, 1, 6, 6), (1, 8, 1, 1))
-    return helper.make_model(graph_def)
+    return graph_gen.get_model("cnn", (1, 1, 6, 6), (1, 8, 1, 1))
 
 
 def conv_3x1_1x1_max_2x2_leaky_relu():
@@ -33,9 +29,7 @@ def conv_3x1_1x1_max_2x2_leaky_relu():
     graph_gen.add(gg.make_conv_quant, "conv2", 4, 8, (1, 1, 0))
     graph_gen.add(gg.make_leaky_relu, "lrelu2")
     graph_gen.add(gg.make_pool_ave, "ave1")
-
-    graph_def = graph_gen.get_graph("cnn", (1, 1, 6, 6), (1, 8, 1, 1))
-    return helper.make_model(graph_def)
+    return graph_gen.get_model("cnn", (1, 1, 6, 6), (1, 8, 1, 1))
 
 
 def conv_3x1_1x1_max_2x2_no_relu():
@@ -45,9 +39,7 @@ def conv_3x1_1x1_max_2x2_no_relu():
     graph_gen.add(gg.make_pool_max, "max1", 2, 2)
     graph_gen.add(gg.make_conv_quant, "conv2", 4, 8, (1, 1, 0))
     graph_gen.add(gg.make_pool_ave, "ave1")
-
-    graph_def = graph_gen.get_graph("cnn", (1, 1, 6, 6), (1, 8, 1, 1))
-    return helper.make_model(graph_def)
+    return graph_gen.get_model("cnn", (1, 1, 6, 6), (1, 8, 1, 1))
 
 
 def conv_3x1_1x1_max_2x2_nonsquare_input():
@@ -59,9 +51,7 @@ def conv_3x1_1x1_max_2x2_nonsquare_input():
     graph_gen.add(gg.make_conv_quant, "conv2", 4, 8, (1, 1, 0))
     graph_gen.add(gg.make_relu, "relu2")
     graph_gen.add(gg.make_pool_ave, "ave1")
-
-    graph_def = graph_gen.get_graph("cnn", (1, 1, 4, 8), (1, 8, 1, 1))
-    return helper.make_model(graph_def)
+    return graph_gen.get_model("cnn", (1, 1, 4, 8), (1, 8, 1, 1))
 
 
 def conv_3x1_1x1_max_2x2_odd_input():
@@ -73,9 +63,7 @@ def conv_3x1_1x1_max_2x2_odd_input():
     graph_gen.add(gg.make_conv_quant, "conv2", 4, 8, (1, 1, 0))
     graph_gen.add(gg.make_relu, "relu2")
     graph_gen.add(gg.make_pool_ave, "ave1")
-
-    graph_def = graph_gen.get_graph("cnn", (1, 1, 7, 7), (1, 8, 1, 1))
-    return helper.make_model(graph_def)
+    return graph_gen.get_model("cnn", (1, 1, 7, 7), (1, 8, 1, 1))
 
 
 def conv_3x1_1x1_max_2x2_colored_input():
@@ -87,9 +75,7 @@ def conv_3x1_1x1_max_2x2_colored_input():
     graph_gen.add(gg.make_conv_quant, "conv2", 4, 8, (1, 1, 0))
     graph_gen.add(gg.make_relu, "relu2")
     graph_gen.add(gg.make_pool_ave, "ave1")
-
-    graph_def = graph_gen.get_graph("cnn", (1, 3, 6, 6), (1, 8, 1, 1))
-    return helper.make_model(graph_def)
+    return graph_gen.get_model("cnn", (1, 3, 6, 6), (1, 8, 1, 1))
 
 
 def conv_3x1_1x1_max_2x2_odd_channel():
@@ -102,9 +88,7 @@ def conv_3x1_1x1_max_2x2_odd_channel():
     graph_gen.add(gg.make_conv_quant, "conv2", 5, 9, (1, 1, 0))
     graph_gen.add(gg.make_relu, "relu2")
     graph_gen.add(gg.make_pool_ave, "ave1")
-
-    graph_def = graph_gen.get_graph("cnn", (1, 1, 6, 6), (1, 9, 1, 1))
-    return helper.make_model(graph_def)
+    return graph_gen.get_model("cnn", (1, 1, 6, 6), (1, 9, 1, 1))
 
 
 def conv_3x1_1x1_max_2x2_one_channel():
@@ -116,9 +100,7 @@ def conv_3x1_1x1_max_2x2_one_channel():
     graph_gen.add(gg.make_conv_quant, "conv2", 1, 1, (1, 1, 0))
     graph_gen.add(gg.make_relu, "relu2")
     graph_gen.add(gg.make_pool_ave, "ave1")
-
-    graph_def = graph_gen.get_graph("cnn", (1, 1, 6, 6), (1, 1, 1, 1))
-    return helper.make_model(graph_def)
+    return graph_gen.get_model("cnn", (1, 1, 6, 6), (1, 1, 1, 1))
 
 
 def conv_3x1_1x1_max_2x1():
@@ -130,9 +112,7 @@ def conv_3x1_1x1_max_2x1():
     graph_gen.add(gg.make_conv_quant, "conv2", 4, 8, (1, 1, 0))
     graph_gen.add(gg.make_relu, "relu2")
     graph_gen.add(gg.make_pool_ave, "ave1")
-
-    graph_def = graph_gen.get_graph("cnn", (1, 1, 12, 12), (1, 8, 1, 1))
-    return helper.make_model(graph_def)
+    return graph_gen.get_model("cnn", (1, 1, 12, 12), (1, 8, 1, 1))
 
 
 def conv_3x2_1x1_max_2x1():
@@ -144,9 +124,7 @@ def conv_3x2_1x1_max_2x1():
     graph_gen.add(gg.make_conv_quant, "conv2", 4, 8, (1, 1, 0))
     graph_gen.add(gg.make_relu, "relu2")
     graph_gen.add(gg.make_pool_ave, "ave1")
-
-    graph_def = graph_gen.get_graph("cnn", (1, 1, 17, 17), (1, 8, 1, 1))
-    return helper.make_model(graph_def)
+    return graph_gen.get_model("cnn", (1, 1, 17, 17), (1, 8, 1, 1))
 
 
 def conv_3x2_1x1_max_2x1_padding():
@@ -158,9 +136,7 @@ def conv_3x2_1x1_max_2x1_padding():
     graph_gen.add(gg.make_conv_quant, "conv2", 4, 8, (1, 1, 0))
     graph_gen.add(gg.make_relu, "relu2")
     graph_gen.add(gg.make_pool_ave, "ave1")
-
-    graph_def = graph_gen.get_graph("cnn", (1, 1, 15, 15), (1, 8, 1, 1))
-    return helper.make_model(graph_def)
+    return graph_gen.get_model("cnn", (1, 1, 15, 15), (1, 8, 1, 1))
 
 
 def conv_2x1_1x1_max_3x2():
@@ -172,9 +148,7 @@ def conv_2x1_1x1_max_3x2():
     graph_gen.add(gg.make_conv_quant, "conv2", 4, 8, (1, 1, 0))
     graph_gen.add(gg.make_relu, "relu2")
     graph_gen.add(gg.make_pool_ave, "ave1")
-
-    graph_def = graph_gen.get_graph("cnn", (1, 1, 16, 16), (1, 8, 1, 1))
-    return helper.make_model(graph_def)
+    return graph_gen.get_model("cnn", (1, 1, 16, 16), (1, 8, 1, 1))
 
 
 def conv_3x3_2x2_1x1():
@@ -187,9 +161,7 @@ def conv_3x3_2x2_1x1():
     graph_gen.add(gg.make_conv_quant, "conv3", 6, 8, (1, 1, 0))
     graph_gen.add(gg.make_relu, "relu3")
     graph_gen.add(gg.make_pool_ave, "ave1")
-
-    graph_def = graph_gen.get_graph("cnn", (1, 1, 8, 8), (1, 8, 1, 1))
-    return helper.make_model(graph_def)
+    return graph_gen.get_model("cnn", (1, 1, 8, 8), (1, 8, 1, 1))
 
 
 def conv_3x1_1x1_max_3x1():
@@ -201,9 +173,7 @@ def conv_3x1_1x1_max_3x1():
     graph_gen.add(gg.make_conv_quant, "conv2", 4, 8, (1, 1, 0))
     graph_gen.add(gg.make_relu, "relu2")
     graph_gen.add(gg.make_pool_ave, "ave1")
-
-    graph_def = graph_gen.get_graph("cnn", (1, 1, 12, 12), (1, 8, 1, 1))
-    return helper.make_model(graph_def)
+    return graph_gen.get_model("cnn", (1, 1, 12, 12), (1, 8, 1, 1))
 
 
 def conv_3x1_1x1_max_3x3():
@@ -215,9 +185,7 @@ def conv_3x1_1x1_max_3x3():
     graph_gen.add(gg.make_conv_quant, "conv2", 4, 8, (1, 1, 0))
     graph_gen.add(gg.make_relu, "relu2")
     graph_gen.add(gg.make_pool_ave, "ave1")
-
-    graph_def = graph_gen.get_graph("cnn", (1, 1, 14, 14), (1, 8, 1, 1))
-    return helper.make_model(graph_def)
+    return graph_gen.get_model("cnn", (1, 1, 14, 14), (1, 8, 1, 1))
 
 
 def conv_3x1_1x1_max_2x2_padding():
@@ -229,9 +197,7 @@ def conv_3x1_1x1_max_2x2_padding():
     graph_gen.add(gg.make_conv_quant, "conv2", 4, 8, (1, 1, 0))
     graph_gen.add(gg.make_relu, "relu2")
     graph_gen.add(gg.make_pool_ave, "ave1")
-
-    graph_def = graph_gen.get_graph("cnn", (1, 1, 4, 4), (1, 8, 1, 1))
-    return helper.make_model(graph_def)
+    return graph_gen.get_model("cnn", (1, 1, 4, 4), (1, 8, 1, 1))
 
 
 def conv_4x3x1_1x1():
@@ -248,9 +214,7 @@ def conv_4x3x1_1x1():
     graph_gen.add(gg.make_conv_quant, "conv5", 14, 16, (1, 1, 0))
     graph_gen.add(gg.make_relu, "relu5")
     graph_gen.add(gg.make_pool_ave, "ave1")
-
-    graph_def = graph_gen.get_graph("cnn", (1, 1, 10, 10), (1, 16, 1, 1))
-    return helper.make_model(graph_def)
+    return graph_gen.get_model("cnn", (1, 1, 10, 10), (1, 16, 1, 1))
 
 
 def conv_2x_3x1_1x1_max_2x2():
@@ -267,9 +231,7 @@ def conv_2x_3x1_1x1_max_2x2():
     graph_gen.add(gg.make_conv_quant, "conv4", 32, 8, (1, 1, 0))
     graph_gen.add(gg.make_relu, "relu4")
     graph_gen.add(gg.make_pool_ave, "ave1")
-
-    graph_def = graph_gen.get_graph("cnn", (1, 1, 14, 14), (1, 8, 1, 1))
-    return helper.make_model(graph_def)
+    return graph_gen.get_model("cnn", (1, 1, 14, 14), (1, 8, 1, 1))
 
 
 def conv_2x_3x1_1x1_max_2x2_padding():
@@ -286,9 +248,7 @@ def conv_2x_3x1_1x1_max_2x2_padding():
     graph_gen.add(gg.make_conv_quant, "conv4", 32, 8, (1, 1, 0))
     graph_gen.add(gg.make_relu, "relu4")
     graph_gen.add(gg.make_pool_ave, "ave1")
-
-    graph_def = graph_gen.get_graph("cnn", (1, 1, 14, 14), (1, 8, 1, 1))
-    return helper.make_model(graph_def)
+    return graph_gen.get_model("cnn", (1, 1, 14, 14), (1, 8, 1, 1))
 
 
 def conv_2x_3x1_1x1_max_2x2_mt():
@@ -306,6 +266,4 @@ def conv_2x_3x1_1x1_max_2x2_mt():
     graph_gen.add(gg.make_conv_quant, "conv4", 64, 2, (1, 1, 0))
     graph_gen.add(gg.make_relu, "relu4")
     graph_gen.add(gg.make_pool_ave, "ave1")
-
-    graph_def = graph_gen.get_graph("cnn", (1, 1, 48, 24), (1, 2, 1, 1))
-    return helper.make_model(graph_def)
+    return graph_gen.get_model("cnn", (1, 1, 48, 24), (1, 2, 1, 1))

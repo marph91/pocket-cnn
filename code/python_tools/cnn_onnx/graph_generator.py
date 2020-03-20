@@ -228,8 +228,8 @@ class GraphGenerator:
         else:
             self.last_layer_name = args[0]
 
-    def get_graph(self, graph_name, shape_in, shape_out):
-        """Generate a graph, based on the added layers."""
+    def get_model(self, graph_name, shape_in, shape_out):
+        """Generate a model, based on the added layers."""
         data_in = helper.make_tensor_value_info(
             "data_in", TensorProto.FLOAT, shape_in)
         data_out = helper.make_tensor_value_info(
@@ -242,4 +242,4 @@ class GraphGenerator:
             [data_out],
         )
         graph_def.initializer.extend(self.initializers)
-        return graph_def
+        return helper.make_model(graph_def)
