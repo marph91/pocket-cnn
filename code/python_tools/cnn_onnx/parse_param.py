@@ -9,17 +9,22 @@ import onnx
 from onnx import numpy_helper
 
 
+# https://github.com/onnx/onnx/blob/master/onnx/onnx.proto
+TYPE_TO_STR = {
+    key + 1: val for key, val in enumerate(
+        ["f", "i", "s", "t", "g",
+         "floats", "ints", "strings", "tensors", "graphs"]
+        )
+}
 
 
-def parse_node_params(node) -> dict:
+def parse_node_attributes(node) -> dict:
     """Parse the parameter of a specific node."""
-    params = {}
+    node_attr = {}
     for attribute in node.attribute:
-        if attribute.name in ["strides", "pads", "kernel_shape"]:
-            params[attribute.name] = attribute.ints
-        else:
-            params[attribute.name] = attribute.i
-    return params
+        node_attr[attribute.name] = getattr(attribute,
+                                            TYPE_TO_STR[attribute.type])
+    return node_attr
 
 
 def get_kernel_params(node_params: dict) -> Tuple[int, int]:
@@ -109,7 +114,7 @@ def parse_param(model: str) -> dict:
         weights_dict[init.name] = numpy_helper.to_array(init)
 
     for node in net.graph.node:
-        params = parse_node_params(node)
+        params = parse_node_attributes(node)
 
         if node.op_type in ["QuantizeLinear", "DequantizeLinear"]:
             pass  # these layers are only used for ONNX internally

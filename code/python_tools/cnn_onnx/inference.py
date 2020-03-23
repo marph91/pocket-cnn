@@ -20,7 +20,7 @@ def numpy_inference(onnx_model, input_):
     next_input = input_
     first_layer = True  # first layer is unsigned
     for node in onnx_model.graph.node:
-        params = parse_param.parse_node_params(node)
+        params = parse_param.parse_node_attributes(node)
 
         if node.op_type == "Conv":
             assert False, "Layer not supported"
