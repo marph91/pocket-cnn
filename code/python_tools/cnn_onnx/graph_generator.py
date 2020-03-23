@@ -7,10 +7,27 @@ from onnx import helper
 from onnx import TensorProto
 
 
+def make_quant_tensors(node_name: str, quant: tuple) -> list:
+    """Create generic quantization tensors."""
+    return [
+        helper.make_tensor(
+            name=node_name + "_scale",
+            data_type=TensorProto.FLOAT,
+            dims=(1,),
+            vals=[quant[0]]
+        ),
+        helper.make_tensor(
+            name=node_name + "_zero_point",
+            data_type=TensorProto.INT8,
+            dims=(1,),
+            vals=[quant[1]]
+        ),
+    ]
+
+
 def make_conv_quant(last_layer_info: tuple, name: str, ch_in: int, ch_out: int,
                     param: Tuple[int, int, int]) -> Tuple[Any, List[Any]]:
     """Create a convolution node and corresponding (random) weights."""
-    weights_scale = 16
     ksize, stride, pad = param
 
     # Create a node (NodeProto)
@@ -52,32 +69,10 @@ def make_conv_quant(last_layer_info: tuple, name: str, ch_in: int, ch_out: int,
     )
 
     # quantization parameter
-    initializer.extend([
-        helper.make_tensor(
-            name=name + "_scale",
-            data_type=TensorProto.FLOAT,
-            dims=(1,),
-            vals=[weights_scale]
-        ),
-        helper.make_tensor(
-            name=name + "_zero_point",
-            data_type=TensorProto.INT8,
-            dims=(1,),
-            vals=[0]
-        ),
-        helper.make_tensor(
-            name=name + "_weights_scale",
-            data_type=TensorProto.FLOAT,
-            dims=(1,),
-            vals=[weights_scale]
-        ),
-        helper.make_tensor(
-            name=name + "_weights_zero_point",
-            data_type=TensorProto.INT8,
-            dims=(1,),
-            vals=[0]
-        ),
-    ])
+    quant = (16, 0)
+    initializer.extend(make_quant_tensors(name, quant))
+    initializer.extend(make_quant_tensors(name + "_weights", quant))
+    initializer.extend(make_quant_tensors(name + "_bias", quant))
     return node_def, initializer
 
 
@@ -136,20 +131,7 @@ def make_dequant(name_prev: str, name: str,
     )
 
     # quantization parameter
-    initializer = [
-        helper.make_tensor(
-            name=name + "_scale",
-            data_type=TensorProto.FLOAT,
-            dims=(1,),
-            vals=[quant[0]]
-        ),
-        helper.make_tensor(
-            name=name + "_zero_point",
-            data_type=TensorProto.INT8,
-            dims=(1,),
-            vals=[quant[1]]
-        ),
-    ]
+    initializer = make_quant_tensors(name, quant)
     return node_def, initializer
 
 
@@ -165,20 +147,7 @@ def make_quant(name_prev: str, name: str,
     )
 
     # quantization parameter
-    initializer = [
-        helper.make_tensor(
-            name=name + "_scale",
-            data_type=TensorProto.FLOAT,
-            dims=(1,),
-            vals=[quant[0]]
-        ),
-        helper.make_tensor(
-            name=name + "_zero_point",
-            data_type=TensorProto.INT8,
-            dims=(1,),
-            vals=[quant[1]]
-        ),
-    ]
+    initializer = make_quant_tensors(name, quant)
     return node_def, initializer
 
 
