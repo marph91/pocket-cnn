@@ -2,8 +2,6 @@
 
 import cnn_onnx.graph_generator as gg
 
-# somehow the onnx members aren't detected properly
-# pylint: disable=no-member
 # allow more expressive names for the cnn models
 # pylint: disable=invalid-name
 

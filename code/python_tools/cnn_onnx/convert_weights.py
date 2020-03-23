@@ -10,10 +10,6 @@ from onnx import numpy_helper
 from weights_to_files import weights_to_files
 
 
-# somehow the onnx members aren't detected properly
-# pylint: disable=no-member
-
-
 def convert_weights(model: str, output_dir: str = "weights") -> None:
     """Extract weights from model, convert them into binary fixed point and
     save to file."""

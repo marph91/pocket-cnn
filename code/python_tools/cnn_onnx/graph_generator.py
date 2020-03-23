@@ -6,9 +6,6 @@ import numpy as np
 from onnx import helper
 from onnx import TensorProto
 
-# somehow the onnx members aren't detected properly
-# pylint: disable=no-member
-
 
 def make_conv_quant(last_layer_info: tuple, name: str, ch_in: int, ch_out: int,
                     param: Tuple[int, int, int]) -> Tuple[Any, List[Any]]:

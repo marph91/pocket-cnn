@@ -15,10 +15,6 @@ from cnn_reference import flatten
 import vhdl_top_template
 
 
-# somehow the onnx members aren't detected properly
-# pylint: disable=no-member
-
-
 def create_stimuli(root, model_name):
     model = onnx.load(join(root, model_name))
     shape = cnn_onnx.parse_param.get_input_shape(model)

@@ -9,8 +9,6 @@ import onnx
 from onnx import numpy_helper
 
 
-# somehow the onnx members aren't detected properly
-# pylint: disable=no-member
 
 
 def parse_node_params(node) -> dict:

@@ -11,10 +11,6 @@ import cnn_reference
 from cnn_onnx import model_zoo, parse_param
 
 
-# somehow the onnx members aren't detected properly
-# pylint: disable=no-member
-
-
 def numpy_inference(onnx_model, input_):
     """Calculate the inference of a given input with a given model."""
     weights_dict = {}
