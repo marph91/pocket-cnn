@@ -117,9 +117,9 @@ def make_conv_quant(node, weights_dict: dict,
                 node_name + "_quant_weights",
                 node_name + "_quant_weights_scale",
                 node_name + "_quant_weights_zero_point",
-                node_name + "_quant_bias",
-                node_name + "_quant_bias_scale",
-                node_name + "_quant_bias_zero_point"],
+                node_name + "_quant_scale",
+                node_name + "_quant_zero_point",
+                node_name + "_quant_bias"],
         outputs=[node_name + "_dequant"],
         **parse_param.parse_node_attributes(node),
     )
@@ -149,7 +149,7 @@ def make_conv_quant(node, weights_dict: dict,
     initializer.extend(
         gg.make_quant_tensors(node_name + "_quant_weights", quant))
     initializer.extend(
-        gg.make_quant_tensors(node_name + "_quant_bias", quant))
+        gg.make_quant_tensors(node_name + "_quant", (16, 0)))
     return node_def, initializer
 
 
@@ -206,17 +206,19 @@ def quantize(model):
             # QuantizeLinear, QLinearConv and DequantizeLinear
             node_name = node.output[0] if node.name == "" else node.name
 
+            quant_in = (16, 0) if new_nodes else (1, 0)
             if node.input[0] + "_quant" not in [nn.name for nn in new_nodes]:
                 # prevent duplicated nodes when input is already quantized
-                node_q, init = make_quant(node.input[0], (64, 0))
+                node_q, init = make_quant(node.input[0], quant_in)
                 new_nodes.append(node_q)
                 new_initializers.extend(init)
 
-            node_q, init = make_conv_quant(node, weights_dict, (64, 0))
+            node_q, init = make_conv_quant(node, weights_dict, quant_in)
+            quant_out = (16, 0)
             new_nodes.append(node_q)
             new_initializers.extend(init)
 
-            node_q, init = make_dequant(node_name, node.output[0], (64, 0))
+            node_q, init = make_dequant(node_name, node.output[0], quant_out)
             new_nodes.append(node_q)
             new_initializers.extend(init)
 
