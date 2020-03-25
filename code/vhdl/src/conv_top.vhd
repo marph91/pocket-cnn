@@ -25,7 +25,7 @@ entity conv_top is
     C_WEIGHTS_INIT    : string := "";
     C_BIAS_INIT       : string := "";
 
-    C_PARALLEL        : integer range 0 to 1 := 1
+    C_PARALLEL        : integer range 0 to 1 := 0
   );
   port (
     isl_clk   : in std_logic;

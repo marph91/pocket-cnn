@@ -34,7 +34,9 @@ entity tb_top is
     C_BITWIDTH        : string;
     C_STR_LENGTH      : integer;
     C_WEIGHTS_INIT    : string;
-    C_BIAS_INIT       : string
+    C_BIAS_INIT       : string;
+
+    C_PARALLEL        : integer range 0 to 1
   );
 end tb_top;
 
@@ -144,7 +146,9 @@ begin
     C_BITWIDTH => decode_integer_array(C_BITWIDTH, 1),
     C_STR_LENGTH => C_STR_LENGTH,
     C_WEIGHTS_INIT => decode_string_array(C_WEIGHTS_INIT),
-    C_BIAS_INIT => decode_string_array(C_BIAS_INIT)
+    C_BIAS_INIT => decode_string_array(C_BIAS_INIT),
+
+    C_PARALLEL => C_PARALLEL
   )
   port map (
     isl_clk     => sl_clk,
