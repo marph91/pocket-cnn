@@ -9,7 +9,7 @@ library util;
 
 entity mm is
   generic (
-    C_FIRST_STAGE         : integer range 0 to 1;
+    C_FIRST_STAGE         : integer range 0 to 1 := 0;
 
     C_DATA_TOTAL_BITS     : integer range 1 to 16 := 8;
     C_DATA_FRAC_BITS_IN   : integer range 0 to 16 := 4;
