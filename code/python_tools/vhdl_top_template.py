@@ -74,7 +74,8 @@ begin\n\
     C_WEIGHTS_INIT => (\n\
 {weight_dirs}      \"{param['weight_dir']}/W_{conv_names[pelem-1]}.txt\"),\n\
     C_BIAS_INIT => (\n\
-{bias_dirs}      \"{param['weight_dir']}/B_{conv_names[pelem-1]}.txt\")\n\
+{bias_dirs}      \"{param['weight_dir']}/B_{conv_names[pelem-1]}.txt\"),\n\
+    C_PARALLEL => 1\n\
   )\n\
   port map (\n\
     isl_clk     => isl_clk,\n\
