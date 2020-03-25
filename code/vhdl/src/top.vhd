@@ -33,7 +33,10 @@ entity top is
 
     C_STR_LENGTH : integer range 1 to 256;
     C_WEIGHTS_INIT : t_str_array_1d(1 to C_PE)(1 to C_STR_LENGTH);
-    C_BIAS_INIT : t_str_array_1d(1 to C_PE)(1 to C_STR_LENGTH)
+    C_BIAS_INIT : t_str_array_1d(1 to C_PE)(1 to C_STR_LENGTH);
+
+    -- full intra kernel parallelization
+    C_PARALLEL : integer range 0 to 1 := 1
   );
   port (
     isl_clk     : in std_logic;
@@ -129,8 +132,10 @@ begin
       C_PAD             => C_PAD(i),
       C_RELU            => C_RELU(i),
       C_LEAKY           => C_LEAKY_RELU(i),
-      C_WEIGHTS_INIT  => C_WEIGHTS_INIT(i),
-      C_BIAS_INIT     => C_BIAS_INIT(i)
+      C_WEIGHTS_INIT    => C_WEIGHTS_INIT(i),
+      C_BIAS_INIT       => C_BIAS_INIT(i),
+
+      C_PARALLEL        => C_PARALLEL
     )
     port map (
       isl_clk   => isl_clk,

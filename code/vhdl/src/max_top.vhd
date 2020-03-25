@@ -42,7 +42,9 @@ begin
     C_CH_IN           => C_CH,
     C_CH_OUT          => 1, -- no repetition at maximum pooling needed
     C_IMG_WIDTH       => C_IMG_WIDTH,
-    C_IMG_HEIGHT      => C_IMG_HEIGHT
+    C_IMG_HEIGHT      => C_IMG_HEIGHT,
+
+    C_PARALLEL        => 0
   )
   port map (
     isl_clk   => isl_clk,

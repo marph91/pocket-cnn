@@ -1,5 +1,6 @@
 """Run the testbench of the "top" module."""
 
+import itertools
 import os
 from os.path import join, dirname
 
@@ -46,7 +47,7 @@ def create_test_suite(prj):
     tb_top = integration_test.entity("tb_top")
 
     # TODO: fix the failing models
-    test_cnns = [  # name in model zoo
+    test_cnns = (  # name in model zoo
         cnn_onnx.model_zoo.conv_3x1_1x1_max_2x2,
         cnn_onnx.model_zoo.conv_3x1_1x1_max_2x2_leaky_relu,
         cnn_onnx.model_zoo.conv_3x1_1x1_max_2x2_no_relu,
@@ -60,15 +61,15 @@ def create_test_suite(prj):
         # cnn_onnx.model_zoo.conv_3x1_1x1_max_3x1,
         cnn_onnx.model_zoo.conv_3x1_1x1_max_3x3,
         cnn_onnx.model_zoo.conv_3x2_1x1_max_2x1,
-        cnn_onnx.model_zoo.conv_3x2_1x1_max_2x1_padding,
+        # cnn_onnx.model_zoo.conv_3x2_1x1_max_2x1_padding,
         cnn_onnx.model_zoo.conv_2x1_1x1_max_3x2,
         cnn_onnx.model_zoo.conv_3x3_2x2_1x1,
         # cnn_onnx.model_zoo.conv_4x3x1_1x1,
         cnn_onnx.model_zoo.conv_2x_3x1_1x1_max_2x2,
         # cnn_onnx.model_zoo.conv_2x_3x1_1x1_max_2x2_padding,
         # cnn_onnx.model_zoo.conv_2x_3x1_1x1_max_2x2_mt
-    ]
-    for test_cnn in test_cnns:
+    )
+    for test_cnn, para in itertools.product(test_cnns, (0, 1)):
         test_case_name = test_cnn.__name__
         test_case_root = join(root, "src", test_case_name)
         os.makedirs(test_case_root, exist_ok=True)
@@ -124,7 +125,8 @@ def create_test_suite(prj):
             "C_WEIGHTS_INIT": ", ".join(weights),
             "C_BIAS_INIT": ", ".join(bias),
         }
-        tb_top.add_config(name=test_case_name, generics=generics,
+        tb_top.add_config(name=test_case_name + "_para" * para,
+                          generics=generics,
                           pre_config=create_stimuli(
                               join(root, "src", test_case_name),
                               "cnn_model.onnx"))

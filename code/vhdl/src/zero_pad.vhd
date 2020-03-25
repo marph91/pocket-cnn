@@ -43,7 +43,7 @@ architecture behavioral of zero_pad is
   signal slv_data_out : std_logic_vector(C_DATA_WIDTH - 1 downto 0);
   signal sl_rdy : std_logic := '0';
 
-  type t_states IS (IDLE, PAD, PAD_PIXEL, FORWARD_DATA);
+  type t_states is (IDLE, PAD, PAD_PIXEL, FORWARD_DATA);
   signal state : t_states := IDLE;
 
 begin
