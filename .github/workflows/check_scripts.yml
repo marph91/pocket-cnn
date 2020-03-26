@@ -8,7 +8,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    container: pytorch/pytorch
     steps:
     - uses: actions/checkout@v1
     - name: Set up Python 3.7
@@ -17,8 +16,8 @@ jobs:
         python-version: 3.7
     - name: install system packets
       run: |
-        apt update
-        apt install --yes flake8 mypy pylint3 shellcheck libpython3.7-dev python3-numpy
+        sudo apt update
+        sudo apt install --yes flake8 mypy pylint3 shellcheck libpython3.7-dev python3-numpy
     - name: install pip packets
       run: pip install onnx
     - name: run_checks
