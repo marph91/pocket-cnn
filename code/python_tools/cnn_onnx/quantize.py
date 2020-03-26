@@ -115,7 +115,7 @@ def verify_quant(quant: tuple):
 
 
 def make_conv_quant(node, weights_dict: dict,
-                    quant_in: tuple) -> Tuple[Any, List[Any]]:
+                    quant_in: tuple) -> Tuple[Any, List[Any], Tuple[int, int]]:
     """Create a convolution node and quantize the weights.
     Quantizations get calculated as follows:
     - input quantization is given
