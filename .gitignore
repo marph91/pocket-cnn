@@ -29,7 +29,8 @@ code/vhdl/sim/vunit/top_wrapper/src/*/weights
 # CNN models and datasets
 *.onnx
 *.pt
-code/python_tools/pytorch/data
+examples/end_to_end/data
+examples/end_to_end/work
 
 # other files
 notes.txt

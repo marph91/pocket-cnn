@@ -136,8 +136,8 @@ def main():
                         help="random seed (default: 1)")
     parser.add_argument("--log-interval", type=int, default=10, metavar="N",
                         help="logging interval of the training status")
-    parser.add_argument("--save-model", action="store_true", default=False,
-                        help="For Saving the current Model")
+    parser.add_argument("--save-model", type=str, default=None,
+                        help="For saving the current Model")
     args = parser.parse_args()
     use_cuda = not args.no_cuda and torch.cuda.is_available()
 
@@ -169,13 +169,11 @@ def main():
         test(model, device, test_loader)
         scheduler.step()
 
-    if args.save_model:
-        torch.save(model.state_dict(), "mnist_cnn.pt")
-
+    if args.save_model is not None:
         dummy_input = torch.randn(1, 1, 28, 28, device=device)
         torch.onnx.export(model,
                           dummy_input,
-                          "mnist_cnn.onnx",
+                          args.save_model,
                           export_params=True,
                           opset_version=11,
                           input_names=["input"],

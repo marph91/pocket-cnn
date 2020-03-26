@@ -1,6 +1,8 @@
 """Helper functions to quantize an arbitrary CNN in ONNX format."""
 
+import argparse
 import math
+import os
 from typing import Any, List, Tuple, Union
 
 import onnx
@@ -258,17 +260,20 @@ def quantize(model):
 
 def main():
     """Main function to demonstrate the usage."""
-    # filename = "squeezenet1.1.onnx"
-    # filename_q = "squeezenet1.1_quantized.onnx"
-    filename = "mnist_cnn.onnx"
-    filename_q = "mnist_cnn_quantized.onnx"
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--model-path", default="model.onnx",
+                        help="Path to the onnx model.")
+    args = parser.parse_args()
 
-    model = onnx.load(filename)
+    model = onnx.load(args.model_path)
     onnx.checker.check_model(model)
 
     model_q = quantize(model)
     onnx.checker.check_model(model_q)
-    onnx.save(model_q, filename_q)
+
+    name, extension = os.path.splitext(args.model_path)
+    output_path = f"{name}_quantized{extension}"
+    onnx.save(model_q, output_path)
 
 
 if __name__ == "__main__":
