@@ -20,6 +20,7 @@ ghdl -a --std=08 --work=util "$SRC/util/math_pkg.vhd"
 
 ghdl -a --std=08 --work=cnn_lib "$SRC/bram.vhd"
 ghdl -a --std=08 --work=cnn_lib "$SRC/channel_repeater.vhd"
+ghdl -a --std=08 --work=cnn_lib "$SRC/output_buffer.vhd"
 ghdl -a --std=08 --work=cnn_lib "$SRC/relu.vhd"
 ghdl -a --std=08 --work=cnn_lib "$SRC/zero_pad.vhd"
 ghdl -a --std=08 --work=cnn_lib "$SRC/pool_ave.vhd"
