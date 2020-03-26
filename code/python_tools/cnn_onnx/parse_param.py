@@ -11,10 +11,10 @@ from onnx import numpy_helper
 
 # https://github.com/onnx/onnx/blob/master/onnx/onnx.proto
 TYPE_TO_STR = {
-    key + 1: val for key, val in enumerate(
-        ["f", "i", "s", "t", "g",
-         "floats", "ints", "strings", "tensors", "graphs"]
-        )
+    key + 1: val for key, val in enumerate([
+        "f", "i", "s", "t", "g",
+        "floats", "ints", "strings", "tensors", "graphs",
+        ])
 }
 
 
@@ -123,7 +123,7 @@ def parse_param(model: str) -> dict:
                 pes.append(pelem)
 
             conv_param = {
-                "conv_names": node.input[3].split("_", 1)[0],
+                "conv_names": node.input[3].split("_", 1)[0].zfill(16),
                 "conv_kernel": get_kernel_params(params)[0],
                 "conv_stride": get_kernel_params(params)[1],
                 "channel": weights_dict[node.input[3]].shape[0],
@@ -137,7 +137,7 @@ def parse_param(model: str) -> dict:
                 "pad": get_pad(params),
             }
             pelem = ProcessingElement(conv_param)
-        elif node.op_type == "GlobalAveragePool":
+        elif node.op_type in ["AveragePool", "GlobalAveragePool"]:
             pes.append(pelem)
         elif node.op_type == "MaxPool":
             assert pelem is not None
@@ -146,8 +146,8 @@ def parse_param(model: str) -> dict:
             assert pelem is not None
             pelem.set_activation(node.op_type)
         else:
-            raise ValueError(
-                "Unknown or unsupported layer type %s" % node.op_type)
+            print("Warning: Unsupported layer type %s will be ignored."
+                  % node.op_type)
 
     # update param dict with data of all pes
     param_dict["pe"] = len(pes)

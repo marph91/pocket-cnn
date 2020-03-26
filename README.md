@@ -4,7 +4,7 @@
 [![check_scripts](https://github.com/marph91/pocket-cnn/workflows/check_scripts/badge.svg)](https://github.com/marph91/pocket-cnn/actions?query=workflow%3Acheck_scripts)
 [![codecov](https://codecov.io/gh/marph91/pocket-cnn/branch/master/graph/badge.svg)](https://codecov.io/gh/marph91/pocket-cnn)
 
-pocket-cnn is a framework to map small Convolutional Neural Networks (CNN) fully on a FPGA. There is no communication outside of the FPGA needed, except of providing the image and reading the result.
+pocket-cnn is a framework to map small Convolutional Neural Networks (CNN) fully on a FPGA. There is no communication outside the FPGA needed, except of providing the image and reading the result.
 
 ## Requirements
 
@@ -13,12 +13,12 @@ For tests:
 - ghdl: <https://github.com/ghdl/ghdl>
 - vunit: <https://github.com/vunit/vunit>
 - onnx: <https://github.com/onnx/onnx>
-- gtkwave <https://github.com/gtkwave/gtkwave> (optional)
-- netron <https://github.com/lutzroeder/netron> (optional)
+- gtkwave: <https://github.com/gtkwave/gtkwave> (optional)
+- netron: <https://github.com/lutzroeder/netron> (optional)
 
 For synthesis:
 
-- A generated `top_wrapper.vhd` and corresponding weight files.
+- A generated toplevel wrapper and corresponding weight files. See [Installation and Usage](#installation-and-usage).
 - A synthesis tool of your choice. For now, the design was synthesized only using Xilinx Vivado.
 
 ## Limitations
@@ -26,25 +26,15 @@ For synthesis:
 Before using the framework, you should be aware of several limitations:
 
 - It is not complete. There might be several bugs and things missing. Please open an issue.
-- There will be a different accuracy and loss due to the 8 bit quantzation.
-- Only small CNN can be synthesized, because the weights get mapped directly to LUTRAM. See also <https://arxiv.org/pdf/1712.04322.pdf>.
+- There will be a different accuracy and loss due to the 8 bit quantization.
+- Only small CNN can be synthesized, because the weights get mapped to LUT.
 - Only a [subset of layers](#supported-layers) is supported.
 
 ## Installation and Usage
 
 Before using the framework, the `PYTHONPATH` has to be extended by `path/to/pocket-cnn/code/python_tools`.
 
-Generate a toplevel template for synthesis, which represents the CNN architecture:
-
-```bash
-git clone git@github.com:marph91/pocket-cnn.git
-cd pocket-cnn
-
-# create a toplevel module
-python3 code/python_tools/vhdl_top_template.py
-
-# synthesize the design with the generated toplevel module
-```
+A complete end-to-end example can be found at the [example folder](examples/end_to_end/README.md).
 
 To run the tests, simply execute:
 
@@ -55,11 +45,13 @@ python3 run_all.py
 
 ### Supported layers
 
-- Convolution (Kernel: 1x1, 2x2, 3x3, Stride: 1, 2, 3)
-- Maximum Pooling (Kernel: 2x2, 3x3, Stride: 1, 2, 3)
-- Average Pooling (Quantized averaging factor: 1 / height * width to 16 bit)
-- Zero Padding (only same padding at each edge)
-- ReLU, Leaky ReLU (only with alpha = 0.125)
+| Layer | Properties | Limitations |
+| :---: | :---: | :---: |
+| Convolution | Kernel: 1x1, 2x2, 3x3, Stride: 1, 2, 3 | Quantization of the activations and weights: Scale has to be power of two, zero point has to be zero. |
+| Maximum Pooling | Kernel: 2x2, 3x3, Stride: 1, 2, 3 | - |
+| Global Average Pooling | - | The averaging factor is quantized to the 16 bit fixed point value of `1 / height * width`. |
+| Zero Padding | - | The padding has to be the same at each edge. |
+| (Leaky) ReLU | - | Leaky ReLU has a fixed alpha of 0.125 |
 
 ## TODO
 
@@ -80,3 +72,7 @@ The tag `cocotb_caffe` marks the last commit with:
 - Integration of caffe and pytorch.
 
 &rarr; This got deprecated by using VUnit as test runner and ONNX as CNN representation.
+
+## Related work
+
+- Haddoc2: <https://github.com/DreamIP/haddoc2>, <https://arxiv.org/pdf/1712.04322.pdf>
