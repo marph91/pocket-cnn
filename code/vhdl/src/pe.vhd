@@ -34,8 +34,6 @@ entity pe is
   );
   port (
     isl_clk   : in std_logic;
-    isl_rst_n : in std_logic;
-    isl_ce    : in std_logic;
     isl_get   : in std_logic;
     isl_start : in std_logic;
     isl_valid : in std_logic;
@@ -88,7 +86,7 @@ begin
         int_ch_in_cnt <= 0;
         int_col <= 0;
         int_row <= 0;
-      elsif isl_ce = '1' then
+      else
         if isl_valid = '1' then
           if int_ch_in_cnt < C_CH_IN-1 then
             int_ch_in_cnt <= int_ch_in_cnt+1;
@@ -131,8 +129,6 @@ begin
     )
     port map(
       isl_clk   => isl_clk,
-      isl_rst_n => isl_rst_n,
-      isl_ce    => isl_ce,
       isl_get   => sl_pad_get,
       isl_start => isl_start,
       isl_valid => isl_valid,
@@ -167,8 +163,6 @@ begin
   )
   port map(
     isl_clk   => isl_clk,
-    isl_rst_n => isl_rst_n,
-    isl_ce    => isl_ce,
     isl_start => isl_start,
     isl_valid => sl_pad_valid_out,
     islv_data => slv_pad_data_out,
@@ -193,7 +187,6 @@ begin
     )
     port map (
       isl_clk   => isl_clk,
-      isl_ce    => isl_ce,
       isl_valid => sl_conv_valid_out,
       islv_data => slv_conv_data_out,
       oslv_data => slv_relu_data_out,
@@ -226,8 +219,6 @@ begin
     )
     port map (
       isl_clk   => isl_clk,
-      isl_rst_n => isl_rst_n,
-      isl_ce    => isl_ce,
       isl_start => isl_start,
       isl_valid => sl_pool_valid_in,
       islv_data => slv_pool_data_in,

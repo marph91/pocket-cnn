@@ -16,8 +16,6 @@ entity line_buffer is
   );
   port(
     isl_clk   : in std_logic;
-    isl_reset : in std_logic;
-    isl_ce    : in std_logic;
     isl_valid : in std_logic;
     islv_data : in std_logic_vector(C_DATA_WIDTH - 1 downto 0);
     oa_data   : out t_slv_array_1d(0 to C_KSIZE-1);
@@ -59,7 +57,7 @@ begin
 
   -- incoming data is written to BRAM and also output
   slv_bram_data_in(C_DATA_WIDTH - 1 downto 0) <= islv_data;
-  sl_bram_en <= isl_valid and isl_ce;
+  sl_bram_en <= isl_valid;
 
   -- move data one line "down"
   gen_bram_lb_connect : for i in 0 to (C_KSIZE - 3) generate
@@ -70,15 +68,11 @@ begin
   proc_counter : process(isl_clk)
   begin
     if rising_edge(isl_clk) then
-      if isl_reset = '0' then
-        usig_addr_cnt <= (others => '0');
-      elsif isl_ce = '1' then
-        if isl_valid = '1' then
-          if usig_addr_cnt < C_BRAM_SIZE - 2 then
-            usig_addr_cnt <= usig_addr_cnt + 1;
-          else
-            usig_addr_cnt <= (others => '0');
-          end if;
+      if isl_valid = '1' then
+        if usig_addr_cnt < C_BRAM_SIZE - 2 then
+          usig_addr_cnt <= usig_addr_cnt + 1;
+        else
+          usig_addr_cnt <= (others => '0');
         end if;
       end if;
     end if;
@@ -87,18 +81,14 @@ begin
   proc_output_assign : process(isl_clk)
   begin
     if rising_edge(isl_clk) then
-      if isl_reset = '0' then
-        sl_valid_out <= '0';
-      elsif isl_ce = '1' then
-        if isl_valid = '1' then
-          a_data_out(0) <= islv_data;
-          for i in 1 to C_KSIZE - 1 loop
-            a_data_out(i) <= slv_bram_data_out(i * C_DATA_WIDTH - 1 downto (i - 1) * C_DATA_WIDTH);
-          end loop;
-        end if;
-
-        sl_valid_out <= isl_valid;
+      if isl_valid = '1' then
+        a_data_out(0) <= islv_data;
+        for i in 1 to C_KSIZE - 1 loop
+          a_data_out(i) <= slv_bram_data_out(i * C_DATA_WIDTH - 1 downto (i - 1) * C_DATA_WIDTH);
+        end loop;
       end if;
+
+      sl_valid_out <= isl_valid;
     end if;
   end process proc_output_assign;
 

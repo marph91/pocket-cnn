@@ -17,8 +17,6 @@ entity max_top is
   );
   port (
     isl_clk   : in std_logic;
-    isl_rst_n : in std_logic;
-    isl_ce    : in std_logic;
     isl_start : in std_logic;
     isl_valid : in std_logic;
     islv_data : in std_logic_vector(C_TOTAL_BITS-1 downto 0);
@@ -48,8 +46,6 @@ begin
   )
   port map (
     isl_clk   => isl_clk,
-    isl_rst_n => isl_rst_n,
-    isl_ce    => isl_ce,
     isl_start => isl_start,
     isl_valid => isl_valid,
     islv_data => islv_data,
@@ -66,8 +62,6 @@ begin
   )
   port map (
     isl_clk   => isl_clk,
-    isl_rst_n => isl_rst_n,
-    isl_ce    => isl_ce,
     isl_valid => slv_win_valid_out,
     ia_data   => a_win_data_out(0),
     oslv_data => oslv_data,

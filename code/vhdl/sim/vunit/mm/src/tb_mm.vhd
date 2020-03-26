@@ -59,7 +59,6 @@ begin
   )
   port map (
     isl_clk    => sl_clk,
-    isl_ce     => '1',
     isl_valid  => sl_valid_in,
     ia_data    => a_data_in,
     ia_weights => a_weights_in,

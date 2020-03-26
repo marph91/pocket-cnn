@@ -36,3 +36,4 @@ examples/end_to_end/work
 notes.txt
 vivado
 build
+*.xlsx

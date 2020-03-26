@@ -23,8 +23,6 @@ entity window_ctrl is
   );
   port (
     isl_clk   : in std_logic;
-    isl_rst_n : in std_logic;
-    isl_ce    : in std_logic;
     isl_start : in std_logic;
     isl_valid : in std_logic;
     islv_data : in std_logic_vector(C_DATA_TOTAL_BITS-1 downto 0);
@@ -83,8 +81,6 @@ begin
     )
     port map(
       isl_clk   => isl_clk,
-      isl_reset => isl_rst_n,
-      isl_ce    => isl_ce,
       isl_valid => isl_valid,
       islv_data => islv_data,
       oa_data   => a_lb_data_out,
@@ -100,8 +96,6 @@ begin
     )
     port map(
       isl_clk     => isl_clk,
-      isl_reset   => isl_rst_n,
-      isl_ce      => isl_ce,
       isl_valid   => sl_lb_valid_out,
       ia_data     => a_lb_data_out,
       oa_data     => a_wb_data_out,
@@ -121,19 +115,17 @@ begin
     proc_selector: process(isl_clk)
     begin
       if rising_edge(isl_clk) then
-        if isl_ce = '1' then
-          if sl_selector_valid_in = '1' and
-              int_pixel_in_cnt >= (C_KSIZE-1)*C_IMG_WIDTH+C_KSIZE-1 and
-              (int_row+1-C_KSIZE+C_STRIDE) mod C_STRIDE = 0 and
-              (int_col+1-C_KSIZE+C_STRIDE) mod C_STRIDE = 0 and
-              int_col+1 > C_KSIZE-1 then
-            sl_selector_valid_out <= '1';
-          else
-            sl_selector_valid_out <= '0';
-          end if;
-
-          a_selector_data_out <= a_selector_data_in;
+        if sl_selector_valid_in = '1' and
+            int_pixel_in_cnt >= (C_KSIZE-1)*C_IMG_WIDTH+C_KSIZE-1 and
+            (int_row+1-C_KSIZE+C_STRIDE) mod C_STRIDE = 0 and
+            (int_col+1-C_KSIZE+C_STRIDE) mod C_STRIDE = 0 and
+            int_col+1 > C_KSIZE-1 then
+          sl_selector_valid_out <= '1';
+        else
+          sl_selector_valid_out <= '0';
         end if;
+
+        a_selector_data_out <= a_selector_data_in;
       end if;
     end process;
   end generate;
@@ -151,8 +143,6 @@ begin
     )
     port map(
       isl_clk     => isl_clk,
-      isl_reset   => isl_rst_n,
-      isl_ce      => isl_ce,
       isl_valid   => sl_selector_valid_out,
       ia_data     => a_selector_data_out,
       oa_data     => a_repeater_data_out,
@@ -176,7 +166,7 @@ begin
         int_pixel_out_cnt <= 0;
         int_row <= 0;
         int_col <= 0;
-      elsif isl_ce = '1' then
+      else
         if sl_selector_valid_in = '1' then
           if int_ch_in_cnt < C_CH_IN-1 then
             int_ch_in_cnt <= int_ch_in_cnt+1;

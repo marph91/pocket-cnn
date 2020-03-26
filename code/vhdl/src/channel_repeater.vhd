@@ -17,8 +17,6 @@ entity channel_repeater is
   );
   port(
     isl_clk     : in std_logic;
-    isl_reset   : in std_logic;
-    isl_ce      : in std_logic;
     isl_valid   : in std_logic;
     ia_data     : in t_slv_array_2d(0 to C_KSIZE-1, 0 to C_KSIZE-1);
     oa_data     : out t_kernel_array(0 to C_PARALLEL*(C_CH-1))(0 to C_KSIZE-1, 0 to C_KSIZE-1);
@@ -39,18 +37,16 @@ begin
   proc_data : process(isl_clk)
   begin
     if rising_edge(isl_clk) then
-      if isl_ce = '1' then
-        if isl_valid = '1' then
-          a_ch(0) <= ia_data;
-          for i in 1 to C_CH-1 loop
-            a_ch(i) <= a_ch(i-1);
-          end loop;
-        elsif C_PARALLEL = 0 and sl_valid_out = '1' then
-          a_ch(0) <= a_ch(C_CH-1);
-          for i in 1 to C_CH-1 loop
-            a_ch(i) <= a_ch(i-1);
-          end loop;
-        end if;
+      if isl_valid = '1' then
+        a_ch(0) <= ia_data;
+        for i in 1 to C_CH-1 loop
+          a_ch(i) <= a_ch(i-1);
+        end loop;
+      elsif C_PARALLEL = 0 and sl_valid_out = '1' then
+        a_ch(0) <= a_ch(C_CH-1);
+        for i in 1 to C_CH-1 loop
+          a_ch(i) <= a_ch(i-1);
+        end loop;
       end if;
     end if;
   end process proc_data;
@@ -58,27 +54,25 @@ begin
   proc_counter : process(isl_clk)
   begin
     if rising_edge(isl_clk) then
-      if isl_ce = '1' then
-        if isl_valid = '1' then
-          if C_PARALLEL = 1 and int_ch_in_cnt < C_CH-1 then
-            int_ch_in_cnt <= int_ch_in_cnt+1;
-          else
-            int_ch_in_cnt <= 0;
-            sl_valid_out <= '1';
-          end if;
+      if isl_valid = '1' then
+        if C_PARALLEL = 1 and int_ch_in_cnt < C_CH-1 then
+          int_ch_in_cnt <= int_ch_in_cnt+1;
+        else
+          int_ch_in_cnt <= 0;
+          sl_valid_out <= '1';
         end if;
+      end if;
 
-        if sl_valid_out = '1' then
-          if C_PARALLEL = 0 and int_ch_out_cnt < C_CH-1 then
-            int_ch_out_cnt <= int_ch_out_cnt+1;
+      if sl_valid_out = '1' then
+        if C_PARALLEL = 0 and int_ch_out_cnt < C_CH-1 then
+          int_ch_out_cnt <= int_ch_out_cnt+1;
+        else
+          int_ch_out_cnt <= 0;
+          if int_repeat_cnt < C_REPEAT-1 then
+            int_repeat_cnt <= int_repeat_cnt+1;
           else
-            int_ch_out_cnt <= 0;
-            if int_repeat_cnt < C_REPEAT-1 then
-              int_repeat_cnt <= int_repeat_cnt+1;
-            else
-              int_repeat_cnt <= 0;
-              sl_valid_out <= '0';
-            end if;
+            int_repeat_cnt <= 0;
+            sl_valid_out <= '0';
           end if;
         end if;
       end if;

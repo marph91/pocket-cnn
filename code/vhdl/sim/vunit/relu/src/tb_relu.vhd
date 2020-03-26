@@ -44,7 +44,6 @@ begin
   )
   port map (
     isl_clk   => sl_clk,
-    isl_ce    => '1',
     isl_valid => sl_valid_in,
     islv_data => slv_data_in,
     oslv_data => slv_data_out,

@@ -36,8 +36,6 @@ library cnn_lib;\n\n\
 entity top_wrapper is\n\
   port (\n\
     isl_clk    : in std_logic;\n\
-    isl_rst_n  : in std_logic;\n\
-    isl_ce     : in std_logic;\n\
     isl_get    : in std_logic;\n\
     isl_start  : in std_logic;\n\
     isl_valid  : in std_logic;\n\
@@ -79,8 +77,6 @@ begin\n\
   )\n\
   port map (\n\
     isl_clk     => isl_clk,\n\
-    isl_rst_n   => isl_rst_n,\n\
-    isl_ce      => isl_ce,\n\
     isl_get     => isl_get,\n\
     isl_start   => isl_start,\n\
     isl_valid   => isl_valid,\n\

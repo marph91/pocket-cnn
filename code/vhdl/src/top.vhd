@@ -40,8 +40,6 @@ entity top is
   );
   port (
     isl_clk     : in std_logic;
-    isl_rst_n   : in std_logic;
-    isl_ce      : in std_logic;
     isl_get     : in std_logic;
     isl_start   : in std_logic;
     isl_valid   : in std_logic;
@@ -139,8 +137,6 @@ begin
     )
     port map (
       isl_clk   => isl_clk,
-      isl_rst_n => isl_rst_n,
-      isl_ce    => isl_ce,
       isl_get   => slv_rdy(i+1),
       isl_start => isl_start,
       isl_valid => sl_output_valid(i-1),
@@ -164,8 +160,6 @@ begin
   )
   port map (
     isl_clk   => isl_clk,
-    isl_rst_n => isl_rst_n,
-    isl_ce    => isl_ce,
     isl_start => isl_start,
     isl_valid => sl_output_valid(C_PE),
     islv_data => a_data_out(C_PE),

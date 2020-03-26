@@ -16,8 +16,6 @@ entity zero_pad is
   );
   port (
     isl_clk   : in std_logic;
-    isl_rst_n : in std_logic;
-    isl_ce    : in std_logic;
     isl_get   : in std_logic;
     isl_start : in std_logic;
     isl_valid : in std_logic;

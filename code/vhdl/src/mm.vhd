@@ -20,7 +20,6 @@ entity mm is
   );
   port (
     isl_clk       : in std_logic;
-    isl_ce        : in std_logic;
     isl_valid     : in std_logic;
     ia_data       : in t_slv_array_2d(0 to C_KSIZE-1, 0 to C_KSIZE-1);
     ia_weights    : in t_slv_array_2d(0 to C_KSIZE-1, 0 to C_KSIZE-1);
@@ -77,15 +76,13 @@ begin
     process(isl_clk)
     begin
       if rising_edge(isl_clk) then
-        if isl_ce = '1' then
-          if isl_valid = '1' then
-            for j in 0 to C_KSIZE-1 loop
-              for i in 0 to C_KSIZE-1 loop
-                a_sfix_data(i, j) <= to_sfixed('0' & ia_data(i, j), C_DATA_INT_BITS, -C_DATA_FRAC_BITS_IN);
-                a_sfix_weights(i, j) <= to_sfixed(ia_weights(i, j), C_WEIGHTS_TOTAL_BITS-C_WEIGHTS_FRAC_BITS-1, -C_WEIGHTS_FRAC_BITS);
-              end loop;
+        if isl_valid = '1' then
+          for j in 0 to C_KSIZE-1 loop
+            for i in 0 to C_KSIZE-1 loop
+              a_sfix_data(i, j) <= to_sfixed('0' & ia_data(i, j), C_DATA_INT_BITS, -C_DATA_FRAC_BITS_IN);
+              a_sfix_weights(i, j) <= to_sfixed(ia_weights(i, j), C_WEIGHTS_TOTAL_BITS-C_WEIGHTS_FRAC_BITS-1, -C_WEIGHTS_FRAC_BITS);
             end loop;
-          end if;
+          end loop;
         end if;
       end if;
     end process;
@@ -93,15 +90,13 @@ begin
     process(isl_clk)
     begin
       if rising_edge(isl_clk) then
-        if isl_ce = '1' then
-          if isl_valid = '1' then
-            for j in 0 to C_KSIZE-1 loop
-              for i in 0 to C_KSIZE-1 loop
-                a_sfix_data(i, j) <= to_sfixed(ia_data(i, j), C_DATA_INT_BITS-1, -C_DATA_FRAC_BITS_IN);
-                a_sfix_weights(i, j) <= to_sfixed(ia_weights(i, j), C_WEIGHTS_TOTAL_BITS-C_WEIGHTS_FRAC_BITS-1, -C_WEIGHTS_FRAC_BITS);
-              end loop;
+        if isl_valid = '1' then
+          for j in 0 to C_KSIZE-1 loop
+            for i in 0 to C_KSIZE-1 loop
+              a_sfix_data(i, j) <= to_sfixed(ia_data(i, j), C_DATA_INT_BITS-1, -C_DATA_FRAC_BITS_IN);
+              a_sfix_weights(i, j) <= to_sfixed(ia_weights(i, j), C_WEIGHTS_TOTAL_BITS-C_WEIGHTS_FRAC_BITS-1, -C_WEIGHTS_FRAC_BITS);
             end loop;
-          end if;
+          end loop;
         end if;
       end if;
     end process;
@@ -112,54 +107,52 @@ begin
     variable v_sfix_data_out : sfixed(C_INTW_SUM2-1 downto -C_DATA_FRAC_BITS_IN-C_WEIGHTS_FRAC_BITS) := (others => '0');
   begin
     if rising_edge(isl_clk) then
-      if isl_ce = '1' then
-        slv_stage <= isl_valid & slv_stage(slv_stage'LOW to slv_stage'HIGH-1);
-        sl_output_valid <= slv_stage(slv_stage'HIGH);
+      slv_stage <= isl_valid & slv_stage(slv_stage'LOW to slv_stage'HIGH-1);
+      sl_output_valid <= slv_stage(slv_stage'HIGH);
 
-        if slv_stage(2) = '1' then
-          for j in 0 to C_KSIZE-1 loop
-            for i in 0 to C_KSIZE-1 loop
-              a_data_mult(i, j) <= a_sfix_data(i, j) * a_sfix_weights(i, j);
-            end loop;
+      if slv_stage(2) = '1' then
+        for j in 0 to C_KSIZE-1 loop
+          for i in 0 to C_KSIZE-1 loop
+            a_data_mult(i, j) <= a_sfix_data(i, j) * a_sfix_weights(i, j);
           end loop;
-        end if;
+        end loop;
+      end if;
 
-        if slv_stage(3) = '1' then
-          a_data_mult_d1 <= a_data_mult;
-        end if;
+      if slv_stage(3) = '1' then
+        a_data_mult_d1 <= a_data_mult;
+      end if;
 
-        if slv_stage(4) = '1' then
-          for j in 0 to C_KSIZE-1 loop
-            for i in 0 to C_KSIZE-1 loop
-              a_data_mult_resized(i+j*C_KSIZE) <= resize(
-                a_data_mult_d1(i, j),
-                C_INTW_SUM1-1, -C_DATA_FRAC_BITS_IN-C_WEIGHTS_FRAC_BITS, fixed_wrap, fixed_truncate);
-            end loop;
+      if slv_stage(4) = '1' then
+        for j in 0 to C_KSIZE-1 loop
+          for i in 0 to C_KSIZE-1 loop
+            a_data_mult_resized(i+j*C_KSIZE) <= resize(
+              a_data_mult_d1(i, j),
+              C_INTW_SUM1-1, -C_DATA_FRAC_BITS_IN-C_WEIGHTS_FRAC_BITS, fixed_wrap, fixed_truncate);
           end loop;
-        end if;
+        end loop;
+      end if;
 
-        if slv_stage(5) = '1' then
-          for j in 0 to C_KSIZE-1 loop
-            v_sfix_conv_res(j) := a_data_mult_resized(j*C_KSIZE);
-            for i in 1 to C_KSIZE-1 loop
-              v_sfix_conv_res(j) := resize(
-                v_sfix_conv_res(j) +
-                a_data_mult_resized(i+j*C_KSIZE),
-                C_INTW_SUM1-1, -C_DATA_FRAC_BITS_IN-C_WEIGHTS_FRAC_BITS, fixed_wrap, fixed_truncate);
-            end loop;
+      if slv_stage(5) = '1' then
+        for j in 0 to C_KSIZE-1 loop
+          v_sfix_conv_res(j) := a_data_mult_resized(j*C_KSIZE);
+          for i in 1 to C_KSIZE-1 loop
+            v_sfix_conv_res(j) := resize(
+              v_sfix_conv_res(j) +
+              a_data_mult_resized(i+j*C_KSIZE),
+              C_INTW_SUM1-1, -C_DATA_FRAC_BITS_IN-C_WEIGHTS_FRAC_BITS, fixed_wrap, fixed_truncate);
           end loop;
-          a_data_tmp <= v_sfix_conv_res;
-        end if;
+        end loop;
+        a_data_tmp <= v_sfix_conv_res;
+      end if;
 
-        if slv_stage(6) = '1' then
-          v_sfix_data_out := (others => '0');
-          for j in 0 to C_KSIZE-1 loop
-            v_sfix_data_out := resize(
-              v_sfix_data_out + a_data_tmp(j),
-              C_INTW_SUM2-1, -C_DATA_FRAC_BITS_IN-C_WEIGHTS_FRAC_BITS, fixed_wrap, fixed_truncate);
-          end loop;
-          slv_data_out <= to_slv(v_sfix_data_out);
-        end if;
+      if slv_stage(6) = '1' then
+        v_sfix_data_out := (others => '0');
+        for j in 0 to C_KSIZE-1 loop
+          v_sfix_data_out := resize(
+            v_sfix_data_out + a_data_tmp(j),
+            C_INTW_SUM2-1, -C_DATA_FRAC_BITS_IN-C_WEIGHTS_FRAC_BITS, fixed_wrap, fixed_truncate);
+        end loop;
+        slv_data_out <= to_slv(v_sfix_data_out);
       end if;
     end if;
   end process;

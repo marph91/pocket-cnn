@@ -29,8 +29,6 @@ entity conv_top is
   );
   port (
     isl_clk   : in std_logic;
-    isl_rst_n : in std_logic;
-    isl_ce    : in std_logic;
     isl_start : in std_logic;
     isl_valid : in std_logic;
     islv_data : in std_logic_vector(C_DATA_TOTAL_BITS-1 downto 0);
@@ -66,8 +64,6 @@ begin
   )
   port map (
     isl_clk   => isl_clk,
-    isl_rst_n => isl_rst_n,
-    isl_ce    => isl_ce,
     isl_start => isl_start,
     isl_valid => isl_valid,
     islv_data => islv_data,
@@ -95,8 +91,6 @@ begin
   )
   port map (
     isl_clk    => isl_clk,
-    isl_rst_n  => isl_rst_n,
-    isl_ce     => isl_ce,
     isl_valid  => sl_win_valid_out,
     ia_data    => a_win_data_out,
     ia_weights => a_weights,
@@ -115,17 +109,15 @@ begin
   proc_data : process(isl_clk)
   begin
     if rising_edge(isl_clk) then
-      if isl_ce = '1' then
-        -- weight addresses depend on window control
-        if sl_win_valid_out = '1' then
-          -- parallel: max addr = C_CH_OUT-1
-          -- serial: max addr = C_CH_IN*C_CH_OUT-1
-          -- TODO: look for easier conversion
-          if int_addr_cnt < (C_CH_IN-C_PARALLEL*C_CH_IN+C_PARALLEL)*C_CH_OUT-1 then
-            int_addr_cnt <= int_addr_cnt + 1;
-          else
-            int_addr_cnt <= 0;
-          end if;
+      -- weight addresses depend on window control
+      if sl_win_valid_out = '1' then
+        -- parallel: max addr = C_CH_OUT-1
+        -- serial: max addr = C_CH_IN*C_CH_OUT-1
+        -- TODO: look for easier conversion
+        if int_addr_cnt < (C_CH_IN-C_PARALLEL*C_CH_IN+C_PARALLEL)*C_CH_OUT-1 then
+          int_addr_cnt <= int_addr_cnt + 1;
+        else
+          int_addr_cnt <= 0;
         end if;
       end if;
     end if;

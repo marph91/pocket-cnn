@@ -14,8 +14,6 @@ entity window_buffer is
   );
   port(
     isl_clk     : in std_logic;
-    isl_reset   : in std_logic;
-    isl_ce      : in std_logic;
     isl_valid   : in std_logic;
     ia_data     : in t_slv_array_1d(0 to C_KSIZE-1);
     oa_data     : out t_slv_array_2d(0 to C_KSIZE-1, 0 to C_KSIZE-1);
@@ -63,16 +61,14 @@ begin
   proc_valid_out: process(isl_clk)
   begin
     if rising_edge(isl_clk) then
-      if isl_ce = '1' then
-        if isl_valid = '1' then
-          if int_ch_cnt < C_CH-1 then
-            int_ch_cnt <= int_ch_cnt+1;
-          else
-            int_ch_cnt <= 0;
-          end if;
+      if isl_valid = '1' then
+        if int_ch_cnt < C_CH-1 then
+          int_ch_cnt <= int_ch_cnt+1;
+        else
+          int_ch_cnt <= 0;
         end if;
-        sl_valid_out <= isl_valid;
       end if;
+      sl_valid_out <= isl_valid;
     end if;
   end process;
 

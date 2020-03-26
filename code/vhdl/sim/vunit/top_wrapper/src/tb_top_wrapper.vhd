@@ -26,8 +26,6 @@ end;
 
 architecture behavioral of tb_top_wrapper is
   signal sl_clk           : std_logic := '0';
-  signal sl_rst_n         : std_logic := '0';
-  signal sl_ce            : std_logic := '0';
   signal sl_rdy           : std_logic := '0';
   signal sl_get           : std_logic := '0';
   signal sl_start         : std_logic := '0';
@@ -48,8 +46,6 @@ begin
   dut: entity integration_test.top_wrapper
   port map (
     isl_clk     => sl_clk,
-    isl_rst_n   => sl_rst_n,
-    isl_ce      => sl_ce,
     isl_get     => sl_get,
     isl_start   => sl_start,
     isl_valid   => sl_valid_in,
@@ -109,8 +105,6 @@ begin
             to_string(C_IMG_DEPTH_IN));
 
     wait until rising_edge(sl_clk);
-    sl_rst_n <= '1';
-    sl_ce <= '1';
     sl_get <= '1';
     sl_start <= '0';
     sl_valid_in <= '0';

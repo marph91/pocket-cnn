@@ -50,8 +50,6 @@ begin
     )
   port map (
     isl_clk     => sl_clk,
-    isl_rst_n   => '1',
-    isl_ce      => '1',
     isl_get     => sl_get,
     isl_start   => sl_start,
     isl_valid   => sl_valid_in,
@@ -112,8 +110,6 @@ begin
     i := 0;
     while i < C_IMG_WIDTH * C_IMG_HEIGHT * C_IMG_DEPTH loop
       wait until rising_edge(sl_clk) and sl_rdy = '1';
-      -- TODO: check with non burst input
-      -- TODO: non burst channel = 1 working?
       sl_valid_in <= '1';
       for w in 0 to C_IMG_DEPTH-1 loop
         slv_data_in <= std_logic_vector(to_unsigned(get(data_src, i), slv_data_in'length));

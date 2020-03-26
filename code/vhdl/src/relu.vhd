@@ -14,7 +14,6 @@ entity relu is
   );
   port (
     isl_clk     : in std_logic;
-    isl_ce      : in std_logic;
     isl_valid   : in std_logic;
     islv_data   : in std_logic_vector(C_TOTAL_BITS-1 downto 0);
     oslv_data   : out std_logic_vector(C_TOTAL_BITS-1 downto 0);
@@ -32,34 +31,30 @@ begin
     process(isl_clk)
     begin
       if rising_edge(isl_clk) then
-        if isl_ce = '1' then
-          if isl_valid = '1' then
-            if islv_data(C_TOTAL_BITS-1) = '0' then
-              oslv_data <= islv_data;
-            else
-              oslv_data <= (others => '0');
-            end if;
+        if isl_valid = '1' then
+          if islv_data(C_TOTAL_BITS-1) = '0' then
+            oslv_data <= islv_data;
+          else
+            oslv_data <= (others => '0');
           end if;
-          sl_output_valid <= isl_valid;
         end if;
+        sl_output_valid <= isl_valid;
       end if;
     end process;
   else generate
     process(isl_clk)
     begin
       if rising_edge(isl_clk) then
-        if isl_ce = '1' then
-          if isl_valid = '1' then
-            if islv_data(C_TOTAL_BITS-1) = '0' then
-              oslv_data <= islv_data;
-            else
-              oslv_data <= to_slv(resize(
-                to_sfixed(islv_data & '0', C_INT_BITS-1, -C_FRAC_BITS-1),
-                C_INT_BITS+2, -C_FRAC_BITS+3, fixed_saturate, fixed_round));
-            end if;
+        if isl_valid = '1' then
+          if islv_data(C_TOTAL_BITS-1) = '0' then
+            oslv_data <= islv_data;
+          else
+            oslv_data <= to_slv(resize(
+              to_sfixed(islv_data & '0', C_INT_BITS-1, -C_FRAC_BITS-1),
+              C_INT_BITS+2, -C_FRAC_BITS+3, fixed_saturate, fixed_round));
           end if;
-          sl_output_valid <= isl_valid;
         end if;
+        sl_output_valid <= isl_valid;
       end if;
     end process;
   end generate;
