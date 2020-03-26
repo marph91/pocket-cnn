@@ -70,12 +70,9 @@ def analyze_and_quantize(original_weights, original_bias):
     min_val = min(np.amin(original_weights), np.amin(original_bias))
     highest_val = max(abs(max_val), abs(min_val))
     int_width = get_integer_width(highest_val)
-
     print("weight quantization: ", int_width, 8-int_width)
     print("stats: ", max_val, min_val, highest_val)
 
-    # TODO: quantize bias properly
-    #       i. e. consider quantization of weights and activations
     quantized_weights = v_float2ffloat(
         original_weights, int_width, 8 - int_width)
     quantized_bias = v_float2ffloat(
@@ -86,6 +83,8 @@ def analyze_and_quantize(original_weights, original_bias):
         quantized_bias * 2 ** (8 - int_width)).astype(np.int32)
     print("average error per weight:",
           np.average(np.abs(original_weights - quantized_weights)))
+    avg_val = np.average(np.abs(quantized_weights))
+    print("average absolute weight value:", avg_val)
 
     total_cnt = quantized_weights.size
     zero_cnt = np.count_nonzero(np.where(quantized_weights == 0))
@@ -96,18 +95,36 @@ def analyze_and_quantize(original_weights, original_bias):
     print("po2 weights:", po2_cnt, po2_cnt / total_cnt)
     print("left weights:", left_cnt, left_cnt / total_cnt)
 
-    return quantized_weights_int, quantized_bias_int
+    # dataclass would be suited when available
+    return {
+        "weights": quantized_weights_int,
+        "bias": quantized_bias_int,
+        "quant": (int_width, 8-int_width),
+        "avg_val": avg_val,
+    }
+
+
+def verify_quant(quant: tuple):
+    """Verify that the given quantization is valid."""
+    if not is_power_of_two(quant[0]):
+        raise AssertionError(
+            f"only power of two scale supported, got {quant[0]}")
+    if quant[1] != 0:
+        raise AssertionError(
+            f"only zero point = 0 supported, got {quant[1]}")
 
 
 def make_conv_quant(node, weights_dict: dict,
-                    quant: tuple) -> Tuple[Any, List[Any]]:
-    """Create a convolution node and quantize the weights."""
-    assert is_power_of_two(quant[0]), "only power of two scale supported"
-    assert quant[1] == 0, "only zero point = 0 supported"
+                    quant_in: tuple) -> Tuple[Any, List[Any]]:
+    """Create a convolution node and quantize the weights.
+    Quantizations get calculated as follows:
+    - input quantization is given
+    - weight quantization gets calculated based on the actual weights
+    - output quantization is input quantization * average weight value
+    """
+    verify_quant(quant_in)
 
     node_name = node.output[0] if node.name == "" else node.name
-
-    # TODO: get input scale -> calculate weight and output scale
 
     # Create a node (NodeProto)
     node_def = helper.make_node(
@@ -129,37 +146,43 @@ def make_conv_quant(node, weights_dict: dict,
     # quantize the weights
     print("#"*50)
     print("layer: ", node_name + "_qconv")
-    weights_quant, bias_quant = analyze_and_quantize(
+    quantized_weights = analyze_and_quantize(
         weights_dict[node.input[1]], weights_dict[node.input[2]])
+
+    # calculate output scale
+    quant_factor = round(math.log2(quantized_weights["avg_val"]))
+    quant_scale_bits = math.log2(quant_in[0]) - quant_factor
+    quant_scale = max(min(2 ** quant_scale_bits, 2 ** 8), 1)
+    quant_out = (int(quant_scale), 0)
 
     # setup the initializer
     initializer = [
         helper.make_tensor(
             name=node_name + "_quant_weights",
             data_type=TensorProto.INT8,
-            dims=weights_quant.shape,
-            vals=weights_quant.flatten().tolist()
+            dims=quantized_weights["weights"].shape,
+            vals=quantized_weights["weights"].flatten().tolist()
         ),
         helper.make_tensor(
             name=node_name + "_quant_bias",
             data_type=TensorProto.INT32,
-            dims=bias_quant.shape,
-            vals=bias_quant.flatten().tolist()
+            dims=quantized_weights["bias"].shape,
+            vals=quantized_weights["bias"].flatten().tolist()
         ),
     ]
     # quantization parameter
     initializer.extend(
-        gg.make_quant_tensors(node_name + "_quant_weights", quant))
+        gg.make_quant_tensors(node_name + "_quant_weights",
+                              quantized_weights["quant"]))
     initializer.extend(
         gg.make_quant_tensors(node_name + "_quant", (16, 0)))
-    return node_def, initializer
+    return node_def, initializer, quant_out
 
 
 def make_dequant(input_name: str, output_name: str,
                  quant: tuple) -> Tuple[Any, List[Any]]:
     """Create a quantization node, which converts fixedint to float."""
-    assert is_power_of_two(quant[0]), "only power of two scale supported"
-    assert quant[1] == 0, "only zero point = 0 supported"
+    verify_quant(quant)
 
     node_def = helper.make_node(
         "DequantizeLinear",
@@ -177,8 +200,7 @@ def make_dequant(input_name: str, output_name: str,
 
 def make_quant(input_name: str, quant: tuple) -> Tuple[Any, List[Any]]:
     """Create a quantization node, which converts float to fixedint."""
-    assert is_power_of_two(quant[0]), "only power of two scale supported"
-    assert quant[1] == 0, "only zero point = 0 supported"
+    verify_quant(quant)
 
     node_def = helper.make_node(
         "QuantizeLinear",
@@ -202,21 +224,22 @@ def quantize(model):
     weights_dict = {init.name: numpy_helper.to_array(init)
                     for init in model.graph.initializer}
 
+    quant_out = (1, 0)
     for node in model.graph.node:
         if node.op_type == "Conv":
             # add the three quantization "replacements":
             # QuantizeLinear, QLinearConv and DequantizeLinear
             node_name = node.output[0] if node.name == "" else node.name
 
-            quant_in = (16, 0) if new_nodes else (1, 0)
             if node.input[0] + "_quant" not in [nn.name for nn in new_nodes]:
                 # prevent duplicated nodes when input is already quantized
+                quant_in = quant_out
                 node_q, init = make_quant(node.input[0], quant_in)
                 new_nodes.append(node_q)
                 new_initializers.extend(init)
 
-            node_q, init = make_conv_quant(node, weights_dict, quant_in)
-            quant_out = (16, 0)
+            node_q, init, quant_out = make_conv_quant(
+                node, weights_dict, quant_in)
             new_nodes.append(node_q)
             new_initializers.extend(init)
 
@@ -234,7 +257,6 @@ def quantize(model):
             # remove corresponding inputs
             inputs_to_delete = [input_ for input_ in model.graph.input
                                 if input_.name in node.input[1:3]]
-            # TODO: assert len(inputs_to_delete) == 2
             for input_ in inputs_to_delete:
                 model.graph.input.remove(input_)
         else:
