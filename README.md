@@ -34,7 +34,7 @@ Before using the framework, you should be aware of several limitations:
 
 Before using the framework, the `PYTHONPATH` has to be extended by `path/to/pocket-cnn/code/python_tools`.
 
-A complete end-to-end example can be found at the [example folder](examples/end_to_end.md).
+A complete end-to-end example can be found at the [example folder](examples/end_to_end/end_to_end.md).
 
 To run the tests, simply execute:
 
