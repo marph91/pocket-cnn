@@ -29,6 +29,10 @@ def create_test_suites(prj):
         run.create_test_suite(prj)
         mod[0].close()
 
+    # avoid error "type of a shared variable must be a protected type"
+    prj.set_compile_option("ghdl.a_flags", ["-frelaxed"])
+    prj.set_sim_option("ghdl.elab_flags", ["-frelaxed"])
+
     # add code coverage if supported
     if prj.simulator_supports_coverage():
         prj.set_sim_option("enable_coverage", True)
