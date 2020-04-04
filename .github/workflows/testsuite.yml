@@ -20,4 +20,4 @@ jobs:
           python3 run_all.py
       - uses: codecov/codecov-action@v1
         with:
-          token: ${{ secrets.CODECOV_TOKEN }}
+          file: code/vhdl/sim/vunit/coverage.info

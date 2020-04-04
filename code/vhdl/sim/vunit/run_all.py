@@ -29,23 +29,22 @@ def create_test_suites(prj):
         run.create_test_suite(prj)
         mod[0].close()
 
-    # avoid error "type of a shared variable must be a protected type"
-    ghdl_flags = ["-frelaxed"]
-    ghdl_elab_flags = ["-frelaxed"]
-
-    # add code coverage if gcc is available
-    ghdl_version = subprocess.check_output(["ghdl", "--version"]).decode()
-    if "GCC" in ghdl_version:
+    # add code coverage if supported
+    if prj.simulator_supports_coverage():
         prj.set_sim_option("enable_coverage", True)
-        ghdl_flags.extend(["-g", "-fprofile-arcs", "-ftest-coverage"])
-        ghdl_elab_flags.extend(["-Wl,-lgcov", "-Wl,--coverage"])
+        prj.set_compile_option("enable_coverage", True)
 
-    prj.set_compile_option("ghdl.flags", ghdl_flags)
-    prj.set_sim_option("ghdl.elab_flags", ghdl_elab_flags)
+
+def post_run(results):
+    """Collect the coverage results and create a report."""
+    if PRJ.simulator_supports_coverage():
+        results.merge_coverage(file_name="coverage_data")
+        subprocess.call(["lcov", "--capture", "--directory", "coverage_data",
+                         "--output-file", "coverage.info"])
 
 
 if __name__ == "__main__":
     os.environ["VUNIT_SIMULATOR"] = "ghdl"
     PRJ = VUnit.from_argv()
     create_test_suites(PRJ)
-    PRJ.main()
+    PRJ.main(post_run=post_run)
