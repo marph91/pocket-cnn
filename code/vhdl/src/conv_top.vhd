@@ -101,8 +101,7 @@ begin
     gen_weights_inner: if C_PARALLEL = 0 generate
       a_weights(ch_in) <= C_WEIGHTS(int_addr_cnt+ch_in);
     else generate
-      -- TODO: check why channel have to be switched
-      a_weights(C_CH_IN-ch_in-1) <= C_WEIGHTS(int_addr_cnt*C_CH_IN+ch_in);
+      a_weights(ch_in) <= C_WEIGHTS(int_addr_cnt*C_CH_IN+ch_in);
     end generate;
   end generate;
 

@@ -151,8 +151,7 @@ begin
               if C_PARALLEL = 0 then
                 check_equal(a_data_out(0)(x, y), get(data_ref, i));
               else
-                -- TODO: fix this bug
-                check_equal(a_data_out(C_CH-1-v_ch)(x, y), get(data_ref, i));
+                check_equal(a_data_out(v_ch)(x, y), get(data_ref, i));
               end if;
             end loop;
           end loop;

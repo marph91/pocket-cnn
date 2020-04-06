@@ -80,5 +80,11 @@ begin
 
   osl_rdy <= not (sl_valid_out or isl_valid);
   osl_valid <= sl_valid_out;
-  oa_data(0 to C_PARALLEL*(C_CH-1)) <= a_ch(0 to C_PARALLEL*(C_CH-1));
+  gen_para : if C_PARALLEL = 1 generate
+    gen_output : for i in 0 to C_CH-1 generate
+      oa_data(i) <= a_ch(C_CH-1-i);
+    end generate;
+  else generate
+    oa_data(0) <= a_ch(0);
+  end generate;
 end architecture behavior;
