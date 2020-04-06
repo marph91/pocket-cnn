@@ -5,11 +5,10 @@ library util;
   use util.cnn_pkg.all;
 
 entity channel_repeater is
-    generic(
+  generic(
     C_DATA_WIDTH  : integer range 1 to 32 := 8;
 
     C_CH          : integer range 1 to 512 := 16;
-
     C_REPEAT      : integer range 1 to 512 := 32;
     C_KSIZE       : integer range 1 to 3 := 3;
 
