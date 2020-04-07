@@ -105,6 +105,7 @@ begin
           if int_repeat_cnt < C_REPEAT-1 then
             int_repeat_cnt <= int_repeat_cnt+1;
           else
+            -- The output is valid all the time until all repetitions are done.
             int_repeat_cnt <= 0;
             sl_valid_out <= '0';
           end if;

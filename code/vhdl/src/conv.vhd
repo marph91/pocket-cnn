@@ -36,6 +36,8 @@ entity conv is
 end conv;
 
 architecture behavioral of conv is
+  constant C_PARALLEL_CH : integer := C_PARALLEL*C_CH_IN + 1-C_PARALLEL;
+
   -- +log2(C_CH_IN)-1 because all C_CH_IN are summed up -> broaden data width to avoid overflow
   -- new bitwidth = log2(C_CH_IN*(2^old bitwidth-1)) = log2(C_CH_IN) + old bitwidth -> new bw = lb(64) + 8 = 14
   constant C_SUM_TOTAL_BITS : integer range 1 to 32 := C_DATA_TOTAL_BITS+C_WEIGHTS_TOTAL_BITS+1+log2(C_KSIZE-1)*2+log2(C_CH_IN)+C_FIRST_STAGE;
@@ -47,8 +49,8 @@ architecture behavioral of conv is
 
   -- convolution
   type t_slv_array is array(natural range <>) of std_logic_vector;
-  signal slv_mm_data_out : t_slv_array(0 to C_PARALLEL*(C_CH_IN-1))(C_SUM_TOTAL_BITS-log2(C_CH_IN)-1 downto 0);
-  signal sl_mm_valid_out : std_logic_vector(C_PARALLEL*(C_CH_IN-1) downto 0) := (others => '0');
+  signal slv_mm_data_out : t_slv_array(0 to C_PARALLEL_CH-1)(C_SUM_TOTAL_BITS-log2(C_CH_IN)-1 downto 0);
+  signal sl_mm_valid_out : std_logic_vector(C_PARALLEL_CH-1 downto 0) := (others => '0');
   signal sl_mm_valid_out_d1 : std_logic := '0';
 
   signal sl_valid_out : std_logic := '0';
@@ -67,7 +69,7 @@ architecture behavioral of conv is
   signal int_pixel_out_cnt : integer := 0;
 
 begin
-  gen_mm: for ch_in in 0 to C_PARALLEL*(C_CH_IN-1) generate
+  gen_mm: for ch_in in 0 to C_PARALLEL_CH-1 generate
     i_mm : entity work.mm
     generic map (
       C_FIRST_STAGE         => C_FIRST_STAGE,
@@ -93,11 +95,8 @@ begin
   begin
     if rising_edge(isl_clk) then
       if isl_valid = '1' then
-        -- parallel: max addr = C_CH_OUT-1
-        -- serial: max addr = C_CH_IN*C_CH_OUT-1
-        -- TODO: look for easier conversion
-        if int_ch_in_cnt < (C_CH_IN-C_PARALLEL*C_CH_IN+C_PARALLEL)*C_CH_OUT-1 then
-          int_ch_in_cnt <= int_ch_in_cnt+1;
+        if int_ch_in_cnt < C_CH_IN*C_CH_OUT-C_PARALLEL_CH then
+          int_ch_in_cnt <= int_ch_in_cnt+C_PARALLEL_CH;
         else
           int_ch_in_cnt <= 0;
           int_pixel_in_cnt <= int_pixel_in_cnt+1;
@@ -122,7 +121,7 @@ begin
       sl_mm_valid_out_d1 <= sl_mm_valid_out(0);
 
       if sl_mm_valid_out(0) = '1' then
-        if C_PARALLEL = 0 and int_mm_out_cnt < C_CH_IN-1 then
+        if C_PARALLEL_CH = 1 and int_mm_out_cnt < C_CH_IN-1 then
           int_mm_out_cnt <= int_mm_out_cnt+1;
         else
           int_mm_out_cnt <= 0;
@@ -142,7 +141,7 @@ begin
             C_SUM_INT_BITS-1, -C_SUM_FRAC_BITS, fixed_wrap, fixed_truncate);
         end if;
 
-        for ch_in in 0 to C_PARALLEL*(C_CH_IN-1) loop
+        for ch_in in 0 to C_PARALLEL_CH-1 loop
           -- always resize the values -> without round, sfix_sum should be big enough
           -- TODO: adder tree needed?
           v_sfix_sum := resize(
