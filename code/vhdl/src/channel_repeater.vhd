@@ -25,6 +25,8 @@ entity channel_repeater is
 end;
 
 architecture behavior of channel_repeater is
+  constant C_PARALLEL_CH : integer := C_PARALLEL*C_CH + 1-C_PARALLEL;
+
   signal sl_valid_out : std_logic := '0';
   signal int_ch_in_cnt : integer range 0 to C_CH-1 := 0;
   signal int_ch_out_cnt : integer range 0 to C_CH-1 := 0;
@@ -33,28 +35,61 @@ architecture behavior of channel_repeater is
   signal a_ch : t_kernel_array(0 to C_CH-1)(0 to C_KSIZE-1, 0 to C_KSIZE-1) := (others => (others => (others => (others => '0'))));
 
 begin
-  proc_data : process(isl_clk)
-  begin
-    if rising_edge(isl_clk) then
-      if isl_valid = '1' then
-        a_ch(0) <= ia_data;
-        for i in 1 to C_CH-1 loop
-          a_ch(i) <= a_ch(i-1);
-        end loop;
-      elsif C_PARALLEL = 0 and sl_valid_out = '1' then
-        a_ch(0) <= a_ch(C_CH-1);
-        for i in 1 to C_CH-1 loop
-          a_ch(i) <= a_ch(i-1);
-        end loop;
+  assert C_CH mod C_PARALLEL_CH = 0 report "invalid parallelization factor " & to_string(C_PARALLEL_CH);
+
+  gen_data : if C_PARALLEL = 0 generate
+    -- isl_valid and osl_valid can be active at the same time,
+    -- because each only increments one channel.
+    proc_data : process(isl_clk)
+    begin
+      if rising_edge(isl_clk) then
+        if isl_valid = '1' then
+          -- TODO: slicing doesn't work in ghdl, report bug
+          --       a_ch <= ia_data & a_ch(0 to C_CH-2);
+          a_ch(0) <= ia_data;
+          for i in 1 to C_CH-1 loop
+            a_ch(i) <= a_ch(i-1);
+          end loop;
+        elsif sl_valid_out = '1' then
+          a_ch(0) <= a_ch(C_CH-1);
+          for i in 1 to C_CH-1 loop
+            a_ch(i) <= a_ch(i-1);
+          end loop;
+        end if;
       end if;
-    end if;
-  end process proc_data;
+    end process proc_data;
+
+  else generate
+
+    -- isl_valid and osl_valid can't be active at the same time,
+    -- because they increment differently.
+    assert not (isl_valid = '1' and sl_valid_out = '1') report "input and output can't be active at the same time, because the buffer gets incremented differently!";
+    proc_data : process(isl_clk)
+    begin
+      if rising_edge(isl_clk) then
+        if isl_valid = '1' then
+          a_ch(C_CH-1) <= ia_data;
+          for i in 0 to C_CH-2 loop
+            a_ch(i) <= a_ch(i+1);
+          end loop;
+        end if;
+
+        if sl_valid_out = '1' then
+          a_ch(0 to C_PARALLEL_CH-1) <= a_ch(C_CH-C_PARALLEL_CH to C_CH-1);
+          for i in 0 to C_CH-C_PARALLEL_CH-1 loop
+            a_ch(i) <= a_ch(i+C_PARALLEL_CH);
+          end loop;
+        end if;
+      end if;
+    end process proc_data;
+  end generate;
 
   proc_counter : process(isl_clk)
   begin
     if rising_edge(isl_clk) then
       if isl_valid = '1' then
-        if C_PARALLEL = 1 and int_ch_in_cnt < C_CH-1 then
+        -- for C_PARALLEL_CH = 1 the input can get directly forwarded
+        if C_PARALLEL_CH > 1 and int_ch_in_cnt < C_CH-1 then
           int_ch_in_cnt <= int_ch_in_cnt+1;
         else
           int_ch_in_cnt <= 0;
@@ -63,8 +98,8 @@ begin
       end if;
 
       if sl_valid_out = '1' then
-        if C_PARALLEL = 0 and int_ch_out_cnt < C_CH-1 then
-          int_ch_out_cnt <= int_ch_out_cnt+1;
+        if int_ch_out_cnt < C_CH-C_PARALLEL_CH then
+          int_ch_out_cnt <= int_ch_out_cnt+C_PARALLEL_CH;
         else
           int_ch_out_cnt <= 0;
           if int_repeat_cnt < C_REPEAT-1 then
@@ -80,11 +115,5 @@ begin
 
   osl_rdy <= not (sl_valid_out or isl_valid);
   osl_valid <= sl_valid_out;
-  gen_para : if C_PARALLEL = 1 generate
-    gen_output : for i in 0 to C_CH-1 generate
-      oa_data(i) <= a_ch(C_CH-1-i);
-    end generate;
-  else generate
-    oa_data(0) <= a_ch(0);
-  end generate;
+  oa_data <= a_ch(0 to C_PARALLEL_CH-1);
 end architecture behavior;
