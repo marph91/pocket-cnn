@@ -12,21 +12,19 @@ entity channel_repeater is
     C_REPEAT      : integer range 1 to 512 := 32;
     C_KSIZE       : integer range 1 to 3 := 3;
 
-    C_PARALLEL    : integer range 0 to 1 := 0
+    C_PARALLEL_CH : integer range 1 to 512 := 1
   );
   port(
     isl_clk     : in std_logic;
     isl_valid   : in std_logic;
     ia_data     : in t_slv_array_2d(0 to C_KSIZE-1, 0 to C_KSIZE-1);
-    oa_data     : out t_kernel_array(0 to C_PARALLEL*(C_CH-1))(0 to C_KSIZE-1, 0 to C_KSIZE-1);
+    oa_data     : out t_kernel_array(0 to C_PARALLEL_CH-1)(0 to C_KSIZE-1, 0 to C_KSIZE-1);
     osl_valid   : out std_logic;
     osl_rdy     : out std_logic
   );
 end;
 
 architecture behavior of channel_repeater is
-  constant C_PARALLEL_CH : integer := C_PARALLEL*C_CH + 1-C_PARALLEL;
-
   signal sl_valid_out : std_logic := '0';
   signal int_ch_in_cnt : integer range 0 to C_CH-1 := 0;
   signal int_ch_out_cnt : integer range 0 to C_CH-1 := 0;
@@ -37,7 +35,7 @@ architecture behavior of channel_repeater is
 begin
   assert C_CH mod C_PARALLEL_CH = 0 report "invalid parallelization factor " & to_string(C_PARALLEL_CH);
 
-  gen_data : if C_PARALLEL = 0 generate
+  gen_data : if C_PARALLEL_CH = 1 generate
     -- isl_valid and osl_valid can be active at the same time,
     -- because each only increments one channel.
     proc_data : process(isl_clk)

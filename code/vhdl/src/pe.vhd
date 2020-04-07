@@ -45,6 +45,8 @@ entity pe is
 end pe;
 
 architecture behavioral of pe is
+  constant C_PARALLEL_CH : integer := C_PARALLEL*C_CH_IN + 1-C_PARALLEL;
+
   -- padding
   signal slv_pad_data_out : std_logic_vector(C_DATA_TOTAL_BITS-1 downto 0);
   signal sl_pad_valid_out : std_logic := '0';
@@ -159,7 +161,7 @@ begin
     C_WEIGHTS_INIT    => C_WEIGHTS_INIT,
     C_BIAS_INIT       => C_BIAS_INIT,
 
-    C_PARALLEL        => C_PARALLEL
+    C_PARALLEL_CH     => C_PARALLEL_CH
   )
   port map(
     isl_clk   => isl_clk,

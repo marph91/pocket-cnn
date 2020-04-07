@@ -42,7 +42,7 @@ begin
     C_IMG_WIDTH       => C_IMG_WIDTH,
     C_IMG_HEIGHT      => C_IMG_HEIGHT,
 
-    C_PARALLEL        => 0
+    C_PARALLEL_CH     => 1
   )
   port map (
     isl_clk   => isl_clk,

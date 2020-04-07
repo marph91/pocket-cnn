@@ -60,12 +60,10 @@ def create_test_suite(prj):
     unittest.add_source_files(join(root, "*.vhd"))
     tb_conv_top = unittest.entity("tb_conv_top")
 
-    for ksize, stride, para in itertools.product((1, 2, 3), (1, 2, 3), (0, 1)):
+    for ksize, stride in itertools.product((1, 2, 3), (1, 2, 3)):
         if stride > ksize:  # this case doesn't make sense
             continue
-        if not para and not (ksize in [1, 3] and stride == 1):
-            # only run specific cases in "non" parallel mode
-            continue
+
         total_bits_data = 8
         frac_bits_data_in = randint(0, total_bits_data-1)
         frac_bits_data_out = randint(0, total_bits_data-1)
@@ -79,39 +77,44 @@ def create_test_suite(prj):
         width = randint(ksize, 16)
         height = randint(ksize, 16)
 
-        weights_file = join(os.getcwd(), root, "gen",
-                            "W_conv_%d_%d_%d.txt" % (ksize, stride, para))
-        bias_file = join(os.getcwd(), root, "gen",
-                         "B_conv_%d_%d_%d.txt" % (ksize, stride, para))
+        for para in (1,) * (channel_in > 1) + (channel_in,):
+            if para == 1 and not (ksize in [1, 3] and stride == 1):
+                # only run specific cases in "non" parallel mode
+                continue
 
-        # TODO: add test for first stage
-        #       functionality is already ensured by toplevel tests and
-        #       partially by mm test
-        stage = 2
-        generics = {"C_FIRST_STAGE": int(stage == 1),
-                    "C_DATA_TOTAL_BITS": total_bits_data,
-                    "C_DATA_FRAC_BITS_IN": frac_bits_data_in,
-                    "C_DATA_FRAC_BITS_OUT": frac_bits_data_out,
-                    "C_WEIGHTS_TOTAL_BITS": total_bits_weight,
-                    "C_WEIGHTS_FRAC_BITS": frac_bits_weight,
-                    "C_CH_IN": channel_in,
-                    "C_CH_OUT": channel_out,
-                    "C_IMG_WIDTH": width,
-                    "C_IMG_HEIGHT": height,
-                    "C_KSIZE": ksize,
-                    "C_STRIDE": stride,
-                    "C_WEIGHTS_INIT": weights_file,
-                    "C_BIAS_INIT": bias_file,
-                    "C_PARALLEL": para}
-        tb_conv_top.add_config(
-            name=f"stage={stage}_dim={ksize}_stride={stride}" + "_para"*para,
-            generics=generics,
-            pre_config=create_stimuli(root, ksize, stride,
-                                      total_bits_data,
-                                      frac_bits_data_in, frac_bits_data_out,
-                                      total_bits_weight, frac_bits_weight,
-                                      channel_in, channel_out, width, height,
-                                      para))
+            weights_file = join(os.getcwd(), root, "gen",
+                                "W_conv_%d_%d_%d.txt" % (ksize, stride, para))
+            bias_file = join(os.getcwd(), root, "gen",
+                             "B_conv_%d_%d_%d.txt" % (ksize, stride, para))
+
+            # TODO: add test for first stage
+            #       functionality is already ensured by toplevel tests and
+            #       partially by mm test
+            stage = 2
+            generics = {"C_FIRST_STAGE": int(stage == 1),
+                        "C_DATA_TOTAL_BITS": total_bits_data,
+                        "C_DATA_FRAC_BITS_IN": frac_bits_data_in,
+                        "C_DATA_FRAC_BITS_OUT": frac_bits_data_out,
+                        "C_WEIGHTS_TOTAL_BITS": total_bits_weight,
+                        "C_WEIGHTS_FRAC_BITS": frac_bits_weight,
+                        "C_CH_IN": channel_in,
+                        "C_CH_OUT": channel_out,
+                        "C_IMG_WIDTH": width,
+                        "C_IMG_HEIGHT": height,
+                        "C_KSIZE": ksize,
+                        "C_STRIDE": stride,
+                        "C_WEIGHTS_INIT": weights_file,
+                        "C_BIAS_INIT": bias_file,
+                        "C_PARALLEL_CH": para}
+            tb_conv_top.add_config(
+                name=f"stage={stage}_dim_{ksize}_stride_{stride}_para_{para}",
+                generics=generics,
+                pre_config=create_stimuli(
+                    root, ksize, stride,
+                    total_bits_data, frac_bits_data_in, frac_bits_data_out,
+                    total_bits_weight, frac_bits_weight,
+                    channel_in, channel_out, width, height,
+                    para))
 
 
 if __name__ == "__main__":

@@ -26,7 +26,7 @@ entity tb_channel_repeater is
     C_REPEAT          : integer;
     C_KSIZE           : integer;
 
-    C_PARALLEL        : integer
+    C_PARALLEL_CH     : integer
   );
 end entity;
 
@@ -34,7 +34,7 @@ architecture tb of tb_channel_repeater is
   signal sl_clk : std_logic := '0';
   signal sl_valid_in : std_logic := '0';
   signal a_data_in : t_slv_array_2d(0 to C_KSIZE-1, 0 to C_KSIZE-1);
-  signal a_data_out : t_kernel_array(0 to C_PARALLEL*(C_CH-1))(0 to C_KSIZE-1, 0 to C_KSIZE-1);
+  signal a_data_out : t_kernel_array(0 to C_PARALLEL_CH-1)(0 to C_KSIZE-1, 0 to C_KSIZE-1);
   signal sl_valid_out : std_logic := '0';
   signal sl_rdy : std_logic := '0';
 
@@ -51,7 +51,7 @@ begin
     C_REPEAT      => C_REPEAT,
     C_KSIZE       => C_KSIZE,
 
-    C_PARALLEL    => C_PARALLEL
+    C_PARALLEL_CH => C_PARALLEL_CH
   )
   port map (
     isl_clk   => sl_clk,
@@ -78,8 +78,8 @@ begin
     report ("Channel in: " & to_string(C_CH));
     report ("Channel out: " & to_string(C_REPEAT));
 
-    data_src := load_csv(tb_path(runner_cfg) & "gen/input_" & to_string(C_KSIZE) & "_" & to_string(C_PARALLEL) & ".csv");
-    data_ref := load_csv(tb_path(runner_cfg) & "gen/output_" & to_string(C_KSIZE) & "_" & to_string(C_PARALLEL) & ".csv");
+    data_src := load_csv(tb_path(runner_cfg) & "gen/input_" & to_string(C_KSIZE) & "_" & to_string(C_PARALLEL_CH) & ".csv");
+    data_ref := load_csv(tb_path(runner_cfg) & "gen/output_" & to_string(C_KSIZE) & "_" & to_string(C_PARALLEL_CH) & ".csv");
 
     check_equal(data_src.width, C_KSIZE*C_KSIZE*C_CH, "input_width");
     check_equal(data_src.height, 1, "input_height");
@@ -126,29 +126,23 @@ begin
   end process;
 
   data_check_process : process
-    variable i, v_ch_parallel, v_ch : integer;
+    variable i, v_ch : integer;
   begin
     wait until rising_edge(sl_clk);
     data_check_done <= false;
     wait until rising_edge(sl_clk);
 
-    if C_PARALLEL = 0 then
-      v_ch_parallel := 1;
-    else
-      v_ch_parallel := C_CH;
-    end if;
-
     for r in 0 to C_REPEAT-1 loop
-      for para_factor in 0 to C_CH/v_ch_parallel-1 loop
+      for para_factor in 0 to C_CH/C_PARALLEL_CH-1 loop
         wait until rising_edge(sl_clk) and sl_valid_out = '1';
-        for ch in 0 to v_ch_parallel-1 loop
+        for ch in 0 to C_PARALLEL_CH-1 loop
           v_ch := para_factor + ch;
           for x in 0 to C_KSIZE-1 loop
             for y in 0 to C_KSIZE-1 loop
               i := C_KSIZE*C_KSIZE*C_CH*r + C_KSIZE*C_KSIZE*v_ch + C_KSIZE*y + x;
               report "repeat: " & to_string(r) & " ch: " & to_string(v_ch) & " x: " & to_string(x) & " y: " & to_string(y) &
                     " data: " & to_string(get(data_ref, i));
-              if C_PARALLEL = 0 then
+              if C_PARALLEL_CH = 1 then
                 check_equal(a_data_out(0)(x, y), get(data_ref, i));
               else
                 check_equal(a_data_out(v_ch)(x, y), get(data_ref, i));

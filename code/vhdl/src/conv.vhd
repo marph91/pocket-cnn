@@ -23,21 +23,19 @@ entity conv is
     C_KSIZE           : integer range 1 to 3 := 3;
     C_BIAS_INIT       : string := "";
 
-    C_PARALLEL        : integer range 0 to 1 := 0
+    C_PARALLEL_CH     : integer range 1 to 512 := 1
   );
   port (
     isl_clk       : in std_logic;
     isl_valid     : in std_logic;
-    ia_data       : in t_kernel_array(0 to C_PARALLEL*(C_CH_IN-1))(0 to C_KSIZE-1, 0 to C_KSIZE-1);
-    ia_weights    : in t_kernel_array(0 to C_PARALLEL*(C_CH_IN-1))(0 to C_KSIZE-1, 0 to C_KSIZE-1);
+    ia_data       : in t_kernel_array(0 to C_PARALLEL_CH-1)(0 to C_KSIZE-1, 0 to C_KSIZE-1);
+    ia_weights    : in t_kernel_array(0 to C_PARALLEL_CH-1)(0 to C_KSIZE-1, 0 to C_KSIZE-1);
     oslv_data     : out std_logic_vector(C_DATA_TOTAL_BITS-1 downto 0);
     osl_valid     : out std_logic
   );
 end conv;
 
 architecture behavioral of conv is
-  constant C_PARALLEL_CH : integer := C_PARALLEL*C_CH_IN + 1-C_PARALLEL;
-
   -- +log2(C_CH_IN)-1 because all C_CH_IN are summed up -> broaden data width to avoid overflow
   -- new bitwidth = log2(C_CH_IN*(2^old bitwidth-1)) = log2(C_CH_IN) + old bitwidth -> new bw = lb(64) + 8 = 14
   constant C_SUM_TOTAL_BITS : integer range 1 to 32 := C_DATA_TOTAL_BITS+C_WEIGHTS_TOTAL_BITS+1+log2(C_KSIZE-1)*2+log2(C_CH_IN)+C_FIRST_STAGE;

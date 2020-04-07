@@ -30,21 +30,22 @@ def create_test_suite(prj):
     unittest.add_source_files(join(root, "*.vhd"))
     tb_channel_repeater = unittest.entity("tb_channel_repeater")
 
-    for ksize, para in itertools.product((1, 2, 3), (0, 1)):
+    for ksize in (1, 2, 3):
         total_bits = 8
-        channel_in = randint(1, 16)  # TODO: test larger values in nightly runs
+        channel_in = randint(1, 16)
         channel_out = randint(1, 16)
 
-        generics = {"C_DATA_WIDTH": total_bits,
-                    "C_CH": channel_in,
-                    "C_REPEAT": channel_out,
-                    "C_KSIZE": ksize,
-                    "C_PARALLEL": para}
-        tb_channel_repeater.add_config(
-            name=f"dim={ksize}_{para}",
-            generics=generics,
-            pre_config=create_stimuli(root, ksize, total_bits,
-                                      channel_in, channel_out, para))
+        for para in (1,)*(channel_in > 1) + (channel_in,):
+            generics = {"C_DATA_WIDTH": total_bits,
+                        "C_CH": channel_in,
+                        "C_REPEAT": channel_out,
+                        "C_KSIZE": ksize,
+                        "C_PARALLEL_CH": para}
+            tb_channel_repeater.add_config(
+                name=f"dim_{ksize}_para_{para}",
+                generics=generics,
+                pre_config=create_stimuli(root, ksize, total_bits,
+                                          channel_in, channel_out, para))
 
 
 if __name__ == "__main__":
