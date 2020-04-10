@@ -133,20 +133,17 @@ begin
     wait until rising_edge(sl_clk);
 
     for r in 0 to C_REPEAT-1 loop
-      for para_factor in 0 to C_CH/C_PARALLEL_CH-1 loop
+      for cycle in 0 to C_CH/C_PARALLEL_CH-1 loop
         wait until rising_edge(sl_clk) and sl_valid_out = '1';
         for ch in 0 to C_PARALLEL_CH-1 loop
-          v_ch := para_factor + ch;
+          v_ch := cycle*C_PARALLEL_CH + ch;
+          report to_string(cycle) & " " & to_string(C_CH/C_PARALLEL_CH) & " " & to_string(ch);
           for x in 0 to C_KSIZE-1 loop
             for y in 0 to C_KSIZE-1 loop
               i := C_KSIZE*C_KSIZE*C_CH*r + C_KSIZE*C_KSIZE*v_ch + C_KSIZE*y + x;
               report "repeat: " & to_string(r) & " ch: " & to_string(v_ch) & " x: " & to_string(x) & " y: " & to_string(y) &
-                    " data: " & to_string(get(data_ref, i));
-              if C_PARALLEL_CH = 1 then
-                check_equal(a_data_out(0)(x, y), get(data_ref, i));
-              else
-                check_equal(a_data_out(v_ch)(x, y), get(data_ref, i));
-              end if;
+                     " data: " & to_string(get(data_ref, i));
+              check_equal(a_data_out(ch)(x, y), get(data_ref, i));
             end loop;
           end loop;
         end loop;

@@ -33,7 +33,7 @@ architecture behavior of channel_repeater is
   signal a_ch : t_kernel_array(0 to C_CH-1)(0 to C_KSIZE-1, 0 to C_KSIZE-1) := (others => (others => (others => (others => '0'))));
 
 begin
-  assert C_CH mod C_PARALLEL_CH = 0 report "invalid parallelization factor " & to_string(C_PARALLEL_CH);
+  assert (C_CH mod C_PARALLEL_CH = 0) report "invalid parallelization factor " & to_string(C_PARALLEL_CH);
 
   gen_data : if C_PARALLEL_CH = 1 generate
     -- isl_valid and osl_valid can be active at the same time,

@@ -35,8 +35,8 @@ entity top is
     C_WEIGHTS_INIT : t_str_array_1d(1 to C_PE)(1 to C_STR_LENGTH);
     C_BIAS_INIT : t_str_array_1d(1 to C_PE)(1 to C_STR_LENGTH);
 
-    -- full intra kernel parallelization
-    C_PARALLEL_CH : t_int_array_1d(1 to C_PE)
+    -- intra kernel parallelization
+    C_PARALLEL_CH : t_int_array_1d(1 to C_PE) := (others => 1)
   );
   port (
     isl_clk     : in std_logic;

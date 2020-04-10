@@ -42,10 +42,21 @@ def create_test_suite(prj):
                         "C_KSIZE": ksize,
                         "C_PARALLEL_CH": para}
             tb_channel_repeater.add_config(
-                name=f"dim_{ksize}_para_{para}",
+                name=f"dim_{ksize}_ch_in_{channel_in}_para_{para}",
                 generics=generics,
                 pre_config=create_stimuli(root, ksize, total_bits,
                                           channel_in, channel_out, para))
+
+        if ksize == 1:
+            channel_in = 32
+            for para in (2, 4, 8, 16):
+                generics["C_PARALLEL_CH"] = para
+                generics["C_CH"] = channel_in
+                tb_channel_repeater.add_config(
+                    name=f"dim_{ksize}_ch_in_{channel_in}_para_{para}",
+                    generics=generics,
+                    pre_config=create_stimuli(root, ksize, total_bits,
+                                              channel_in, channel_out, para))
 
 
 if __name__ == "__main__":
