@@ -36,7 +36,7 @@ entity tb_top is
     C_WEIGHTS_INIT    : string;
     C_BIAS_INIT       : string;
 
-    C_PARALLEL        : integer range 0 to 1
+    C_PARALLEL_CH     : string
   );
 end tb_top;
 
@@ -146,7 +146,7 @@ begin
     C_WEIGHTS_INIT => decode_string_array(C_WEIGHTS_INIT),
     C_BIAS_INIT => decode_string_array(C_BIAS_INIT),
 
-    C_PARALLEL => C_PARALLEL
+    C_PARALLEL_CH => decode_integer_array(C_PARALLEL_CH, 1)
   )
   port map (
     isl_clk     => sl_clk,

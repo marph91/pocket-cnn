@@ -106,6 +106,7 @@ def create_test_suite(prj):
         bitwidth = "; ".join([", ".join(str(item) for item in inner)
                               for inner in params["bitwidth"]])
 
+        para_tmp = [ch * para + 1 - para for ch in params["channel"][:-1]]
         generics = {
             "C_DATA_TOTAL_BITS": params["bitwidth"][0][0],
             "C_FOLDER": test_case_name,  # TODO: find a better way
@@ -124,6 +125,7 @@ def create_test_suite(prj):
             "C_STR_LENGTH": params["len_weights"],
             "C_WEIGHTS_INIT": ", ".join(weights),
             "C_BIAS_INIT": ", ".join(bias),
+            "C_PARALLEL_CH": ", ".join(map(str, para_tmp)),
         }
         tb_top.add_config(name=test_case_name + "_para" * para,
                           generics=generics,

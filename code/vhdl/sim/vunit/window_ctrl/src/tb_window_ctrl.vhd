@@ -30,7 +30,7 @@ entity tb_window_ctrl is
     C_KSIZE           : integer;
     C_STRIDE          : integer;
 
-    C_PARALLEL        : integer := 0
+    C_PARALLEL_CH     : integer := 1
   );
 end entity;
 
@@ -38,7 +38,7 @@ architecture tb of tb_window_ctrl is
   signal sl_clk : std_logic := '0';
   signal sl_valid_in : std_logic := '0';
   signal slv_data_in : std_logic_vector(C_DATA_TOTAL_BITS-1 downto 0) := (others => '0');
-  signal a_data_out : t_kernel_array(0 to C_PARALLEL*(C_CH_IN-1))(0 to C_KSIZE-1, 0 to C_KSIZE-1);
+  signal a_data_out : t_kernel_array(0 to C_PARALLEL_CH-1)(0 to C_KSIZE-1, 0 to C_KSIZE-1);
   signal sl_valid_out : std_logic := '0';
   signal sl_rdy : std_logic := '0';
 

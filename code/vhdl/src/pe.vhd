@@ -30,7 +30,7 @@ entity pe is
     C_WEIGHTS_INIT    : string := "";
     C_BIAS_INIT       : string := "";
 
-    C_PARALLEL        : integer range 0 to 1 := 1
+    C_PARALLEL_CH     : integer range 1 to 512 := 1
   );
   port (
     isl_clk   : in std_logic;
@@ -45,8 +45,6 @@ entity pe is
 end pe;
 
 architecture behavioral of pe is
-  constant C_PARALLEL_CH : integer := C_PARALLEL*C_CH_IN + 1-C_PARALLEL;
-
   -- padding
   signal slv_pad_data_out : std_logic_vector(C_DATA_TOTAL_BITS-1 downto 0);
   signal sl_pad_valid_out : std_logic := '0';

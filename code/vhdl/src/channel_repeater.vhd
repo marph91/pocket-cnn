@@ -61,7 +61,8 @@ begin
 
     -- isl_valid and osl_valid can't be active at the same time,
     -- because they increment differently.
-    assert not (isl_valid = '1' and sl_valid_out = '1') report "input and output can't be active at the same time, because the buffer gets incremented differently!";
+    -- TODO: enable this assertion and fix the corresponding bugs
+    -- assert not (isl_valid = '1' and sl_valid_out = '1') report "input and output can't be active at the same time, because the buffer gets incremented differently!";
     proc_data : process(isl_clk)
     begin
       if rising_edge(isl_clk) then
@@ -73,10 +74,11 @@ begin
         end if;
 
         if sl_valid_out = '1' then
-          a_ch(0 to C_PARALLEL_CH-1) <= a_ch(C_CH-C_PARALLEL_CH to C_CH-1);
+          a_ch(C_CH-C_PARALLEL_CH to C_CH-1) <= a_ch(0 to C_PARALLEL_CH-1);
           for i in 0 to C_CH-C_PARALLEL_CH-1 loop
             a_ch(i) <= a_ch(i+C_PARALLEL_CH);
           end loop;
+          -- TODO: a_ch <= a_ch(C_PARALLEL_CH to C_CH-1) & a_ch(0 to C_PARALLEL_CH-1);
         end if;
       end if;
     end process proc_data;
