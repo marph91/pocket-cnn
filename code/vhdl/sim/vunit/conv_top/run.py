@@ -17,12 +17,12 @@ def create_stimuli(root, ksize, stride,
                    frac_bits_data_out,
                    total_bits_weight, frac_bits_weight,
                    channel_in, channel_out,
-                   width, height, para):
+                   width, height):
     int_bits_data_in = total_bits_data - frac_bits_data_in
     int_bits_data_out = total_bits_data - frac_bits_data_out
     a_rand = np.random.randint(256, size=(1, channel_in, height, width),
                                dtype=np.uint8)
-    np.savetxt(join(root, "gen", "input_%d_%d_%d.csv" % (ksize, stride, para)),
+    np.savetxt(join(root, "gen", f"input_{ksize}_{stride}_{channel_in}.csv"),
                flatten(a_rand), delimiter=", ", fmt="%3d")
 
     int_bits_weight = total_bits_weight - frac_bits_weight
@@ -38,7 +38,7 @@ def create_stimuli(root, ksize, stride,
     weights_to_files(
         a_weights_rand / scale, a_bias_rand / scale,
         (int_bits_weight, frac_bits_weight),
-        "conv_%d_%d_%d" % (ksize, stride, para), join(root, "gen"))
+        f"conv_{ksize}_{stride}_{channel_in}", join(root, "gen"))
 
     # assign the outputs
     conv_out = conv(
@@ -46,7 +46,7 @@ def create_stimuli(root, ksize, stride,
         (int_bits_data_in, frac_bits_data_in,
          int_bits_data_out, frac_bits_data_out,
          int_bits_weight, frac_bits_weight))
-    filename = join(root, "gen", "output_%d_%d_%d.csv" % (ksize, stride, para))
+    filename = join(root, "gen", f"output_{ksize}_{stride}_{channel_in}.csv")
     with open(filename, "w") as outfile:
         np.savetxt(outfile, flatten(conv_out), delimiter=", ", fmt="%3d")
 
@@ -77,16 +77,12 @@ def create_test_suite(prj):
         width = randint(ksize, 16)
         height = randint(ksize, 16)
 
-        for para in (1,) * (channel_in > 1) + (channel_in,):
-            if para == 1 and not (ksize in [1, 3] and stride == 1):
-                # only run specific cases in "non" parallel mode
-                continue
+        weights_file = join(os.getcwd(), root, "gen",
+                            f"W_conv_{ksize}_{stride}_{channel_in}.txt")
+        bias_file = join(os.getcwd(), root, "gen",
+                         f"B_conv_{ksize}_{stride}_{channel_in}.txt")
 
-            weights_file = join(os.getcwd(), root, "gen",
-                                "W_conv_%d_%d_%d.txt" % (ksize, stride, para))
-            bias_file = join(os.getcwd(), root, "gen",
-                             "B_conv_%d_%d_%d.txt" % (ksize, stride, para))
-
+        for channel_para in (1,) * (channel_in > 1) + (channel_in,):
             # TODO: add test for first stage
             #       functionality is already ensured by toplevel tests and
             #       partially by mm test
@@ -105,16 +101,46 @@ def create_test_suite(prj):
                         "C_STRIDE": stride,
                         "C_WEIGHTS_INIT": weights_file,
                         "C_BIAS_INIT": bias_file,
-                        "C_PARALLEL_CH": para}
+                        "C_PARALLEL_CH": channel_para}
+
+            # Only create new stimuli if the config changes. Changes in the
+            # parallelization don't affect the calculations.
+            pre_config = create_stimuli(
+                root, ksize, stride,
+                total_bits_data, frac_bits_data_in, frac_bits_data_out,
+                total_bits_weight, frac_bits_weight,
+                channel_in, channel_out,
+                width, height) if channel_para == 1 else None
             tb_conv_top.add_config(
-                name=f"stage={stage}_dim_{ksize}_stride_{stride}_para_{para}",
+                name=(f"stage_{stage}_dim_{ksize}_stride_{stride}" +
+                      f"_ch_in_{channel_in}_para_{channel_para}"),
                 generics=generics,
-                pre_config=create_stimuli(
+                pre_config=pre_config)
+
+        channel_in = 32
+        if ksize == 1 and stride == 1:
+            weights_file = join(os.getcwd(), root, "gen",
+                                f"W_conv_{ksize}_{stride}_{channel_in}.txt")
+            bias_file = join(os.getcwd(), root, "gen",
+                             f"B_conv_{ksize}_{stride}_{channel_in}.txt")
+            for channel_para in (1, 2, 4, 8, 16, 32):
+                generics.update({
+                    "C_CH_IN": channel_in,
+                    "C_WEIGHTS_INIT": weights_file,
+                    "C_BIAS_INIT": bias_file,
+                    "C_PARALLEL_CH": channel_para,
+                })
+                pre_config = create_stimuli(
                     root, ksize, stride,
                     total_bits_data, frac_bits_data_in, frac_bits_data_out,
                     total_bits_weight, frac_bits_weight,
-                    channel_in, channel_out, width, height,
-                    para))
+                    channel_in, channel_out,
+                    width, height) if channel_para == 2 else None
+                tb_conv_top.add_config(
+                    name=(f"stage={stage}_dim_{ksize}_stride_{stride}" +
+                          f"_ch_in_{channel_in}_para_{channel_para}"),
+                    generics=generics,
+                    pre_config=pre_config)
 
 
 if __name__ == "__main__":

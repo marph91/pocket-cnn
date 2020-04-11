@@ -119,8 +119,8 @@ begin
       sl_mm_valid_out_d1 <= sl_mm_valid_out(0);
 
       if sl_mm_valid_out(0) = '1' then
-        if C_PARALLEL_CH = 1 and int_mm_out_cnt < C_CH_IN-1 then
-          int_mm_out_cnt <= int_mm_out_cnt+1;
+        if int_mm_out_cnt < C_CH_IN-C_PARALLEL_CH then
+          int_mm_out_cnt <= int_mm_out_cnt+C_PARALLEL_CH;
         else
           int_mm_out_cnt <= 0;
 

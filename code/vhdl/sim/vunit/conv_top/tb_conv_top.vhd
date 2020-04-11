@@ -111,8 +111,10 @@ begin
             to_string(C_DATA_FRAC_BITS_IN) & " " &
             to_string(C_WEIGHTS_TOTAL_BITS) & " " &
             to_string(C_WEIGHTS_FRAC_BITS));
-    data_src := load_csv(tb_path(runner_cfg) & "gen/input_" & to_string(C_KSIZE) & "_" & to_string(C_STRIDE) & "_" & to_string(C_PARALLEL_CH) & ".csv");
-    data_ref := load_csv(tb_path(runner_cfg) & "gen/output_" & to_string(C_KSIZE) & "_" & to_string(C_STRIDE) & "_" & to_string(C_PARALLEL_CH) & ".csv");
+    data_src := load_csv(tb_path(runner_cfg) & "gen/input_" & to_string(C_KSIZE) & "_" & to_string(C_STRIDE) & "_" &
+                         to_string(C_CH_IN) & ".csv");
+    data_ref := load_csv(tb_path(runner_cfg) & "gen/output_" & to_string(C_KSIZE) & "_" & to_string(C_STRIDE) & "_" &
+                         to_string(C_CH_IN) & ".csv");
 
     check_equal(data_src.width, C_IMG_WIDTH*C_IMG_HEIGHT*C_CH_IN, "input_width");
     check_equal(data_src.height, 1, "input_height");

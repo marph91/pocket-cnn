@@ -137,7 +137,6 @@ begin
         wait until rising_edge(sl_clk) and sl_valid_out = '1';
         for ch in 0 to C_PARALLEL_CH-1 loop
           v_ch := cycle*C_PARALLEL_CH + ch;
-          report to_string(cycle) & " " & to_string(C_CH/C_PARALLEL_CH) & " " & to_string(ch);
           for x in 0 to C_KSIZE-1 loop
             for y in 0 to C_KSIZE-1 loop
               i := C_KSIZE*C_KSIZE*C_CH*r + C_KSIZE*C_KSIZE*v_ch + C_KSIZE*y + x;

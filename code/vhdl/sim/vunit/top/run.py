@@ -69,7 +69,7 @@ def create_test_suite(prj):
         # cnn_onnx.model_zoo.conv_2x_3x1_1x1_max_2x2_padding,
         # cnn_onnx.model_zoo.conv_2x_3x1_1x1_max_2x2_mt
     )
-    for test_cnn, para in itertools.product(test_cnns, (0, 1)):
+    for test_cnn, para_full in itertools.product(test_cnns, (0, 1)):
         test_case_name = test_cnn.__name__
         test_case_root = join(root, "src", test_case_name)
         os.makedirs(test_case_root, exist_ok=True)
@@ -106,7 +106,10 @@ def create_test_suite(prj):
         bitwidth = "; ".join([", ".join(str(item) for item in inner)
                               for inner in params["bitwidth"]])
 
-        para_tmp = [ch * para + 1 - para for ch in params["channel"][:-1]]
+        # parallelization is always corresponding to input channels
+        para_per_pe = [str(ch * para_full + 1 - para_full)
+                       for ch in params["channel"][:-1]]
+
         generics = {
             "C_DATA_TOTAL_BITS": params["bitwidth"][0][0],
             "C_FOLDER": test_case_name,  # TODO: find a better way
@@ -125,13 +128,22 @@ def create_test_suite(prj):
             "C_STR_LENGTH": params["len_weights"],
             "C_WEIGHTS_INIT": ", ".join(weights),
             "C_BIAS_INIT": ", ".join(bias),
-            "C_PARALLEL_CH": ", ".join(map(str, para_tmp)),
+            "C_PARALLEL_CH": ", ".join(para_per_pe),
         }
-        tb_top.add_config(name=test_case_name + "_para" * para,
+        tb_top.add_config(name=test_case_name + "_para_full" * para_full,
                           generics=generics,
                           pre_config=create_stimuli(
                               join(root, "src", test_case_name),
                               "cnn_model.onnx"))
+
+        # add an extra parallelization test for the baseline model
+        if test_case_name == "conv_3x1_1x1_max_2x2" and para_full == 0:
+            generics["C_PARALLEL_CH"] = "1, 2"
+            tb_top.add_config(
+                name=test_case_name + "_para_half",
+                generics=generics,
+                pre_config=create_stimuli(
+                    join(root, "src", test_case_name), "cnn_model.onnx"))
 
 
 if __name__ == "__main__":
