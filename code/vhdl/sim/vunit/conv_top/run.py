@@ -123,7 +123,7 @@ def create_test_suite(prj):
                                 f"W_conv_{ksize}_{stride}_{channel_in}.txt")
             bias_file = join(os.getcwd(), root, "gen",
                              f"B_conv_{ksize}_{stride}_{channel_in}.txt")
-            for channel_para in (1, 2, 4, 8, 16, 32):
+            for channel_para in (2, 4, 8, 16):
                 generics.update({
                     "C_CH_IN": channel_in,
                     "C_WEIGHTS_INIT": weights_file,
