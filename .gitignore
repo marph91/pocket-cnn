@@ -1,6 +1,7 @@
 # external configs (dolphin and vscode)
 .directory
 .vscode
+.markdownlint.json
 
 # python related files
 *.pyc

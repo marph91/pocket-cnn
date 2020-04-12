@@ -20,7 +20,7 @@ entity conv_top is
     C_IMG_WIDTH       : integer range 1 to 512 := 32;
     C_IMG_HEIGHT      : integer range 1 to 512 := 32;
 
-    C_KSIZE           : integer range 1 to 3 := 3;
+    C_KSIZE           : integer range 1 to 5 := 3;
     C_STRIDE          : integer range 1 to 3 := 1;
     C_WEIGHTS_INIT    : string := "";
     C_BIAS_INIT       : string := "";

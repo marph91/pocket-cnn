@@ -1,6 +1,5 @@
-"""Run the testbench of the "window_ctrl" module."""
+"""Run the testbench of the "channel_repeater" module."""
 
-import itertools
 import os
 from os.path import join, dirname
 from random import randint

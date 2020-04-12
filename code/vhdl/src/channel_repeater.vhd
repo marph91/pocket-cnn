@@ -10,7 +10,7 @@ entity channel_repeater is
 
     C_CH          : integer range 1 to 512 := 16;
     C_REPEAT      : integer range 1 to 512 := 32;
-    C_KSIZE       : integer range 1 to 3 := 3;
+    C_KSIZE       : integer range 1 to 5 := 3;
 
     C_PARALLEL_CH : integer range 1 to 512 := 1
   );

@@ -18,6 +18,9 @@ def conv_3x1_1x1_max_2x2():
     return graph_gen.get_model("cnn", (1, 1, 6, 6), (1, 8, 1, 1))
 
 
+# models to test specific configurations and layers
+
+
 def conv_3x1_1x1_max_2x2_leaky_relu():
     """Baseline model with one leaky relu."""
     graph_gen = gg.GraphGenerator()
@@ -196,6 +199,21 @@ def conv_3x1_1x1_max_2x2_padding():
     graph_gen.add(gg.make_relu, "relu2")
     graph_gen.add(gg.make_pool_ave, "ave1")
     return graph_gen.get_model("cnn", (1, 1, 4, 4), (1, 8, 1, 1))
+
+
+def conv_5x1_1x1_max_2x2():
+    """size: 8x8 -> 4x4 -> 2x2"""
+    graph_gen = gg.GraphGenerator()
+    graph_gen.add(gg.make_conv_quant, "conv1", 1, 4, (5, 1, 0))
+    graph_gen.add(gg.make_relu, "relu1")
+    graph_gen.add(gg.make_pool_max, "max1", 2, 2)
+    graph_gen.add(gg.make_conv_quant, "conv2", 4, 8, (1, 1, 0))
+    graph_gen.add(gg.make_relu, "relu2")
+    graph_gen.add(gg.make_pool_ave, "ave1")
+    return graph_gen.get_model("cnn", (1, 1, 8, 8), (1, 8, 1, 1))
+
+
+# larger models to test stacking of layers and general behaviour
 
 
 def conv_4x3x1_1x1():

@@ -16,7 +16,7 @@ entity mm is
     C_WEIGHTS_TOTAL_BITS  : integer range 1 to 16 := 8;
     C_WEIGHTS_FRAC_BITS   : integer range 0 to 16 := 4;
 
-    C_KSIZE               : integer range 1 to 3 := 3
+    C_KSIZE               : integer range 1 to 5 := 3
   );
   port (
     isl_clk       : in std_logic;
@@ -66,13 +66,13 @@ architecture behavioral of mm is
 
 begin
   -------------------------------------------------------
-  -- Process: Convolution (3x3 / 2x2 / 1x1)
+  -- Process: Convolution
   -- Stage 1: Load Weights and Data
   -- Stage 2: 3x3 / 2x2 / 1x1 Mult
   -- Stage 3: Pipeline DSP output
   -- Stage 4: Resize
-  -- Stage 5: 2x / 1x / 1x Add (add columns)
-  -- Stage 6: 2x / 1x / 1x Add (add rows; theoretically not needed for 1x1 conv)
+  -- Stage 5: Add columns
+  -- Stage 6: Add rows; theoretically not needed for 1x1 conv
   -------------------------------------------------------
   gen_input_type : if C_FIRST_STAGE = 1 generate
     -- TODO: For the first stage, input data is taken as ufixed to obtain the full 8 bit of image data.

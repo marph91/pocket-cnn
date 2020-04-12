@@ -10,7 +10,7 @@ entity window_buffer is
 
     C_CH          : integer range 1 to 512 := 4;
 
-    C_KSIZE       : integer range 1 to 3 := 3
+    C_KSIZE       : integer range 1 to 5 := 3
   );
   port(
     isl_clk     : in std_logic;

@@ -64,6 +64,7 @@ def create_test_suite(prj):
         # cnn_onnx.model_zoo.conv_3x2_1x1_max_2x1_padding,
         cnn_onnx.model_zoo.conv_2x1_1x1_max_3x2,
         cnn_onnx.model_zoo.conv_3x3_2x2_1x1,
+        cnn_onnx.model_zoo.conv_5x1_1x1_max_2x2,
         # cnn_onnx.model_zoo.conv_4x3x1_1x1,
         cnn_onnx.model_zoo.conv_2x_3x1_1x1_max_2x2,
         # cnn_onnx.model_zoo.conv_2x_3x1_1x1_max_2x2_padding,

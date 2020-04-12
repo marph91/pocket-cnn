@@ -20,7 +20,7 @@ entity conv is
     C_CH_IN           : integer range 1 to 512 := 4;
     C_CH_OUT          : integer range 1 to 512 := 8;
 
-    C_KSIZE           : integer range 1 to 3 := 3;
+    C_KSIZE           : integer range 1 to 5 := 3;
     C_BIAS_INIT       : string := "";
 
     C_PARALLEL_CH     : integer range 1 to 512 := 1

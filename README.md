@@ -45,13 +45,13 @@ python3 run_all.py
 
 ### Supported layers
 
-| Layer | Properties | Limitations |
-| :---: | :---: | :---: |
-| Convolution | Kernel: 1x1, 2x2, 3x3, Stride: 1, 2, 3 | Quantization of the activations and weights: Scale has to be power of two, zero point has to be zero. |
-| Maximum Pooling | Kernel: 2x2, 3x3, Stride: 1, 2, 3 | - |
-| Global Average Pooling | - | The averaging factor is quantized to the 16 bit fixed point value of `1 / height * width`. |
-| Zero Padding | - | The padding has to be the same at each edge. |
-| (Leaky) ReLU | - | Leaky ReLU has a fixed alpha of 0.125 |
+| Layer | <center>Properties</center> | <center>Limitations</center> |
+| :---: | :--- | :--- |
+| Convolution | <ul><li>Kernel: 1x1, 2x2, 3x3, 5x5</li><li>Stride: 1, 2, 3</li></ul> | Quantization of the activations and weights: Scale has to be power of two, zero point has to be zero. |
+| Maximum Pooling | <ul><li>Kernel: 2x2, 3x3</li><li>Stride: 1, 2, 3</li></ul> | <center>-</center> |
+| Global Average Pooling | <center>-</center> | The averaging factor is quantized to the 16 bit fixed point value of `1 / height * width`. |
+| Zero Padding | <center>-</center> | The padding has to be the same at each edge. |
+| (Leaky) ReLU | <center>-</center> | Leaky ReLU has a fixed alpha of 0.125 |
 
 ## TODO
 

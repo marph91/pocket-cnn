@@ -60,7 +60,7 @@ def create_test_suite(prj):
     unittest.add_source_files(join(root, "*.vhd"))
     tb_conv_top = unittest.entity("tb_conv_top")
 
-    for ksize, stride in itertools.product((1, 2, 3), (1, 2, 3)):
+    for ksize, stride in itertools.product((1, 2, 3, 5), (1, 2, 3)):
         if stride > ksize:  # this case doesn't make sense
             continue
 

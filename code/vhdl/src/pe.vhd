@@ -20,7 +20,7 @@ entity pe is
     C_CH_IN           : integer range 1 to 512 := 1;
     C_CH_OUT          : integer range 1 to 512 := 16;
 
-    C_CONV_KSIZE      : integer range 1 to 3 := 3;
+    C_CONV_KSIZE      : integer range 1 to 5 := 3;
     C_CONV_STRIDE     : integer range 1 to 3 := 3;
     C_POOL_KSIZE      : integer range 0 to 3 := 2;
     C_POOL_STRIDE     : integer range 0 to 3 := 2;

@@ -29,7 +29,6 @@
   - 2x2 avg pool (local, global)
   - softmax
   - tanh activation
-  - 5x5 convolution
   - batchnorm
   - stem, inception, resnet
 - figure out if/how "bigger" nets could be synthesized, like lenet/squeezenet/mobilenet
