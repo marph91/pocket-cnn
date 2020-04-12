@@ -17,7 +17,7 @@ jobs:
         run: |
           export PYTHONPATH="$(pwd)/code/python_tools"
           cd code/vhdl/sim/vunit
-          python3 run_all.py
+          python3 run_all.py -p4
       - uses: codecov/codecov-action@v1
         with:
           file: code/vhdl/sim/vunit/coverage.info
