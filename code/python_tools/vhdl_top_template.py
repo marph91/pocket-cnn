@@ -14,6 +14,7 @@ def vhdl_top_template(param: dict, output_file: str) -> None:
     pelem = param["pe"]
     conv_names = param["conv_names"]
     bitwidth = param["bitwidth"]
+    parallel_channel_default = ["1"] * pelem
 
     # prepare some param strings
     bws, weight_dirs, bias_dirs = "", "", ""
@@ -72,8 +73,9 @@ begin\n\
     C_WEIGHTS_INIT => (\n\
 {weight_dirs}      \"{param['weight_dir']}/W_{conv_names[pelem-1]}.txt\"),\n\
     C_BIAS_INIT => (\n\
-{bias_dirs}      \"{param['weight_dir']}/B_{conv_names[pelem-1]}.txt\"),\n\
-    C_PARALLEL => 1\n\
+{bias_dirs} \"{param['weight_dir']}/B_{conv_names[pelem-1]}.txt\"),\n\
+    -- intra kernel parallelization\n\
+    C_PARALLEL_CH => (" + ", ".join(parallel_channel_default) + ")\n\
   )\n\
   port map (\n\
     isl_clk     => isl_clk,\n\

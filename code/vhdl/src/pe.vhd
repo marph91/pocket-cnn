@@ -30,7 +30,7 @@ entity pe is
     C_WEIGHTS_INIT    : string := "";
     C_BIAS_INIT       : string := "";
 
-    C_PARALLEL        : integer range 0 to 1 := 1
+    C_PARALLEL_CH     : integer range 1 to 512 := 1
   );
   port (
     isl_clk   : in std_logic;
@@ -159,7 +159,7 @@ begin
     C_WEIGHTS_INIT    => C_WEIGHTS_INIT,
     C_BIAS_INIT       => C_BIAS_INIT,
 
-    C_PARALLEL        => C_PARALLEL
+    C_PARALLEL_CH     => C_PARALLEL_CH
   )
   port map(
     isl_clk   => isl_clk,

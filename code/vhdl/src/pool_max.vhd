@@ -29,17 +29,17 @@ architecture behavioral of pool_max is
   signal sl_output_valid : std_logic := '0';
   signal slv_data_out : std_logic_vector(C_TOTAL_BITS-1 downto 0);
 
-  signal a_max_tmp : t_sfix_array_1d(0 to C_KSIZE-1)(C_INT_BITS-1 downto -C_FRAC_BITS) := (others => (others => '0'));
+  signal a_column_max : t_sfix_array_1d(0 to C_KSIZE-1)(C_INT_BITS-1 downto -C_FRAC_BITS) := (others => (others => '0'));
 
 begin
   -------------------------------------------------------
   -- Process: Maximum Pooling (3x3 / 2x2)
-  -- Stage 1: 2x / 1x compare
-  -- Stage 2: 2x / 1x compare
+  -- Stage 1: 2x / 1x compare (max of rows)
+  -- Stage 2: 2x / 1x compare (max of columns)
   -------------------------------------------------------
   process(isl_clk)
-    variable v_a_current_max : t_sfix_array_1d(0 to C_KSIZE-1)(C_INT_BITS-1 downto -C_FRAC_BITS);
-    variable v_sfix_current_max_tmp : sfixed(C_INT_BITS-1 downto -C_FRAC_BITS);
+    variable v_a_column_max : t_sfix_array_1d(0 to C_KSIZE-1)(C_INT_BITS-1 downto -C_FRAC_BITS);
+    variable v_sfix_full_max : sfixed(C_INT_BITS-1 downto -C_FRAC_BITS);
     variable v_sfix_new_value : sfixed(C_INT_BITS-1 downto -C_FRAC_BITS);
   begin
     if rising_edge(isl_clk) then
@@ -49,22 +49,22 @@ begin
       -- Stage 1
       if isl_valid = '1' then
         for j in 0 to C_KSIZE-1 loop
-          v_a_current_max(j) := to_sfixed(ia_data(0, j), C_INT_BITS-1, -C_FRAC_BITS);
+          v_a_column_max(j) := to_sfixed(ia_data(0, j), C_INT_BITS-1, -C_FRAC_BITS);
           for i in 1 to C_KSIZE-1 loop
             v_sfix_new_value := to_sfixed(ia_data(i, j), C_INT_BITS-1, -C_FRAC_BITS);
-            v_a_current_max(j) := max(v_sfix_new_value, v_a_current_max(j));
+            v_a_column_max(j) := max(v_sfix_new_value, v_a_column_max(j));
           end loop;
         end loop;
-        a_max_tmp <= v_a_current_max;
+        a_column_max <= v_a_column_max;
       end if;
 
       -- Stage 2
       if isl_valid_d1 = '1' then
-        v_sfix_current_max_tmp := a_max_tmp(0);
+        v_sfix_full_max := a_column_max(0);
         for j in 1 to C_KSIZE-1 loop
-          v_sfix_current_max_tmp := max(a_max_tmp(j), v_sfix_current_max_tmp);
+          v_sfix_full_max := max(a_column_max(j), v_sfix_full_max);
         end loop;
-        slv_data_out <= to_slv(v_sfix_current_max_tmp);
+        slv_data_out <= to_slv(v_sfix_full_max);
       end if;
     end if;
   end process;
