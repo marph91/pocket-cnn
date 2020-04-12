@@ -3,13 +3,13 @@
 - Resolve the TODOs in the source code.
 - Add an end to end example of ressource usage and accuracy/loss for one model.
   - Probably Lenet on Mnist would be best suited.
+  - Run the created model on a real FPGA.
 
 ## Testing
 
 - Fix the failing models, which are commented in `code/vhdl/sim/vunit/top/run.py`.
 - Use a second simulator, f. e. modelsim or nvc.
 - Add more tests.
-- add code coverage
 - fix "NUMERIC_STD.TO_SIGNED: vector truncated" warnings
 - consider generics as namedtuple/dataclass
 - onnxruntime:
@@ -24,7 +24,6 @@
   - Consider using fixed latencies instead.
 - Add more layers:
   - fully connected layer
-  - fc
   - fire layer (squeezenet)
   - flatten
   - 2x2 avg pool (local, global)
@@ -33,13 +32,13 @@
   - 5x5 convolution
   - batchnorm
   - stem, inception, resnet
-- figure out how "bigger" net could be synthesized, like lenet/squeezenet/mobilenet
-- Check if CE is correctly implemented and useful at all. See <http://arantxa.ii.uam.es/~ivan/spl12-clock-gating.pdf>.
+- figure out if/how "bigger" nets could be synthesized, like lenet/squeezenet/mobilenet
+- Evaluate whether CE is needed. See <http://arantxa.ii.uam.es/~ivan/spl12-clock-gating.pdf>.
 - document used and possibly useful parallelism:
   - inter kernel parallelism &rarr; not possible, because kernel have to be applied pixel by pixel
   - inter layer parallelism &rarr; implemented as a pipeline
-  - inter output parallelism &rarr; implemented; apply multiple kernel to the same roi (also used at maximum pooling)
-  - intra kernel parallelism &rarr; implemented; calculate all kernel multiplications at the same time (C_PARALLEL=1 &rarr; all multiplications, C_PARALLEL=0 &rarr; only all multiplications of one channel)
+  - inter output parallelism &rarr; not implemented; apply multiple kernel to the same roi; would require large bram bandwidths for line buffer
+  - intra kernel parallelism &rarr; implemented; parametrize parallel channels (C_PARALLEL_CH=1 &rarr; all multiplications of one channel get calculated at once, C_PARALLEL_CH=C_CH &rarr; all multiplications of the kernel, i. e. all channels, get calculated at once)
 - consider redesign of the toplevel generics, requirements:
   - readability (layerwise structure?)
   - compatibility to json for vunit tests
