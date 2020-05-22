@@ -73,9 +73,3 @@ def create_test_suite(test_lib):
                                                    frac_bits_data,
                                                    total_bits_weight,
                                                    frac_bits_weight))
-
-
-if __name__ == "__main__":
-    UI = VUnit.from_argv()
-    create_test_suite(UI)
-    UI.main()

@@ -45,9 +45,3 @@ def create_test_suite(test_lib):
                            generics=generics,
                            pre_config=create_stimuli(root,
                                                      sample_cnt=sample_cnt))
-
-
-if __name__ == "__main__":
-    UI = VUnit.from_argv()
-    create_test_suite(UI)
-    UI.main()

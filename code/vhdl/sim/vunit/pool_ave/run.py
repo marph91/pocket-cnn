@@ -38,9 +38,3 @@ def create_test_suite(test_lib):
                            pre_config=create_stimuli(root, width, height,
                                                      channel, total_bits,
                                                      frac_bits))
-
-
-if __name__ == "__main__":
-    UI = VUnit.from_argv()
-    create_test_suite(UI)
-    UI.main()

@@ -40,9 +40,3 @@ def create_test_suite(test_lib):
                                          "C_IMG_DEPTH": channel},
                                pre_config=create_arrays(root, width, height,
                                                         channel))
-
-
-if __name__ == "__main__":
-    UI = VUnit.from_argv()
-    create_test_suite(UI)
-    UI.main()

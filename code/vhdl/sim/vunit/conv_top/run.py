@@ -138,9 +138,3 @@ def create_test_suite(test_lib):
                           f"_ch_in_{channel_in}_para_{channel_para}"),
                     generics=generics,
                     pre_config=pre_config)
-
-
-if __name__ == "__main__":
-    UI = VUnit.from_argv()
-    create_test_suite(UI)
-    UI.main()

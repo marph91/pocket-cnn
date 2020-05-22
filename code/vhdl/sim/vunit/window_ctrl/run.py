@@ -65,9 +65,3 @@ def create_test_suite(test_lib):
                                                             total_bits,
                                                             channel_in,
                                                             width, height))
-
-
-if __name__ == "__main__":
-    UI = VUnit.from_argv()
-    create_test_suite(UI)
-    UI.main()

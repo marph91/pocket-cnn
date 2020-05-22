@@ -141,9 +141,3 @@ def create_test_suite(test_lib):
                 generics=generics,
                 pre_config=create_stimuli(
                     join(root, "src", test_case_name), "cnn_model.onnx"))
-
-
-if __name__ == "__main__":
-    UI = VUnit.from_argv()
-    create_test_suite(UI)
-    UI.main()
