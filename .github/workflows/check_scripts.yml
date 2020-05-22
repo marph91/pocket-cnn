@@ -22,5 +22,6 @@ jobs:
       run: pip install onnx
     - name: run_checks
       run: |
-        export PYTHONPATH="/opt/hostedtoolcache/Python/3.7.6/x64/lib/python3.7/site-packages:$(pwd)/code/python_tools"
+        SITE_PKG_PATH=$(python3 -c "import os; import onnx; print(os.path.join(os.sep, *onnx.__file__.split('/')[:-2]))")
+        export PYTHONPATH="$SITE_PKG_PATH:$(pwd)/code/python_tools"
         code/snippets/check_scripts.sh .
