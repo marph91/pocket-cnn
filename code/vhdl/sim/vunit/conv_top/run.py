@@ -51,14 +51,11 @@ def create_stimuli(root, ksize, stride,
         np.savetxt(outfile, flatten(conv_out), delimiter=", ", fmt="%3d")
 
 
-def create_test_suite(prj):
+def create_test_suite(test_lib):
     root = dirname(__file__)
     os.makedirs(join(root, "gen"), exist_ok=True)
 
-    prj.add_array_util()
-    unittest = prj.add_library("unittest", allow_duplicate=True)
-    unittest.add_source_files(join(root, "*.vhd"))
-    tb_conv_top = unittest.entity("tb_conv_top")
+    tb_conv_top = test_lib.entity("tb_conv_top")
 
     for ksize, stride in itertools.product((1, 2, 3, 5), (1, 2, 3)):
         if stride > ksize:  # this case doesn't make sense

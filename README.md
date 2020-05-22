@@ -65,7 +65,7 @@ Most of the toplevel generics are describing the CNN architecture and get derive
 | C_IMG_WIDTH_IN | Integer | Width of the input image. |
 | C_IMG_HEIGHT_IN | Integer | Height of the input image. |
 | C_CH | Array of integer, C_PE+1 elements | Channel of each layer. The first element corresponds to the depth of the input image, i. e. 1 for grayscale and 3 for colored. |
-| C_PARALLEL_CH | Array of integer, C_PE elements | Intra channel parallelization for each PE. |
+| C_PARALLEL_CH | Array of integer, C_PE elements | Intra kernel parallelization for each PE. |
 | isl_clk | std_logic | Clock signal. |
 | isl_get | std_logic | Signals that the next module is ready to process new data. |
 | isl_start | std_logic | Start receiving the image data and process it afterwards. |

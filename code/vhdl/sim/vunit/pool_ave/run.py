@@ -21,13 +21,10 @@ def create_stimuli(root, w, h, ch, total_bits, frac_bits):
                fmt="%3d")
 
 
-def create_test_suite(prj):
+def create_test_suite(test_lib):
     root = dirname(__file__)
 
-    prj.add_array_util()
-    unittest = prj.add_library("unittest", allow_duplicate=True)
-    unittest.add_source_files(join(root, "src", "*.vhd"))
-    tb_pool_ave = unittest.entity("tb_pool_ave")
+    tb_pool_ave = test_lib.entity("tb_pool_ave")
 
     width, height, channel = randint(1, 4), randint(1, 8), randint(1, 8)
     total_bits = 8

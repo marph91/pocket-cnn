@@ -47,13 +47,10 @@ def create_stimuli(root, stage, ksize, total_bits_data, frac_bits_data,
     np.savetxt(join(root, "src", name), a_out, delimiter=", ", fmt="%d")
 
 
-def create_test_suite(prj):
+def create_test_suite(test_lib):
     root = dirname(__file__)
 
-    prj.add_array_util()
-    unittest = prj.add_library("unittest", allow_duplicate=True)
-    unittest.add_source_files(join(root, "src", "*.vhd"))
-    tb_mm = unittest.entity("tb_mm")
+    tb_mm = test_lib.entity("tb_mm")
 
     for stage, ksize in itertools.product((1, 2), (1, 2, 3)):
         if ksize != 3 and stage == 1:

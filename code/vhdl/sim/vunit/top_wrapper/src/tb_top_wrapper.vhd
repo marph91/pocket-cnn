@@ -6,11 +6,10 @@ library sim;
   use sim.common.all;
 library util;
   use util.cnn_pkg.all;
-library integration_test;
+library sim;
 
 library vunit_lib;
   context vunit_lib.vunit_context;
-  use vunit_lib.array_pkg.all;
 
 entity tb_top_wrapper is
   generic (
@@ -43,7 +42,7 @@ architecture behavioral of tb_top_wrapper is
   signal data_check_done, stimuli_done : boolean := false;
 
 begin
-  dut: entity integration_test.top_wrapper
+  dut: entity sim.top_wrapper
   port map (
     isl_clk     => sl_clk,
     isl_get     => sl_get,

@@ -3,7 +3,7 @@
 """Run all unit tests, contained by the subfolders."""
 
 from glob import glob
-import imp
+import importlib.util
 import os
 import subprocess
 
@@ -14,20 +14,24 @@ def create_test_suites(prj):
     """Gather the testbenches of all modules and run them."""
     root = os.path.dirname(__file__)
 
-    prj.add_array_util()
-    sim_lib = prj.add_library("sim", allow_duplicate=True)
+    # Don't use "**", because there would be too many matches.
+    testbenches = (glob(os.path.join(root, "*", "tb_*.vhd")) +
+                   glob(os.path.join(root, "*", "src", "tb_*.vhd")))
+    sim_lib = prj.add_library("sim")
     sim_lib.add_source_files("common.vhd")
-    util_lib = prj.add_library("util", allow_duplicate=True)
+    sim_lib.add_source_files(testbenches)
+
+    util_lib = prj.add_library("util")
     util_lib.add_source_files("../../src/util/*.vhd")
-    cnn_lib = prj.add_library("cnn_lib", allow_duplicate=True)
+    cnn_lib = prj.add_library("cnn_lib")
     cnn_lib.add_source_files("../../src/*.vhd")
 
     run_scripts = glob(os.path.join(root, "*", "run.py"))
     for run_script in run_scripts:
-        mod = imp.find_module("run", [os.path.dirname(run_script)])
-        run = imp.load_module("run", *mod)
-        run.create_test_suite(prj)
-        mod[0].close()
+        spec = importlib.util.spec_from_file_location("run", run_script)
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        mod.create_test_suite(sim_lib)
 
     # avoid error "type of a shared variable must be a protected type"
     prj.set_compile_option("ghdl.a_flags", ["-frelaxed"])

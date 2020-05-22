@@ -30,13 +30,10 @@ def create_stimuli(root, sample_cnt: int = 1):
         outfile.write("\n".join(a_out_leaky))
 
 
-def create_test_suite(prj):
+def create_test_suite(test_lib):
     root = dirname(__file__)
 
-    prj.add_array_util()
-    unittest = prj.add_library("unittest", allow_duplicate=True)
-    unittest.add_source_files(join(root, "src", "*.vhd"))
-    tb_relu = unittest.entity("tb_relu")
+    tb_relu = test_lib.entity("tb_relu")
 
     sample_cnt = 100
     for leaky in [0, 1]:

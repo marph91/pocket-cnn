@@ -24,13 +24,10 @@ def create_arrays(root, w, h, ch):
                flatten(a_out), delimiter=", ", fmt="%3d")
 
 
-def create_test_suite(prj):
+def create_test_suite(test_lib):
     root = dirname(__file__)
 
-    prj.add_array_util()
-    unittest = prj.add_library("unittest", allow_duplicate=True)
-    unittest.add_source_files(join(root, "src", "*.vhd"))
-    tb_zero_pad = unittest.entity("tb_zero_pad")
+    tb_zero_pad = test_lib.entity("tb_zero_pad")
 
     config_multiple_ch = randint(1, 32), randint(1, 32), randint(2, 16)
     config_one_ch = randint(1, 32), randint(1, 32), 1

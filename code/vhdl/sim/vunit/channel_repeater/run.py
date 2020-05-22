@@ -21,13 +21,10 @@ def create_stimuli(root, ksize, total_bits, channel_in,
         outfile.write(", ".join(in_rand * channel_out))
 
 
-def create_test_suite(prj):
+def create_test_suite(test_lib):
     root = dirname(__file__)
 
-    prj.add_array_util()
-    unittest = prj.add_library("unittest", allow_duplicate=True)
-    unittest.add_source_files(join(root, "*.vhd"))
-    tb_channel_repeater = unittest.entity("tb_channel_repeater")
+    tb_channel_repeater = test_lib.entity("tb_channel_repeater")
 
     for ksize in (1, 2, 3):
         total_bits = 8

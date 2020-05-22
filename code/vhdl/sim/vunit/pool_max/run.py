@@ -27,13 +27,10 @@ def create_stimuli(root, pool_dim, total_bits, frac_bits):
                delimiter=", ", fmt="%3d")
 
 
-def create_test_suite(prj):
+def create_test_suite(test_lib):
     root = dirname(__file__)
 
-    prj.add_array_util()
-    unittest = prj.add_library("unittest", allow_duplicate=True)
-    unittest.add_source_files(join(root, "src", "*.vhd"))
-    tb_pool_max = unittest.entity("tb_pool_max")
+    tb_pool_max = test_lib.entity("tb_pool_max")
 
     for pool_dim in [2, 3]:
         total_bits = 8

@@ -14,7 +14,6 @@ library sim;
 
 library vunit_lib;
   context vunit_lib.vunit_context;
-  use vunit_lib.array_pkg.all;
 
 entity tb_conv_top is
   generic (

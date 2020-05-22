@@ -9,7 +9,6 @@ library sim;
 
 library vunit_lib;
   context vunit_lib.vunit_context;
-  use vunit_lib.array_pkg.all;
 
 entity tb_zero_pad is
   generic (

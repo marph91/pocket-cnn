@@ -28,13 +28,10 @@ def create_stimuli(root, model_name):
                delimiter=", ", fmt="%3d")
 
 
-def create_test_suite(prj):
+def create_test_suite(test_lib):
     root = dirname(__file__)
 
-    prj.add_array_util()
-    integration_test = prj.add_library("integration_test", allow_duplicate=True)
-    integration_test.add_source_files(join(root, "src", "tb_top_wrapper.vhd"))
-    tb_top_wrapper = integration_test.entity("tb_top_wrapper")
+    tb_top_wrapper = test_lib.entity("tb_top_wrapper")
 
     test_cnns = [  # name in model zoo
         cnn_onnx.model_zoo.conv_3x1_1x1_max_2x2,
@@ -62,7 +59,7 @@ def create_test_suite(prj):
 
         # TODO: This doesn't work with multiple CNN. Create one
         #       CNN architecture with a variety of layers/features.
-        integration_test.add_source_files(
+        test_lib.add_source_files(
             join(test_case_root, "top_wrapper.vhd"))
 
         # convert weights
