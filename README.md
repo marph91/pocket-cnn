@@ -45,40 +45,34 @@ python3 run_all.py
 
 ### Supported layers
 
-| Layer | <center>Properties</center> | <center>Limitations</center> |
+| Layer | Properties | Limitations |
 | :---: | :--- | :--- |
 | Convolution | <ul><li>Kernel: 1x1, 2x2, 3x3, 5x5</li><li>Stride: 1, 2, 3</li></ul> | Quantization of the activations and weights: Scale has to be power of two, zero point has to be zero. |
-| Maximum Pooling | <ul><li>Kernel: 2x2, 3x3</li><li>Stride: 1, 2, 3</li></ul> | <center>-</center> |
-| Global Average Pooling | <center>-</center> | The averaging factor is quantized to the 16 bit fixed point value of `1 / height * width`. |
-| Zero Padding | <center>-</center> | The padding has to be the same at each edge. |
-| (Leaky) ReLU | <center>-</center> | Leaky ReLU has a fixed alpha of 0.125 |
+| Maximum Pooling | <ul><li>Kernel: 2x2, 3x3</li><li>Stride: 1, 2, 3</li></ul> | - |
+| Global Average Pooling | - | The averaging factor is quantized to the 16 bit fixed point value of `1 / height * width`. |
+| Zero Padding | - | The padding has to be the same at each edge. |
+| (Leaky) ReLU | - | Leaky ReLU has a fixed alpha of 0.125 |
 
 ### Interface
 
-Most of the toplevel generics are describing the CNN architecture and get derived from the ONNX model. In the following table only the most important generics, as well as all signals, are listed. The communication protocol is similar in all submodules of this design.
+Most of the toplevel generics are describing the CNN architecture. They get derived from the ONNX model and don't need to be specified manually by the user. A table, containing the most important toplevel generics and signals, can be found [here](doc/toplevel_interface.md). The communication protocol is similar in all submodules of this design.
 
-| <center>Generic/Signal</center> | <center>Datatype</center> | <center>Meaning</center> |
-| :--- | :--- | :--- |
-| C_PE | Integer | Number of processing elements (PE). A PE consists of one convolution layer and some optional layers. See the documentation folder for more details. |
-| C_DATA_TOTAL_BITS | Integer | Bitwidth of the whole design. Currently limited to 8 bit. |
-| C_BITWIDTH | Array of integer, C_PE elements | Specific bitwidths for data and weights of each layer. |
-| C_IMG_WIDTH_IN | Integer | Width of the input image. |
-| C_IMG_HEIGHT_IN | Integer | Height of the input image. |
-| C_CH | Array of integer, C_PE+1 elements | Channel of each layer. The first element corresponds to the depth of the input image, i. e. 1 for grayscale and 3 for colored. |
-| C_PARALLEL_CH | Array of integer, C_PE elements | Intra kernel parallelization for each PE. |
-| isl_clk | std_logic | Clock signal. |
-| isl_get | std_logic | Signals that the next module is ready to process new data. |
-| isl_start | std_logic | Start receiving the image data and process it afterwards. |
-| isl_valid | std_logic | Signals valid input data. |
-| islv_data | std_logic_vector, C_DATA_TOTAL_BITS bits | Input data. |
-| oslv_data | std_logic_vector, C_DATA_TOTAL_BITS bits | Output data. |
-| osl_valid | std_logic | Signals valid output data. |
-| osl_rdy | std_logic | Signals that the module is ready to process new data. |
-| osl_finish | std_logic | Impulse for signalling that the processing of the current image is finshed. Can be used for an interrupt. |
+## Architecture
+
+pocket-cnn accepts ONNX models as input. Each convolution layer of the CNN gets converted to a processing element (PE). This is the central element of the hardware design.
+The convolution in a PE can be preceeded by *zero padding* and followed by *ReLU* and/or *maximum pooling*. See also [pe.vhd](code/vhdl/src/pe.vhd). Below are a few common configurations.
+
+![processing_element](doc/images/processing_element.svg)
+
+The python framework takes care of converting the ONNX model into the VHDL representation. The VHDL toplevel can be found at [top.vhd](code/vhdl/src/top.vhd). The toplevel structure is illustrated in the following image.
+
+![toplevel](doc/images/toplevel.svg)
+
+More details about the specific modules can be found [here](doc/modules.md).
 
 ## TODO
 
-Can be found at the [documentation folder](documentation/todo.md) and in the issues.
+Can be found at the [documentation folder](doc/todo.md) and in the issues.
 
 ## History
 
