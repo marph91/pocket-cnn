@@ -43,6 +43,14 @@ cd code/vhdl/sim/vunit
 python3 run_all.py
 ```
 
+### Workflows
+
+This section describes the different workflows. In the end-to-end example, an ONNX model gets trained with pytorch, quantized and processed until it's ready for synthesis by pocket-cnn.
+There are some other workflows. At first, the quantized ONNX model can be directly trained in the CNN framework. This requires that the framework supports the quantization of pocket-cnn. The rest of the workflow is the same as described above.
+Another branch in the workflow is to create ONNX models manually. This doesn't have any relevance for real models, but is really useful for testing. I. e. small ONNX models can be created fastly without any training. This allows to test (i. e. simulate) multiple configurations extensively. The test models are defined in the [model zoo](code/python_tools/cnn_onnx/model_zoo.py).
+
+![workflow](doc/images/workflow.svg)
+
 ### Supported layers
 
 | Layer | Properties | Limitations |
