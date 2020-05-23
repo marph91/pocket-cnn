@@ -3,7 +3,6 @@
 import itertools
 from os.path import join, dirname
 from random import randint
-from vunit import VUnit
 
 import numpy as np
 

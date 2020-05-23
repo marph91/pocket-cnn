@@ -5,7 +5,6 @@ from os.path import join, dirname
 
 import numpy as np
 import onnx
-from vunit import VUnit
 
 import cnn_onnx.inference
 import cnn_onnx.model_zoo

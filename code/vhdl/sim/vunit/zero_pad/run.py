@@ -4,7 +4,6 @@ from os.path import join, dirname
 from random import randint
 
 import numpy as np
-from vunit import VUnit
 
 from fixfloat import v_float2fixedint
 from fixfloat import random_fixed_array

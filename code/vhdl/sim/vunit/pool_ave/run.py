@@ -5,7 +5,6 @@ from os.path import join, dirname
 from random import randint
 
 import numpy as np
-from vunit import VUnit
 
 from cnn_reference import avg_pool, flatten
 

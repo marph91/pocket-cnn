@@ -3,7 +3,6 @@
 from os.path import join, dirname
 
 import numpy as np
-from vunit import VUnit
 
 import fixfloat
 

@@ -6,7 +6,6 @@ from os.path import join, dirname
 from random import randint
 
 import numpy as np
-from vunit import VUnit
 
 from cnn_reference import conv, flatten
 from weights_to_files import weights_to_files

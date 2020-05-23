@@ -77,8 +77,8 @@ begin
     report ("Channel in: " & to_string(C_CH));
     report ("Channel out: " & to_string(C_REPEAT));
 
-    data_src := load_csv(tb_path(runner_cfg) & "gen/input_" & to_string(C_KSIZE) & "_" & to_string(C_PARALLEL_CH) & ".csv");
-    data_ref := load_csv(tb_path(runner_cfg) & "gen/output_" & to_string(C_KSIZE) & "_" & to_string(C_PARALLEL_CH) & ".csv");
+    data_src := load_csv(tb_path(runner_cfg) & "gen/input_" & to_string(C_KSIZE) & "_" & to_string(C_CH) & ".csv");
+    data_ref := load_csv(tb_path(runner_cfg) & "gen/output_" & to_string(C_KSIZE) & "_" & to_string(C_CH) & ".csv");
 
     check_equal(data_src.width, C_KSIZE*C_KSIZE*C_CH, "input_width");
     check_equal(data_src.height, 1, "input_height");
