@@ -5,8 +5,10 @@
 from glob import glob
 import importlib.util
 import os
+import random
 import subprocess
 
+import numpy as np
 from vunit import VUnit
 
 
@@ -52,6 +54,8 @@ def post_run(results):
 
 
 if __name__ == "__main__":
+    random.seed(42)
+    np.random.seed(42)
     os.environ["VUNIT_SIMULATOR"] = "ghdl"
     PRJ = VUnit.from_argv()
     create_test_suites(PRJ)
