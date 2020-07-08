@@ -11,11 +11,6 @@ jobs:
     container: ghdl/synth:beta
     steps:
       - uses: actions/checkout@v1
-      - name: install pip and pip packets
-        run: |
-          apt update
-          apt install --yes python3-pip
-          pip3 install onnx
       - name: Run synthesis
         continue-on-error: true
         run: |
