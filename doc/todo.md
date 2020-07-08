@@ -57,3 +57,21 @@
   - Document the requirements/limitations:
     - bitwidth/scale: limit to 2^x values or extend vhdl framework?
     - add support of offset?
+
+## Documentation
+
+### History
+
+The tag `weights_in_bram` marks the last commit with:
+
+- Weights and bias stored in BRAM.
+- Using DSP for the matrix multiplications.
+
+&rarr; This got deprecated by "Direct Hardware Mapping".
+
+The tag `cocotb_caffe` marks the last commit with:
+
+- Cocotb testbenches.
+- Integration of caffe and pytorch.
+
+&rarr; This got deprecated by using VUnit as test runner and ONNX as CNN representation.

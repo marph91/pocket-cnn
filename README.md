@@ -6,37 +6,11 @@
 
 pocket-cnn is a framework to map small Convolutional Neural Networks (CNN) fully on a FPGA. There is no communication outside the FPGA needed, except of providing the image and reading the result.
 
-## Requirements
-
-For tests:
-
-- ghdl: <https://github.com/ghdl/ghdl>
-- vunit: <https://github.com/vunit/vunit>
-- onnx: <https://github.com/onnx/onnx>
-- gtkwave: <https://github.com/gtkwave/gtkwave> (optional)
-- netron: <https://github.com/lutzroeder/netron> (optional)
-
-For synthesis:
-
-- A generated toplevel wrapper and corresponding weight files. See [Installation and Usage](#installation-and-usage).
-- A synthesis tool of your choice. For now, the design was synthesized only using Xilinx Vivado.
-
-## Limitations
-
-Before using the framework, you should be aware of several limitations:
-
-- It is not complete. There might be several bugs and things missing. Please open an issue.
-- There will be a different accuracy and loss due to the 8 bit quantization.
-- Only small CNN can be synthesized, because the weights get mapped to LUT.
-- Only a [subset of layers](#supported-layers) is supported.
-
 ## Installation and Usage
 
-Before using the framework, the `PYTHONPATH` has to be extended by `path/to/pocket-cnn/code/python_tools`.
+Before using the framework, the `PYTHONPATH` has to be extended by `path/to/pocket-cnn/code/python_tools`. A complete end-to-end example can be found at the [example folder](examples/end_to_end/README.md).
 
-A complete end-to-end example can be found at the [example folder](examples/end_to_end/README.md).
-
-To run the tests, simply execute:
+For running the tests, [ghdl](https://github.com/ghdl/ghdl), [vunit](https://github.com/vunit/vunit) and [onnx](https://github.com/onnx/onnx) are required. For debugging, [gtkwave](https://github.com/gtkwave/gtkwave) and [netron](https://github.com/lutzroeder/netron) are useful. To run the full testsuite, simply execute:
 
 ```bash
 cd code/vhdl/sim/vunit
@@ -61,6 +35,15 @@ Another branch in the workflow is to create ONNX models manually. This doesn't h
 | Zero Padding | - | The padding has to be the same at each edge. |
 | (Leaky) ReLU | - | Leaky ReLU has a fixed alpha of 0.125 |
 
+### Limitations
+
+Before using the framework, you should be aware of several limitations:
+
+- It is not complete. There might be several bugs and things missing. Please open an issue.
+- There will be a different accuracy and loss due to the 8 bit quantization.
+- Only small CNN can be synthesized, because the weights get mapped to LUT.
+- Only a [subset of layers](#supported-layers) is supported.
+
 ### Interface
 
 Most of the toplevel generics are describing the CNN architecture. They get derived from the ONNX model and don't need to be specified manually by the user. A table, containing the most important toplevel generics and signals, can be found [here](doc/toplevel_interface.md). The communication protocol is similar in all submodules of this design.
@@ -81,22 +64,6 @@ More details about the specific modules can be found [here](doc/modules.md).
 ## TODO
 
 Can be found at the [documentation folder](doc/todo.md) and in the issues.
-
-## History
-
-The tag `weights_in_bram` marks the last commit with:
-
-- Weights and bias stored in BRAM.
-- Using DSP for the matrix multiplications.
-
-&rarr; This got deprecated by "Direct Hardware Mapping".
-
-The tag `cocotb_caffe` marks the last commit with:
-
-- Cocotb testbenches.
-- Integration of caffe and pytorch.
-
-&rarr; This got deprecated by using VUnit as test runner and ONNX as CNN representation.
 
 ## Related work
 
