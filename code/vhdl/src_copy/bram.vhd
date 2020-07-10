@@ -34,7 +34,7 @@ begin
   PROC_BRAM : process (isl_clk) is
   begin
 
-    if (rising_edge(isl_clk)) then
+    if rising_edge(isl_clk) then
       if (isl_en = '1') then
         if (isl_we = '1') then
           a_ram(to_integer(unsigned(islv_addr))) <= islv_data;
@@ -52,7 +52,7 @@ begin
     PROC_OUTPUT_REG : process (isl_clk) is
     begin
 
-      if (rising_edge(isl_clk)) then
+      if rising_edge(isl_clk) then
         if (isl_en = '1') then
           oslv_data <= slv_data;
         end if;

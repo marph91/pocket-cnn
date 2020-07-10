@@ -187,7 +187,7 @@ begin
   FINISH_PROC : process (isl_clk) is
   begin
 
-    if (rising_edge(isl_clk)) then
+    if rising_edge(isl_clk) then
       if (sl_output_valid(C_PE + 1) = '1') then
         int_data_out_cnt <= int_data_out_cnt + 1;
       end if;

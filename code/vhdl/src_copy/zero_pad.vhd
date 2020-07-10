@@ -52,7 +52,7 @@ begin
   PROC_PAD : process (isl_clk) is
   begin
 
-    if (rising_edge(isl_clk)) then
+    if rising_edge(isl_clk) then
       -- Determine the image position to set int_pixel_to_pad.
       -- There are three possibilities for padding:
       --   1. at the start of the image
