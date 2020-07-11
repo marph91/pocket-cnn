@@ -1,0 +1,20 @@
+name: vhdl_style
+
+on:
+  push:
+  schedule:
+    - cron: '0 0 * * *'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python 3.8
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
+      - name: Install dependencies
+        run: pip install vsg
+      - name: Run vhdl code style check
+        run: vsg --configuration vsg_config.yaml
