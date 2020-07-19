@@ -26,7 +26,7 @@ architecture behavioral of bram is
   signal    a_ram    : t_ram;
   attribute ram_style : string;
   attribute ram_style of a_ram : signal is "block";
-  signal    slv_data : std_logic_vector(C_DATA_WIDTH - 1 downto 0) := (others => '0');
+  signal    slv_data : std_logic_vector(C_DATA_WIDTH - 1 downto 0);
 
 begin
 

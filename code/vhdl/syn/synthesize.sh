@@ -57,7 +57,7 @@ ghdl -a --std=08 --work=cnn_lib "top_wrapper.vhd"
 # synthesize the design
 ghdl --synth --std=08 --work=cnn_lib top_wrapper
 
-# yosys -m ghdl -p 'ghdl --std=08 --work=cnn_lib top_wrapper; synth_ice40 -json aes.json'
-# nextpnr-ice40 --hx1k --json top_wrapper.json --asc top_wrapper.asc
+# yosys -m ghdl -p 'ghdl --std=08 --work=cnn_lib top_wrapper; synth_ice40 -json top_wrapper.json'
+# nextpnr-ice40 --hx1k --package tq144 --json top_wrapper.json --asc top_wrapper.asc
 # icepack top_wrapper.asc top_wrapper.bin
 # iceprog top_wrapper.bin
