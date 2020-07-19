@@ -5,6 +5,8 @@ library ieee;
 library util;
   use util.array_pkg.all;
 
+library window_buffer_lib;
+
 entity max_top is
   generic (
     C_TOTAL_BITS : integer range 1 to 16 := 8;
@@ -36,7 +38,7 @@ architecture behavioral of max_top is
 
 begin
 
-  i_window_ctrl : entity work.window_ctrl
+  i_window_ctrl : entity window_buffer_lib.window_ctrl
     generic map (
       C_BITWIDTH => C_TOTAL_BITS,
 

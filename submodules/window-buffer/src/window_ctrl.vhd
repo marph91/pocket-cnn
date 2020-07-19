@@ -8,6 +8,8 @@ library ieee;
 library util;
   use util.array_pkg.all;
 
+library window_buffer_lib;
+
 entity window_ctrl is
   generic (
     -- global data bitwidth
@@ -79,7 +81,7 @@ begin
     a_selector_data_out(0, 0) <= islv_data;
   else generate
     -- line buffer
-    i_line_buffer : entity work.line_buffer
+    i_line_buffer : entity window_buffer_lib.line_buffer
       generic map (
         C_BITWIDTH    => C_BITWIDTH,
         C_CH          => C_CH_IN,
@@ -95,7 +97,7 @@ begin
       );
 
     -- window buffer
-    i_window_buffer : entity work.window_buffer
+    i_window_buffer : entity window_buffer_lib.window_buffer
       generic map (
         C_BITWIDTH    => C_BITWIDTH,
         C_CH          => C_CH_IN,
@@ -142,7 +144,7 @@ begin
 
   gen_channel_repeater : if C_CH_OUT > 1 generate
     -- channel repeater
-    i_channel_repeater : entity work.channel_repeater
+    i_channel_repeater : entity window_buffer_lib.channel_repeater
       generic map (
         C_BITWIDTH    => C_BITWIDTH,
         C_CH          => C_CH_IN,

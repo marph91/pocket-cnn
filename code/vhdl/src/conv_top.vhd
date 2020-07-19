@@ -7,6 +7,8 @@ library util;
   use util.array_pkg.all;
   use util.math_pkg.all;
 
+library window_buffer_lib;
+
 entity conv_top is
   generic (
     C_FIRST_STAGE : integer range 0 to 1 := 0;
@@ -54,7 +56,7 @@ architecture behavioral of conv_top is
 
 begin
 
-  i_window_ctrl : entity work.window_ctrl
+  i_window_ctrl : entity window_buffer_lib.window_ctrl
     generic map (
       C_BITWIDTH            => C_DATA_TOTAL_BITS,
 
