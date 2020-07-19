@@ -2,13 +2,13 @@
 library ieee;
   use ieee.fixed_pkg.all;
 
-package MATH_PKG is
+package math_pkg is
 
   function log2 (x : integer) return integer;
 
   function max (l, r : sfixed) return sfixed;
 
-end package MATH_PKG;
+end package math_pkg;
 
 package body math_pkg is
   -- compute the binary logarithm

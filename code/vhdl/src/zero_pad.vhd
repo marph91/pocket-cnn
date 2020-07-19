@@ -2,18 +2,18 @@
 library ieee;
   use ieee.std_logic_1164.all;
 
-entity ZERO_PAD is
+entity zero_pad is
   generic (
-    C_DATA_WIDTH  : integer range 1 to 16  := 8;
+    C_DATA_WIDTH : integer range 1 to 16 := 8;
 
-    C_CH          : integer range 1 to 512 := 16;
-    C_IMG_WIDTH   : integer range 1 to 512 := 32;
-    C_IMG_HEIGHT  : integer range 1 to 512 := 32;
+    C_CH         : integer range 1 to 512 := 16;
+    C_IMG_WIDTH  : integer range 1 to 512 := 32;
+    C_IMG_HEIGHT : integer range 1 to 512 := 32;
 
-    C_PAD_TOP     : integer range 0 to 1   := 1;
-    C_PAD_BOTTOM  : integer range 0 to 1   := 1;
-    C_PAD_LEFT    : integer range 0 to 1   := 1;
-    C_PAD_RIGHT   : integer range 0 to 1   := 1
+    C_PAD_TOP    : integer range 0 to 1 := 1;
+    C_PAD_BOTTOM : integer range 0 to 1 := 1;
+    C_PAD_LEFT   : integer range 0 to 1 := 1;
+    C_PAD_RIGHT  : integer range 0 to 1 := 1
   );
   port (
     isl_clk   : in    std_logic;
@@ -25,9 +25,9 @@ entity ZERO_PAD is
     osl_valid : out   std_logic;
     osl_rdy   : out   std_logic
   );
-end entity ZERO_PAD;
+end entity zero_pad;
 
-architecture BEHAVIORAL of ZERO_PAD is
+architecture behavioral of zero_pad is
 
   constant C_IMG_WIDTH_OUT  : integer := C_IMG_WIDTH + C_PAD_LEFT + C_PAD_RIGHT;
   constant C_IMG_HEIGHT_OUT : integer := C_IMG_HEIGHT + C_PAD_TOP + C_PAD_BOTTOM;
@@ -39,17 +39,17 @@ architecture BEHAVIORAL of ZERO_PAD is
   signal int_col          : integer range 0 to C_IMG_WIDTH - 1 := 0;
   signal int_pixel_to_pad : integer range 0 to C_IMG_WIDTH_OUT + C_PAD_LEFT + 1 := 0;
 
-  signal sl_output_valid  : std_logic := '0';
-  signal slv_data_out     : std_logic_vector(C_DATA_WIDTH - 1 downto 0);
-  signal sl_rdy           : std_logic := '0';
+  signal sl_output_valid : std_logic := '0';
+  signal slv_data_out    : std_logic_vector(C_DATA_WIDTH - 1 downto 0);
+  signal sl_rdy          : std_logic := '0';
 
   type t_states is (IDLE, PAD, PAD_PIXEL, FORWARD_DATA);
 
-  signal state            : t_states := IDLE;
+  signal state : t_states := IDLE;
 
 begin
 
-  PROC_PAD : process (isl_clk) is
+  proc_pad : process (isl_clk) is
   begin
 
     if (rising_edge(isl_clk)) then
@@ -132,10 +132,10 @@ begin
 
     end if;
 
-  end process PROC_PAD;
+  end process proc_pad;
 
   osl_valid <= sl_output_valid;
   oslv_data <= slv_data_out;
   osl_rdy   <= sl_rdy and isl_get;
 
-end architecture BEHAVIORAL;
+end architecture behavioral;

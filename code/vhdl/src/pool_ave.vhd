@@ -8,14 +8,14 @@ library ieee;
 library util;
   use util.math_pkg.all;
 
-entity POOL_AVE is
+entity pool_ave is
   generic (
-    C_TOTAL_BITS  : integer range 1 to 16  := 8;
-    C_FRAC_BITS   : integer range 0 to 16  := 8;
+    C_TOTAL_BITS : integer range 1 to 16 := 8;
+    C_FRAC_BITS  : integer range 0 to 16 := 8;
 
-    C_POOL_CH     : integer range 1 to 512 := 4;
-    C_IMG_WIDTH   : integer range 1 to 512 := 6;
-    C_IMG_HEIGHT  : integer range 1 to 512 := 6
+    C_POOL_CH    : integer range 1 to 512 := 4;
+    C_IMG_WIDTH  : integer range 1 to 512 := 6;
+    C_IMG_HEIGHT : integer range 1 to 512 := 6
   );
   port (
     isl_clk   : in    std_logic;
@@ -25,11 +25,11 @@ entity POOL_AVE is
     oslv_data : out   std_logic_vector(C_TOTAL_BITS - 1 downto 0);
     osl_valid : out   std_logic
   );
-end entity POOL_AVE;
+end entity pool_ave;
 
-architecture BEHAVIORAL of POOL_AVE is
+architecture behavioral of pool_ave is
 
-  constant C_INT_BITS   : integer range 1 to 16 := C_TOTAL_BITS - C_FRAC_BITS;
+  constant C_INT_BITS : integer range 1 to 16 := C_TOTAL_BITS - C_FRAC_BITS;
 
   -- temporary higher int width to prevent overflow while summing up channel/pixel
   -- new bitwidth = log2(C_IMG_HEIGHT*C_IMG_WIDTH*(2^old bitwidth)) = log2(C_IMG_HEIGHT*C_IMG_WIDTH) + old bitwidth -> new bw = lb(16*(2^7)) = 12
@@ -40,22 +40,22 @@ architecture BEHAVIORAL of POOL_AVE is
   signal sl_input_valid_d2 : std_logic := '0';
   signal sl_input_valid_d3 : std_logic := '0';
 
-  signal sfix_average      : sfixed(C_INTW_SUM + 1 downto - C_FRAC_BITS - C_FRACW_REZI) := (others => '0'); -- mult: A'left + B'left + 1 downto -(A'right + B'right)
+  signal    sfix_average    : sfixed(C_INTW_SUM + 1 downto - C_FRAC_BITS - C_FRACW_REZI) := (others => '0'); -- mult: A'left + B'left + 1 downto -(A'right + B'right)
   attribute use_dsp : string;
   attribute use_dsp of sfix_average : signal is "yes";
-  signal sfix_average_d1   : sfixed(C_INTW_SUM + 1 downto - C_FRAC_BITS - C_FRACW_REZI) := (others => '0');
+  signal    sfix_average_d1 : sfixed(C_INTW_SUM + 1 downto - C_FRAC_BITS - C_FRACW_REZI) := (others => '0');
 
   -- TODO: try real instead of sfixed
   constant C_RECIPROCAL : sfixed(1 downto - C_FRACW_REZI) := reciprocal(to_sfixed(C_IMG_HEIGHT * C_IMG_WIDTH, C_FRACW_REZI, 0));
-  signal slv_average       : std_logic_vector(C_TOTAL_BITS - 1 downto 0) := (others => '0');
+  signal   slv_average  : std_logic_vector(C_TOTAL_BITS - 1 downto 0) := (others => '0');
 
-  signal int_data_in_cnt   : integer range 0 to C_IMG_WIDTH * C_IMG_HEIGHT * C_POOL_CH + 1 := 0;
+  signal int_data_in_cnt : integer range 0 to C_IMG_WIDTH * C_IMG_HEIGHT * C_POOL_CH + 1 := 0;
 
   type t_1d_array is array (natural range <>) of sfixed(C_INTW_SUM - 1 downto - C_FRAC_BITS);
 
-  signal a_ch_buffer       : t_1d_array(0 to C_POOL_CH - 1) := (others => (others => '0'));
+  signal a_ch_buffer : t_1d_array(0 to C_POOL_CH - 1) := (others => (others => '0'));
 
-  signal sl_output_valid   : std_logic := '0';
+  signal sl_output_valid : std_logic := '0';
 
 begin
 
@@ -67,7 +67,7 @@ begin
   -- Stage 4: resize output
   -- *Stage 2 is entered when full image except of last pixel (C_IMG_HEIGHT*C_IMG_WIDTH*C_POOL_CH-C_POOL_CH) is loaded
   -------------------------------------------------------
-  PROC_POOL_AVE : process (isl_clk) is
+  proc_pool_ave : process (isl_clk) is
 
     variable v_sfix_sum : sfixed(C_INTW_SUM - 1 downto - C_FRAC_BITS);
 
@@ -92,7 +92,7 @@ begin
                         to_sfixed(islv_data,
                         C_INT_BITS - 1, - C_FRAC_BITS),
                         C_INTW_SUM - 1, - C_FRAC_BITS, fixed_wrap, fixed_truncate);
-          a_ch_buffer <= v_sfix_sum & a_ch_buffer(0 to a_ch_buffer'HIGH - 1);
+          a_ch_buffer     <= v_sfix_sum & a_ch_buffer(0 to a_ch_buffer'HIGH - 1);
         end if;
 
         ------------------------DIVIDE OPTIONS---------------------------
@@ -122,9 +122,9 @@ begin
       end if;
     end if;
 
-  end process PROC_POOL_AVE;
+  end process proc_pool_ave;
 
   oslv_data <= slv_average;
   osl_valid <= sl_output_valid;
 
-end architecture BEHAVIORAL;
+end architecture behavioral;

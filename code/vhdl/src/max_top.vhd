@@ -5,17 +5,17 @@ library ieee;
 library util;
   use util.cnn_pkg.all;
 
-entity MAX_TOP is
+entity max_top is
   generic (
-    C_TOTAL_BITS  : integer range 1 to 16  := 8;
-    C_FRAC_BITS   : integer range 0 to 16  := 4;
+    C_TOTAL_BITS : integer range 1 to 16 := 8;
+    C_FRAC_BITS  : integer range 0 to 16 := 4;
 
-    C_CH          : integer range 1 to 512 := 1;
-    C_IMG_WIDTH   : integer range 1 to 512 := 36;
-    C_IMG_HEIGHT  : integer range 1 to 512 := 16;
+    C_CH         : integer range 1 to 512 := 1;
+    C_IMG_WIDTH  : integer range 1 to 512 := 36;
+    C_IMG_HEIGHT : integer range 1 to 512 := 16;
 
-    C_KSIZE       : integer range 0 to 3   := 2;
-    C_STRIDE      : integer range 1 to 3   := 1
+    C_KSIZE  : integer range 0 to 3 := 2;
+    C_STRIDE : integer range 1 to 3 := 1
   );
   port (
     isl_clk   : in    std_logic;
@@ -26,16 +26,16 @@ entity MAX_TOP is
     osl_valid : out   std_logic;
     osl_rdy   : out   std_logic
   );
-end entity MAX_TOP;
+end entity max_top;
 
-architecture BEHAVIORAL of MAX_TOP is
+architecture behavioral of max_top is
 
   signal a_win_data_out    : t_kernel_array(0 to 0)(0 to C_KSIZE - 1, 0 to C_KSIZE - 1) := (others => (others => (others => (others => '0'))));
   signal slv_win_valid_out : std_logic := '0';
 
 begin
 
-  i_window_ctrl : entity work.WINDOW_CTRL
+  i_window_ctrl : entity work.window_ctrl
     generic map (
       C_DATA_TOTAL_BITS => C_TOTAL_BITS,
 
@@ -58,7 +58,7 @@ begin
       osl_rdy   => osl_rdy
     );
 
-  i_max : entity work.POOL_MAX
+  i_max : entity work.pool_max
     generic map (
       C_KSIZE       => C_KSIZE,
       C_TOTAL_BITS  => C_TOTAL_BITS,
@@ -72,4 +72,4 @@ begin
       osl_valid => osl_valid
     );
 
-end architecture BEHAVIORAL;
+end architecture behavioral;

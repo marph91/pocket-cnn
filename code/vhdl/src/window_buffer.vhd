@@ -6,26 +6,26 @@ library ieee;
 library util;
   use util.cnn_pkg.all;
 
-entity WINDOW_BUFFER is
+entity window_buffer is
   generic (
-    C_DATA_WIDTH  : integer range 1 to 16  := 8;
+    C_DATA_WIDTH : integer range 1 to 16 := 8;
 
-    C_CH          : integer range 1 to 512 := 4;
+    C_CH : integer range 1 to 512 := 4;
 
-    C_KSIZE       : integer range 1 to 5   := 3
+    C_KSIZE : integer range 1 to 5 := 3
   );
   port (
-    isl_clk     : in    std_logic;
-    isl_valid   : in    std_logic;
-    ia_data     : in    t_slv_array_1d(0 to C_KSIZE - 1);
-    oa_data     : out   t_slv_array_2d(0 to C_KSIZE - 1, 0 to C_KSIZE - 1);
-    osl_valid   : out   std_logic
+    isl_clk   : in    std_logic;
+    isl_valid : in    std_logic;
+    ia_data   : in    t_slv_array_1d(0 to C_KSIZE - 1);
+    oa_data   : out   t_slv_array_2d(0 to C_KSIZE - 1, 0 to C_KSIZE - 1);
+    osl_valid : out   std_logic
   );
-end entity WINDOW_BUFFER;
+end entity window_buffer;
 
-architecture BEHAVIOR of WINDOW_BUFFER is
+architecture behavior of window_buffer is
 
-  signal int_ch_cnt   : integer range 0 to C_CH - 1 := 0;
+  signal int_ch_cnt : integer range 0 to C_CH - 1 := 0;
 
   signal sl_valid_out : std_logic := '0';
 
@@ -35,7 +35,7 @@ architecture BEHAVIOR of WINDOW_BUFFER is
 
 begin
 
-  PROC_SHIFT_DATA : process (isl_clk) is
+  proc_shift_data : process (isl_clk) is
   begin
 
     if (rising_edge(isl_clk)) then
@@ -63,9 +63,9 @@ begin
       end if;
     end if;
 
-  end process PROC_SHIFT_DATA;
+  end process proc_shift_data;
 
-  PROC_VALID_OUT : process (isl_clk) is
+  proc_valid_out : process (isl_clk) is
   begin
 
     if (rising_edge(isl_clk)) then
@@ -79,9 +79,9 @@ begin
       sl_valid_out <= isl_valid;
     end if;
 
-  end process PROC_VALID_OUT;
+  end process proc_valid_out;
 
   oa_data   <= a_win_buffer(0);
   osl_valid <= sl_valid_out;
 
-end architecture BEHAVIOR;
+end architecture behavior;

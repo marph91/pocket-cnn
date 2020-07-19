@@ -3,12 +3,12 @@ library ieee;
   use ieee.std_logic_1164.all;
   use ieee.numeric_std.all;
 
-entity BRAM is
+entity bram is
   generic (
-    C_DATA_WIDTH  : integer;
-    C_ADDR_WIDTH  : integer;
-    C_SIZE        : integer;
-    C_OUTPUT_REG  : integer range 0 to 1 := 0
+    C_DATA_WIDTH : integer;
+    C_ADDR_WIDTH : integer;
+    C_SIZE       : integer;
+    C_OUTPUT_REG : integer range 0 to 1 := 0
   );
   port (
     isl_clk   : in    std_logic;
@@ -18,20 +18,20 @@ entity BRAM is
     islv_data : in    std_logic_vector(C_DATA_WIDTH - 1 downto 0);
     oslv_data : out   std_logic_vector(C_DATA_WIDTH - 1 downto 0)
   );
-end entity BRAM;
+end entity bram;
 
-architecture BEHAVIORAL of BRAM is
+architecture behavioral of bram is
 
   type t_ram is array(0 to C_SIZE - 1) of std_logic_vector(C_DATA_WIDTH - 1 downto 0);
 
-  signal a_ram    : t_ram;
+  signal    a_ram    : t_ram;
   attribute ram_style : string;
   attribute ram_style of a_ram : signal is "block";
-  signal slv_data : std_logic_vector(C_DATA_WIDTH - 1 downto 0) := (others => '0');
+  signal    slv_data : std_logic_vector(C_DATA_WIDTH - 1 downto 0) := (others => '0');
 
 begin
 
-  PROC_BRAM : process (isl_clk) is
+  proc_bram : process (isl_clk) is
   begin
 
     if (rising_edge(isl_clk)) then
@@ -43,13 +43,13 @@ begin
       end if;
     end if;
 
-  end process PROC_BRAM;
+  end process proc_bram;
 
-  GEN_OUTPUT_REG : if C_OUTPUT_REG = 0 generate
+  gen_output_reg : if C_OUTPUT_REG = 0 generate
     oslv_data <= slv_data;
   elsif C_OUTPUT_REG = 1 generate
 
-    PROC_OUTPUT_REG : process (isl_clk) is
+    proc_output_reg : process (isl_clk) is
     begin
 
       if (rising_edge(isl_clk)) then
@@ -58,8 +58,8 @@ begin
         end if;
       end if;
 
-    end process PROC_OUTPUT_REG;
+    end process proc_output_reg;
 
-  end generate GEN_OUTPUT_REG;
+  end generate gen_output_reg;
 
-end architecture BEHAVIORAL;
+end architecture behavioral;

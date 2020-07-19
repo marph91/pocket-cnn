@@ -15,6 +15,6 @@ jobs:
         with:
           python-version: 3.8
       - name: Install dependencies
-        run: pip install vsg
+        run: pip install vsg==2.0.0
       - name: Run vhdl code style check
         run: vsg --configuration vsg_config.yaml

@@ -7,32 +7,32 @@ library ieee;
 library util;
   use util.math_pkg.all;
 
-entity PE is
+entity pe is
   generic (
-    C_FIRST_STAGE         : integer range 0 to 1   := 0;
+    C_FIRST_STAGE : integer range 0 to 1 := 0;
 
-    C_DATA_TOTAL_BITS     : integer range 1 to 16  := 8;
-    C_DATA_FRAC_BITS_IN   : integer range 0 to 16  := 4;
-    C_DATA_FRAC_BITS_OUT  : integer range 0 to 16  := 4;
-    C_WEIGHTS_TOTAL_BITS  : integer range 1 to 16  := 4;
-    C_WEIGHTS_FRAC_BITS   : integer range 0 to 16  := 3;
+    C_DATA_TOTAL_BITS    : integer range 1 to 16 := 8;
+    C_DATA_FRAC_BITS_IN  : integer range 0 to 16 := 4;
+    C_DATA_FRAC_BITS_OUT : integer range 0 to 16 := 4;
+    C_WEIGHTS_TOTAL_BITS : integer range 1 to 16 := 4;
+    C_WEIGHTS_FRAC_BITS  : integer range 0 to 16 := 3;
 
-    C_IMG_WIDTH           : integer range 1 to 512 := 36;
-    C_IMG_HEIGHT          : integer range 1 to 512 := 16;
-    C_CH_IN               : integer range 1 to 512 := 1;
-    C_CH_OUT              : integer range 1 to 512 := 16;
+    C_IMG_WIDTH  : integer range 1 to 512 := 36;
+    C_IMG_HEIGHT : integer range 1 to 512 := 16;
+    C_CH_IN      : integer range 1 to 512 := 1;
+    C_CH_OUT     : integer range 1 to 512 := 16;
 
-    C_CONV_KSIZE          : integer range 1 to 5   := 3;
-    C_CONV_STRIDE         : integer range 1 to 3   := 3;
-    C_POOL_KSIZE          : integer range 0 to 3   := 2;
-    C_POOL_STRIDE         : integer range 0 to 3   := 2;
-    C_PAD                 : integer range 0 to 1   := 0;
-    C_RELU                : std_logic              := '0';
-    C_LEAKY               : std_logic              := '0';
-    C_WEIGHTS_INIT        : string                 := "";
-    C_BIAS_INIT           : string                 := "";
+    C_CONV_KSIZE   : integer range 1 to 5 := 3;
+    C_CONV_STRIDE  : integer range 1 to 3 := 3;
+    C_POOL_KSIZE   : integer range 0 to 3 := 2;
+    C_POOL_STRIDE  : integer range 0 to 3 := 2;
+    C_PAD          : integer range 0 to 1 := 0;
+    C_RELU         : std_logic            := '0';
+    C_LEAKY        : std_logic            := '0';
+    C_WEIGHTS_INIT : string               := "";
+    C_BIAS_INIT    : string               := "";
 
-    C_PARALLEL_CH         : integer range 1 to 512 := 1
+    C_PARALLEL_CH : integer range 1 to 512 := 1
   );
   port (
     isl_clk   : in    std_logic;
@@ -44,29 +44,29 @@ entity PE is
     osl_valid : out   std_logic;
     osl_rdy   : out   std_logic
   );
-end entity PE;
+end entity pe;
 
-architecture BEHAVIORAL of PE is
+architecture behavioral of pe is
 
   -- padding
-  signal slv_pad_data_out          : std_logic_vector(C_DATA_TOTAL_BITS - 1 downto 0);
-  signal sl_pad_valid_out          : std_logic := '0';
-  signal sl_pad_rdy                : std_logic := '0';
-  signal sl_pad_get                : std_logic := '0';
+  signal slv_pad_data_out : std_logic_vector(C_DATA_TOTAL_BITS - 1 downto 0);
+  signal sl_pad_valid_out : std_logic := '0';
+  signal sl_pad_rdy       : std_logic := '0';
+  signal sl_pad_get       : std_logic := '0';
 
   -- convolution
-  signal slv_conv_data_out         : std_logic_vector(C_DATA_TOTAL_BITS - 1 downto 0);
-  signal sl_conv_valid_out         : std_logic := '0';
-  signal sl_conv_rdy               : std_logic := '0';
+  signal slv_conv_data_out : std_logic_vector(C_DATA_TOTAL_BITS - 1 downto 0);
+  signal sl_conv_valid_out : std_logic := '0';
+  signal sl_conv_rdy       : std_logic := '0';
 
   -- relu
-  signal slv_relu_data_out         : std_logic_vector(C_DATA_TOTAL_BITS - 1 downto 0);
-  signal sl_relu_valid_out         : std_logic := '0';
+  signal slv_relu_data_out : std_logic_vector(C_DATA_TOTAL_BITS - 1 downto 0);
+  signal sl_relu_valid_out : std_logic := '0';
 
   -- maxpool
-  signal slv_pool_data_in          : std_logic_vector(C_DATA_TOTAL_BITS - 1 downto 0);
-  signal sl_pool_valid_in          : std_logic := '0';
-  signal sl_pool_rdy               : std_logic := '0';
+  signal slv_pool_data_in : std_logic_vector(C_DATA_TOTAL_BITS - 1 downto 0);
+  signal sl_pool_valid_in : std_logic := '0';
+  signal sl_pool_rdy      : std_logic := '0';
 
   -- output buffer
   signal slv_output_buffer_data_in : std_logic_vector(C_DATA_TOTAL_BITS - 1 downto 0);
@@ -74,14 +74,14 @@ architecture BEHAVIORAL of PE is
   signal sl_output_buffer_rdy      : std_logic := '0';
 
   -- debug
-  signal int_ch_in_cnt             : integer range 0 to C_CH_IN - 1 := 0;
-  signal int_pixel_in_cnt          : integer range 0 to C_IMG_HEIGHT * C_IMG_WIDTH := 0;
-  signal int_col                   : integer range 0 to C_IMG_WIDTH := 0;
-  signal int_row                   : integer range 0 to C_IMG_HEIGHT := 0;
+  signal int_ch_in_cnt    : integer range 0 to C_CH_IN - 1 := 0;
+  signal int_pixel_in_cnt : integer range 0 to C_IMG_HEIGHT * C_IMG_WIDTH := 0;
+  signal int_col          : integer range 0 to C_IMG_WIDTH := 0;
+  signal int_row          : integer range 0 to C_IMG_HEIGHT := 0;
 
 begin
 
-  PROC_CNT : process (isl_clk) is
+  proc_cnt : process (isl_clk) is
   begin
 
     if (rising_edge(isl_clk)) then
@@ -113,17 +113,17 @@ begin
       end if;
     end if;
 
-  end process PROC_CNT;
+  end process proc_cnt;
 
   -- zero padding
 
-  GEN_PAD : if C_PAD = 0 generate
+  gen_pad : if C_PAD = 0 generate
     sl_pad_valid_out <= isl_valid;
     slv_pad_data_out <= islv_data;
     sl_pad_rdy       <= '1';
   else generate
-    sl_pad_get <= sl_conv_rdy;
-    i_zero_pad : entity work.ZERO_PAD
+    sl_pad_get       <= sl_conv_rdy;
+    i_zero_pad : entity work.zero_pad
       generic map (
         C_DATA_WIDTH  => C_DATA_TOTAL_BITS,
         C_CH          => C_CH_IN,
@@ -145,10 +145,10 @@ begin
         osl_rdy   => sl_pad_rdy
       );
 
-  end generate GEN_PAD;
+  end generate gen_pad;
 
   -- convolution
-  i_conv_top : entity work.CONV_TOP
+  i_conv_top : entity work.conv_top
     generic map (
       C_FIRST_STAGE         => C_FIRST_STAGE,
 
@@ -179,16 +179,16 @@ begin
       osl_rdy   => sl_conv_rdy
     );
 
-  GEN_NO_RELU_NO_POOL : if C_RELU = '0' and C_POOL_KSIZE = 0 generate
+  gen_no_relu_no_pool : if C_RELU = '0' and C_POOL_KSIZE = 0 generate
     sl_pool_rdy               <= '1';
     slv_output_buffer_data_in <= slv_conv_data_out;
     sl_output_buffer_valid_in <= sl_conv_valid_out;
-  end generate GEN_NO_RELU_NO_POOL;
+  end generate gen_no_relu_no_pool;
 
   -- relu
 
-  GEN_RELU : if C_RELU = '1' generate
-    i_relu : entity work.RELU
+  gen_relu : if C_RELU = '1' generate
+    i_relu : entity work.relu
       generic map (
         C_TOTAL_BITS => C_DATA_TOTAL_BITS,
         C_FRAC_BITS  => C_DATA_FRAC_BITS_OUT,
@@ -204,21 +204,21 @@ begin
 
     -- assign relu outputs
 
-    GEN_RELU_NO_POOL : if C_POOL_KSIZE = 0 generate
+    gen_relu_no_pool : if C_POOL_KSIZE = 0 generate
       sl_pool_rdy               <= '1';
       slv_output_buffer_data_in <= slv_relu_data_out;
       sl_output_buffer_valid_in <= sl_relu_valid_out;
     else generate
-      slv_pool_data_in <= slv_relu_data_out;
-      sl_pool_valid_in <= sl_relu_valid_out;
-    end generate GEN_RELU_NO_POOL;
+      slv_pool_data_in          <= slv_relu_data_out;
+      sl_pool_valid_in          <= sl_relu_valid_out;
+    end generate gen_relu_no_pool;
 
-  end generate GEN_RELU;
+  end generate gen_relu;
 
   -- max pooling
 
-  GEN_POOL : if C_POOL_KSIZE > 0 generate
-    i_max_top : entity work.MAX_TOP
+  gen_pool : if C_POOL_KSIZE > 0 generate
+    i_max_top : entity work.max_top
       generic map (
         C_TOTAL_BITS  => C_DATA_TOTAL_BITS,
         C_FRAC_BITS   => C_DATA_FRAC_BITS_OUT,
@@ -239,14 +239,14 @@ begin
         osl_rdy   => sl_pool_rdy
       );
 
-    GEN_POOL_NO_RELU : if C_RELU = '0' generate
+    gen_pool_no_relu : if C_RELU = '0' generate
       slv_pool_data_in <= slv_conv_data_out;
       sl_pool_valid_in <= sl_conv_valid_out;
-    end generate GEN_POOL_NO_RELU;
+    end generate gen_pool_no_relu;
 
-  end generate GEN_POOL;
+  end generate gen_pool;
 
-  i_output_buffer : entity work.OUTPUT_BUFFER
+  i_output_buffer : entity work.output_buffer
     generic map (
       C_TOTAL_BITS  => C_DATA_TOTAL_BITS,
       C_CH          => C_CH_OUT
@@ -263,4 +263,4 @@ begin
 
   osl_rdy <= sl_pad_rdy and sl_conv_rdy and sl_output_buffer_rdy and isl_get;
 
-end architecture BEHAVIORAL;
+end architecture behavioral;

@@ -9,52 +9,52 @@ library util;
 
 library cnn_lib;
 
-entity TOP is
+entity top is
   generic (
     C_DATA_TOTAL_BITS : integer range 1 to 16;
     C_IMG_WIDTH_IN    : integer range 2 to 512;
     C_IMG_HEIGHT_IN   : integer range 2 to 512;
 
-    C_PE              : integer range 1 to 100;
+    C_PE : integer range 1 to 100;
 
     -- 0 - input, 1 to C_PE - pe, C_PE+1 - average
-    C_RELU            : std_logic_vector(C_PE downto 1); -- slv gets turned around after parsing
-    C_LEAKY_RELU      : std_logic_vector(C_PE downto 1);
+    C_RELU       : std_logic_vector(C_PE downto 1); -- slv gets turned around after parsing
+    C_LEAKY_RELU : std_logic_vector(C_PE downto 1);
 
-    C_PAD             : t_int_array_1d(1 to C_PE);
+    C_PAD : t_int_array_1d(1 to C_PE);
 
-    C_CONV_KSIZE      : t_int_array_1d(1 to C_PE);
-    C_CONV_STRIDE     : t_int_array_1d(1 to C_PE);
-    C_POOL_KSIZE      : t_int_array_1d(1 to C_PE);
-    C_POOL_STRIDE     : t_int_array_1d(1 to C_PE);
+    C_CONV_KSIZE  : t_int_array_1d(1 to C_PE);
+    C_CONV_STRIDE : t_int_array_1d(1 to C_PE);
+    C_POOL_KSIZE  : t_int_array_1d(1 to C_PE);
+    C_POOL_STRIDE : t_int_array_1d(1 to C_PE);
 
-    C_CH              : t_int_array_1d(0 to C_PE);
+    C_CH : t_int_array_1d(0 to C_PE);
 
     -- 0 - bitwidth data, 1 - bitwidth frac data in, 2 - bitwidth frac data out
     -- 3 - bitwidth weights, 4 - bitwidth frac weights
-    C_BITWIDTH        : t_int_array_2d(1 to C_PE, 0 to 4);
+    C_BITWIDTH : t_int_array_2d(1 to C_PE, 0 to 4);
 
-    C_STR_LENGTH      : integer range 1 to 256;
-    C_WEIGHTS_INIT    : t_str_array_1d(1 to C_PE)(1 to C_STR_LENGTH);
-    C_BIAS_INIT       : t_str_array_1d(1 to C_PE)(1 to C_STR_LENGTH);
+    C_STR_LENGTH   : integer range 1 to 256;
+    C_WEIGHTS_INIT : t_str_array_1d(1 to C_PE)(1 to C_STR_LENGTH);
+    C_BIAS_INIT    : t_str_array_1d(1 to C_PE)(1 to C_STR_LENGTH);
 
     -- intra kernel parallelization
-    C_PARALLEL_CH     : t_int_array_1d(1 to C_PE) := (others => 1)
+    C_PARALLEL_CH : t_int_array_1d(1 to C_PE) := (others => 1)
   );
   port (
-    isl_clk     : in    std_logic;
-    isl_get     : in    std_logic;
-    isl_start   : in    std_logic;
-    isl_valid   : in    std_logic;
-    islv_data   : in    std_logic_vector(C_DATA_TOTAL_BITS - 1 downto 0);
-    oslv_data   : out   std_logic_vector(C_DATA_TOTAL_BITS - 1 downto 0);
-    osl_valid   : out   std_logic;
-    osl_rdy     : out   std_logic;
-    osl_finish  : out   std_logic
+    isl_clk    : in    std_logic;
+    isl_get    : in    std_logic;
+    isl_start  : in    std_logic;
+    isl_valid  : in    std_logic;
+    islv_data  : in    std_logic_vector(C_DATA_TOTAL_BITS - 1 downto 0);
+    oslv_data  : out   std_logic_vector(C_DATA_TOTAL_BITS - 1 downto 0);
+    osl_valid  : out   std_logic;
+    osl_rdy    : out   std_logic;
+    osl_finish : out   std_logic
   );
-end entity TOP;
+end entity top;
 
-architecture BEHAVIORAL of TOP is
+architecture behavioral of top is
 
   -- TODO: is subtype with integer range possible?
 
@@ -88,14 +88,14 @@ architecture BEHAVIORAL of TOP is
   constant C_IMG_WIDTH  : t_img_size_array := f_calc_size(C_IMG_WIDTH_IN);
   constant C_IMG_HEIGHT : t_img_size_array := f_calc_size(C_IMG_HEIGHT_IN);
 
-  signal sl_output_valid  : std_logic_vector(0 to C_PE + 1) := (others => '0');
+  signal sl_output_valid : std_logic_vector(0 to C_PE + 1) := (others => '0');
 
   type t_data_array is array (0 to C_PE + 1) of std_logic_vector(C_DATA_TOTAL_BITS - 1 downto 0);
 
-  signal a_data_out       : t_data_array := (others => (others => '0'));
+  signal a_data_out : t_data_array := (others => (others => '0'));
 
   -- C_PE+1 == isl_get
-  signal slv_rdy          : std_logic_vector(1 to C_PE + 1) := (others => '0');
+  signal slv_rdy : std_logic_vector(1 to C_PE + 1) := (others => '0');
 
   -- signals for finish interrupt
   signal int_data_out_cnt : integer range 0 to C_CH(C_CH'RIGHT) := 0;
@@ -118,11 +118,11 @@ begin
 
   slv_rdy(C_PE + 1) <= isl_get;
 
-  GEN_STAGES : for i in 1 to C_PE generate
+  gen_stages : for i in 1 to C_PE generate
     -----------------------------------
     -- Stage 1 to C_PE: processing elements
     -----------------------------------
-    i_stage : entity cnn_lib.PE
+    i_stage : entity cnn_lib.pe
       generic map (
         C_FIRST_STAGE        => f_is_first_stage(i),
 
@@ -159,12 +159,12 @@ begin
         osl_rdy   => slv_rdy(i)
       );
 
-  end generate GEN_STAGES;
+  end generate gen_stages;
 
   -----------------------------------
   -- Stage C_PE+1 (global average)
   -----------------------------------
-  i_ave : entity cnn_lib.POOL_AVE
+  i_ave : entity cnn_lib.pool_ave
     generic map (
       C_TOTAL_BITS  => C_BITWIDTH(C_PE, 0),
       C_FRAC_BITS   => C_BITWIDTH(C_PE, 2),
@@ -184,7 +184,7 @@ begin
   --------------------------------------------------------------
   -- Process: Generate finish signal for interrupt
   --------------------------------------------------------------
-  FINISH_PROC : process (isl_clk) is
+  finish_proc : process (isl_clk) is
   begin
 
     if (rising_edge(isl_clk)) then
@@ -199,7 +199,7 @@ begin
       end if;
     end if;
 
-  end process FINISH_PROC;
+  end process finish_proc;
 
   osl_finish <= sl_output_finish;
   oslv_data  <= a_data_out(C_PE + 1);
@@ -207,4 +207,4 @@ begin
   osl_rdy    <= (slv_rdy(1) and isl_get and not isl_valid) when (int_data_out_cnt < C_CH(C_CH'RIGHT)) else
                 '0';
 
-end architecture BEHAVIORAL;
+end architecture behavioral;

@@ -4,7 +4,7 @@ library ieee;
   use ieee.std_logic_1164.all;
   use ieee.fixed_pkg.all;
 
-package CNN_PKG is
+package cnn_pkg is
 
   -- TODO: make the bitwidth parametrizable
 
@@ -39,7 +39,7 @@ package CNN_PKG is
     constant C_KSIZE : in integer;
     constant C_BITS : in integer) return t_kernel_array;
 
-end package CNN_PKG;
+end package cnn_pkg;
 
 package body cnn_pkg is
   -- load content from file to bram
@@ -48,9 +48,9 @@ package body cnn_pkg is
     constant C_NAME : in string;
     constant C_SIZE : in integer;
     constant C_WIDTH : in integer) return t_ram is
-    file ram_file : text open read_mode is C_NAME;
+    file     ram_file      : text open read_mode is C_NAME;
     variable ram_file_line : line;
-    variable a_ram : t_ram(0 to C_SIZE - 1)(C_WIDTH - 1 downto 0);
+    variable a_ram         : t_ram(0 to C_SIZE - 1)(C_WIDTH - 1 downto 0);
   begin
     for i in 0 to C_SIZE - 1 loop
       readline(ram_file, ram_file_line);
@@ -68,11 +68,11 @@ package body cnn_pkg is
     constant C_SIZE : in integer;
     constant C_KSIZE : in integer;
     constant C_BITS : in integer) return t_kernel_array is
-    constant C_WIDTH : integer := C_BITS * C_KSIZE * C_KSIZE;
-    variable a_ram : t_ram(0 to C_SIZE - 1)(C_WIDTH - 1 downto 0);
+    constant C_WIDTH       : integer := C_BITS * C_KSIZE * C_KSIZE;
+    variable a_ram         : t_ram(0 to C_SIZE - 1)(C_WIDTH - 1 downto 0);
     variable a_ram_weights : t_kernel_array(0 to C_SIZE - 1)(0 to C_KSIZE - 1, 0 to C_KSIZE - 1);
-    variable v_high_index : integer;
-    variable v_low_index : integer;
+    variable v_high_index  : integer;
+    variable v_low_index   : integer;
   begin
 
     if (C_NAME'LENGTH > 0) then
