@@ -31,7 +31,7 @@ entity window_ctrl is
     isl_start : in    std_logic;
     isl_valid : in    std_logic;
     islv_data : in    std_logic_vector(C_BITWIDTH - 1 downto 0);
-    oa_data   : out   t_kernel_array(0 to C_PARALLEL_CH - 1)(0 to C_KERNEL_SIZE - 1, 0 to C_KERNEL_SIZE - 1);
+    oslv_data : out   std_logic_vector(C_PARALLEL_CH * C_KERNEL_SIZE * C_KERNEL_SIZE * C_BITWIDTH - 1 downto 0);
     osl_valid : out   std_logic;
     osl_rdy   : out   std_logic
   );
@@ -70,8 +70,7 @@ architecture behavioral of window_ctrl is
   signal a_repeater_data_out   : t_kernel_array(0 to C_PARALLEL_CH - 1)(0 to C_KERNEL_SIZE - 1, 0 to C_KERNEL_SIZE - 1) := (others => (others => (others => (others => '0'))));
   signal sl_repeater_rdy       : std_logic := '0';
 
-  signal sl_output_valid : std_logic := '0';
-  signal a_data_out      : t_slv_array_2d(0 to C_KERNEL_SIZE - 1, 0 to C_KERNEL_SIZE - 1) := (others => (others => (others => '0')));
+  signal slv_data_out : std_logic_vector(C_PARALLEL_CH * C_KERNEL_SIZE * C_KERNEL_SIZE * C_BITWIDTH - 1 downto 0) := (others => '0');
 
 begin
 
@@ -218,7 +217,7 @@ begin
 
   end process proc_cnt;
 
-  oa_data   <= a_repeater_data_out;
+  oslv_data <= array_to_slv(a_repeater_data_out);
   osl_valid <= sl_repeater_valid_out;
   -- use sl_lb_valid_out and sl_wb_valid_out to get two less cycles of sl_rdy = '1'
   -- else too much data would get sent in

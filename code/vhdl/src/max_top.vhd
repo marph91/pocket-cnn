@@ -30,7 +30,8 @@ end entity max_top;
 
 architecture behavioral of max_top is
 
-  signal a_win_data_out    : t_kernel_array(0 to 0)(0 to C_KSIZE - 1, 0 to C_KSIZE - 1) := (others => (others => (others => (others => '0'))));
+  signal slv_win_data_out  : std_logic_vector(C_KSIZE * C_KSIZE * C_TOTAL_BITS - 1 downto 0);
+  signal a_win_data_out    : t_kernel_array(0 to 0)(0 to C_KSIZE - 1, 0 to C_KSIZE - 1);
   signal slv_win_valid_out : std_logic := '0';
 
 begin
@@ -53,10 +54,12 @@ begin
       isl_start => isl_start,
       isl_valid => isl_valid,
       islv_data => islv_data,
-      oa_data   => a_win_data_out,
+      oslv_data => slv_win_data_out,
       osl_valid => slv_win_valid_out,
       osl_rdy   => osl_rdy
     );
+
+  a_win_data_out <= slv_to_array(slv_win_data_out, 1, C_KSIZE);
 
   i_max : entity work.pool_max
     generic map (

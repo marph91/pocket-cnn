@@ -43,7 +43,8 @@ end entity conv_top;
 architecture behavioral of conv_top is
 
   -- window control
-  signal a_win_data_out   : t_kernel_array(0 to C_PARALLEL_CH - 1)(0 to C_KSIZE - 1, 0 to C_KSIZE - 1) := (others => (others => (others => (others => '0'))));
+  signal slv_win_data_out : std_logic_vector(C_PARALLEL_CH * C_KSIZE * C_KSIZE * C_DATA_TOTAL_BITS - 1 downto 0);
+  signal a_win_data_out   : t_kernel_array(0 to C_PARALLEL_CH - 1)(0 to C_KSIZE - 1, 0 to C_KSIZE - 1);
   signal sl_win_valid_out : std_logic := '0';
 
   -- weights
@@ -71,10 +72,12 @@ begin
       isl_start => isl_start,
       isl_valid => isl_valid,
       islv_data => islv_data,
-      oa_data   => a_win_data_out,
+      oslv_data => slv_win_data_out,
       osl_valid => sl_win_valid_out,
       osl_rdy   => osl_rdy
     );
+
+  a_win_data_out <= slv_to_array(slv_win_data_out, C_PARALLEL_CH, C_KSIZE);
 
   i_conv : entity work.conv
     generic map (

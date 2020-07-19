@@ -36,6 +36,7 @@ architecture tb of tb_window_ctrl is
   signal sl_valid_in : std_logic := '0';
   signal slv_data_in : std_logic_vector(C_BITWIDTH-1 downto 0) := (others => '0');
   signal a_data_out : t_kernel_array(0 to C_PARALLEL_CH-1)(0 to C_KERNEL_SIZE-1, 0 to C_KERNEL_SIZE-1);
+  signal slv_data_out : std_logic_vector(C_PARALLEL_CH * C_KERNEL_SIZE * C_KERNEL_SIZE * C_BITWIDTH - 1 downto 0);
   signal sl_valid_out : std_logic := '0';
   signal sl_rdy : std_logic := '0';
 
@@ -63,10 +64,11 @@ begin
     isl_start => sl_start,
     isl_valid => sl_valid_in,
     islv_data => slv_data_in,
-    oa_data   => a_data_out,
+    oslv_data => slv_data_out,
     osl_valid => sl_valid_out,
     osl_rdy   => sl_rdy
   );
+  a_data_out <= slv_to_array(slv_data_out, C_PARALLEL_CH, C_KERNEL_SIZE);
 
   main : process
     procedure run_test is
