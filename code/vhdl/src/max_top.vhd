@@ -3,7 +3,7 @@ library ieee;
   use ieee.std_logic_1164.all;
 
 library util;
-  use util.cnn_pkg.all;
+  use util.array_pkg.all;
 
 entity max_top is
   generic (
@@ -37,9 +37,9 @@ begin
 
   i_window_ctrl : entity work.window_ctrl
     generic map (
-      C_DATA_TOTAL_BITS => C_TOTAL_BITS,
+      C_BITWIDTH => C_TOTAL_BITS,
 
-      C_KSIZE           => C_KSIZE,
+      C_KERNEL_SIZE           => C_KSIZE,
       C_STRIDE          => C_STRIDE,
       C_CH_IN           => C_CH,
       C_CH_OUT          => 1,

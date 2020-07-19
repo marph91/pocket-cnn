@@ -7,8 +7,7 @@ entity bram is
   generic (
     C_DATA_WIDTH : integer;
     C_ADDR_WIDTH : integer;
-    C_SIZE       : integer;
-    C_OUTPUT_REG : integer range 0 to 1 := 0
+    C_SIZE       : integer
   );
   port (
     isl_clk   : in    std_logic;
@@ -39,27 +38,11 @@ begin
         if (isl_we = '1') then
           a_ram(to_integer(unsigned(islv_addr))) <= islv_data;
         end if;
-        slv_data <= a_ram(to_integer(unsigned(islv_addr)));
+        slv_data  <= a_ram(to_integer(unsigned(islv_addr)));
+        oslv_data <= slv_data; -- output register
       end if;
     end if;
 
   end process proc_bram;
-
-  gen_output_reg : if C_OUTPUT_REG = 0 generate
-    oslv_data <= slv_data;
-  elsif C_OUTPUT_REG = 1 generate
-
-    proc_output_reg : process (isl_clk) is
-    begin
-
-      if (rising_edge(isl_clk)) then
-        if (isl_en = '1') then
-          oslv_data <= slv_data;
-        end if;
-      end if;
-
-    end process proc_output_reg;
-
-  end generate gen_output_reg;
 
 end architecture behavioral;

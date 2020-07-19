@@ -8,7 +8,7 @@ library sim;
   use sim.common.all;
 library cnn_lib;
 library util;
-  use util.cnn_pkg.all;
+  use util.array_pkg.all;
 
 library vunit_lib;
   context vunit_lib.vunit_context;

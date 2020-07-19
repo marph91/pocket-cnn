@@ -32,7 +32,7 @@ def vhdl_top_template(param: dict, output_file: str) -> None:
 library ieee;\n\
   use ieee.std_logic_1164.all;\n\
 library util;\n\
-  use util.cnn_pkg.all;\n\n\
+  use util.array_pkg.all;\n\n\
 library cnn_lib;\n\n\
 entity top_wrapper is\n\
   port (\n\

@@ -6,29 +6,32 @@ library ieee;
   use ieee.fixed_float_types.all;
 
 library util;
-  use util.cnn_pkg.all;
-  use util.math_pkg.all;
+  use util.array_pkg.all;
 
 entity window_ctrl is
   generic (
-    C_DATA_TOTAL_BITS : integer range 1 to 16 := 8;
+    -- global data bitwidth
+    C_BITWIDTH : integer range 1 to 16 := 8;
 
-    C_CH_IN      : integer range 1 to 512 := 1;
-    C_CH_OUT     : integer range 1 to 512 := 8;
-    C_IMG_WIDTH  : integer range 1 to 512 := 8;
-    C_IMG_HEIGHT : integer range 1 to 512 := 8;
+    -- image properties
+    C_CH_IN      : integer range 1 to 512 := 1; -- input channel
+    C_CH_OUT     : integer range 1 to 512 := 8; -- output channel (i. e. how often the output data gets repeated)
+    C_IMG_WIDTH  : integer range 1 to 512 := 8; -- image width
+    C_IMG_HEIGHT : integer range 1 to 512 := 8; -- image height
 
-    C_KSIZE  : integer range 1 to 5 := 3;
-    C_STRIDE : integer range 1 to 3 := 1;
+    -- kernel properties
+    C_KERNEL_SIZE : integer range 1 to 5 := 3; -- kernel size (squared)
+    C_STRIDE      : integer range 1 to 3 := 1; -- kernel stride
 
-    C_PARALLEL_CH : integer range 1 to 512 := 1
+    -- further configuration
+    C_PARALLEL_CH : integer range 1 to 512 := 1 -- defines how many channels should be put out in parallel
   );
   port (
     isl_clk   : in    std_logic;
     isl_start : in    std_logic;
     isl_valid : in    std_logic;
-    islv_data : in    std_logic_vector(C_DATA_TOTAL_BITS - 1 downto 0);
-    oa_data   : out   t_kernel_array(0 to C_PARALLEL_CH - 1)(0 to C_KSIZE - 1, 0 to C_KSIZE - 1);
+    islv_data : in    std_logic_vector(C_BITWIDTH - 1 downto 0);
+    oa_data   : out   t_kernel_array(0 to C_PARALLEL_CH - 1)(0 to C_KERNEL_SIZE - 1, 0 to C_KERNEL_SIZE - 1);
     osl_valid : out   std_logic;
     osl_rdy   : out   std_logic
   );
@@ -49,40 +52,40 @@ architecture behavioral of window_ctrl is
 
   -- for line buffer
   signal sl_lb_valid_out : std_logic := '0';
-  signal a_lb_data_out   : t_slv_array_1d(0 to C_KSIZE - 1);
+  signal a_lb_data_out   : t_slv_array_1d(0 to C_KERNEL_SIZE - 1);
 
   -- for window buffer
   signal sl_wb_valid_out : std_logic := '0';
-  signal a_wb_data_out   : t_slv_array_2d(0 to C_KSIZE - 1, 0 to C_KSIZE - 1) := (others => (others => (others => '0')));
+  signal a_wb_data_out   : t_slv_array_2d(0 to C_KERNEL_SIZE - 1, 0 to C_KERNEL_SIZE - 1) := (others => (others => (others => '0')));
 
   -- for selector
   signal sl_selector_valid_in  : std_logic := '0';
   signal sl_selector_valid_out : std_logic := '0';
-  signal a_selector_data_in    : t_slv_array_2d(0 to C_KSIZE - 1, 0 to C_KSIZE - 1) := (others => (others => (others => '0')));
-  signal a_selector_data_out   : t_slv_array_2d(0 to C_KSIZE - 1, 0 to C_KSIZE - 1) := (others => (others => (others => '0')));
+  signal a_selector_data_in    : t_slv_array_2d(0 to C_KERNEL_SIZE - 1, 0 to C_KERNEL_SIZE - 1) := (others => (others => (others => '0')));
+  signal a_selector_data_out   : t_slv_array_2d(0 to C_KERNEL_SIZE - 1, 0 to C_KERNEL_SIZE - 1) := (others => (others => (others => '0')));
   signal sl_selector_rdy       : std_logic := '0';
 
   -- for channel repeater
   signal sl_repeater_valid_out : std_logic := '0';
-  signal a_repeater_data_out   : t_kernel_array(0 to C_PARALLEL_CH - 1)(0 to C_KSIZE - 1, 0 to C_KSIZE - 1) := (others => (others => (others => (others => '0'))));
+  signal a_repeater_data_out   : t_kernel_array(0 to C_PARALLEL_CH - 1)(0 to C_KERNEL_SIZE - 1, 0 to C_KERNEL_SIZE - 1) := (others => (others => (others => (others => '0'))));
   signal sl_repeater_rdy       : std_logic := '0';
 
   signal sl_output_valid : std_logic := '0';
-  signal a_data_out      : t_slv_array_2d(0 to C_KSIZE - 1, 0 to C_KSIZE - 1) := (others => (others => (others => '0')));
+  signal a_data_out      : t_slv_array_2d(0 to C_KERNEL_SIZE - 1, 0 to C_KERNEL_SIZE - 1) := (others => (others => (others => '0')));
 
 begin
 
-  gen_window_buffer : if C_KSIZE = 1 generate
+  gen_window_buffer : if C_KERNEL_SIZE = 1 generate
     sl_selector_valid_out     <= isl_valid;
     a_selector_data_out(0, 0) <= islv_data;
   else generate
     -- line buffer
     i_line_buffer : entity work.line_buffer
       generic map (
-        C_DATA_WIDTH  => C_DATA_TOTAL_BITS,
+        C_BITWIDTH    => C_BITWIDTH,
         C_CH          => C_CH_IN,
         C_IMG_WIDTH   => C_IMG_WIDTH,
-        C_KSIZE       => C_KSIZE
+        C_KERNEL_SIZE => C_KERNEL_SIZE
       )
       port map (
         isl_clk   => isl_clk,
@@ -95,16 +98,16 @@ begin
     -- window buffer
     i_window_buffer : entity work.window_buffer
       generic map (
-        C_DATA_WIDTH  => C_DATA_TOTAL_BITS,
+        C_BITWIDTH    => C_BITWIDTH,
         C_CH          => C_CH_IN,
-        C_KSIZE       => C_KSIZE
+        C_KERNEL_SIZE => C_KERNEL_SIZE
       )
       port map (
-        isl_clk     => isl_clk,
-        isl_valid   => sl_lb_valid_out,
-        ia_data     => a_lb_data_out,
-        oa_data     => a_wb_data_out,
-        osl_valid   => sl_wb_valid_out
+        isl_clk   => isl_clk,
+        isl_valid => sl_lb_valid_out,
+        ia_data   => a_lb_data_out,
+        oa_data   => a_wb_data_out,
+        osl_valid => sl_wb_valid_out
       );
 
     sl_selector_valid_in <= sl_wb_valid_out;
@@ -122,10 +125,10 @@ begin
 
       if (rising_edge(isl_clk)) then
         if (sl_selector_valid_in = '1' and
-            int_pixel_in_cnt >= (C_KSIZE - 1) * C_IMG_WIDTH + C_KSIZE - 1 and
-            (int_row + 1 - C_KSIZE + C_STRIDE) mod C_STRIDE = 0 and
-            (int_col + 1 - C_KSIZE + C_STRIDE) mod C_STRIDE = 0 and
-            int_col + 1 > C_KSIZE - 1) then
+            int_pixel_in_cnt >= (C_KERNEL_SIZE - 1) * C_IMG_WIDTH + C_KERNEL_SIZE - 1 and
+            (int_row + 1 - C_KERNEL_SIZE + C_STRIDE) mod C_STRIDE = 0 and
+            (int_col + 1 - C_KERNEL_SIZE + C_STRIDE) mod C_STRIDE = 0 and
+            int_col + 1 > C_KERNEL_SIZE - 1) then
           sl_selector_valid_out <= '1';
         else
           sl_selector_valid_out <= '0';
@@ -142,20 +145,20 @@ begin
     -- channel repeater
     i_channel_repeater : entity work.channel_repeater
       generic map (
-        C_DATA_WIDTH  => C_DATA_TOTAL_BITS,
+        C_BITWIDTH    => C_BITWIDTH,
         C_CH          => C_CH_IN,
         C_REPEAT      => C_CH_OUT,
-        C_KSIZE       => C_KSIZE,
+        C_KERNEL_SIZE => C_KERNEL_SIZE,
 
         C_PARALLEL_CH => C_PARALLEL_CH
       )
       port map (
-        isl_clk     => isl_clk,
-        isl_valid   => sl_selector_valid_out,
-        ia_data     => a_selector_data_out,
-        oa_data     => a_repeater_data_out,
-        osl_valid   => sl_repeater_valid_out,
-        osl_rdy     => sl_repeater_rdy
+        isl_clk   => isl_clk,
+        isl_valid => sl_selector_valid_out,
+        ia_data   => a_selector_data_out,
+        oa_data   => a_repeater_data_out,
+        osl_valid => sl_repeater_valid_out,
+        osl_rdy   => sl_repeater_rdy
       );
 
   else generate
@@ -169,7 +172,7 @@ begin
 
     if (rising_edge(isl_clk)) then
       if (isl_start = '1') then
-        -- have to be resetted at start because of odd kernels (3x3+2)
+        -- have to be resetted at start because of odd kernels (size: 3, stride: 2)
         -- because image dimensions aren't fitting kernel stride
         int_ch_in_cnt     <= 0;
         int_pixel_in_cnt  <= 0;

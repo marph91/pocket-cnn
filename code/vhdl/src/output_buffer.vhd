@@ -4,7 +4,7 @@ library ieee;
   use ieee.numeric_std.all;
 
 library util;
-  use util.cnn_pkg.all;
+  use util.array_pkg.all;
 
 entity output_buffer is
   generic (

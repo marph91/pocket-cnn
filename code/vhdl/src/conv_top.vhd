@@ -4,7 +4,7 @@ library ieee;
   use ieee.numeric_std.all;
 
 library util;
-  use util.cnn_pkg.all;
+  use util.array_pkg.all;
   use util.math_pkg.all;
 
 entity conv_top is
@@ -55,9 +55,9 @@ begin
 
   i_window_ctrl : entity work.window_ctrl
     generic map (
-      C_DATA_TOTAL_BITS     => C_DATA_TOTAL_BITS,
+      C_BITWIDTH            => C_DATA_TOTAL_BITS,
 
-      C_KSIZE               => C_KSIZE,
+      C_KERNEL_SIZE         => C_KSIZE,
       C_STRIDE              => C_STRIDE,
       C_CH_IN               => C_CH_IN,
       C_CH_OUT              => C_CH_OUT,

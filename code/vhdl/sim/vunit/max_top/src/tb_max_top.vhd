@@ -6,7 +6,7 @@ library ieee;
 library cnn_lib;
 
 library util;
-  use util.cnn_pkg.all;
+  use util.array_pkg.all;
   use util.math_pkg.all;
 
 library sim;

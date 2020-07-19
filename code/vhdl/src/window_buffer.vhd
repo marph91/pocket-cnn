@@ -4,21 +4,21 @@ library ieee;
   use ieee.numeric_std.all;
 
 library util;
-  use util.cnn_pkg.all;
+  use util.array_pkg.all;
 
 entity window_buffer is
   generic (
-    C_DATA_WIDTH : integer range 1 to 16 := 8;
+    C_BITWIDTH : integer range 1 to 16 := 8;
 
     C_CH : integer range 1 to 512 := 4;
 
-    C_KSIZE : integer range 1 to 5 := 3
+    C_KERNEL_SIZE : integer range 1 to 5 := 3
   );
   port (
     isl_clk   : in    std_logic;
     isl_valid : in    std_logic;
-    ia_data   : in    t_slv_array_1d(0 to C_KSIZE - 1);
-    oa_data   : out   t_slv_array_2d(0 to C_KSIZE - 1, 0 to C_KSIZE - 1);
+    ia_data   : in    t_slv_array_1d(0 to C_KERNEL_SIZE - 1);
+    oa_data   : out   t_slv_array_2d(0 to C_KERNEL_SIZE - 1, 0 to C_KERNEL_SIZE - 1);
     osl_valid : out   std_logic
   );
 end entity window_buffer;
@@ -29,7 +29,7 @@ architecture behavior of window_buffer is
 
   signal sl_valid_out : std_logic := '0';
 
-  type t_win_buffer is array (0 to C_CH - 1) of t_slv_array_2d(0 to C_KSIZE - 1, 0 to C_KSIZE - 1);
+  type t_win_buffer is array (0 to C_CH - 1) of t_slv_array_2d(0 to C_KERNEL_SIZE - 1, 0 to C_KERNEL_SIZE - 1);
 
   signal a_win_buffer : t_win_buffer := (others => (others => (others => (others => '0'))));
 
@@ -48,15 +48,15 @@ begin
         -- shift columns and wrap last channel:
         -- each column gets shifted to the next position and
         -- the last channel of the buffer gets wrapped
-        for col in 1 to C_KSIZE - 1 loop
-          for row in 0 to C_KSIZE - 1 loop
+        for col in 1 to C_KERNEL_SIZE - 1 loop
+          for row in 0 to C_KERNEL_SIZE - 1 loop
             a_win_buffer(0)(col, row) <= a_win_buffer(C_CH - 1)(col - 1, row);
           end loop;
         end loop;
 
         -- insert new input column
-        for col in 0 to C_KSIZE - 1 loop
-          for row in 0 to C_KSIZE - 1 loop
+        for col in 0 to C_KERNEL_SIZE - 1 loop
+          for row in 0 to C_KERNEL_SIZE - 1 loop
             a_win_buffer(0)(0, row) <= ia_data(row);
           end loop;
         end loop;

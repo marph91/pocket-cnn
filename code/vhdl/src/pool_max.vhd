@@ -5,7 +5,7 @@ library ieee;
   use ieee.fixed_pkg.all;
 
 library util;
-  use util.cnn_pkg.all;
+  use util.array_pkg.all;
   use util.math_pkg.all;
 
 entity pool_max is

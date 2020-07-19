@@ -34,10 +34,10 @@ def create_test_suite(test_lib):
         # TODO: THe function shoulndn't be executed before passing to
         #       "pre_config". I. e. use "functools.partial".
         for para in (1,)*(channel_in > 1) + (channel_in,):
-            generics = {"C_DATA_WIDTH": total_bits,
+            generics = {"C_BITWIDTH": total_bits,
                         "C_CH": channel_in,
                         "C_REPEAT": channel_out,
-                        "C_KSIZE": ksize,
+                        "C_KERNEL_SIZE": ksize,
                         "C_PARALLEL_CH": para}
             tb_channel_repeater.add_config(
                 name=f"dim_{ksize}_ch_in_{channel_in}_para_{para}",

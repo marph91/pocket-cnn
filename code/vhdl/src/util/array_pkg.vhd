@@ -4,7 +4,7 @@ library ieee;
   use ieee.std_logic_1164.all;
   use ieee.fixed_pkg.all;
 
-package cnn_pkg is
+package array_pkg is
 
   -- TODO: make the bitwidth parametrizable
 
@@ -39,9 +39,9 @@ package cnn_pkg is
     constant C_KSIZE : in integer;
     constant C_BITS : in integer) return t_kernel_array;
 
-end package cnn_pkg;
+end package array_pkg;
 
-package body cnn_pkg is
+package body array_pkg is
   -- load content from file to bram
 
   impure function load_content(
@@ -93,4 +93,4 @@ package body cnn_pkg is
     return a_ram_weights;
   end function;
 
-end cnn_pkg;
+end array_pkg;

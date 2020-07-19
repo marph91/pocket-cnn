@@ -1,13 +1,11 @@
 library ieee;
   use ieee.std_logic_1164.all;
   use ieee.numeric_std.all;
-  use ieee.fixed_pkg.all;
 
 library cnn_lib;
 
 library util;
-  use util.cnn_pkg.all;
-  use util.math_pkg.all;
+  use util.array_pkg.all;
 
 library sim;
   use sim.common.all;
@@ -17,27 +15,27 @@ library vunit_lib;
 
 entity tb_window_ctrl is
   generic (
-    runner_cfg        : string;
+    runner_cfg    : string;
 
-    C_DATA_TOTAL_BITS : integer;
+    C_BITWIDTH    : integer;
 
-    C_CH_IN           : integer;
-    C_CH_OUT          : integer;
-    C_IMG_WIDTH       : integer;
-    C_IMG_HEIGHT      : integer;
+    C_CH_IN       : integer;
+    C_CH_OUT      : integer;
+    C_IMG_WIDTH   : integer;
+    C_IMG_HEIGHT  : integer;
 
-    C_KSIZE           : integer;
-    C_STRIDE          : integer;
+    C_KERNEL_SIZE : integer;
+    C_STRIDE      : integer;
 
-    C_PARALLEL_CH     : integer := 1
+    C_PARALLEL_CH : integer := 1
   );
 end entity;
 
 architecture tb of tb_window_ctrl is
   signal sl_clk : std_logic := '0';
   signal sl_valid_in : std_logic := '0';
-  signal slv_data_in : std_logic_vector(C_DATA_TOTAL_BITS-1 downto 0) := (others => '0');
-  signal a_data_out : t_kernel_array(0 to C_PARALLEL_CH-1)(0 to C_KSIZE-1, 0 to C_KSIZE-1);
+  signal slv_data_in : std_logic_vector(C_BITWIDTH-1 downto 0) := (others => '0');
+  signal a_data_out : t_kernel_array(0 to C_PARALLEL_CH-1)(0 to C_KERNEL_SIZE-1, 0 to C_KERNEL_SIZE-1);
   signal sl_valid_out : std_logic := '0';
   signal sl_rdy : std_logic := '0';
 
@@ -50,14 +48,14 @@ architecture tb of tb_window_ctrl is
 begin
   dut : entity cnn_lib.window_ctrl
   generic map (
-    C_DATA_TOTAL_BITS  => C_DATA_TOTAL_BITS,
+    C_BITWIDTH  => C_BITWIDTH,
 
     C_CH_IN            => C_CH_IN,
     C_CH_OUT           => C_CH_OUT,
     C_IMG_WIDTH        => C_IMG_WIDTH,
     C_IMG_HEIGHT       => C_IMG_HEIGHT,
 
-    C_KSIZE            => C_KSIZE,
+    C_KERNEL_SIZE      => C_KERNEL_SIZE,
     C_STRIDE           => C_STRIDE
   )
   port map (
@@ -86,26 +84,26 @@ begin
 
   begin
     test_runner_setup(runner, runner_cfg);
-    report ("bitwidth: " & to_string(C_DATA_TOTAL_BITS));
+    report ("bitwidth: " & to_string(C_BITWIDTH));
     report ("Sending image of size " &
             to_string(C_IMG_WIDTH) & "x" &
             to_string(C_IMG_HEIGHT) & "x" &
             to_string(C_CH_IN));
     report ("Expecting kernels of size " &
-            to_string(C_KSIZE) & "x" &
-            to_string(C_KSIZE) & "x" &
+            to_string(C_KERNEL_SIZE) & "x" &
+            to_string(C_KERNEL_SIZE) & "x" &
             to_string(C_CH_OUT));
 
-    data_src := load_csv(tb_path(runner_cfg) & "input_" & to_string(C_KSIZE) & "_" & to_string(C_STRIDE) & ".csv");
-    data_ref := load_csv(tb_path(runner_cfg) & "output_" & to_string(C_KSIZE) & "_" & to_string(C_STRIDE) & ".csv");
+    data_src := load_csv(tb_path(runner_cfg) & "gen/input_" & to_string(C_KERNEL_SIZE) & "_" & to_string(C_STRIDE) & ".csv");
+    data_ref := load_csv(tb_path(runner_cfg) & "gen/output_" & to_string(C_KERNEL_SIZE) & "_" & to_string(C_STRIDE) & ".csv");
 
     check_equal(data_src.width, C_IMG_WIDTH*C_IMG_HEIGHT*C_CH_IN, "input_width");
     check_equal(data_src.height, 1, "input_height");
     check_equal(data_src.depth, 1, "input_depth");
 
-    check_equal(data_ref.width, C_KSIZE*C_KSIZE*C_CH_IN, "output_width"); -- channels, get repeated C_CH_OUT times
-    check_equal(data_ref.height, ((C_IMG_WIDTH-(C_KSIZE-C_STRIDE))/C_STRIDE) *
-                                 ((C_IMG_HEIGHT-(C_KSIZE-C_STRIDE))/C_STRIDE), "output_height"); -- number of positions of the kernel
+    check_equal(data_ref.width, C_KERNEL_SIZE*C_KERNEL_SIZE*C_CH_IN, "output_width"); -- channels, get repeated C_CH_OUT times
+    check_equal(data_ref.height, ((C_IMG_WIDTH-(C_KERNEL_SIZE-C_STRIDE))/C_STRIDE) *
+                                 ((C_IMG_HEIGHT-(C_KERNEL_SIZE-C_STRIDE))/C_STRIDE), "output_height"); -- number of positions of the kernel
     check_equal(data_ref.depth, 1, "output_depth");
 
     run_test;
@@ -143,26 +141,29 @@ begin
   end process;
 
   data_check_process : process
-    variable int_x_out, int_y_out : integer;
+    variable int_col_out, int_row_out : integer;
   begin
     wait until rising_edge(sl_clk) and sl_start = '1';
     data_check_done <= false;
     wait until rising_edge(sl_clk);
 
     -- one row in the output file for each image position
-    int_x_out := (C_IMG_WIDTH-(C_KSIZE-C_STRIDE))/C_STRIDE;
-    int_y_out := (C_IMG_HEIGHT-(C_KSIZE-C_STRIDE))/C_STRIDE;
-    for pos in 0 to int_x_out*int_y_out-1 loop
+    int_col_out := (C_IMG_WIDTH-(C_KERNEL_SIZE-C_STRIDE))/C_STRIDE;
+    int_row_out := (C_IMG_HEIGHT-(C_KERNEL_SIZE-C_STRIDE))/C_STRIDE;
+    for pos in 0 to int_col_out*int_row_out-1 loop
       for ch_out in 0 to C_CH_OUT-1 loop
         -- reference data stays the same for all output channels of one image position
         for ch_in in 0 to C_CH_IN-1 loop
           wait until rising_edge(sl_clk) and sl_valid_out = '1';
-          for x in 0 to C_KSIZE-1 loop
-            for y in 0 to C_KSIZE-1 loop
-              report to_string(a_data_out(0)(C_KSIZE-1-x, C_KSIZE-1-y)) &
-                    " " & to_string(get(data_ref, ch_in*C_KSIZE*C_KSIZE+x+y*C_KSIZE, pos));
-              check_equal(a_data_out(0)(C_KSIZE-1-x, C_KSIZE-1-y), get(data_ref, ch_in*C_KSIZE*C_KSIZE+x+y*C_KSIZE, pos),
-                          "pos=" & to_string(pos) & ", ch_in=" & to_string(ch_in) & ", ch_out=" & to_string(ch_out));
+          for col in 0 to C_KERNEL_SIZE-1 loop
+            for row in 0 to C_KERNEL_SIZE-1 loop
+              report to_string(
+                a_data_out(0)(C_KERNEL_SIZE-1-col, C_KERNEL_SIZE-1-row)) & " " &
+                to_string(get(data_ref, ch_in*C_KERNEL_SIZE*C_KERNEL_SIZE+col+row*C_KERNEL_SIZE, pos));
+              check_equal(
+                a_data_out(0)(C_KERNEL_SIZE-1-col, C_KERNEL_SIZE-1-row),
+                get(data_ref, ch_in*C_KERNEL_SIZE*C_KERNEL_SIZE+col+row*C_KERNEL_SIZE, pos),
+                "pos=" & to_string(pos) & ", ch_in=" & to_string(ch_in) & ", ch_out=" & to_string(ch_out));
             end loop;
           end loop;
         end loop;

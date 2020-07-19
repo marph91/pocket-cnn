@@ -15,7 +15,7 @@ cd build
 # analyze the sources
 SRC="$ROOT/../code/vhdl/src"
 
-ghdl -a --std=08 --work=util "$SRC/util/cnn_pkg.vhd"
+ghdl -a --std=08 --work=util "$SRC/util/array_pkg.vhd"
 ghdl -a --std=08 --work=util "$SRC/util/math_pkg.vhd"
 
 ghdl -a --std=08 --work=cnn_lib "$SRC/bram.vhd"
