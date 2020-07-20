@@ -25,6 +25,8 @@ def create_test_suites(prj):
 
     util_lib = prj.add_library("util")
     util_lib.add_source_files("../../src/util/*.vhd")
+    window_buffer_lib = prj.add_library("window_buffer_lib")
+    window_buffer_lib.add_source_files("../../../../submodules/window-buffer/src/*.vhd")
     cnn_lib = prj.add_library("cnn_lib")
     cnn_lib.add_source_files("../../src/*.vhd")
 
