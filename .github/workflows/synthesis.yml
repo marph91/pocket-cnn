@@ -1,18 +1,15 @@
 name: synthesis
 
-on:
-  push:
-  schedule:
-    - cron: '0 0 * * *'
+on: [push, pull_request]
 
 jobs:
   synthesis:
     runs-on: ubuntu-latest
     container: ghdl/synth:beta
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v2
       - name: Run synthesis
         continue-on-error: true
         run: |
           export PYTHONPATH="$(pwd)/code/python_tools"
-          code/snippets/synthesize.sh .
+          code/vhdl/syn/synthesize.sh .
