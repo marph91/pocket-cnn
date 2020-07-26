@@ -123,7 +123,7 @@ def parse_param(model: str) -> dict:
                 pes.append(pelem)
 
             conv_param = {
-                "conv_names": node.input[3].split("_", 1)[0].zfill(16),
+                "conv_names": node.input[3][:16].zfill(16),
                 "conv_kernel": get_kernel_params(params)[0],
                 "conv_stride": get_kernel_params(params)[1],
                 "channel": weights_dict[node.input[3]].shape[0],

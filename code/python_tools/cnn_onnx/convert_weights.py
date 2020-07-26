@@ -26,7 +26,7 @@ def convert_weights(model: str, output_dir: str = "weights") -> None:
             kernel = weights_dict[node.input[3]]
             bias = weights_dict[node.input[8]]
 
-            layer_name = node.input[3].split("_", 1)[0].zfill(16)
+            layer_name = node.input[3][:16].zfill(16)
             if last_layer_name and len(last_layer_name) != len(layer_name):
                 print("Warning: Layer names have different length. "
                       "Padding to 16 chars failed.")
