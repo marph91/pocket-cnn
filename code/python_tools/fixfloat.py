@@ -31,11 +31,10 @@ def float2fixed(number: float, int_bits: int, frac_bits: int) -> str:
         fixed_nr = bin(int(
             2**(int_bits + frac_bits) - py3round(abs(number) * 2**frac_bits)))
         return fixed_nr[-(int_bits + frac_bits):].zfill(int_bits + frac_bits)
-    else:
-        if number > 2 ** (int_bits - 1) - 2 ** -frac_bits:
-            return "0" + "1" * (int_bits + frac_bits - 1)
-        return bin(int(
-            py3round(number * 2**frac_bits)))[2:].zfill(int_bits+frac_bits)
+    if number > 2 ** (int_bits - 1) - 2 ** -frac_bits:
+        return "0" + "1" * (int_bits + frac_bits - 1)
+    return bin(int(
+        py3round(number * 2**frac_bits)))[2:].zfill(int_bits+frac_bits)
 
 
 def fixed2float(number: str, int_bits: int, frac_bits: int) -> float:

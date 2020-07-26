@@ -4,8 +4,6 @@ Previously it was used for cocotb compatibility, too."""
 import argparse
 import os
 
-import onnx
-
 from cnn_onnx import convert_weights, model_zoo, parse_param
 
 
@@ -127,4 +125,6 @@ def main():
 
 
 if __name__ == "__main__":
+    import onnx
+
     main()
