@@ -33,19 +33,21 @@ architecture behavioral of pool_ave is
 
   -- temporary higher int width to prevent overflow while summing up channel/pixel
   -- new bitwidth = log2(C_IMG_HEIGHT*C_IMG_WIDTH*(2^old bitwidth)) = log2(C_IMG_HEIGHT*C_IMG_WIDTH) + old bitwidth -> new bw = lb(16*(2^7)) = 12
-  constant C_INTW_SUM   : integer range 1 to C_INT_BITS + log2(C_IMG_HEIGHT * C_IMG_WIDTH) := C_INT_BITS + log2(C_IMG_HEIGHT * C_IMG_WIDTH);
+  constant C_INTW_SUM   : integer := C_INT_BITS + log2(C_IMG_HEIGHT * C_IMG_WIDTH);
   constant C_FRACW_REZI : integer range 1 to 16 := 16;
 
   signal sl_input_valid_d1 : std_logic := '0';
   signal sl_input_valid_d2 : std_logic := '0';
   signal sl_input_valid_d3 : std_logic := '0';
 
-  signal    sfix_average    : sfixed(C_INTW_SUM + 1 downto - C_FRAC_BITS - C_FRACW_REZI) := (others => '0'); -- mult: A'left + B'left + 1 downto -(A'right + B'right)
+  -- fixed point multiplication yields: A'left + B'left + 1 downto -(A'right + B'right)
+  signal    sfix_average    : sfixed(C_INTW_SUM + 1 downto - C_FRAC_BITS - C_FRACW_REZI) := (others => '0');
   attribute use_dsp : string;
   attribute use_dsp of sfix_average : signal is "yes";
   signal    sfix_average_d1 : sfixed(C_INTW_SUM + 1 downto - C_FRAC_BITS - C_FRACW_REZI) := (others => '0');
 
   -- TODO: try real instead of sfixed
+  -- to_sfixed() yields always one fractional bit. Thus the reciprocal has at least 2 integer bits.
   constant C_RECIPROCAL : sfixed(1 downto - C_FRACW_REZI) := reciprocal(to_sfixed(C_IMG_HEIGHT * C_IMG_WIDTH, C_FRACW_REZI, 0));
   signal   slv_average  : std_logic_vector(C_TOTAL_BITS - 1 downto 0) := (others => '0');
 
@@ -91,7 +93,7 @@ begin
                         a_ch_buffer(C_POOL_CH - 1) +
                         to_sfixed(islv_data,
                         C_INT_BITS - 1, - C_FRAC_BITS),
-                        C_INTW_SUM - 1, - C_FRAC_BITS, fixed_wrap, fixed_truncate);
+                        v_sfix_sum, fixed_wrap, fixed_truncate);
           a_ch_buffer     <= v_sfix_sum & a_ch_buffer(0 to a_ch_buffer'HIGH - 1);
         end if;
 
@@ -100,7 +102,7 @@ begin
         -- sfix_average <= a_ch_buffer(0)/to_sfixed(C_IMG_HEIGHT*C_IMG_WIDTH, 8, 0);
         --
         -- 2. divide with round properties (round, guard bits)
-        -- sfix_average <= divide(a_ch_buffer(0), to_sfixed(C_IMG_HEIGHT*C_IMG_WIDTH, 8, 0), FIXED_TRUNCATE, 0)
+        -- sfix_average <= divide(a_ch_buffer(0), to_sfixed(C_IMG_HEIGHT*C_IMG_WIDTH, 8, 0), fixed_truncate, 0)
         --
         -- 3. multiply with reciprocal -> best for timing and ressource usage!
         -- sfix_average <= a_ch_buffer(0) * C_RECIPROCAL;
