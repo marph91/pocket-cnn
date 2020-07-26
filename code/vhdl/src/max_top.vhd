@@ -40,9 +40,9 @@ begin
 
   i_window_ctrl : entity window_buffer_lib.window_ctrl
     generic map (
-      C_BITWIDTH => C_TOTAL_BITS,
+      C_BITWIDTH        => C_TOTAL_BITS,
 
-      C_KERNEL_SIZE           => C_KSIZE,
+      C_KERNEL_SIZE     => C_KSIZE,
       C_STRIDE          => C_STRIDE,
       C_CH_IN           => C_CH,
       C_CH_OUT          => 1,

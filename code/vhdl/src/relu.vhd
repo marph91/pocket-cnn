@@ -61,8 +61,9 @@ begin
             oslv_data <= islv_data;
           else
             oslv_data <= to_slv(resize(
-                         to_sfixed(islv_data & '0', C_INT_BITS - 1, - C_FRAC_BITS - 1),
-                         C_INT_BITS + 2, - C_FRAC_BITS + 3, fixed_saturate, fixed_round));
+                         to_sfixed(islv_data, C_INT_BITS - 1, - C_FRAC_BITS),
+                         C_INT_BITS + 2, - C_FRAC_BITS + 3,
+                         fixed_saturate, fixed_round));
           end if;
         end if;
         sl_output_valid <= isl_valid;

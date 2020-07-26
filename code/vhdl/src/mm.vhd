@@ -90,8 +90,8 @@ begin
         if (isl_valid = '1') then
           for j in 0 to C_KSIZE - 1 loop
             for i in 0 to C_KSIZE - 1 loop
-              a_sfix_data(i, j)    <= to_sfixed('0' & ia_data(i, j), C_DATA_INT_BITS, - C_DATA_FRAC_BITS_IN);
-              a_sfix_weights(i, j) <= to_sfixed(ia_weights(i, j), C_WEIGHTS_INT_BITS - 1, - C_WEIGHTS_FRAC_BITS);
+              a_sfix_data(i, j)    <= to_sfixed('0' & ia_data(i, j), a_sfix_data(0, 0));
+              a_sfix_weights(i, j) <= to_sfixed(ia_weights(i, j), a_sfix_weights(0, 0));
             end loop;
           end loop;
         end if;
@@ -108,8 +108,8 @@ begin
         if (isl_valid = '1') then
           for j in 0 to C_KSIZE - 1 loop
             for i in 0 to C_KSIZE - 1 loop
-              a_sfix_data(i, j)    <= to_sfixed(ia_data(i, j), C_DATA_INT_BITS - 1, - C_DATA_FRAC_BITS_IN);
-              a_sfix_weights(i, j) <= to_sfixed(ia_weights(i, j), C_WEIGHTS_INT_BITS - 1, - C_WEIGHTS_FRAC_BITS);
+              a_sfix_data(i, j)    <= to_sfixed(ia_data(i, j), a_sfix_data(0, 0));
+              a_sfix_weights(i, j) <= to_sfixed(ia_weights(i, j), a_sfix_weights(0, 0));
             end loop;
           end loop;
         end if;
@@ -147,7 +147,7 @@ begin
           for i in 0 to C_KSIZE - 1 loop
             a_data_mult_resized(i, j) <= resize(
                                          a_data_mult_d1(i, j),
-                                         C_INTW_SUM1 - 1, - C_DATA_FRAC_BITS_IN - C_WEIGHTS_FRAC_BITS,
+                                         a_data_mult_resized(0, 0),
                                          fixed_wrap, fixed_truncate);
           end loop;
         end loop;
@@ -159,7 +159,7 @@ begin
           for i in 1 to C_KSIZE - 1 loop
             v_sfix_column_sum(j) := resize(
                                     v_sfix_column_sum(j) + a_data_mult_resized(i, j),
-                                    C_INTW_SUM1 - 1, - C_DATA_FRAC_BITS_IN - C_WEIGHTS_FRAC_BITS,
+                                    v_sfix_column_sum(0),
                                     fixed_wrap, fixed_truncate);
           end loop;
         end loop;
@@ -171,7 +171,7 @@ begin
         for j in 0 to C_KSIZE - 1 loop
           v_sfix_full_sum := resize(
                              v_sfix_full_sum + a_column_sum(j),
-                             C_INTW_SUM2 - 1, - C_DATA_FRAC_BITS_IN - C_WEIGHTS_FRAC_BITS,
+                             v_sfix_full_sum,
                              fixed_wrap, fixed_truncate);
         end loop;
         slv_data_out <= to_slv(v_sfix_full_sum);

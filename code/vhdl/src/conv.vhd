@@ -148,7 +148,8 @@ begin
         if (int_mm_out_cnt = 0) then
           v_sfix_sum := resize(to_sfixed(C_BIAS(int_addr_cnt_b)(0, 0),
                         C_WEIGHTS_TOTAL_BITS - C_WEIGHTS_FRAC_BITS - 1, - C_WEIGHTS_FRAC_BITS),
-                        C_SUM_INT_BITS - 1, - C_SUM_FRAC_BITS, fixed_wrap, fixed_truncate);
+                        v_sfix_sum,
+                        fixed_wrap, fixed_truncate);
         end if;
 
         for ch_in in 0 to C_PARALLEL_CH - 1 loop
@@ -157,7 +158,8 @@ begin
           v_sfix_sum := resize(
                         v_sfix_sum + to_sfixed(slv_mm_data_out(ch_in),
                         C_SUM_INT_BITS - log2(C_CH_IN) - 1, - C_SUM_FRAC_BITS),
-                        C_SUM_INT_BITS - 1, - C_SUM_FRAC_BITS, fixed_wrap, fixed_truncate);
+                        v_sfix_sum,
+                        fixed_wrap, fixed_truncate);
         end loop;
         sfix_sum <= v_sfix_sum;
       end if;

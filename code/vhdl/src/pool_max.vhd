@@ -56,9 +56,9 @@ begin
       -- Stage 1
       if (isl_valid = '1') then
         for j in 0 to C_KSIZE - 1 loop
-          v_a_column_max(j)   := to_sfixed(ia_data(0, j), C_INT_BITS - 1, - C_FRAC_BITS);
+          v_a_column_max(j)   := to_sfixed(ia_data(0, j), v_sfix_new_value);
           for i in 1 to C_KSIZE - 1 loop
-            v_sfix_new_value  := to_sfixed(ia_data(i, j), C_INT_BITS - 1, - C_FRAC_BITS);
+            v_sfix_new_value  := to_sfixed(ia_data(i, j), v_sfix_new_value);
             v_a_column_max(j) := max(v_sfix_new_value, v_a_column_max(j));
           end loop;
         end loop;
