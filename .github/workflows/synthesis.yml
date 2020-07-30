@@ -14,7 +14,6 @@ jobs:
           apt install --yes python3-pip
           pip3 install onnx
       - name: Run synthesis
-        continue-on-error: true
         run: |
           export PYTHONPATH="$(pwd)/code/python_tools"
           code/vhdl/syn/synthesize.sh .
