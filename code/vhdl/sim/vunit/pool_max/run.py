@@ -5,8 +5,7 @@ from random import randint
 
 import numpy as np
 
-from fixfloat import v_float2fixedint
-from fixfloat import random_fixed_array
+from fpbinary_helper import random_fixed_array, to_fixedint, v_to_fixedint
 
 
 def create_stimuli(root, pool_dim, total_bits, frac_bits):
@@ -14,14 +13,14 @@ def create_stimuli(root, pool_dim, total_bits, frac_bits):
     # Therefore the random fixed point values have to be converted to
     # corresponding integer values.
     int_bits = total_bits - frac_bits
-    a_rand = random_fixed_array((pool_dim, pool_dim), int_bits, frac_bits)
-    a_in = v_float2fixedint(a_rand, int_bits, frac_bits)
+    a_rand = random_fixed_array(
+        (pool_dim, pool_dim), int_bits=int_bits, frac_bits=frac_bits)
+    a_in = v_to_fixedint(a_rand)
     np.savetxt(join(root, "src", "input%d.csv" % pool_dim), a_in,
                delimiter=", ", fmt="%3d")
 
     # use atleast_1d to fulfill 1d requirement of savetxt
-    a_out = np.atleast_1d(v_float2fixedint(
-        np.max(a_rand), int_bits, frac_bits))
+    a_out = np.atleast_1d(to_fixedint(np.max(a_rand)))
     np.savetxt(join(root, "src", "output%d.csv" % pool_dim), a_out,
                delimiter=", ", fmt="%3d")
 

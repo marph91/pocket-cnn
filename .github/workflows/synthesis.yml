@@ -12,7 +12,7 @@ jobs:
         run: |
           apt update
           apt install --yes python3-pip
-          pip3 install onnx
+          pip3 install onnx==1.7.0 fpbinary==1.5.2
       - name: Run synthesis
         run: |
           export PYTHONPATH="$(pwd)/code/python_tools"

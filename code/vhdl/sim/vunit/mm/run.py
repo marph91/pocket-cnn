@@ -8,8 +8,8 @@ from random import randint
 
 import numpy as np
 
-from fixfloat import v_float2fixedint, float2fixedint
-from fixfloat import random_fixed_array
+from fpbinary import OverflowEnum
+from fpbinary_helper import random_fixed_array, to_fixedint, v_to_fixedint
 
 
 def create_stimuli(root, stage, ksize, total_bits_data, frac_bits_data,
@@ -22,26 +22,31 @@ def create_stimuli(root, stage, ksize, total_bits_data, frac_bits_data,
         (ksize, ksize), int_bits_data, frac_bits_data, signed=stage != 1)
     # manually extend the bitwidth to implicitly create unsigned values
     sign_bit = 1 if stage == 1 else 0
-    a_in = v_float2fixedint(a_rand, int_bits_data + sign_bit, frac_bits_data)
+    a_in = v_to_fixedint(a_rand)
     name = "input_data%s.csv" % ("_stage1" if stage == 1 else str(ksize))
     np.savetxt(join(root, "src", name), a_in, delimiter=", ", fmt="%3d")
 
     int_bits_weight = total_bits_weight - frac_bits_weight
     a_weights_rand = random_fixed_array(
         (ksize, ksize), int_bits_weight, frac_bits_weight)
-    a_weights_in = v_float2fixedint(
-        a_weights_rand, int_bits_weight, frac_bits_weight)
+    a_weights_in = v_to_fixedint(a_weights_rand)
     name = "input_weights%s.csv" % ("_stage1" if stage == 1 else str(ksize))
     np.savetxt(join(root, "src", name), a_weights_in,
                delimiter=", ", fmt="%3d")
 
-    sum_ = np.sum(a_rand * a_weights_rand)
-
+    product = a_rand * a_weights_rand
     additions = 0 if ksize == 1 else int(math.log2(ksize - 1) * 2)
+    # TODO: replace for loop
+    for value in product.flat:
+        # No rounding needed for resize.
+        # The range is covered by "additions + 1 + sign_bit"
+        value.resize(
+            (value.format[0] + additions + 1 + sign_bit, value.format[1]),
+            OverflowEnum.excep)
+    sum_ = np.sum(product)
+
     # use atleast_1d to fulfill 1d requirement of savetxt
-    a_out = np.atleast_1d(float2fixedint(
-        sum_, int_bits_data + int_bits_weight + additions + 1 + sign_bit,
-        frac_bits_data+frac_bits_weight))
+    a_out = np.atleast_1d(to_fixedint(sum_))
     name = "output%s.csv" % ("_stage1" if stage == 1 else str(ksize))
     np.savetxt(join(root, "src", name), a_out, delimiter=", ", fmt="%d")
 

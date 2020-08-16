@@ -5,20 +5,18 @@ from random import randint
 
 import numpy as np
 
-from fixfloat import v_float2fixedint
-from fixfloat import random_fixed_array
 from cnn_reference import flatten, zero_pad
+from fpbinary_helper import random_fixed_array, v_to_fixedint
 
 
-def create_arrays(root, w, h, ch):
-    id_ = "one" if ch == 1 else "multiple"
+def create_arrays(root, shape):
+    id_ = "one" if shape[1] == 1 else "multiple"
 
-    a_rand = random_fixed_array((1, ch, h, w), 8, 0)
-    a_in = v_float2fixedint(a_rand, 8, 0)
+    a_rand = random_fixed_array(shape, int_bits=8, frac_bits=0)
+    a_in = v_to_fixedint(a_rand)
     np.savetxt(join(root, "src", "input_%s.csv" % id_),
                flatten(a_in), delimiter=", ", fmt="%3d")
-
-    a_out = v_float2fixedint(zero_pad(a_rand), 8, 0)
+    a_out = v_to_fixedint(zero_pad(a_rand))
     np.savetxt(join(root, "src", "output_%s.csv" % id_),
                flatten(a_out), delimiter=", ", fmt="%3d")
 
@@ -32,10 +30,12 @@ def create_test_suite(test_lib):
     config_one_ch = randint(1, 32), randint(1, 32), 1
     for width, height, channel in (config_one_ch, config_multiple_ch):
         id_ = "one" if channel == 1 else "multiple"
-        tb_zero_pad.add_config(name="%s_channel" % id_,
-                               generics={"id": id_,
-                                         "C_IMG_WIDTH": width,
-                                         "C_IMG_HEIGHT": height,
-                                         "C_IMG_DEPTH": channel},
-                               pre_config=create_arrays(root, width, height,
-                                                        channel))
+        tb_zero_pad.add_config(
+            name="%s_channel" % id_,
+            generics={
+                "id": id_,
+                "C_IMG_WIDTH": width,
+                "C_IMG_HEIGHT": height,
+                "C_IMG_DEPTH": channel,
+            },
+            pre_config=create_arrays(root, (1, channel, height, width)))

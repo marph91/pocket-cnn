@@ -11,6 +11,7 @@ import cnn_onnx.model_zoo
 import cnn_onnx.parse_param
 import cnn_onnx.convert_weights
 from cnn_reference import flatten
+from fpbinary_helper import random_fixed_array, v_to_fixedint
 import vhdl_top_template
 
 
@@ -18,13 +19,13 @@ def create_stimuli(root, model_name):
     model = onnx.load(join(root, model_name))
     shape = cnn_onnx.parse_param.get_input_shape(model)
 
-    in_ = np.random.randint(256, size=shape)
-    out_ = cnn_onnx.inference.numpy_inference(model, in_)
+    a_rand = random_fixed_array(shape, 8, 0, signed=False)
+    a_in = v_to_fixedint(a_rand)
+    a_out = v_to_fixedint(cnn_onnx.inference.numpy_inference(model, a_rand))
 
-    np.savetxt(join(root, "input.csv"), flatten(in_),
+    np.savetxt(join(root, "input.csv"), flatten(a_in),
                delimiter=", ", fmt="%3d")
-    np.savetxt(join(root, "output.csv"), out_,
-               delimiter=", ", fmt="%3d")
+    np.savetxt(join(root, "output.csv"), a_out, delimiter=", ", fmt="%3d")
 
 
 def create_test_suite(test_lib):

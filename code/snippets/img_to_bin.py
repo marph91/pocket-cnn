@@ -8,7 +8,8 @@ import os
 import numpy as np
 import PIL.Image
 
-from fixfloat import float2fixed
+from fpbinary import FpBinary
+from fpbinary_helper import to_binary_string
 
 
 def load_image(path, width, height, mode="L"):
@@ -27,8 +28,7 @@ def img_to_bin(source, dest, val_line=1):
     tmp_fixed, tmp_float = [], []
     for index, item in enumerate(np.nditer(source)):
         # write to first position of line (order needed at BRAM)
-        # 9:0 and [1:] because of sign bit
-        item_fixed = str(float2fixed(item, 9, 0))[1:]
+        item_fixed = to_binary_string(FpBinary(8, 0, signed=False, value=item))
         tmp_fixed.insert(0, item_fixed)
         tmp_float.insert(0, "%s %d " % (item_fixed, item))
         img_bin.append(int(item_fixed, 2).to_bytes(1, byteorder="big"))
@@ -54,13 +54,13 @@ def main():
     parser.add_argument("input_image", type=str)
     parser.add_argument("output_width", type=int)
     parser.add_argument("output_height", type=int)
-    parser.add_argument("output_destination", type=str)
+    parser.add_argument("output_directory", type=str)
     parser.add_argument("val_line", type=int, help="values per line (1 or 4)")
     args = parser.parse_args()
 
     img = load_image(args.input_image, args.output_height, args.output_width)
 
-    img_to_bin(img, args.output_destination, args.val_line)
+    img_to_bin(img, args.output_directory, args.val_line)
 
 
 if __name__ == "__main__":

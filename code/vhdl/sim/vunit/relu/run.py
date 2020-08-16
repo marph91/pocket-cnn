@@ -4,29 +4,22 @@ from os.path import join, dirname
 
 import numpy as np
 
-import fixfloat
-
-
-def relu(val, leaky=0):
-    out = val if val >= 0 else val * leaky * 0.125
-    # convert to int, because only int is supported at image2d.get
-    return str(int(fixfloat.float2fixed(out, 8, 0), 2))
+from cnn_reference import relu, leaky_relu
+from fpbinary_helper import random_fixed_array, v_to_fixedint
 
 
 def create_stimuli(root, sample_cnt: int = 1):
-    a_in = np.random.randint(-128, high=127, size=(sample_cnt), dtype=np.int8)
+    a_rand = random_fixed_array((sample_cnt), 4, 4)
+    a_in = v_to_fixedint(a_rand)
     np.savetxt(join(root, "src", "input.csv"), a_in, delimiter=", ",
                fmt="%3d")
 
-    a_out = []
-    a_out_leaky = []
-    for val in a_in:
-        a_out.append(relu(val, leaky=0))
-        a_out_leaky.append(relu(val, leaky=1))
-    with open(join(root, "src", "output.csv"), "w") as outfile:
-        outfile.write("\n".join(a_out))
-    with open(join(root, "src", "output_leaky.csv"), "w") as outfile:
-        outfile.write("\n".join(a_out_leaky))
+    a_out = v_to_fixedint(relu(a_rand))
+    a_out_leaky = v_to_fixedint(leaky_relu(a_rand, 0.125))
+    np.savetxt(join(root, "src", "output.csv"), a_out, delimiter=", ",
+               fmt="%3d")
+    np.savetxt(join(root, "src", "output_leaky.csv"), a_out_leaky, delimiter=", ",
+               fmt="%3d")
 
 
 def create_test_suite(test_lib):
@@ -34,6 +27,7 @@ def create_test_suite(test_lib):
 
     tb_relu = test_lib.entity("tb_relu")
 
+    # TODO: different bitwidths
     sample_cnt = 100
     for leaky in [0, 1]:
         generics = {"sample_cnt": sample_cnt,
