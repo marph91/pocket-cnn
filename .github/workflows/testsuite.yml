@@ -8,6 +8,10 @@ jobs:
     container: ghdl/vunit:gcc-master
     steps:
       - uses: actions/checkout@v2
+      - name: install system packets (for fpbinary)
+        run: |
+          apt update
+          apt install --yes python3-dev
       - name: install pip packets
         run: pip install onnx==1.7.0 fpbinary==1.5.2
       - name: Run tests

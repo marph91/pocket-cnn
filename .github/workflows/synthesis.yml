@@ -8,6 +8,10 @@ jobs:
     container: ghdl/synth:beta
     steps:
       - uses: actions/checkout@v2
+      - name: install system packets (for fpbinary)
+        run: |
+          apt update
+          apt install --yes python3-dev
       - name: install onnx
         run: |
           apt update
