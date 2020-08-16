@@ -36,8 +36,10 @@ def convert_weights(model: str, output_dir: str = "weights") -> None:
             int_bits = 8 - int(math.log2(weights_dict[node.input[4]]))
             frac_bits = int(math.log2(weights_dict[node.input[4]]))
 
-            kernel = to_fixed_point_array(kernel, int_bits=int_bits, frac_bits=frac_bits)
-            bias = to_fixed_point_array(bias, int_bits=int_bits, frac_bits=frac_bits)
+            kernel = to_fixed_point_array(
+                kernel, int_bits=int_bits, frac_bits=frac_bits)
+            bias = to_fixed_point_array(
+                bias, int_bits=int_bits, frac_bits=frac_bits)
             weights_to_files(kernel, bias, layer_name, output_dir)
 
 

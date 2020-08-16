@@ -42,7 +42,8 @@ def max_pool(array_in, ksize: int, stride: int):
     for row_out, row_in in enumerate(range(0, max_height, stride)):
         for col_out, col_in in enumerate(range(0, max_width, stride)):
             roi = array_in[0, :, row_in:row_in+ksize, col_in:col_in+ksize]
-            array_out[0, :, row_out, col_out] = np.amax(roi.reshape(channel, -1), axis=1)
+            array_out[0, :, row_out, col_out] = np.amax(
+                roi.reshape(channel, -1), axis=1)
     return array_out
 
 
@@ -111,8 +112,10 @@ def leaky_relu(array_in, alpha: float):
     list_out = []
     for value in array_in.flat:
         if value < 0:
-            value_leaky = value * FpBinary(value=alpha, format_inst=sample, signed=sample.is_signed)
-            value_leaky.resize(sample.format, OverflowEnum.sat, RoundingEnum.near_even)
+            value_leaky = value * FpBinary(
+                value=alpha, format_inst=sample, signed=sample.is_signed)
+            value_leaky.resize(
+                sample.format, OverflowEnum.sat, RoundingEnum.near_even)
         else:
             value_leaky = value
         list_out.append(value_leaky)

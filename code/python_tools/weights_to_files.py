@@ -17,7 +17,8 @@ def weights_to_files(kernel, bias, layer_name: str, output_dir: str):
         debug_w.append(f"{item} ")
         if (kernel_index+1) % (shape[2] * shape[3]) == 0:
             if ch_in % shape[1] == 0:
-                bias_index = (kernel_index+1) / (shape[1] * shape[2] * shape[3])-1
+                bias_index = ((kernel_index + 1) /
+                              (shape[1] * shape[2] * shape[3]) - 1)
                 line_b.append(
                     f"{to_binary_string(bias[int(bias_index)])}\n")
                 debug_b.append(f"{bias[int(bias_index)]}\n")

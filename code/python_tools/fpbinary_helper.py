@@ -32,10 +32,11 @@ def to_fixed_point(number: str, **kwargs):
 
 def to_fixed_point_array(array_in, from_value: bool = True, **kwargs):
     """Convert an arbitrary array to an array of fixed point objects."""
-    if from_value:
-        fp_gen = lambda x: FpBinary(**kwargs, value=x)
-    else:
-        fp_gen = lambda x: FpBinary(**kwargs, bit_field=int(x))
+    def fp_gen(value):
+        if from_value:
+            return FpBinary(**kwargs, value=value)
+        return FpBinary(**kwargs, bit_field=int(value))
+
     # TODO: v_fp_gen = np.vectorize(fp_gen)
     # see also: https://github.com/smlgit/fpbinary/issues/9
     array_out = np.empty((array_in.size,), dtype=object)
@@ -75,30 +76,35 @@ def main():
     """Some tests to evaluate the functionality:"""
     # arbitrary array
     arbitrary_array = np.arange(9).reshape((3, 3))
-    lattice = to_fixed_point_array(arbitrary_array, int_bits=4, frac_bits=4, signed=False)
+    lattice = to_fixed_point_array(
+        arbitrary_array, int_bits=4, frac_bits=4, signed=False)
     print(lattice)
 
     # multiplication
     mul_lattice = lattice * lattice
     print(mul_lattice, type(mul_lattice[0, 0]), mul_lattice[0, 0].format)
-    print(to_fixed_point_array(mul_lattice, int_bits=4, frac_bits=4, signed=False))
+    print(to_fixed_point_array(
+        mul_lattice, int_bits=4, frac_bits=4, signed=False))
 
     # random array
-    print(random_fixed_array((1, 3, 2, 2), int_bits=4, frac_bits=4, signed=False))
+    print(random_fixed_array(
+        (1, 3, 2, 2), int_bits=4, frac_bits=4, signed=False))
 
     # to binary string
     num1 = FpBinary(int_bits=4, frac_bits=4, signed=False, value=3.5)
     print(to_binary_string(num1))
 
     # back to fixed_point
-    num2 = to_fixed_point(to_binary_string(num1), int_bits=4, frac_bits=4, signed=False)
+    num2 = to_fixed_point(
+        to_binary_string(num1), int_bits=4, frac_bits=4, signed=False)
     print(num2)
 
     # to fixed integer (plain value, not twos complement)
     num3 = FpBinary(int_bits=4, frac_bits=4, signed=False, value=9999)
     print(to_fixedint(num3))
 
-    arr1 = random_fixed_array((1, 3, 2, 2), int_bits=4, frac_bits=4, signed=False)
+    arr1 = random_fixed_array(
+        (1, 3, 2, 2), int_bits=4, frac_bits=4, signed=False)
     print(v_to_fixedint(arr1))
 
 
