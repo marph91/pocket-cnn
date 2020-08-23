@@ -11,7 +11,7 @@ import cnn_onnx.model_zoo
 import cnn_onnx.parse_param
 import cnn_onnx.convert_weights
 from cnn_reference import flatten
-from fpbinary_helper import random_fixed_array, v_to_fixedint
+from fp_helper import random_fixed_array, v_to_fixedint, Bitwidth
 import vhdl_top_template
 
 
@@ -19,7 +19,7 @@ def create_stimuli(root, model_name):
     model = onnx.load(join(root, model_name))
     shape = cnn_onnx.parse_param.get_input_shape(model)
 
-    a_rand = random_fixed_array(shape, 8, 0, signed=False)
+    a_rand = random_fixed_array(shape, Bitwidth(8, 8, 0), signed=False)
     a_in = v_to_fixedint(a_rand)
     a_out = v_to_fixedint(cnn_onnx.inference.numpy_inference(model, a_rand))
 

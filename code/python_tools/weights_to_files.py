@@ -3,7 +3,7 @@ in the VHDL design at simulation and synthesis."""
 
 import os
 
-from fpbinary_helper import to_binary_string
+from fp_helper import to_binary_string
 
 
 def weights_to_files(kernel, bias, layer_name: str, output_dir: str):

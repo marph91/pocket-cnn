@@ -11,7 +11,7 @@ import numpy as np
 
 from cnn_onnx import parse_param
 from cnn_onnx import graph_generator as gg
-from fpbinary_helper import to_fixed_point_array, v_to_fixedint
+from fp_helper import to_fixed_point_array, v_to_fixedint
 
 
 def is_power_of_two(val: Union[int, float]) -> bool:

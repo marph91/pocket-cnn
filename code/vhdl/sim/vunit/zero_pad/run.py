@@ -6,13 +6,13 @@ from random import randint
 import numpy as np
 
 from cnn_reference import flatten, zero_pad
-from fpbinary_helper import random_fixed_array, v_to_fixedint
+from fp_helper import random_fixed_array, v_to_fixedint, Bitwidth
 
 
 def create_arrays(root, shape):
     id_ = "one" if shape[1] == 1 else "multiple"
 
-    a_rand = random_fixed_array(shape, int_bits=8, frac_bits=0)
+    a_rand = random_fixed_array(shape, Bitwidth(int_bits=8, frac_bits=0))
     a_in = v_to_fixedint(a_rand)
     np.savetxt(join(root, "src", "input_%s.csv" % id_),
                flatten(a_in), delimiter=", ", fmt="%3d")

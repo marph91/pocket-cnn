@@ -9,7 +9,7 @@ import numpy as np
 import PIL.Image
 
 from fpbinary import FpBinary
-from fpbinary_helper import to_binary_string
+from fp_helper import to_binary_string
 
 
 def load_image(path, width, height, mode="L"):

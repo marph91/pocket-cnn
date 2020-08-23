@@ -7,7 +7,7 @@ import math
 import onnx
 from onnx import numpy_helper
 
-from fpbinary_helper import to_fixed_point_array
+from fp_helper import to_fixed_point_array
 from weights_to_files import weights_to_files
 
 

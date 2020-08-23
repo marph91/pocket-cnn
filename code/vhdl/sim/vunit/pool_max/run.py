@@ -5,16 +5,11 @@ from random import randint
 
 import numpy as np
 
-from fpbinary_helper import random_fixed_array, to_fixedint, v_to_fixedint
+from fp_helper import random_fixed_array, to_fixedint, v_to_fixedint, Bitwidth
 
 
-def create_stimuli(root, pool_dim, total_bits, frac_bits):
-    # vunit import from csv can only handle datatype integer.
-    # Therefore the random fixed point values have to be converted to
-    # corresponding integer values.
-    int_bits = total_bits - frac_bits
-    a_rand = random_fixed_array(
-        (pool_dim, pool_dim), int_bits=int_bits, frac_bits=frac_bits)
+def create_stimuli(root, pool_dim, bitwidth):
+    a_rand = random_fixed_array((pool_dim, pool_dim), bitwidth)
     a_in = v_to_fixedint(a_rand)
     np.savetxt(join(root, "src", "input%d.csv" % pool_dim), a_in,
                delimiter=", ", fmt="%3d")
@@ -31,12 +26,12 @@ def create_test_suite(test_lib):
     tb_pool_max = test_lib.entity("tb_pool_max")
 
     for pool_dim in [2, 3]:
-        total_bits = 8
-        frac_bits = randint(0, total_bits - 1)
-
-        generics = {"C_KSIZE": pool_dim, "C_TOTAL_BITS": total_bits,
-                    "C_FRAC_BITS": frac_bits}
-        tb_pool_max.add_config(name="dim=%d" % (pool_dim),
-                               generics=generics,
-                               pre_config=create_stimuli(root, pool_dim,
-                                                         total_bits, frac_bits))
+        bitwidth = Bitwidth(total_bits=8)
+        generics = {
+            "C_KSIZE": pool_dim,
+            "C_TOTAL_BITS": bitwidth.total_bits,
+            "C_FRAC_BITS": bitwidth.frac_bits,
+        }
+        tb_pool_max.add_config(
+            name="dim=%d" % (pool_dim), generics=generics,
+            pre_config=create_stimuli(root, pool_dim, bitwidth))

@@ -1,8 +1,59 @@
-"""Helper functions for fpbinary."""
+"""Fixed point helper functions. This includes convenience functions
+for fpbinary as well as general functions."""
+
+from dataclasses import dataclass
+from random import randint
+from typing import Optional, Tuple
 
 import numpy as np
 
 from fpbinary import FpBinary
+
+
+@dataclass
+class Bitwidth:
+    """
+    >>> Bitwidth(total_bits=8)  # doctest:+ELLIPSIS
+    Bitwidth(total_bits=8, ...)
+
+    >>> Bitwidth(total_bits=8, int_bits=4)
+    Bitwidth(total_bits=8, int_bits=4, frac_bits=4)
+
+    >>> Bitwidth(int_bits=4, frac_bits=4)
+    Bitwidth(total_bits=8, int_bits=4, frac_bits=4)
+
+    >>> Bitwidth(8, 1, 7)
+    Bitwidth(total_bits=8, int_bits=1, frac_bits=7)
+
+    >>> Bitwidth()
+    Traceback (most recent call last):
+        ...
+    Exception: Invalid initialization. Please provide int and frac bits.
+    """
+    total_bits: Optional[int] = None
+    int_bits: Optional[int] = None
+    frac_bits: Optional[int] = None
+
+    def __post_init__(self):
+        if self.total_bits is None:
+            if None in (self.int_bits, self.frac_bits):
+                raise Exception("Invalid initialization. "
+                                "Please provide int and frac bits.")
+            self.total_bits = self.int_bits + self.frac_bits
+        else:
+            if self.int_bits is None:
+                self.int_bits = randint(1, self.total_bits)
+            self.frac_bits = self.total_bits - self.int_bits
+        if self.int_bits < 1:
+            raise Exception("Invalid initialization. "
+                            "At least one int bit required.")
+
+    @property
+    def as_tuple(self) -> Tuple[int, int]:
+        """Get a tuple representation (int_bits, frac_bits) of the bitwidth."""
+        if self.int_bits is None or self.frac_bits is None:
+            raise Exception("Int and frac bits should be defined.")
+        return (self.int_bits, self.frac_bits)
 
 
 def to_binary_string(number: FpBinary):
@@ -42,14 +93,15 @@ def to_fixed_point_array(array_in, from_value: bool = True, **kwargs):
     return array_out.reshape(array_in.shape)
 
 
-def random_fixed_array(size: tuple, int_bits: int, frac_bits: int,
+def random_fixed_array(size: tuple, bitwidth: Bitwidth,
                        signed: bool = True):
     """Create an array of random fixed point numbers."""
-    arr = np.random.randint(
-        2 ** (int_bits + frac_bits), size=size, dtype=np.int)
+    if bitwidth.total_bits is not None:
+        arr = np.random.randint(
+            2 ** bitwidth.total_bits, size=size, dtype=np.int)
     return to_fixed_point_array(
-        arr, from_value=False, int_bits=int_bits, frac_bits=frac_bits,
-        signed=signed)
+        arr, from_value=False, int_bits=bitwidth.int_bits,
+        frac_bits=bitwidth.frac_bits, signed=signed)
 
 
 def main():
@@ -68,7 +120,7 @@ def main():
 
     # random array
     print(random_fixed_array(
-        (1, 3, 2, 2), int_bits=4, frac_bits=4, signed=False))
+        (1, 3, 2, 2), Bitwidth(int_bits=4, frac_bits=4), signed=False))
 
     # to binary string
     num1 = FpBinary(int_bits=4, frac_bits=4, signed=False, value=3.5)
@@ -84,7 +136,7 @@ def main():
     print(to_fixedint(num3))
 
     arr1 = random_fixed_array(
-        (1, 3, 2, 2), int_bits=4, frac_bits=4, signed=False)
+        (1, 3, 2, 2), Bitwidth(int_bits=4, frac_bits=4), signed=False)
     print(v_to_fixedint(arr1))
 
 

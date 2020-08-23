@@ -9,7 +9,7 @@ from onnx import numpy_helper
 
 import cnn_reference
 from cnn_onnx import model_zoo, parse_param
-from fpbinary_helper import to_fixed_point_array
+from fp_helper import to_fixed_point_array
 
 
 def numpy_inference(onnx_model, input_):

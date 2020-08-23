@@ -7,7 +7,7 @@ from typing import Tuple
 import numpy as np
 
 from fpbinary import FpBinary, OverflowEnum, RoundingEnum
-from fpbinary_helper import to_fixed_point_array
+from fp_helper import to_fixed_point_array
 
 
 def avg_pool(array_in):

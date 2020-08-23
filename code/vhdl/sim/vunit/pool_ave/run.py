@@ -8,12 +8,11 @@ import numpy as np
 
 from cnn_reference import avg_pool, flatten
 
-from fpbinary_helper import random_fixed_array, v_to_fixedint
+from fp_helper import random_fixed_array, v_to_fixedint, Bitwidth
 
 
-def create_stimuli(root, shape, total_bits, frac_bits):
-    int_bits = total_bits - frac_bits
-    a_rand = random_fixed_array(shape, int_bits, frac_bits)
+def create_stimuli(root, shape, bitwidth):
+    a_rand = random_fixed_array(shape, bitwidth)
     a_in = v_to_fixedint(a_rand)
     np.savetxt(join(root, "src", "input.csv"), flatten(a_in),
                delimiter=", ", fmt="%3d")
@@ -29,17 +28,15 @@ def create_test_suite(test_lib):
     tb_pool_ave = test_lib.entity("tb_pool_ave")
 
     width, height, channel = randint(1, 4), randint(1, 8), randint(1, 8)
-    total_bits = 8
-    frac_bits = randint(0, total_bits-1)
+    bitwidth = Bitwidth(total_bits=8)
     generics = {
         "C_IMG_WIDTH": width,
         "C_IMG_HEIGHT": height,
         "C_IMG_DEPTH": channel,
-        "C_TOTAL_BITS": total_bits,
-        "C_FRAC_BITS": frac_bits,
+        "C_TOTAL_BITS": bitwidth.total_bits,
+        "C_FRAC_BITS": bitwidth.frac_bits,
     }
     tb_pool_ave.add_config(
         name="all", generics=generics,
-        pre_config=create_stimuli(root, (1, channel, height, width),
-                                  total_bits, frac_bits),
+        pre_config=create_stimuli(root, (1, channel, height, width), bitwidth),
     )
