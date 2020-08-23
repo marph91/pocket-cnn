@@ -102,7 +102,7 @@ def relu(array_in):
     return np.where(array_in > 0, array_in, array_out)
 
 
-def leaky_relu(array_in, alpha: float):
+def leaky_relu(array_in, alpha: FpBinary):
     """Leaky rectified linear unit activation."""
     sample = array_in.item(0)
 
@@ -112,8 +112,7 @@ def leaky_relu(array_in, alpha: float):
     list_out = []
     for value in array_in.flat:
         if value < 0:
-            value_leaky = value * FpBinary(
-                value=alpha, format_inst=sample, signed=sample.is_signed)
+            value_leaky = value * alpha
             value_leaky.resize(
                 sample.format, OverflowEnum.sat, RoundingEnum.near_even)
         else:

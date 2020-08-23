@@ -3,6 +3,7 @@ functions."""
 
 import math
 
+from fpbinary import FpBinary
 import numpy as np
 import onnx
 from onnx import numpy_helper
@@ -54,7 +55,8 @@ def numpy_inference(onnx_model, input_):
         elif node.op_type == "Relu":
             next_input = cnn_reference.relu(next_input)
         elif node.op_type == "LeakyRelu":
-            next_input = cnn_reference.leaky_relu(next_input, 0.125)
+            next_input = cnn_reference.leaky_relu(
+                next_input, FpBinary(int_bits=0, frac_bits=3, value=0.125))
     return next_input
 
 

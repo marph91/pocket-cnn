@@ -13,7 +13,7 @@ library vunit_lib;
 entity tb_relu is
   generic (
     runner_cfg    : string;
-    ref_file      : string;
+    leaky_string  : string;
     sample_cnt    : integer;
     C_LEAKY       : std_logic := '0';
     C_TOTAL_BITS  : integer := 4;
@@ -65,8 +65,8 @@ begin
 
   begin
     test_runner_setup(runner, runner_cfg);
-    data_src := load_csv(tb_path(runner_cfg) & "input.csv");
-    data_ref := load_csv(tb_path(runner_cfg) & ref_file);
+    data_src := load_csv(tb_path(runner_cfg) & "input" & leaky_string & ".csv");
+    data_ref := load_csv(tb_path(runner_cfg) & "output" & leaky_string & ".csv");
     run_test;
     test_runner_cleanup(runner);
     wait;
@@ -82,7 +82,7 @@ begin
     wait until rising_edge(sl_clk);
     sl_valid_in <= '1';
     for x in 0 to sample_cnt-1 loop
-      slv_data_in <= std_logic_vector(to_signed(get(data_src, x), C_TOTAL_BITS));
+      slv_data_in <= std_logic_vector(to_unsigned(get(data_src, x), C_TOTAL_BITS));
       wait until rising_edge(sl_clk);
     end loop;
     sl_valid_in <= '0';
