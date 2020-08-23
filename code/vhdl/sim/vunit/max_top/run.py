@@ -33,7 +33,7 @@ def create_test_suite(test_lib):
             continue
 
         bitwidth = Bitwidth(total_bits=8)
-        channel = randint(1, 16)  # TODO: test larger values in nightly runs
+        channel = randint(1, 16)
         width = randint(ksize, 16)
         height = randint(ksize, 16)
 

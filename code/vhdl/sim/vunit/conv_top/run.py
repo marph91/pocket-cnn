@@ -55,7 +55,6 @@ def create_test_suite(test_lib):
         bitwidth_data_out = Bitwidth(total_bits=total_bits_data)
         bitwidth_weights = Bitwidth(total_bits=total_bits_weight)
 
-        # TODO: bigger values at nightly runs
         # TODO: resolve the bug with ch_in>1 and ch_out=1
         #       reference values seem to be calculated correctly
         channel_in, channel_out = randint(1, 16), randint(2, 16)

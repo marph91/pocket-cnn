@@ -9,7 +9,7 @@ from fp_helper import random_fixed_array, v_to_fixedint, Bitwidth
 
 
 def create_stimuli(root, sample_cnt: int = 1):
-    a_rand = random_fixed_array((sample_cnt), Bitwidth(8, 4, 4))
+    a_rand = random_fixed_array((sample_cnt), Bitwidth(total_bits=8))
     a_in = v_to_fixedint(a_rand)
     np.savetxt(join(root, "src", "input.csv"), a_in, delimiter=", ",
                fmt="%3d")
@@ -27,7 +27,6 @@ def create_test_suite(test_lib):
 
     tb_relu = test_lib.entity("tb_relu")
 
-    # TODO: different bitwidths
     sample_cnt = 100
     for leaky in [0, 1]:
         generics = {

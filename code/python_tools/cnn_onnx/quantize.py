@@ -93,7 +93,6 @@ def analyze_and_quantize(original_weights, original_bias):
     print("po2 weights:", po2_cnt, po2_cnt / total_cnt)
     print("left weights:", left_cnt, left_cnt / total_cnt)
 
-    # TODO: dataclass would be suited when available
     return {
         "weights": quantized_weights_int,
         "bias": quantized_bias_int,
