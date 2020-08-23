@@ -4,7 +4,6 @@
 import itertools
 import math
 from os.path import join, dirname
-from random import randint
 
 import numpy as np
 

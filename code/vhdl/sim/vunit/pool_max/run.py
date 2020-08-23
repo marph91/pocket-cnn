@@ -1,7 +1,6 @@
 """Run the testbench of the "pool_max" module."""
 
 from os.path import join, dirname
-from random import randint
 
 import numpy as np
 
