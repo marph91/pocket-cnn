@@ -17,7 +17,7 @@ flake8 "$ROOT/code/python_tools"
 echo "mypy"
 MYPYPATH="$ROOT/code/python_tools" mypy "$ROOT/code/python_tools" --config-file "$ROOT/mypy.ini"
 echo "pylint"
-find "$ROOT/code/python_tools" -name "*.py" -print0 | xargs -0 pylint3
+find "$ROOT/code/python_tools" -name "*.py" -print0 | xargs -0 pylint
 
 # shell checks
 echo "shellcheck"
