@@ -1,7 +1,5 @@
 """Helper functions for fpbinary."""
 
-from random import randint
-
 import numpy as np
 
 from fpbinary import FpBinary
@@ -52,24 +50,6 @@ def random_fixed_array(size: tuple, int_bits: int, frac_bits: int,
     return to_fixed_point_array(
         arr, from_value=False, int_bits=int_bits, frac_bits=frac_bits,
         signed=signed)
-
-
-def random_bw(max_bw: int = 16):
-    """Generate a random bitwidth.
-
-    >>> 1 <= random_bw()[0] <= 16
-    True
-    >>> 0 <= random_bw()[1] <= 15
-    True
-    >>> 1 <= random_bw(8)[0] <= 8
-    True
-    >>> 0 <= random_bw(8)[1] <= 7
-    True
-    """
-    bits = randint(1, max_bw)
-    int_bits = randint(1, bits)
-    frac_bits = bits - int_bits
-    return bits, frac_bits
 
 
 def main():
