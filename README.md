@@ -12,7 +12,7 @@ pocket-cnn is a framework to map small Convolutional Neural Networks (CNN) fully
 
 Before using the framework, the `PYTHONPATH` has to be extended by `path/to/pocket-cnn/code/python_tools`. A complete end-to-end example can be found at the [example folder](examples/end_to_end/README.md).
 
-For running the tests, [ghdl](https://github.com/ghdl/ghdl), [vunit](https://github.com/vunit/vunit) and [onnx](https://github.com/onnx/onnx) are required. For debugging, [gtkwave](https://github.com/gtkwave/gtkwave) and [netron](https://github.com/lutzroeder/netron) are useful. To run the full testsuite, simply execute:
+For running the tests, [ghdl](https://github.com/ghdl/ghdl), [vunit](https://github.com/vunit/vunit), [onnx](https://github.com/onnx/onnx) and [fpbinary](https://github.com/smlgit/fpbinary) are required. For debugging, [gtkwave](https://github.com/gtkwave/gtkwave) and [netron](https://github.com/lutzroeder/netron) are useful. To run the full testsuite, simply execute:
 
 ```bash
 cd code/vhdl/sim/vunit
