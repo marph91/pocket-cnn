@@ -6,44 +6,49 @@ from typing import Tuple
 
 import numpy as np
 
-from fixfloat import float2fixedint, v_float2fixedint
-from fixfloat import float2ffloat, v_fixedint2ffloat
+from fpbinary import FpBinary, OverflowEnum, RoundingEnum
+from fpbinary_helper import to_fixed_point_array
 
 
-def avg_pool(array_in, bitwidth: Tuple[int, int]):
+def avg_pool(array_in):
     """Global average pooling layer."""
     _, _, width, height = array_in.shape
+    sample = array_in.item(0)
 
-    array_in_float = v_fixedint2ffloat(array_in, *bitwidth)
     # calculate reciprocal for average manually, because else factor would
     # be too different
-    reciprocal = float2ffloat(1. / (width * height), 1, 16)
-    return v_float2fixedint(
-        np.sum(np.sum(array_in_float, axis=2), axis=2) * reciprocal,
-        *bitwidth)
+    reciprocal = to_fixed_point_array(
+        np.array(1. / (width * height)), int_bits=1, frac_bits=16,
+        signed=False)
+    array_out = np.sum(np.sum(array_in, axis=2), axis=2) * reciprocal
+    # TODO: replace for loop
+    for value in np.nditer(array_out, flags=["refs_ok"]):
+        value.item().resize(
+            sample.format, OverflowEnum.sat, RoundingEnum.near_even)
+    return array_out
 
 
-def max_pool(array_in, ksize: int, stride: int, bitwidth: Tuple[int, int]):
+def max_pool(array_in, ksize: int, stride: int):
     """Local maximum pooling layer."""
     # pylint: disable=too-many-locals
     batch, channel, height, width = array_in.shape
+
     assert batch == 1, "batch size != 1 not supported"
-    array_in_flt = v_fixedint2ffloat(array_in, *bitwidth)
-    out = np.zeros((1, channel, int((height - ksize) / stride) + 1,
-                    int((width - ksize) / stride) + 1), dtype=np.uint8)
+    array_out = np.empty((1, channel, int((height - ksize) / stride) + 1,
+                          int((width - ksize) / stride) + 1), dtype=object)
     # - (stride - 1) to provide only outputs, where the full kernel fits
     max_height = height - (ksize - stride) - (stride - 1)
     max_width = width - (ksize - stride) - (stride - 1)
     for row_out, row_in in enumerate(range(0, max_height, stride)):
         for col_out, col_in in enumerate(range(0, max_width, stride)):
-            roi = array_in_flt[0, :, row_in:row_in+ksize, col_in:col_in+ksize]
-            out[0, :, row_out, col_out] = v_float2fixedint(np.amax(
-                roi.reshape(channel, -1), axis=1), *bitwidth)
-    return out
+            roi = array_in[0, :, row_in:row_in+ksize, col_in:col_in+ksize]
+            array_out[0, :, row_out, col_out] = np.amax(
+                roi.reshape(channel, -1), axis=1)
+    return array_out
 
 
 def conv(array_in, weights, bias, param: Tuple[int, int],
-         bitwidth: Tuple[int, int, int, int, int, int]):
+         bitwidth_out: Tuple[int, int]):
     """Convolution layer."""
     # used more locals for better readability
     # pylint: disable=too-many-locals
@@ -55,44 +60,67 @@ def conv(array_in, weights, bias, param: Tuple[int, int],
     assert ksize_w1 == ksize_w2 == ksize, "kernel size doesn't fit"
     assert batch == 1, "batch size != 1 not supported"
 
-    array_in_flt = v_fixedint2ffloat(array_in, *bitwidth[:2])
-    weights_flt = weights / 2 ** bitwidth[5]
-    bias_flt = bias / 2 ** bitwidth[5]
-
-    out = np.zeros((1, channel_out, int((height - ksize) / stride) + 1,
-                    int((width - ksize) / stride) + 1), dtype=np.uint8)
+    array_out = np.empty((1, channel_out, int((height - ksize) / stride) + 1,
+                          int((width - ksize) / stride) + 1), dtype=object)
     # - (stride - 1) to provide only outputs, where the full kernel fits
     max_height = height - (ksize - stride) - (stride - 1)
     max_width = width - (ksize - stride) - (stride - 1)
     for row_out, row_in in enumerate(range(0, max_height, stride)):
         for col_out, col_in in enumerate(range(0, max_width, stride)):
-            roi = array_in_flt[0, :, row_in:row_in+ksize, col_in:col_in+ksize]
+            roi = array_in[0, :, row_in:row_in+ksize, col_in:col_in+ksize]
             for ch_out in range(channel_out):
-                result = np.sum(roi * weights_flt[ch_out]) + bias_flt[ch_out]
-                # float2ffloat only to saturate the values
-                out[0, ch_out, row_out, col_out] = float2fixedint(
-                    result, *bitwidth[2:4])
-    return out
+                array_out[0, ch_out, row_out, col_out] = (
+                    np.sum(roi * weights[ch_out]) + bias[ch_out])
+
+    # TODO: replace for loop
+    for value in np.nditer(array_out, flags=["refs_ok"]):
+        value.item().resize(
+            bitwidth_out, OverflowEnum.sat, RoundingEnum.near_even)
+    return array_out
 
 
 def zero_pad(array_in, size: int = 1):
     """Zero padding with same padding at each edge."""
-    return np.pad(array_in, ((0, 0), (0, 0), (size, size), (size, size)),
-                  "constant", constant_values=0)
+    sample = array_in.item(0)
+    # TODO: figure out why np.pad doesn't work
+    # c = np.pad(array_in, ((0, 0), (0, 0), (size, size), (size, size)),
+    #            "constant", constant_values=FpBinary(...))
+    shape_out = (array_in.shape[0], array_in.shape[1],
+                 array_in.shape[2] + 2*size, array_in.shape[3] + 2*size)
+    array_out = to_fixed_point_array(
+        np.zeros(shape_out), format_inst=sample, signed=sample.is_signed)
+    array_out[:, :, size:-size, size:-size] = array_in
+    return array_out
 
 
-def relu(array_in, bitwidth: Tuple[int, int]):
+def relu(array_in):
     """Rectified linear unit activation."""
-    array_in_float = v_fixedint2ffloat(array_in, *bitwidth)
-    return v_float2fixedint(np.maximum(array_in_float, 0), *bitwidth)
+    sample = array_in.item(0)
+    array_out = to_fixed_point_array(
+        np.zeros(array_in.shape), format_inst=sample,
+        signed=sample.is_signed)
+    return np.where(array_in > 0, array_in, array_out)
 
 
-def leaky_relu(array_in, alpha: float, bitwidth: Tuple[int, int]):
+def leaky_relu(array_in, alpha: float):
     """Leaky rectified linear unit activation."""
-    array_in_float = v_fixedint2ffloat(array_in, *bitwidth)
-    return np.where(
-        array_in_float > 0, array_in,
-        v_float2fixedint(array_in_float * alpha, *bitwidth))
+    sample = array_in.item(0)
+
+    # TODO: look for a simpler conversion
+    # https://github.com/smlgit/fpbinary/issues/9
+    array_out = np.empty((np.product(array_in.shape),), dtype=object)
+    list_out = []
+    for value in array_in.flat:
+        if value < 0:
+            value_leaky = value * FpBinary(
+                value=alpha, format_inst=sample, signed=sample.is_signed)
+            value_leaky.resize(
+                sample.format, OverflowEnum.sat, RoundingEnum.near_even)
+        else:
+            value_leaky = value
+        list_out.append(value_leaky)
+    array_out[:] = list_out
+    return array_out.reshape(array_in.shape)
 
 
 def flatten(array_in):

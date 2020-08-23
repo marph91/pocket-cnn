@@ -6,7 +6,7 @@
 
 2. Choose a framework of your choice to train the CNN. In this example, **Pytorch** is used, because it has built in ONNX export. A list of available frameworks can be found at <https://github.com/onnx/tutorials>.
 
-3. Install the python modules numpy and onnx.
+3. Install the python modules numpy, onnx and fpbinary.
 
 4. Clone the repository: `git clone git@github.com:marph91/pocket-cnn.git`
 

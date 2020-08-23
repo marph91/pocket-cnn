@@ -13,6 +13,7 @@ import cnn_onnx.model_zoo
 import cnn_onnx.parse_param
 import cnn_onnx.convert_weights
 from cnn_reference import flatten
+from fpbinary_helper import random_fixed_array, v_to_fixedint
 import vhdl_top_template
 
 
@@ -20,8 +21,9 @@ def create_stimuli(root, model_name):
     model = onnx.load(join(root, model_name))
     shape = cnn_onnx.parse_param.get_input_shape(model)
 
-    in_ = np.random.randint(256, size=shape, dtype=np.uint8)
-    out_ = cnn_onnx.inference.numpy_inference(model, in_)
+    a_rand = random_fixed_array(shape, 8, 0, signed=False)
+    a_in = v_to_fixedint(a_rand)
+    a_out = v_to_fixedint(cnn_onnx.inference.numpy_inference(model, a_rand))
 
     # ONNX runtime prediction, TODO: doesn't work right now
     # https://github.com/microsoft/onnxruntime/issues/2964
@@ -30,9 +32,9 @@ def create_stimuli(root, model_name):
     # pred_onnx = sess.run(None, {input_name: in_.astype(np.float32)})[0]
     # print(pred_onnx)
 
-    np.savetxt(join(root, "input.csv"), flatten(in_),
+    np.savetxt(join(root, "input.csv"), flatten(a_in),
                delimiter=", ", fmt="%3d")
-    np.savetxt(join(root, "output.csv"), out_,
+    np.savetxt(join(root, "output.csv"), a_out,
                delimiter=", ", fmt="%3d")
 
 

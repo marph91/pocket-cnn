@@ -1,18 +1,19 @@
 name: testsuite
 
-on:
-  push:
-  schedule:
-    - cron: '0 0 * * *'
+on: [push, pull_request]
 
 jobs:
   container:
     runs-on: ubuntu-latest
     container: ghdl/vunit:gcc-master
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v2
+      - name: install system packets (for fpbinary)
+        run: |
+          apt update
+          apt install --yes python3-dev
       - name: install pip packets
-        run: pip install onnx
+        run: pip install onnx==1.7.0 fpbinary==1.5.2
       - name: Run tests
         run: |
           export PYTHONPATH="$(pwd)/code/python_tools"

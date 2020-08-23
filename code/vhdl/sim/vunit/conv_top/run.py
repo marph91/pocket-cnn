@@ -8,6 +8,7 @@ from random import randint
 import numpy as np
 
 from cnn_reference import conv, flatten
+from fpbinary_helper import random_fixed_array, v_to_fixedint
 from weights_to_files import weights_to_files
 
 
@@ -19,32 +20,29 @@ def create_stimuli(root, ksize, stride,
                    width, height):
     int_bits_data_in = total_bits_data - frac_bits_data_in
     int_bits_data_out = total_bits_data - frac_bits_data_out
-    a_rand = np.random.randint(256, size=(1, channel_in, height, width),
-                               dtype=np.uint8)
+
+    a_rand = random_fixed_array((1, channel_in, height, width), int_bits_data_in, frac_bits_data_in)
+    a_in = v_to_fixedint(a_rand)
     np.savetxt(join(root, "gen", f"input_{ksize}_{stride}_{channel_in}.csv"),
-               flatten(a_rand), delimiter=", ", fmt="%3d")
+               flatten(a_in), delimiter=", ", fmt="%3d")
 
     int_bits_weight = total_bits_weight - frac_bits_weight
 
-    scale = 2 ** frac_bits_weight
-    a_weights_rand = np.random.randint(
-        -2 ** 7, 2 ** 7 - 1, size=(channel_out, channel_in, ksize, ksize),
-        dtype=np.int8)
-    a_bias_rand = np.random.randint(
-        -2 ** 7, 2 ** 7 - 1, size=(channel_out,), dtype=np.int8)
+    a_weights_rand = random_fixed_array(
+        (channel_out, channel_in, ksize, ksize),
+        int_bits_weight, frac_bits_weight)
+    a_bias_rand = random_fixed_array(
+        (channel_out,), int_bits_weight, frac_bits_weight)
 
     # weights and bias to txt
     weights_to_files(
-        a_weights_rand / scale, a_bias_rand / scale,
-        (int_bits_weight, frac_bits_weight),
+        a_weights_rand, a_bias_rand,
         f"conv_{ksize}_{stride}_{channel_in}", join(root, "gen"))
 
     # assign the outputs
-    conv_out = conv(
+    conv_out = v_to_fixedint(conv(
         a_rand, a_weights_rand, a_bias_rand, (ksize, stride),
-        (int_bits_data_in, frac_bits_data_in,
-         int_bits_data_out, frac_bits_data_out,
-         int_bits_weight, frac_bits_weight))
+        (int_bits_data_out, frac_bits_data_out)))
     filename = join(root, "gen", f"output_{ksize}_{stride}_{channel_in}.csv")
     with open(filename, "w") as outfile:
         np.savetxt(outfile, flatten(conv_out), delimiter=", ", fmt="%3d")

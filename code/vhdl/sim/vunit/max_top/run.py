@@ -7,20 +7,21 @@ from random import randint
 import numpy as np
 
 from cnn_reference import flatten, max_pool
+from fpbinary_helper import random_fixed_array, v_to_fixedint
 
 
 def create_stimuli(root, ksize, stride, total_bits, frac_bits, channel,
                    width, height):
     int_bits = total_bits - frac_bits
 
-    a_rand = np.random.randint(2 ** total_bits,
-                               size=(1, channel, height, width))
+    a_rand = random_fixed_array((1, channel, height, width), int_bits, frac_bits)
+    a_in = v_to_fixedint(a_rand)
     np.savetxt(join(root, "src", "input_%d_%d.csv" % (ksize, stride)),
-               flatten(a_rand), delimiter=", ", fmt="%3d")
+               flatten(a_in), delimiter=", ", fmt="%3d")
 
     # assign the outputs
     filename = join(root, "src", "output_%d_%d.csv" % (ksize, stride))
-    max_out = max_pool(a_rand, ksize, stride, (int_bits, frac_bits))
+    max_out = v_to_fixedint(max_pool(a_rand, ksize, stride))
     with open(filename, "w") as outfile:
         np.savetxt(outfile, flatten(max_out), delimiter=", ", fmt="%3d")
 

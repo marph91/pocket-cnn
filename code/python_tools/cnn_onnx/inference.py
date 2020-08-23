@@ -9,6 +9,7 @@ from onnx import numpy_helper
 
 import cnn_reference
 from cnn_onnx import model_zoo, parse_param
+from fpbinary_helper import to_fixed_point_array
 
 
 def numpy_inference(onnx_model, input_):
@@ -18,7 +19,6 @@ def numpy_inference(onnx_model, input_):
         weights_dict[init.name] = numpy_helper.to_array(init)
 
     next_input = input_
-    first_layer = True  # first layer is unsigned
     for node in onnx_model.graph.node:
         params = parse_param.parse_node_attributes(node)
 
@@ -30,38 +30,31 @@ def numpy_inference(onnx_model, input_):
                 next_input = cnn_reference.zero_pad(next_input, pad)
 
             ksize, stride = parse_param.get_kernel_params(params)
-            weights = weights_dict[node.input[3]]
-            bias = weights_dict[node.input[8]]
 
-            # bitwidths: int in, frac in, int out, frac out,
-            #            int weights, frac weights
-            bitwidth_next = (
+            int_bits_weights = 8 - int(math.log2(weights_dict[node.input[4]]))
+            frac_bits_weights = int(math.log2(weights_dict[node.input[4]]))
+            weights = to_fixed_point_array(
+                weights_dict[node.input[3]], int_bits=int_bits_weights,
+                frac_bits=frac_bits_weights)
+            bias = to_fixed_point_array(
+                weights_dict[node.input[8]], int_bits=int_bits_weights,
+                frac_bits=frac_bits_weights)
+
+            bitwidth_out = (
                 8 - int(math.log2(weights_dict[node.input[6]])),
                 int(math.log2(weights_dict[node.input[6]])),
             )
-            bitwidth = (
-                8 + int(first_layer) -
-                int(math.log2(weights_dict[node.input[1]])),
-                int(math.log2(weights_dict[node.input[1]])),
-                *bitwidth_next,
-                8 - int(math.log2(weights_dict[node.input[4]])),
-                int(math.log2(weights_dict[node.input[4]])),
-            )
-
             next_input = cnn_reference.conv(
-                next_input, weights, bias, (ksize, stride), bitwidth)
-            first_layer = False
+                next_input, weights, bias, (ksize, stride), bitwidth_out)
         elif node.op_type == "MaxPool":
             ksize, stride = parse_param.get_kernel_params(params)
-            next_input = cnn_reference.max_pool(
-                next_input, ksize, stride, bitwidth_next)
+            next_input = cnn_reference.max_pool(next_input, ksize, stride)
         elif node.op_type == "GlobalAveragePool":
-            next_input = cnn_reference.avg_pool(next_input, bitwidth_next)
+            next_input = cnn_reference.avg_pool(next_input)
         elif node.op_type == "Relu":
-            next_input = cnn_reference.relu(next_input, bitwidth_next)
+            next_input = cnn_reference.relu(next_input)
         elif node.op_type == "LeakyRelu":
-            next_input = cnn_reference.leaky_relu(
-                next_input, 0.125, bitwidth_next)
+            next_input = cnn_reference.leaky_relu(next_input, 0.125)
     return next_input
 
 

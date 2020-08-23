@@ -7,6 +7,7 @@ import math
 import onnx
 from onnx import numpy_helper
 
+from fpbinary_helper import to_fixed_point_array
 from weights_to_files import weights_to_files
 
 
@@ -31,13 +32,15 @@ def convert_weights(model: str, output_dir: str = "weights") -> None:
                 print("Warning: Layer names have different length. "
                       "Padding to 16 chars failed.")
             last_layer_name = layer_name
-            bitwidth = (
-                8 - int(math.log2(weights_dict[node.input[4]])),
-                int(math.log2(weights_dict[node.input[4]]))
-            )
-            scale = weights_dict[node.input[4]]
-            weights_to_files(kernel / scale, bias / scale,
-                             bitwidth, layer_name, output_dir)
+
+            int_bits = 8 - int(math.log2(weights_dict[node.input[4]]))
+            frac_bits = int(math.log2(weights_dict[node.input[4]]))
+
+            kernel = to_fixed_point_array(
+                kernel, int_bits=int_bits, frac_bits=frac_bits)
+            bias = to_fixed_point_array(
+                bias, int_bits=int_bits, frac_bits=frac_bits)
+            weights_to_files(kernel, bias, layer_name, output_dir)
 
 
 if __name__ == "__main__":

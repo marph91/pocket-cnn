@@ -11,7 +11,7 @@ import numpy as np
 
 from cnn_onnx import parse_param
 from cnn_onnx import graph_generator as gg
-from fixfloat import v_float2ffloat
+from fpbinary_helper import to_fixed_point_array, v_to_fixedint
 
 
 def is_power_of_two(val: Union[int, float]) -> bool:
@@ -73,17 +73,15 @@ def analyze_and_quantize(original_weights, original_bias):
     print("weight quantization: ", int_width, 8-int_width)
     print("stats: ", max_val, min_val, highest_val)
 
-    quantized_weights = v_float2ffloat(
-        original_weights, int_width, 8 - int_width)
-    quantized_bias = v_float2ffloat(
-        original_bias, int_width, 8 - int_width)
-    quantized_weights_int = (
-        quantized_weights * 2 ** (8 - int_width)).astype(np.int8)
-    quantized_bias_int = (
-        quantized_bias * 2 ** (8 - int_width)).astype(np.int32)
+    quantized_weights = to_fixed_point_array(
+        original_weights, int_bits=int_width, frac_bits=8 - int_width)
+    quantized_bias = to_fixed_point_array(
+        original_bias, int_bits=int_width, frac_bits=8 - int_width)
+    quantized_weights_int = v_to_fixedint(quantized_weights)
+    quantized_bias_int = v_to_fixedint(quantized_bias)
     print("average error per weight:",
-          np.average(np.abs(original_weights - quantized_weights)))
-    avg_val = np.average(np.abs(quantized_weights))
+          np.mean(np.abs(original_weights - quantized_weights)))
+    avg_val = np.mean(np.abs(quantized_weights))
     print("average absolute weight value:", avg_val)
 
     total_cnt = quantized_weights.size
@@ -95,7 +93,7 @@ def analyze_and_quantize(original_weights, original_bias):
     print("po2 weights:", po2_cnt, po2_cnt / total_cnt)
     print("left weights:", left_cnt, left_cnt / total_cnt)
 
-    # dataclass would be suited when available
+    # TODO: dataclass would be suited when available
     return {
         "weights": quantized_weights_int,
         "bias": quantized_bias_int,
