@@ -9,6 +9,7 @@ import onnx
 from onnx import helper, numpy_helper, TensorProto
 import numpy as np
 
+from common import CnnArchitectureError, NotSupportedError
 from cnn_onnx import parse_param
 from cnn_onnx import graph_generator as gg
 from fp_helper import to_fixed_point_array, v_to_fixedint
@@ -104,11 +105,11 @@ def analyze_and_quantize(original_weights, original_bias):
 def verify_quant(quant: tuple):
     """Verify that the given quantization is valid."""
     if not is_power_of_two(quant[0]):
-        raise AssertionError(
-            f"only power of two scale supported, got {quant[0]}")
+        raise NotSupportedError(
+            f"Only power of two scale supported. Got {quant[0]}.")
     if quant[1] != 0:
-        raise AssertionError(
-            f"only zero point = 0 supported, got {quant[1]}")
+        raise NotSupportedError(
+            f"Only zero point = 0 supported. Got {quant[1]}.")
 
 
 def make_conv_quant(node, weights_dict: dict,
@@ -247,7 +248,10 @@ def quantize(model):
             # remove original weight and bias
             inits_to_delete = [init for init in model.graph.initializer
                                if init.name in node.input[1:3]]
-            assert len(inits_to_delete) == 2
+            if len(inits_to_delete) != 2:
+                raise CnnArchitectureError(
+                    f"There should be exactly two inits to delete. "
+                    f"Found {len(inits_to_delete)}.")
             for init in inits_to_delete:
                 model.graph.initializer.remove(init)
 

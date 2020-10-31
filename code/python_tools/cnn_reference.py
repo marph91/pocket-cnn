@@ -4,9 +4,10 @@ Furthermore the fixed point functionality is implemented."""
 
 from typing import Tuple
 
+from fpbinary import FpBinary, OverflowEnum, RoundingEnum
 import numpy as np
 
-from fpbinary import FpBinary, OverflowEnum, RoundingEnum
+from common import InconsistencyError, NotSupportedError
 from fp_helper import to_fixed_point_array
 
 
@@ -33,7 +34,8 @@ def max_pool(array_in, ksize: int, stride: int):
     # pylint: disable=too-many-locals
     batch, channel, height, width = array_in.shape
 
-    assert batch == 1, "batch size != 1 not supported"
+    if batch != 1:
+        raise NotSupportedError(f"Batch size != 1 not supported. Got {batch}.")
     array_out = np.empty((1, channel, int((height - ksize) / stride) + 1,
                           int((width - ksize) / stride) + 1), dtype=object)
     # - (stride - 1) to provide only outputs, where the full kernel fits
@@ -55,10 +57,17 @@ def conv(array_in, weights, bias, param: Tuple[int, int],
     ksize, stride = param
     batch, channel_in, height, width = array_in.shape
     channel_out, channel_in_w, ksize_w1, ksize_w2 = weights.shape
-    assert channel_in == channel_in_w, "input channel don't fit"
-    assert channel_out == bias.shape[0], "output channel don't fit"
-    assert ksize_w1 == ksize_w2 == ksize, "kernel size doesn't fit"
-    assert batch == 1, "batch size != 1 not supported"
+    if channel_in != channel_in_w:
+        raise InconsistencyError(
+            f"Input channel don't fit. {channel_in} != {channel_in_w}")
+    if channel_out != bias.shape[0]:
+        raise InconsistencyError(
+            f"Output channel don't fit. {channel_out} != {bias.shape[0]}")
+    if not ksize_w1 == ksize_w2 == ksize:
+        raise InconsistencyError(
+            f"Kernel size doesn't fit. !({ksize_w1} == {ksize_w2} == {ksize}.")
+    if batch != 1:
+        raise NotSupportedError(f"Batch size != 1 not supported. Got {batch}.")
 
     array_out = np.empty((1, channel_out, int((height - ksize) / stride) + 1,
                           int((width - ksize) / stride) + 1), dtype=object)

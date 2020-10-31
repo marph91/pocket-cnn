@@ -8,6 +8,7 @@ import numpy as np
 import onnx
 from onnx import numpy_helper
 
+from common import NotSupportedError
 import cnn_reference
 from cnn_onnx import model_zoo, parse_param
 from fp_helper import to_fixed_point_array
@@ -24,8 +25,8 @@ def numpy_inference(onnx_model, input_):
         params = parse_param.parse_node_attributes(node)
 
         if node.op_type == "Conv":
-            assert False, "Layer not supported"
-        elif node.op_type == "QLinearConv":
+            raise NotSupportedError(f"Layer {node.op_type} not supported.")
+        if node.op_type == "QLinearConv":
             pad = parse_param.get_pad(params)
             if pad:
                 next_input = cnn_reference.zero_pad(next_input, pad)

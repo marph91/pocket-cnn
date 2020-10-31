@@ -8,6 +8,7 @@ import numpy as np
 import onnx
 # import onnxruntime as rt
 
+from common import InconsistencyError
 import cnn_onnx.inference
 import cnn_onnx.model_zoo
 import cnn_onnx.parse_param
@@ -98,8 +99,14 @@ def create_test_suite(test_lib):
                    for name in params["conv_names"]]
         bias = ["%s/B_%s.txt" % (params["weight_dir"], name)
                 for name in params["conv_names"]]
-        assert len(weights[0]) == params["len_weights"]
-        assert len(bias[0]) == params["len_weights"]
+        if len(weights[0]) != params["len_weights"]:
+            raise InconsistencyError(
+                f"Size of weights doesn't fit. "
+                f"{len(weights[0])} != {params['len_weights']}.")
+        if len(bias[0]) != params["len_weights"]:
+            raise InconsistencyError(
+                f"Size of bias doesn't fit. "
+                f"{len(bias[0])} != {params['len_weights']}.")
 
         bitwidth = "; ".join([", ".join(str(item) for item in inner)
                               for inner in params["bitwidth"]])
