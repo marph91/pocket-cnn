@@ -39,7 +39,6 @@ architecture tb of tb_max_top is
   signal slv_data_in : std_logic_vector(C_TOTAL_BITS-1 downto 0) := (others => '0');
   signal slv_data_out : std_logic_vector(C_TOTAL_BITS-1 downto 0) := (others => '0');
   signal sl_valid_out : std_logic := '0';
-  signal sl_rdy : std_logic := '0';
 
   signal sl_start : std_logic := '0';
 
@@ -66,8 +65,7 @@ begin
     isl_valid => sl_valid_in,
     islv_data => slv_data_in,
     oslv_data => slv_data_out,
-    osl_valid => sl_valid_out,
-    osl_rdy   => sl_rdy
+    osl_valid => sl_valid_out
   );
 
   main : process
@@ -122,7 +120,7 @@ begin
 
     -- increment stream based: channel > width > height
     while i < data_src.height*data_src.width*data_src.depth loop
-      wait until rising_edge(sl_clk) and sl_rdy = '1';
+      wait until rising_edge(sl_clk);
       sl_valid_in <= '1';
       for ch_in in 0 to C_CH-1 loop
         slv_data_in <= std_logic_vector(to_unsigned(get(data_src, i), slv_data_in'length));

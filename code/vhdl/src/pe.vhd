@@ -66,7 +66,6 @@ architecture behavioral of pe is
   -- maxpool
   signal slv_pool_data_in : std_logic_vector(C_DATA_TOTAL_BITS - 1 downto 0);
   signal sl_pool_valid_in : std_logic := '0';
-  signal sl_pool_rdy      : std_logic := '0';
 
   -- output buffer
   signal slv_output_buffer_data_in : std_logic_vector(C_DATA_TOTAL_BITS - 1 downto 0);
@@ -180,7 +179,6 @@ begin
     );
 
   gen_no_relu_no_pool : if C_RELU = '0' and C_POOL_KSIZE = 0 generate
-    sl_pool_rdy               <= '1';
     slv_output_buffer_data_in <= slv_conv_data_out;
     sl_output_buffer_valid_in <= sl_conv_valid_out;
   end generate gen_no_relu_no_pool;
@@ -205,7 +203,6 @@ begin
     -- assign relu outputs
 
     gen_relu_no_pool : if C_POOL_KSIZE = 0 generate
-      sl_pool_rdy               <= '1';
       slv_output_buffer_data_in <= slv_relu_data_out;
       sl_output_buffer_valid_in <= sl_relu_valid_out;
     else generate
@@ -235,8 +232,7 @@ begin
         isl_valid => sl_pool_valid_in,
         islv_data => slv_pool_data_in,
         oslv_data => slv_output_buffer_data_in,
-        osl_valid => sl_output_buffer_valid_in,
-        osl_rdy   => sl_pool_rdy
+        osl_valid => sl_output_buffer_valid_in
       );
 
     gen_pool_no_relu : if C_RELU = '0' generate

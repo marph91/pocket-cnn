@@ -25,8 +25,7 @@ entity max_top is
     isl_valid : in    std_logic;
     islv_data : in    std_logic_vector(C_TOTAL_BITS - 1 downto 0);
     oslv_data : out   std_logic_vector(C_TOTAL_BITS - 1 downto 0);
-    osl_valid : out   std_logic;
-    osl_rdy   : out   std_logic
+    osl_valid : out   std_logic
   );
 end entity max_top;
 
@@ -58,7 +57,7 @@ begin
       islv_data => islv_data,
       oslv_data => slv_win_data_out,
       osl_valid => slv_win_valid_out,
-      osl_rdy   => osl_rdy
+      osl_rdy   => open -- Maximum pooling can process new data every cycle, i. e. is fully pipelined.
     );
 
   a_win_data_out <= slv_to_array(slv_win_data_out, 1, C_KSIZE);
