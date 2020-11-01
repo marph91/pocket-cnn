@@ -204,7 +204,9 @@ begin
   osl_finish <= sl_output_finish;
   oslv_data  <= a_data_out(C_PE + 1);
   osl_valid  <= sl_output_valid(C_PE + 1);
-  osl_rdy    <= (slv_rdy(1) and isl_get and not isl_valid) when (int_data_out_cnt < C_CH(C_CH'RIGHT)) else
-                '0';
+  -- Ready signal needs to be delayed by one cycle to prevent too much input data (at one input channel).
+  osl_rdy <= (slv_rdy(1) and isl_get and not isl_valid)
+             when (int_data_out_cnt < C_CH(C_CH'RIGHT)) else
+             '0';
 
 end architecture behavioral;

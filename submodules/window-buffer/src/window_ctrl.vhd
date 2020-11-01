@@ -41,8 +41,6 @@ end entity window_ctrl;
 
 architecture behavioral of window_ctrl is
 
-  signal isl_valid_d1 : std_logic := '0';
-
   -- counter
   signal int_col            : integer range 0 to C_IMG_WIDTH - 1 := 0;
   signal int_row            : integer range 0 to C_IMG_HEIGHT - 1 := 0;
@@ -66,7 +64,6 @@ architecture behavioral of window_ctrl is
   signal sl_selector_valid_out : std_logic := '0';
   signal a_selector_data_in    : t_slv_array_2d(0 to C_KERNEL_SIZE - 1, 0 to C_KERNEL_SIZE - 1) := (others => (others => (others => '0')));
   signal a_selector_data_out   : t_slv_array_2d(0 to C_KERNEL_SIZE - 1, 0 to C_KERNEL_SIZE - 1) := (others => (others => (others => '0')));
-  signal sl_selector_rdy       : std_logic := '0';
 
   -- for channel repeater
   signal sl_repeater_valid_out : std_logic := '0';
@@ -82,6 +79,7 @@ begin
     a_selector_data_out(0, 0) <= islv_data;
   else generate
     -- line buffer
+    -- one cycle delay
     i_line_buffer : entity window_buffer_lib.line_buffer
       generic map (
         C_BITWIDTH    => C_BITWIDTH,
@@ -98,6 +96,7 @@ begin
       );
 
     -- window buffer
+    -- one cycle delay
     i_window_buffer : entity window_buffer_lib.window_buffer
       generic map (
         C_BITWIDTH    => C_BITWIDTH,
