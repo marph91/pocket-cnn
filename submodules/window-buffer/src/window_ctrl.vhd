@@ -62,6 +62,8 @@ architecture behavioral of window_ctrl is
   signal sl_flush : std_logic := '0';
   signal sl_selector_valid_in  : std_logic := '0';
   signal sl_selector_valid_out : std_logic := '0';
+  signal sl_selector_valid_out_d1 : std_logic := '0';
+  signal sl_selector_valid_out_d2 : std_logic := '0';
   signal a_selector_data_in    : t_slv_array_2d(0 to C_KERNEL_SIZE - 1, 0 to C_KERNEL_SIZE - 1) := (others => (others => (others => '0')));
   signal a_selector_data_out   : t_slv_array_2d(0 to C_KERNEL_SIZE - 1, 0 to C_KERNEL_SIZE - 1) := (others => (others => (others => '0')));
 
@@ -75,7 +77,7 @@ architecture behavioral of window_ctrl is
 begin
 
   gen_window_buffer : if C_KERNEL_SIZE = 1 generate
-    sl_selector_valid_out     <= isl_valid;
+    sl_selector_valid_out_d2  <= isl_valid;
     a_selector_data_out(0, 0) <= islv_data;
   else generate
     -- line buffer
@@ -126,7 +128,11 @@ begin
     begin
 
       if (rising_edge(isl_clk)) then
-        if (sl_selector_valid_in = '1' and
+        -- The delay is caused by line and window buffer.
+        sl_selector_valid_out_d1 <= sl_selector_valid_out;
+        sl_selector_valid_out_d2 <= sl_selector_valid_out_d1;
+
+        if (isl_valid = '1' and
             sl_flush = '0' and
             (int_row + 1 - C_KERNEL_SIZE + C_STRIDE) mod C_STRIDE = 0 and
             (int_col + 1 - C_KERNEL_SIZE + C_STRIDE) mod C_STRIDE = 0 and
@@ -156,7 +162,7 @@ begin
       )
       port map (
         isl_clk   => isl_clk,
-        isl_valid => sl_selector_valid_out,
+        isl_valid => sl_selector_valid_out_d2,
         ia_data   => a_selector_data_out,
         oa_data   => a_repeater_data_out,
         osl_valid => sl_repeater_valid_out,
@@ -164,7 +170,7 @@ begin
       );
 
   else generate
-    sl_repeater_valid_out  <= sl_selector_valid_out;
+    sl_repeater_valid_out  <= sl_selector_valid_out_d2;
     a_repeater_data_out(0) <= a_selector_data_out;
     sl_repeater_rdy        <= '1';
   end generate gen_channel_repeater;
@@ -182,7 +188,7 @@ begin
         int_row           <= 0;
         int_col           <= 0;
       else
-        if (sl_selector_valid_in = '1') then
+        if (isl_valid = '1') then
           if (int_ch_in_cnt < C_CH_IN - 1) then
             int_ch_in_cnt <= int_ch_in_cnt + 1;
           else
@@ -222,8 +228,8 @@ begin
 
   oslv_data <= array_to_slv(a_repeater_data_out);
   osl_valid <= sl_repeater_valid_out;
-  -- use sl_lb_valid_out and sl_wb_valid_out to get two less cycles of sl_rdy = '1'
-  -- else too much data would get sent in
+  -- Use isl_valid, sl_lb_valid_out and sl_wb_valid_out to get three less cycles of the ready signal.
+  -- Else too much data would get sent in.
   osl_rdy <= '1' when sl_flush else sl_repeater_rdy and not (isl_valid or sl_lb_valid_out or sl_wb_valid_out);
 
 end architecture behavioral;
