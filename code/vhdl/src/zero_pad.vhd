@@ -41,7 +41,6 @@ architecture behavioral of zero_pad is
 
   signal sl_output_valid : std_logic := '0';
   signal slv_data_out    : std_logic_vector(C_DATA_WIDTH - 1 downto 0);
-  signal sl_rdy          : std_logic := '0';
 
   type t_states is (IDLE, PAD, PAD_PIXEL, FORWARD_DATA);
 
@@ -93,7 +92,6 @@ begin
       case state is
 
         when IDLE =>
-          sl_rdy <= '0';
           if (int_pixel_to_pad > 0) then
             state <= PAD;
           end if;
@@ -120,12 +118,10 @@ begin
           end if;
 
         when FORWARD_DATA =>
-          sl_rdy          <= '1';
           slv_data_out    <= islv_data;
           sl_output_valid <= isl_valid;
           if (int_pixel_to_pad > 0) then
-            state  <= PAD;
-            sl_rdy <= '0';
+            state <= PAD;
           end if;
 
       end case;
@@ -136,6 +132,7 @@ begin
 
   osl_valid <= sl_output_valid;
   oslv_data <= slv_data_out;
-  osl_rdy   <= sl_rdy and isl_get;
+  osl_rdy   <= isl_get when (state = FORWARD_DATA and int_pixel_to_pad = 0) else
+               '0';
 
 end architecture behavioral;

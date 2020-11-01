@@ -235,9 +235,6 @@ begin
             wait until rising_edge(sl_clk);
           end loop;
           sl_valid_in <= '0';
-          -- one more waiting cycle, because else padding would accept too much input data
-          -- TODO: fix it (send data as long as sl_rdy = '1')
-          wait until rising_edge(sl_clk);
         end if;
       end loop;
     end loop;
