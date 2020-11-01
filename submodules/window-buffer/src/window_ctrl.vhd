@@ -61,6 +61,7 @@ architecture behavioral of window_ctrl is
   signal a_wb_data_out   : t_slv_array_2d(0 to C_KERNEL_SIZE - 1, 0 to C_KERNEL_SIZE - 1) := (others => (others => (others => '0')));
 
   -- for selector
+  signal sl_flush : std_logic := '0';
   signal sl_selector_valid_in  : std_logic := '0';
   signal sl_selector_valid_out : std_logic := '0';
   signal a_selector_data_in    : t_slv_array_2d(0 to C_KERNEL_SIZE - 1, 0 to C_KERNEL_SIZE - 1) := (others => (others => (others => '0')));
@@ -121,12 +122,13 @@ begin
     --    3. every C_STRIDE column
     --    4. when the window is not shifted at end/start of line
     -------------------------------------------------------
+    sl_flush <= '1' when int_pixel_in_cnt < (C_KERNEL_SIZE - 1) * C_IMG_WIDTH + C_KERNEL_SIZE - 1 else '0';
     proc_selector : process (isl_clk) is
     begin
 
       if (rising_edge(isl_clk)) then
         if (sl_selector_valid_in = '1' and
-            int_pixel_in_cnt >= (C_KERNEL_SIZE - 1) * C_IMG_WIDTH + C_KERNEL_SIZE - 1 and
+            sl_flush = '0' and
             (int_row + 1 - C_KERNEL_SIZE + C_STRIDE) mod C_STRIDE = 0 and
             (int_col + 1 - C_KERNEL_SIZE + C_STRIDE) mod C_STRIDE = 0 and
             int_col + 1 > C_KERNEL_SIZE - 1) then
@@ -223,6 +225,6 @@ begin
   osl_valid <= sl_repeater_valid_out;
   -- use sl_lb_valid_out and sl_wb_valid_out to get two less cycles of sl_rdy = '1'
   -- else too much data would get sent in
-  osl_rdy <= sl_repeater_rdy and not (sl_lb_valid_out or sl_wb_valid_out);
+  osl_rdy <= '1' when sl_flush else sl_repeater_rdy and not (isl_valid or sl_lb_valid_out or sl_wb_valid_out);
 
 end architecture behavioral;
