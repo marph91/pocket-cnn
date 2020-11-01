@@ -7,6 +7,9 @@ library util;
 
 library window_buffer_lib;
 
+-- Maximum pooling can process new data every cycle, i. e. is fully pipelined.
+-- Thus, no ready signal is needed
+
 entity max_top is
   generic (
     C_TOTAL_BITS : integer range 1 to 16 := 8;
@@ -57,7 +60,7 @@ begin
       islv_data => islv_data,
       oslv_data => slv_win_data_out,
       osl_valid => slv_win_valid_out,
-      osl_rdy   => open -- Maximum pooling can process new data every cycle, i. e. is fully pipelined.
+      osl_rdy   => open
     );
 
   a_win_data_out <= slv_to_array(slv_win_data_out, 1, C_KSIZE);
