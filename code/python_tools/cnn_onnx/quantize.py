@@ -86,7 +86,7 @@ def analyze_and_quantize(original_weights, original_bias):
     print("average absolute weight value:", avg_val)
 
     total_cnt = quantized_weights.size
-    zero_cnt = np.count_nonzero(np.where(quantized_weights == 0))
+    zero_cnt = total_cnt - np.count_nonzero(quantized_weights)
     po2_cnt = np.count_nonzero(v_is_power_of_two(quantized_weights))
     left_cnt = total_cnt - zero_cnt - po2_cnt
     print("total weights:", total_cnt)
