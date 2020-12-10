@@ -269,7 +269,7 @@ def conv_2x_3x1_1x1_max_2x2_padding():
 
 def conv_2x_3x1_1x1_max_2x2_mt():
     """Model of my master thesis, for comparison.
-    size: 48, 24 -> 24x12 -> 12x6"""
+    size: 48x24 -> 24x12 -> 12x6"""
     graph_gen = gg.GraphGenerator()
     graph_gen.add(gg.make_conv_quant, "conv1", 1, 16, (3, 1, 1))
     graph_gen.add(gg.make_relu, "relu1")
