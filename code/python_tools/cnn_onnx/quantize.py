@@ -13,40 +13,7 @@ from common import CnnArchitectureError, NotSupportedError
 from cnn_onnx import parse_param
 from cnn_onnx import graph_generator as gg
 from fp_helper import to_fixed_point_array, v_to_fixedint
-
-
-def is_power_of_two(val: Union[int, float]) -> bool:
-    """Check whether a number is a power of two.
-
-    >>> is_power_of_two(-1)
-    True
-    >>> is_power_of_two(-0.125)
-    True
-    >>> is_power_of_two(0)
-    False
-    >>> is_power_of_two(0.25)
-    True
-    >>> is_power_of_two(1)
-    True
-    >>> is_power_of_two(2)
-    True
-    >>> is_power_of_two(5)
-    False
-    >>> is_power_of_two(2048)
-    True
-    >>> is_power_of_two(2049)
-    False
-    """
-    if not val:
-        return False
-    bits = math.log2(abs(val))
-    return int(bits) == bits
-
-
-def v_is_power_of_two(val: Union[int, float]):
-    """Vectorized version of "is_power_of_two()"."""
-    vector_is_power_of_two = np.vectorize(is_power_of_two, otypes=[np.int])
-    return vector_is_power_of_two(val)
+from fp_helper import is_power_of_two, v_is_power_of_two
 
 
 def get_integer_width(val: Union[int, float], max_bitwidth: int = 8) -> int:
@@ -65,7 +32,8 @@ def get_integer_width(val: Union[int, float], max_bitwidth: int = 8) -> int:
     return min(math.ceil(max(math.log2(val), 0)) + 1, max_bitwidth)
 
 
-def analyze_and_quantize(original_weights, original_bias):
+def analyze_and_quantize(original_weights, original_bias,
+                         aggressive: bool = False) -> dict:
     """Analyze and quantize the weights."""
     max_val = max(np.amax(original_weights), np.amax(original_bias))
     min_val = min(np.amin(original_weights), np.amin(original_bias))
@@ -74,10 +42,13 @@ def analyze_and_quantize(original_weights, original_bias):
     print("weight quantization: ", int_width, 8-int_width)
     print("stats: ", max_val, min_val, highest_val)
 
+    # quantize the weights
     quantized_weights = to_fixed_point_array(
-        original_weights, int_bits=int_width, frac_bits=8 - int_width)
+        original_weights, int_bits=int_width, frac_bits=8 - int_width,
+        aggressive=aggressive)
     quantized_bias = to_fixed_point_array(
-        original_bias, int_bits=int_width, frac_bits=8 - int_width)
+        original_bias, int_bits=int_width, frac_bits=8 - int_width,
+        aggressive=aggressive)
     quantized_weights_int = v_to_fixedint(quantized_weights)
     quantized_bias_int = v_to_fixedint(quantized_bias)
     print("average error per weight:",
@@ -85,14 +56,21 @@ def analyze_and_quantize(original_weights, original_bias):
     avg_val = np.mean(np.abs(quantized_weights))
     print("average absolute weight value:", avg_val)
 
-    total_cnt = quantized_weights.size
-    zero_cnt = total_cnt - np.count_nonzero(quantized_weights)
-    po2_cnt = np.count_nonzero(v_is_power_of_two(quantized_weights))
-    left_cnt = total_cnt - zero_cnt - po2_cnt
-    print("total weights:", total_cnt)
-    print("zero weights:", zero_cnt, zero_cnt / total_cnt)
-    print("po2 weights:", po2_cnt, po2_cnt / total_cnt)
-    print("left weights:", left_cnt, left_cnt / total_cnt)
+    # print the weight stats (bias is omitted for now)
+    count = {"total": quantized_weights.size}
+    count["zeros"] = count["total"] - np.count_nonzero(quantized_weights)
+    count["power_of_two"] = np.count_nonzero(
+        v_is_power_of_two(quantized_weights))
+    count["other"] = count["total"] - count["zeros"] - count["power_of_two"]
+    print("total weights:", count["total"])
+    print("zero weights:", count["zeros"], count["zeros"] / count["total"])
+    print("power of two weights:", count["power_of_two"],
+          count["power_of_two"] / count["total"])
+    print("left weights:", count["other"], count["other"] / count["total"])
+
+    if aggressive and count["other"]:
+        Warning("At aggressive quantization all weights should be"
+                "0 or power of two.")
 
     return {
         "weights": quantized_weights_int,
@@ -112,8 +90,9 @@ def verify_quant(quant: tuple):
             f"Only zero point = 0 supported. Got {quant[1]}.")
 
 
-def make_conv_quant(node, weights_dict: dict,
-                    quant_in: tuple) -> Tuple[Any, List[Any], Tuple[int, int]]:
+def make_conv_quant(node, weights_dict: dict, quant_in: tuple,
+                    aggressive: bool = False
+                    ) -> Tuple[Any, List[Any], Tuple[int, int]]:
     """Create a convolution node and quantize the weights.
     Quantizations get calculated as follows:
     - input quantization is given
@@ -145,7 +124,8 @@ def make_conv_quant(node, weights_dict: dict,
     print("#"*50)
     print("layer: ", node_name + "_qconv")
     quantized_weights = analyze_and_quantize(
-        weights_dict[node.input[1]], weights_dict[node.input[2]])
+        weights_dict[node.input[1]], weights_dict[node.input[2]],
+        aggressive=aggressive)
 
     # calculate output scale
     quant_factor = round(math.log2(quantized_weights["avg_val"]))
@@ -214,8 +194,9 @@ def make_quant(input_name: str, quant: tuple) -> Tuple[Any, List[Any]]:
     return node_def, initializer
 
 
-def quantize(model):
+def quantize(model, aggressive=False):
     """Quantize an arbitrary CNN model."""
+    # TODO: add types
     new_nodes = []
     new_initializers = []
 
@@ -237,7 +218,7 @@ def quantize(model):
                 new_initializers.extend(init)
 
             node_q, init, quant_out = make_conv_quant(
-                node, weights_dict, quant_in)
+                node, weights_dict, quant_in, aggressive=aggressive)
             new_nodes.append(node_q)
             new_initializers.extend(init)
 
@@ -286,12 +267,16 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--model-path", default="model.onnx",
                         help="Path to the onnx model.")
+    parser.add_argument(
+        "--aggressive", action="store_true",
+        help="Use aggressive quantization."
+             "Lower ressource usage, but worse classification.")
     args = parser.parse_args()
 
     model = onnx.load(args.model_path)
     onnx.checker.check_model(model)
 
-    model_q = quantize(model)
+    model_q = quantize(model, aggressive=args.aggressive)
     onnx.checker.check_model(model_q)
 
     name, extension = os.path.splitext(args.model_path)

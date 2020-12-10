@@ -2,8 +2,9 @@
 for fpbinary as well as general functions."""
 
 from dataclasses import dataclass
+import math
 from random import randint
-from typing import Optional, Tuple
+from typing import Optional, Tuple, Union
 
 import numpy as np
 
@@ -79,7 +80,8 @@ def to_fixed_point(number: str, **kwargs):
     return FpBinary(**kwargs, bit_field=int(number, 2))
 
 
-def to_fixed_point_array(array_in, from_value: bool = True, **kwargs):
+def to_fixed_point_array(array_in, from_value: bool = True,
+                         aggressive: bool = False, **kwargs):
     """Convert an arbitrary array to an array of fixed point objects."""
     def fp_gen(value):
         if from_value:
@@ -89,8 +91,107 @@ def to_fixed_point_array(array_in, from_value: bool = True, **kwargs):
     # TODO: v_fp_gen = np.vectorize(fp_gen)
     # see also: https://github.com/smlgit/fpbinary/issues/9
     array_out = np.empty((array_in.size,), dtype=object)
-    array_out[:] = [fp_gen(element) for element in array_in.flat]
+    array_out[:] = (
+        [fp_gen(element) for element in v_power_of_two(array_in).flat]
+        if aggressive else
+        [fp_gen(element) for element in array_in.flat]
+    )
     return array_out.reshape(array_in.shape)
+
+
+def is_power_of_two(val: Union[int, float]) -> bool:
+    """Check whether a number is a power of two.
+
+    >>> is_power_of_two(-1)
+    True
+    >>> is_power_of_two(-0.125)
+    True
+    >>> is_power_of_two(0)
+    False
+    >>> is_power_of_two(0.25)
+    True
+    >>> is_power_of_two(1)
+    True
+    >>> is_power_of_two(2)
+    True
+    >>> is_power_of_two(5)
+    False
+    >>> is_power_of_two(2048)
+    True
+    >>> is_power_of_two(2049)
+    False
+    """
+    if not val:
+        return False
+    bits = math.log2(abs(val))
+    return int(bits) == bits
+
+
+def v_is_power_of_two(val: Union[int, float]):
+    """Vectorized version of "is_power_of_two()"."""
+    vector_is_power_of_two = np.vectorize(is_power_of_two, otypes=[np.int])
+    return vector_is_power_of_two(val)
+
+
+def power_of_two(value: int, bitwidth: int = 8) -> int:
+    """Obtain the closest power of 2 of a given number.
+    Also check whether it's whithin the range.
+
+    >>> power_of_two(127)
+    64
+    >>> power_of_two(64)
+    64
+    >>> power_of_two(63)
+    64
+    >>> power_of_two(5)
+    4
+    >>> power_of_two(3)
+    4
+    >>> power_of_two(2)
+    2
+    >>> power_of_two(1)
+    1
+    >>> power_of_two(0)
+    0
+    >>> power_of_two(-1)
+    -1
+    >>> power_of_two(-2)
+    -2
+    >>> power_of_two(-3)
+    -4
+    >>> power_of_two(-127)
+    -128
+    >>> power_of_two(-129)
+    Traceback (most recent call last):
+        ...
+    ValueError: Value -129 is out of range.
+    >>> power_of_two(1000)
+    Traceback (most recent call last):
+        ...
+    ValueError: Value 1000 is out of range.
+    """
+    if value == 0:
+        return 0
+    if value < -2 ** (bitwidth - 1) or value >= 2 ** (bitwidth - 1):
+        raise ValueError(f"Value {value} is out of range.")
+
+    negative = value < 0
+    power_bits = int(math.log2(abs(value)) + 0.5)
+
+    # check if the number exceeds the range
+    if not negative and power_bits == bitwidth - 1:
+        power_bits -= 1
+    assert -2 ** (bitwidth - 1) <= power_bits < 2 ** (bitwidth - 1), power_bits
+
+    result = (-1) ** negative * 2 ** power_bits
+    assert is_power_of_two(result), result
+    return result
+
+
+def v_power_of_two(val: Union[int, float]):
+    """Vectorized version of "power_of_two()"."""
+    vector_power_of_two = np.vectorize(power_of_two, otypes=[np.int])
+    return vector_power_of_two(val)
 
 
 def random_fixed_array(size: tuple, bitwidth: Bitwidth,

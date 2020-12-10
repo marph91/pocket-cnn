@@ -12,7 +12,8 @@ from fp_helper import to_fixed_point_array
 from weights_to_files import weights_to_files
 
 
-def convert_weights(model: str, output_dir: str = "weights") -> None:
+def convert_weights(model: str, output_dir: str = "weights",
+                    aggressive: bool = False) -> None:
     """Extract weights from model, convert them into binary fixed point and
     save to file."""
     net = onnx.load(model)
@@ -40,9 +41,11 @@ def convert_weights(model: str, output_dir: str = "weights") -> None:
             frac_bits = int(math.log2(weights_dict[node.input[4]]))
 
             kernel = to_fixed_point_array(
-                kernel, int_bits=int_bits, frac_bits=frac_bits)
+                kernel, int_bits=int_bits, frac_bits=frac_bits,
+                aggressive=aggressive)
             bias = to_fixed_point_array(
-                bias, int_bits=int_bits, frac_bits=frac_bits)
+                bias, int_bits=int_bits, frac_bits=frac_bits,
+                aggressive=aggressive)
             weights_to_files(kernel, bias, layer_name, output_dir)
 
 
@@ -50,7 +53,7 @@ if __name__ == "__main__":
     PARSER = argparse.ArgumentParser()
     PARSER.add_argument("model", help="Path to a .onnx model")
     PARSER.add_argument(
-        "--output_dir", type=str, help="Output directory of weights")
+        "--output-dir", type=str, help="Output directory of weights")
     ARGS = PARSER.parse_args()
 
     convert_weights(ARGS.model, ARGS.output_dir)
