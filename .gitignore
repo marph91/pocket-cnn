@@ -31,7 +31,11 @@ code/vhdl/sim/vunit/top_wrapper/src/*/weights
 *.onnx
 *.pt
 examples/end_to_end/data
-examples/end_to_end/work
+examples/end_to_end/work*
+
+# drafts
+code/vhdl/formal
+petalinux_test
 
 # other files
 notes.txt
