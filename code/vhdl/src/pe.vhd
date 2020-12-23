@@ -242,7 +242,7 @@ begin
 
   end generate gen_pool;
 
-  i_output_buffer : entity work.output_buffer
+  i_output_buffer : entity util.output_buffer
     generic map (
       C_TOTAL_BITS  => C_DATA_TOTAL_BITS,
       C_CH          => C_CH_OUT

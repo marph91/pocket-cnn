@@ -2,7 +2,7 @@
 util.files = [
   "code/vhdl/src/util/*.vhd",
 ]
-window_buffer_lib.files = [
+window_ctrl_lib.files = [
   "submodules/window-buffer/src/*.vhd",
 ]
 cnn_lib.files = [
