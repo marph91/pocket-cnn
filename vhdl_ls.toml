@@ -3,7 +3,7 @@ util.files = [
   "code/vhdl/src/util/*.vhd",
 ]
 window_ctrl_lib.files = [
-  "submodules/window-buffer/src/*.vhd",
+  "code/vhdl/src/window_ctrl/*.vhd",
 ]
 cnn_lib.files = [
   "code/vhdl/src/*.vhd",

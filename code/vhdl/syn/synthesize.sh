@@ -22,10 +22,10 @@ ghdl -a --std=08 --work=util "$SRC/util/bram.vhd"
 ghdl -a --std=08 --work=util "$SRC/util/output_buffer.vhd"
 
 # window buffer
-ghdl -a --std=08 --work=window_ctrl_lib "$SRC/window_buffer/channel_repeater.vhd"
-ghdl -a --std=08 --work=window_ctrl_lib "$SRC/window_buffer/line_buffer.vhd"
-ghdl -a --std=08 --work=window_ctrl_lib "$SRC/window_buffer/window_buffer.vhd"
-ghdl -a --std=08 --work=window_ctrl_lib "$SRC/window_buffer/window_ctrl.vhd"
+ghdl -a --std=08 --work=window_ctrl_lib "$SRC/window_ctrl/channel_repeater.vhd"
+ghdl -a --std=08 --work=window_ctrl_lib "$SRC/window_ctrl/line_buffer.vhd"
+ghdl -a --std=08 --work=window_ctrl_lib "$SRC/window_ctrl/window_buffer.vhd"
+ghdl -a --std=08 --work=window_ctrl_lib "$SRC/window_ctrl/window_ctrl.vhd"
 
 # smaller layers (relu, zero padding, average pooling)
 ghdl -a --std=08 --work=cnn_lib "$SRC/relu.vhd"
