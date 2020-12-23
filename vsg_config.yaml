@@ -1,6 +1,7 @@
 file_list:
   - code/vhdl/src/*.vhd
   - code/vhdl/src/util/*.vhd
+  - code/vhdl/src/window_ctrl/*.vhd
 rule:
   global:
     indentSize: 2
