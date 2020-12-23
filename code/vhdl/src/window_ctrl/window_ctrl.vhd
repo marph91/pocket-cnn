@@ -42,13 +42,9 @@ end entity window_ctrl;
 architecture behavioral of window_ctrl is
 
   -- counter
-  signal int_col            : integer range 0 to C_IMG_WIDTH - 1 := 0;
-  signal int_row            : integer range 0 to C_IMG_HEIGHT - 1 := 0;
-  signal int_ch_in_cnt      : integer range 0 to C_CH_IN - 1 := 0;
-  signal int_ch_out_cnt     : integer range 0 to C_CH_IN - 1 := 0;
-  signal int_repetition_cnt : integer range 0 to C_CH_OUT - 1 := 0;
-  signal int_pixel_in_cnt   : integer range 0 to C_IMG_HEIGHT * C_IMG_WIDTH := 0;
-  signal int_pixel_out_cnt  : integer range 0 to C_IMG_HEIGHT * C_IMG_WIDTH := 0;
+  signal int_col       : integer range 0 to C_IMG_WIDTH - 1 := 0;
+  signal int_row       : integer range 0 to C_IMG_HEIGHT - 1 := 0;
+  signal int_pixel_cnt : integer range 0 to C_IMG_HEIGHT * C_IMG_WIDTH := 0;
 
   -- for line buffer
   signal sl_lb_valid_out : std_logic := '0';
@@ -123,7 +119,7 @@ begin
     --    3. every C_STRIDE column
     --    4. when the window is not shifted at end/start of line
     -------------------------------------------------------
-    sl_flush <= '1' when int_pixel_in_cnt < (C_KERNEL_SIZE - 1) * C_IMG_WIDTH + C_KERNEL_SIZE - 1 else
+    sl_flush <= '1' when int_pixel_cnt < (C_KERNEL_SIZE - 1) * C_IMG_WIDTH + C_KERNEL_SIZE - 1 else
                 '0';
 
     proc_selector : process (isl_clk) is
@@ -177,56 +173,38 @@ begin
     sl_repeater_rdy        <= '1';
   end generate gen_channel_repeater;
 
-  proc_cnt : process (isl_clk) is
-  begin
+  i_pixel_counter_in : entity util.pixel_counter(single_process)
+    generic map (
+      C_HEIGHT  => C_IMG_HEIGHT,
+      C_WIDTH   => C_IMG_WIDTH,
+      C_CHANNEL => C_CH_IN
+    )
+    port map (
+      isl_clk      => isl_clk,
+      isl_reset    => isl_start,
+      isl_valid    => isl_valid,
+      oint_pixel   => int_pixel_cnt,
+      oint_row     => int_row,
+      oint_column  => int_col,
+      oint_channel => open
+    );
 
-    if (rising_edge(isl_clk)) then
-      if (isl_start = '1') then
-        -- have to be resetted at start because of odd kernels (size: 3, stride: 2)
-        -- because image dimensions aren't fitting kernel stride
-        int_ch_in_cnt     <= 0;
-        int_pixel_in_cnt  <= 0;
-        int_pixel_out_cnt <= 0;
-        int_row           <= 0;
-        int_col           <= 0;
-      else
-        if (isl_valid = '1') then
-          if (int_ch_in_cnt < C_CH_IN - 1) then
-            int_ch_in_cnt <= int_ch_in_cnt + 1;
-          else
-            int_ch_in_cnt    <= 0;
-            int_pixel_in_cnt <= int_pixel_in_cnt + 1;
-            if (int_col < C_IMG_WIDTH - 1) then
-              int_col <= int_col + 1;
-            else
-              int_col <= 0;
-              if (int_row < C_IMG_HEIGHT - 1) then
-                int_row <= int_row + 1;
-              else
-                int_row <= 0;
-              end if;
-            end if;
-          end if;
-        end if;
-
-        -- for debugging
-        if (osl_valid = '1') then
-          if (int_ch_out_cnt < C_CH_IN - 1) then
-            int_ch_out_cnt <= int_ch_out_cnt + 1;
-          else
-            int_ch_out_cnt <= 0;
-            if (int_repetition_cnt < C_CH_OUT - 1) then
-              int_repetition_cnt <= int_repetition_cnt + 1;
-            else
-              int_repetition_cnt <= 0;
-              int_pixel_out_cnt  <= int_pixel_out_cnt + 1;
-            end if;
-          end if;
-        end if;
-      end if;
-    end if;
-
-  end process proc_cnt;
+  -- only for debugging
+  i_pixel_counter_out : entity util.pixel_counter(single_process)
+    generic map (
+      C_HEIGHT  => 1,
+      C_WIDTH   => C_CH_OUT,
+      C_CHANNEL => C_CH_IN
+    )
+    port map (
+      isl_clk      => isl_clk,
+      isl_reset    => isl_start,
+      isl_valid    => osl_valid,
+      oint_pixel   => open,
+      oint_row     => open,
+      oint_column  => open,
+      oint_channel => open
+    );
 
   oslv_data <= array_to_slv(a_repeater_data_out);
   osl_valid <= sl_repeater_valid_out;
