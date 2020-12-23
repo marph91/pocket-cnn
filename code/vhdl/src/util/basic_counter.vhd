@@ -8,15 +8,15 @@ library util;
 
 entity basic_counter is
   generic (
-    C_MAX       : integer range 1 to 512;
-    C_INCREMENT : integer := 1
+    C_MAX       : integer;
+    C_INCREMENT : integer range 1 to C_MAX := 1
   );
   port (
-    isl_clk      : in    std_logic;
-    isl_reset    : in    std_logic;
-    isl_valid    : in    std_logic;
-    oint_count   : out   integer range 0 to C_MAX - 1;
-    osl_maximum  : out   std_logic
+    isl_clk     : in    std_logic;
+    isl_reset   : in    std_logic;
+    isl_valid   : in    std_logic;
+    oint_count  : out   integer range 0 to C_MAX - 1;
+    osl_maximum : out   std_logic
   );
 end entity basic_counter;
 
@@ -40,7 +40,7 @@ begin
     end process proc_count;
 
   else generate
-  
+
     gen_counter : if is_power_of_two(C_MAX) generate
 
       proc_count : process (isl_clk) is
@@ -51,7 +51,7 @@ begin
           if (isl_reset = '1') then
             usig_count <= (others => '0');
           elsif (isl_valid = '1') then
-            usig_count <= usig_count + C_INCREMENT;
+            usig_count  <= usig_count + C_INCREMENT;
             osl_maximum <= '1' when (usig_count = C_MAX - C_INCREMENT) else '0';
           end if;
         end if;
@@ -71,18 +71,18 @@ begin
             if (usig_count < C_MAX - C_INCREMENT) then
               usig_count <= usig_count + C_INCREMENT;
             else
-              usig_count <= (others => '0');
+              usig_count  <= (others => '0');
               osl_maximum <= '1';
             end if;
           end if;
         end if;
-    
+
       end process proc_count;
 
-    end generate;
+    end generate gen_counter;
 
     oint_count <= to_integer(usig_count);
 
-  end generate;
+  end generate gen_no_count;
 
 end architecture behavioral;

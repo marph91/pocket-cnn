@@ -9,9 +9,9 @@ library util;
 
 entity pixel_counter is
   generic (
-    C_HEIGHT  : integer range 1 to 512;
-    C_WIDTH   : integer range 1 to 512;
-    C_CHANNEL : integer range 1 to 512;
+    C_HEIGHT            : integer;
+    C_WIDTH             : integer;
+    C_CHANNEL           : integer;
     C_CHANNEL_INCREMENT : integer range 1 to C_CHANNEL := 1
   );
   port (
@@ -28,7 +28,7 @@ end entity pixel_counter;
 architecture submodules of pixel_counter is
 
   signal sl_channel_maximum : std_logic := '0';
-  signal sl_column_maximum : std_logic := '0';
+  signal sl_column_maximum  : std_logic := '0';
 
 begin
 
@@ -44,7 +44,7 @@ begin
       oint_count  => oint_channel,
       osl_maximum => sl_channel_maximum
     );
-  
+
   i_column_count : entity util.basic_counter
     generic map (
       C_MAX       => C_WIDTH
