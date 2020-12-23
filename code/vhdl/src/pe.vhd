@@ -80,39 +80,25 @@ architecture behavioral of pe is
 
 begin
 
-  proc_cnt : process (isl_clk) is
-  begin
+  -- synthesis translate off
+  i_pixel_counter : entity util.pixel_counter(single_process)
+    generic map (
+      C_HEIGHT  => C_IMG_HEIGHT,
+      C_WIDTH   => C_IMG_WIDTH,
+      C_CHANNEL => C_CH_IN,
+      C_CHANNEL_INCREMENT => C_PARALLEL_CH
+    )
+    port map (
+      isl_clk      => isl_clk,
+      isl_reset    => isl_start,
+      isl_valid    => isl_valid,
+      oint_pixel   => int_pixel_in_cnt,
+      oint_row     => int_row,
+      oint_column  => int_col,
+      oint_channel => int_ch_in_cnt
+    );
 
-    if (rising_edge(isl_clk)) then
-      if (isl_start = '1') then
-        -- have to be resetted at start because of odd kernels (3x3+2) -> image dimensions arent fitting kernel stride
-        int_pixel_in_cnt <= 0;
-        int_ch_in_cnt    <= 0;
-        int_col          <= 0;
-        int_row          <= 0;
-      else
-        if (isl_valid = '1') then
-          if (int_ch_in_cnt < C_CH_IN - 1) then
-            int_ch_in_cnt <= int_ch_in_cnt + 1;
-          else
-            int_ch_in_cnt    <= 0;
-            int_pixel_in_cnt <= int_pixel_in_cnt + 1;
-            if (int_col < C_IMG_WIDTH - 1) then
-              int_col <= int_col + 1;
-            else
-              int_col <= 0;
-              if (int_row < C_IMG_HEIGHT - 1) then
-                int_row <= int_row + 1;
-              else
-                int_row <= 0;
-              end if;
-            end if;
-          end if;
-        end if;
-      end if;
-    end if;
-
-  end process proc_cnt;
+  -- synthesis translate on
 
   -- zero padding
 

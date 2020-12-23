@@ -66,12 +66,38 @@ architecture behavioral of conv is
   signal   slv_bias       : std_logic_vector(C_WEIGHTS_TOTAL_BITS - 1 downto 0);
 
   -- debug
-  signal int_ch_in_cnt     : integer := 0;
-  signal int_pixel_in_cnt  : integer := 0;
-  signal int_ch_out_cnt    : integer range 0 to C_CH_OUT - 1 := 0;
-  signal int_pixel_out_cnt : integer := 0;
+  signal int_ch_in_cnt  : integer range 0 to C_CH_IN - 1 := 0;
+  signal int_ch_out_cnt : integer range 0 to C_CH_OUT - 1 := 0;
 
 begin
+
+  -- synthesis translate off
+  i_pixel_counter_in : entity util.basic_counter
+    generic map (
+      C_MAX => C_CH_IN,
+      C_INCREMENT => C_PARALLEL_CH
+    )
+    port map (
+      isl_clk     => isl_clk,
+      isl_reset   => '0',
+      isl_valid   => isl_valid,
+      oint_count  => int_ch_in_cnt,
+      osl_maximum => open
+    );
+
+  i_pixel_counter_out : entity util.basic_counter
+    generic map (
+      C_MAX => C_CH_OUT
+    )
+    port map (
+      isl_clk     => isl_clk,
+      isl_reset   => '0',
+      isl_valid   => osl_valid,
+      oint_count  => int_ch_out_cnt,
+      osl_maximum => open
+    );
+
+  -- synthesis translate on
 
   gen_mm : for ch_in in 0 to C_PARALLEL_CH - 1 generate
     i_mm : entity work.mm
@@ -96,30 +122,23 @@ begin
 
   end generate gen_mm;
 
-  proc_cnt : process (isl_clk) is
-  begin
-
-    if (rising_edge(isl_clk)) then
-      if (isl_valid = '1') then
-        if (int_ch_in_cnt < C_CH_IN * C_CH_OUT - C_PARALLEL_CH) then
-          int_ch_in_cnt <= int_ch_in_cnt + C_PARALLEL_CH;
-        else
-          int_ch_in_cnt    <= 0;
-          int_pixel_in_cnt <= int_pixel_in_cnt + 1;
-        end if;
-      end if;
-
-      if (sl_valid_out = '1') then
-        if (int_ch_out_cnt < C_CH_OUT - 1) then
-          int_ch_out_cnt <= int_ch_out_cnt + 1;
-        else
-          int_ch_out_cnt    <= 0;
-          int_pixel_out_cnt <= int_pixel_out_cnt + 1;
-        end if;
-      end if;
-    end if;
-
-  end process proc_cnt;
+  i_address_counter : entity util.pixel_counter(single_process)
+    generic map (
+      C_HEIGHT  => 1,
+      -- bias addresses depend on output channel
+      C_WIDTH   => C_CH_OUT,
+      C_CHANNEL => C_CH_IN,
+      C_CHANNEL_INCREMENT => C_PARALLEL_CH
+    )
+    port map (
+      isl_clk      => isl_clk,
+      isl_reset    => '0',
+      isl_valid    => sl_mm_valid_out(0),
+      oint_pixel   => int_addr_cnt_b,
+      oint_row     => open,
+      oint_column  => open,
+      oint_channel => int_mm_out_cnt
+    );
 
   proc_data : process (isl_clk) is
 
@@ -131,19 +150,6 @@ begin
       sl_mm_valid_out_d1 <= sl_mm_valid_out(0);
 
       if (sl_mm_valid_out(0) = '1') then
-        if (int_mm_out_cnt < C_CH_IN - C_PARALLEL_CH) then
-          int_mm_out_cnt <= int_mm_out_cnt + C_PARALLEL_CH;
-        else
-          int_mm_out_cnt <= 0;
-
-          -- bias addresses depend on output channel
-          if (int_addr_cnt_b < C_CH_OUT - 1) then
-            int_addr_cnt_b <= int_addr_cnt_b + 1;
-          else
-            int_addr_cnt_b <= 0;
-          end if;
-        end if;
-
         -- assign the first value (bias)
         if (int_mm_out_cnt = 0) then
           v_sfix_sum := resize(to_sfixed(C_BIAS(int_addr_cnt_b)(0, 0),

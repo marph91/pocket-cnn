@@ -189,7 +189,7 @@ begin
       oint_channel => open
     );
 
-  -- only for debugging
+  -- synthesis translate off
   i_pixel_counter_out : entity util.pixel_counter(single_process)
     generic map (
       C_HEIGHT  => 1,
@@ -199,12 +199,14 @@ begin
     port map (
       isl_clk      => isl_clk,
       isl_reset    => isl_start,
-      isl_valid    => osl_valid,
+      isl_valid    => sl_repeater_valid_out,
       oint_pixel   => open,
       oint_row     => open,
       oint_column  => open,
       oint_channel => open
     );
+
+  -- synthesis translate on
 
   oslv_data <= array_to_slv(a_repeater_data_out);
   osl_valid <= sl_repeater_valid_out;

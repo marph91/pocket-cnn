@@ -2,6 +2,8 @@
 library ieee;
   use ieee.std_logic_1164.all;
 
+library util;
+
 entity zero_pad is
   generic (
     C_DATA_WIDTH : integer range 1 to 16 := 8;
@@ -34,10 +36,12 @@ architecture behavioral of zero_pad is
 
   -- counter
   signal int_ch_in        : integer range 0 to C_CH - 1 := 0;
-  signal int_ch_out       : integer range 0 to C_CH := 0;
   signal int_row          : integer range 0 to C_IMG_HEIGHT - 1 := 0;
   signal int_col          : integer range 0 to C_IMG_WIDTH - 1 := 0;
   signal int_pixel_to_pad : integer range 0 to C_IMG_WIDTH_OUT + C_PAD_LEFT + 1 := 0;
+
+  signal sl_pixel_padded  : std_logic := '0';
+  signal sl_padding_valid : std_logic := '0';
 
   signal sl_output_valid : std_logic := '0';
   signal slv_data_out    : std_logic_vector(C_DATA_WIDTH - 1 downto 0);
@@ -48,46 +52,74 @@ architecture behavioral of zero_pad is
 
 begin
 
-  proc_pad : process (isl_clk) is
+  i_pixel_counter_in : entity util.pixel_counter(single_process)
+    generic map (
+      C_HEIGHT  => C_IMG_HEIGHT,
+      C_WIDTH   => C_IMG_WIDTH,
+      C_CHANNEL => C_CH
+    )
+    port map (
+      isl_clk      => isl_clk,
+      isl_reset    => isl_start,
+      isl_valid    => isl_valid,
+      oint_pixel   => open,
+      oint_row     => int_row,
+      oint_column  => int_col,
+      oint_channel => int_ch_in
+    );
+
+  sl_padding_valid <= '1' when state = PAD_PIXEL and sl_pixel_padded = '0' else
+                      '0';
+  i_channel_counter_out : entity util.basic_counter
+    generic map (
+      C_MAX => C_CH
+    )
+    port map (
+      isl_clk     => isl_clk,
+      isl_reset   => isl_start,
+      isl_valid   => sl_padding_valid,
+      oint_count  => open,
+      osl_maximum => sl_pixel_padded
+    );
+
+  -- Determine the image position to set int_pixel_to_pad.
+  -- There are three possibilities for padding:
+  --   1. at the start of the image
+  --   2. after each row
+  --   3. at the end of the image
+
+  -- TODO: Fix padding at start/end for C_PAD > 1.
+  proc_pixel_to_pad : process (isl_clk) is
   begin
 
     if (rising_edge(isl_clk)) then
-      -- Determine the image position to set int_pixel_to_pad.
-      -- There are three possibilities for padding:
-      --   1. at the start of the image
-      --   2. after each row
-      --   3. at the end of the image
       if (isl_start = '1') then
         -- padding at the start of the image
-        -- TODO: fix for C_PAD > 1
         int_pixel_to_pad <= C_IMG_WIDTH_OUT + C_PAD_LEFT;
-        -- prevent problems with STRIDE /= KERNEL_SIZE at multiple images
-        int_row <= 0;
-        int_col <= 0;
-        state   <= IDLE;
       elsif (isl_valid = '1') then
-        if (int_ch_in < C_CH - 1) then
-          int_ch_in <= int_ch_in + 1;
-        else
-          int_ch_in <= 0;
-          if (int_col < C_IMG_WIDTH - 1) then
-            int_col <= int_col + 1;
-          else
-            int_col <= 0;
-            -- padding after each row
-            int_pixel_to_pad <= C_PAD_RIGHT + C_PAD_LEFT;
-            if (int_row < C_IMG_HEIGHT - 1) then
-              int_row <= int_row + 1;
-            else
-              int_row <= 0;
-              -- padding at the end of the image
-              -- TODO: fix for C_PAD > 1
-              int_pixel_to_pad <= C_PAD_BOTTOM * (C_IMG_WIDTH_OUT + C_PAD_RIGHT);
-            end if;
+        if (int_ch_in >= C_CH - 1 and int_col >= C_IMG_WIDTH - 1) then
+          -- padding after each row
+          int_pixel_to_pad <= C_PAD_RIGHT + C_PAD_LEFT;
+
+          if (int_row >= C_IMG_HEIGHT - 1) then
+            -- padding at the end of the image
+            int_pixel_to_pad <= C_PAD_BOTTOM * (C_IMG_WIDTH_OUT + C_PAD_RIGHT);
           end if;
         end if;
       end if;
 
+      if (int_pixel_to_pad > 0 and isl_get = '1' and state = PAD) then
+        assert isl_valid = '0';
+        int_pixel_to_pad <= int_pixel_to_pad - 1;
+      end if;
+    end if;
+
+  end process proc_pixel_to_pad;
+
+  proc_fsm : process (isl_clk) is
+  begin
+
+    if (rising_edge(isl_clk)) then
       -- states are dependent on current state and int_pixel_to_pad
       case state is
 
@@ -99,20 +131,17 @@ begin
         when PAD =>
           if (int_pixel_to_pad > 0) then
             if (isl_get = '1') then
-              state            <= PAD_PIXEL;
-              int_pixel_to_pad <= int_pixel_to_pad - 1;
+              state <= PAD_PIXEL;
             end if;
           else
             state <= FORWARD_DATA;
           end if;
 
         when PAD_PIXEL =>
-          if (int_ch_out < C_CH) then
-            int_ch_out      <= int_ch_out + 1;
+          if (sl_pixel_padded = '0') then
             sl_output_valid <= '1';
             slv_data_out    <= (others => '0');
           else
-            int_ch_out      <= 0;
             sl_output_valid <= '0';
             state           <= PAD;
           end if;
@@ -128,7 +157,7 @@ begin
 
     end if;
 
-  end process proc_pad;
+  end process proc_fsm;
 
   osl_valid <= sl_output_valid;
   oslv_data <= slv_data_out;
