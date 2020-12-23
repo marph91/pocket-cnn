@@ -20,7 +20,6 @@ ghdl -a --std=08 --work=util "$SRC/util/array_pkg.vhd"
 ghdl -a --std=08 --work=util "$SRC/util/math_pkg.vhd"
 
 # window buffer
-ghdl -a --std=08 --work=window_ctrl_lib "$SRC/window_buffer/bram.vhd"
 ghdl -a --std=08 --work=window_ctrl_lib "$SRC/window_buffer/channel_repeater.vhd"
 ghdl -a --std=08 --work=window_ctrl_lib "$SRC/window_buffer/line_buffer.vhd"
 ghdl -a --std=08 --work=window_ctrl_lib "$SRC/window_buffer/window_buffer.vhd"
