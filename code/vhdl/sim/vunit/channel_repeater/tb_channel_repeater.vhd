@@ -3,7 +3,7 @@ library ieee;
   use ieee.numeric_std.all;
   use ieee.fixed_pkg.all;
 
-library cnn_lib;
+library window_ctrl_lib;
 
 library util;
   use util.array_pkg.all;
@@ -41,7 +41,7 @@ architecture tb of tb_channel_repeater is
 
   signal data_check_done, stimuli_done : boolean := false;
 begin
-  dut : entity cnn_lib.channel_repeater
+  dut : entity window_ctrl_lib.channel_repeater
   generic map (
     C_BITWIDTH    => C_BITWIDTH,
 

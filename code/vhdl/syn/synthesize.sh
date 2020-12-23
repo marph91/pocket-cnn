@@ -20,11 +20,11 @@ ghdl -a --std=08 --work=util "$SRC/util/array_pkg.vhd"
 ghdl -a --std=08 --work=util "$SRC/util/math_pkg.vhd"
 
 # window buffer
-ghdl -a --std=08 --work=window_buffer_lib "$ROOT/../submodules/window-buffer/src/bram.vhd"
-ghdl -a --std=08 --work=window_buffer_lib "$ROOT/../submodules/window-buffer/src/channel_repeater.vhd"
-ghdl -a --std=08 --work=window_buffer_lib "$ROOT/../submodules/window-buffer/src/line_buffer.vhd"
-ghdl -a --std=08 --work=window_buffer_lib "$ROOT/../submodules/window-buffer/src/window_buffer.vhd"
-ghdl -a --std=08 --work=window_buffer_lib "$ROOT/../submodules/window-buffer/src/window_ctrl.vhd"
+ghdl -a --std=08 --work=window_ctrl_lib "$SRC/window_buffer/bram.vhd"
+ghdl -a --std=08 --work=window_ctrl_lib "$SRC/window_buffer/channel_repeater.vhd"
+ghdl -a --std=08 --work=window_ctrl_lib "$SRC/window_buffer/line_buffer.vhd"
+ghdl -a --std=08 --work=window_ctrl_lib "$SRC/window_buffer/window_buffer.vhd"
+ghdl -a --std=08 --work=window_ctrl_lib "$SRC/window_buffer/window_ctrl.vhd"
 
 # helper modules
 ghdl -a --std=08 --work=cnn_lib "$SRC/bram.vhd"

@@ -8,7 +8,7 @@ library ieee;
 library util;
   use util.array_pkg.all;
 
-library window_buffer_lib;
+library window_ctrl_lib;
 
 entity window_ctrl is
   generic (
@@ -82,7 +82,7 @@ begin
   else generate
     -- line buffer
     -- one cycle delay
-    i_line_buffer : entity window_buffer_lib.line_buffer
+    i_line_buffer : entity window_ctrl_lib.line_buffer
       generic map (
         C_BITWIDTH    => C_BITWIDTH,
         C_CH          => C_CH_IN,
@@ -99,7 +99,7 @@ begin
 
     -- window buffer
     -- one cycle delay
-    i_window_buffer : entity window_buffer_lib.window_buffer
+    i_window_buffer : entity window_ctrl_lib.window_buffer
       generic map (
         C_BITWIDTH    => C_BITWIDTH,
         C_CH          => C_CH_IN,
@@ -151,7 +151,7 @@ begin
 
   gen_channel_repeater : if C_CH_OUT > 1 generate
     -- channel repeater
-    i_channel_repeater : entity window_buffer_lib.channel_repeater
+    i_channel_repeater : entity window_ctrl_lib.channel_repeater
       generic map (
         C_BITWIDTH    => C_BITWIDTH,
         C_CH          => C_CH_IN,

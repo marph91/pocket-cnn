@@ -2,7 +2,7 @@ library ieee;
   use ieee.std_logic_1164.all;
   use ieee.numeric_std.all;
 
-library cnn_lib;
+library window_ctrl_lib;
 
 library util;
   use util.array_pkg.all;
@@ -47,7 +47,7 @@ architecture tb of tb_window_ctrl is
 
   signal data_check_done, stimuli_done : boolean := false;
 begin
-  dut : entity cnn_lib.window_ctrl
+  dut : entity window_ctrl_lib.window_ctrl
   generic map (
     C_BITWIDTH  => C_BITWIDTH,
 

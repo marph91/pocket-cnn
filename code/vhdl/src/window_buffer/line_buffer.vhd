@@ -7,7 +7,7 @@ library util;
   use util.array_pkg.all;
   use util.math_pkg.all;
 
-library window_buffer_lib;
+library cnn_lib;
 
 entity line_buffer is
   generic (
@@ -44,7 +44,7 @@ architecture behavioral of line_buffer is
 
 begin
 
-  i_bram : entity window_buffer_lib.bram
+  i_bram : entity cnn_lib.bram
     generic map (
       C_DATA_WIDTH => C_BRAM_DATA_WIDTH,
       C_ADDR_WIDTH => C_BRAM_ADDR_WIDTH,

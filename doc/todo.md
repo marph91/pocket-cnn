@@ -18,6 +18,7 @@
 
 ## HDL
 
+- Provide some more interfaces for the toplevel, for example AXI (Lite).
 - Document the communication protocol (get, rdy, valid).
   - timing diagram
   - document the stream format (ch > w > h)
