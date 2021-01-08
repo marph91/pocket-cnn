@@ -51,7 +51,7 @@ architecture behavioral of pool_ave is
   constant C_RECIPROCAL : sfixed(1 downto - C_FRACW_REZI) := reciprocal(to_sfixed(C_IMG_HEIGHT * C_IMG_WIDTH, C_FRACW_REZI, 0));
   signal   slv_average  : std_logic_vector(C_TOTAL_BITS - 1 downto 0) := (others => '0');
 
-  signal int_data_in_cnt : integer range 0 to C_IMG_WIDTH * C_IMG_HEIGHT * C_POOL_CH + 1 := 0;
+  signal int_data_in_cnt : integer range 0 to C_IMG_WIDTH * C_IMG_HEIGHT * C_POOL_CH  - C_POOL_CH + 1 := 0;
 
   type t_1d_array is array (natural range <>) of sfixed(C_INTW_SUM - 1 downto - C_FRAC_BITS);
 
@@ -78,17 +78,19 @@ begin
     if (rising_edge(isl_clk)) then
       if (isl_start = '1') then
         a_ch_buffer     <= (others => (others => '0'));
-        int_data_in_cnt <= 0;
+        int_data_in_cnt <= C_IMG_HEIGHT * C_IMG_WIDTH * C_POOL_CH - C_POOL_CH + 1;
       else
         sl_input_valid_d1 <= isl_valid;
-        if (int_data_in_cnt > C_IMG_HEIGHT * C_IMG_WIDTH * C_POOL_CH - C_POOL_CH) then
+        if (int_data_in_cnt = 0) then
           sl_input_valid_d2 <= sl_input_valid_d1;
         end if;
         sl_input_valid_d3 <= sl_input_valid_d2;
         sl_output_valid   <= sl_input_valid_d3;
 
         if (isl_valid = '1') then
-          int_data_in_cnt <= int_data_in_cnt + 1;
+          if (int_data_in_cnt /= 0) then
+            int_data_in_cnt <= int_data_in_cnt - 1;
+          end if;
           v_sfix_sum := resize(
                         a_ch_buffer(C_POOL_CH - 1) +
                         to_sfixed(islv_data,

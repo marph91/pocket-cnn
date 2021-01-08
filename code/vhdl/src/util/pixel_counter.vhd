@@ -104,13 +104,13 @@ begin
         int_row     <= 0;
       else
         if (isl_valid = '1') then
-          if (int_channel < C_CHANNEL - C_CHANNEL_INCREMENT) then
+          if (int_channel /= C_CHANNEL - C_CHANNEL_INCREMENT) then
             int_channel <= int_channel + C_CHANNEL_INCREMENT;
           else
             int_channel <= 0;
 
             -- row and column count
-            if (int_column < C_WIDTH - 1) then
+            if (int_column /= C_WIDTH - 1) then
               int_column <= int_column + 1;
             else
               int_column <= 0;
@@ -122,7 +122,7 @@ begin
             end if;
 
             -- pixel count
-            if (int_pixel < C_HEIGHT * C_WIDTH - 1) then
+            if (int_pixel /= C_HEIGHT * C_WIDTH - 1) then
               int_pixel <= int_pixel + 1;
             else
               int_pixel <= 0;

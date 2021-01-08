@@ -100,7 +100,7 @@ begin
     if (rising_edge(isl_clk)) then
       if (isl_valid = '1') then
         -- for C_PARALLEL_CH = 1 the input can get directly forwarded
-        if (C_PARALLEL_CH > 1 and int_ch_in_cnt < C_CH - 1) then
+        if (C_PARALLEL_CH /= 1 and int_ch_in_cnt /= C_CH - 1) then
           int_ch_in_cnt <= int_ch_in_cnt + 1;
         else
           int_ch_in_cnt <= 0;
@@ -109,11 +109,11 @@ begin
       end if;
 
       if (sl_valid_out = '1') then
-        if (int_ch_out_cnt < C_CH - C_PARALLEL_CH) then
+        if (int_ch_out_cnt /= C_CH - C_PARALLEL_CH) then
           int_ch_out_cnt <= int_ch_out_cnt + C_PARALLEL_CH;
         else
           int_ch_out_cnt <= 0;
-          if (int_repeat_cnt < C_REPEAT - 1) then
+          if (int_repeat_cnt /= C_REPEAT - 1) then
             int_repeat_cnt <= int_repeat_cnt + 1;
           else
             -- The output is valid all the time until all repetitions are done.

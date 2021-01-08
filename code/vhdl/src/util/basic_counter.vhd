@@ -68,7 +68,7 @@ begin
           if (isl_reset = '1') then
             usig_count <= (others => '0');
           elsif (isl_valid = '1') then
-            if (usig_count < C_MAX - C_INCREMENT) then
+            if (usig_count /= C_MAX - C_INCREMENT) then
               usig_count <= usig_count + C_INCREMENT;
             else
               usig_count  <= (others => '0');

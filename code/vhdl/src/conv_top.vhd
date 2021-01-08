@@ -117,7 +117,7 @@ begin
     if (rising_edge(isl_clk)) then
       -- weight addresses depend on window control
       if (sl_win_valid_out = '1') then
-        if (int_addr_cnt < C_CH_IN * C_CH_OUT - C_PARALLEL_CH) then
+        if (int_addr_cnt /= C_CH_IN * C_CH_OUT - C_PARALLEL_CH) then
           int_addr_cnt <= int_addr_cnt + C_PARALLEL_CH;
         else
           int_addr_cnt <= 0;

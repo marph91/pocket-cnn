@@ -55,7 +55,7 @@ begin
       if (isl_valid = '1') then
         a_buffer_in <= a_buffer_in(1 to a_buffer_in'HIGH) & islv_data;
 
-        if (int_input_cnt < C_CH - 1) then
+        if (int_input_cnt /= C_CH - 1) then
           int_input_cnt <= int_input_cnt + 1;
         else
           int_input_cnt <= 0;
@@ -80,7 +80,7 @@ begin
         when SEND =>
           a_buffer_out <= a_buffer_out(1 to a_buffer_out'HIGH) & a_buffer_out(0);
 
-          if (int_output_cnt < C_CH - 1) then
+          if (int_output_cnt /= C_CH - 1) then
             int_output_cnt <= int_output_cnt + 1;
           else
             int_output_cnt <= 0;

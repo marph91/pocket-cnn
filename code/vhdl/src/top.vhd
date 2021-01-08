@@ -74,7 +74,8 @@ architecture behavioral of top is
       v_int_size_conv := (v_a_size(i - 1) + 2 * C_PAD(i - 1) - C_CONV_KSIZE(i - 1)) /
                          C_CONV_STRIDE(i - 1) + 1;
 
-      if (C_POOL_STRIDE(i - 1) > 0) then
+      assert C_POOL_STRIDE(i - 1) >= 0;
+      if (C_POOL_STRIDE(i - 1) /= 0) then
         v_a_size(i) := (v_int_size_conv - C_POOL_KSIZE(i - 1)) /
                        C_POOL_STRIDE(i - 1) + 1;
       else
@@ -191,7 +192,7 @@ begin
       if (sl_output_valid(C_PE + 1) = '1') then
         int_data_out_cnt <= int_data_out_cnt + 1;
       end if;
-      if (int_data_out_cnt < C_CH(C_CH'RIGHT)) then
+      if (int_data_out_cnt /= C_CH(C_CH'RIGHT)) then
         sl_output_finish <= '0';
       else
         sl_output_finish <= '1';

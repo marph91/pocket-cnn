@@ -97,11 +97,11 @@ begin
         -- padding at the start of the image
         int_pixel_to_pad <= C_IMG_WIDTH_OUT + C_PAD_LEFT;
       elsif (isl_valid = '1') then
-        if (int_ch_in >= C_CH - 1 and int_col >= C_IMG_WIDTH - 1) then
+        if (int_ch_in = C_CH - 1 and int_col = C_IMG_WIDTH - 1) then
           -- padding after each row
           int_pixel_to_pad <= C_PAD_RIGHT + C_PAD_LEFT;
 
-          if (int_row >= C_IMG_HEIGHT - 1) then
+          if (int_row = C_IMG_HEIGHT - 1) then
             -- padding at the end of the image
             int_pixel_to_pad <= C_PAD_BOTTOM * (C_IMG_WIDTH_OUT + C_PAD_RIGHT);
           end if;
@@ -124,12 +124,12 @@ begin
       case state is
 
         when IDLE =>
-          if (int_pixel_to_pad > 0) then
+          if (int_pixel_to_pad /= 0) then
             state <= PAD;
           end if;
 
         when PAD =>
-          if (int_pixel_to_pad > 0) then
+          if (int_pixel_to_pad /= 0) then
             if (isl_get = '1') then
               state <= PAD_PIXEL;
             end if;
@@ -149,7 +149,7 @@ begin
         when FORWARD_DATA =>
           slv_data_out    <= islv_data;
           sl_output_valid <= isl_valid;
-          if (int_pixel_to_pad > 0) then
+          if (int_pixel_to_pad /= 0) then
             state <= PAD;
           end if;
 

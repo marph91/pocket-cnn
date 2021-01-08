@@ -70,7 +70,7 @@ begin
 
     if (rising_edge(isl_clk)) then
       if (isl_valid = '1') then
-        if (int_ch_cnt < C_CH - 1) then
+        if (int_ch_cnt /= C_CH - 1) then
           int_ch_cnt <= int_ch_cnt + 1;
         else
           int_ch_cnt <= 0;

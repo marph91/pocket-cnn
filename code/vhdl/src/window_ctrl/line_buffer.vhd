@@ -73,7 +73,7 @@ begin
 
     if (rising_edge(isl_clk)) then
       if (isl_valid = '1') then
-        if (usig_addr_cnt < C_BRAM_SIZE - 2) then
+        if (usig_addr_cnt /= C_BRAM_SIZE - 2) then
           usig_addr_cnt <= usig_addr_cnt + 1;
         else
           usig_addr_cnt <= (others => '0');

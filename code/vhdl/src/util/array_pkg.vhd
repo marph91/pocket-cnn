@@ -124,20 +124,20 @@ package body array_pkg is
     variable v_low_index   : integer;
   begin
 
-    if (C_NAME'LENGTH > 0) then
-      a_ram := load_content(C_NAME, C_SIZE, C_WIDTH);
+    assert C_NAME'LENGTH > 0;
 
-      -- convert the loaded data to proper kernels
-      for kernel in 0 to C_SIZE - 1 loop
-        for i in 0 to C_KSIZE - 1 loop
-          for j in 0 to C_KSIZE - 1 loop
-            v_high_index                := ((i + j * C_KSIZE) + 1) * C_BITS - 1;
-            v_low_index                 := (i + j * C_KSIZE) * C_BITS;
-            a_ram_weights(kernel)(i, j) := a_ram(kernel)(v_high_index downto v_low_index);
-          end loop;
+    a_ram := load_content(C_NAME, C_SIZE, C_WIDTH);
+
+    -- convert the loaded data to proper kernels
+    for kernel in 0 to C_SIZE - 1 loop
+      for i in 0 to C_KSIZE - 1 loop
+        for j in 0 to C_KSIZE - 1 loop
+          v_high_index                := ((i + j * C_KSIZE) + 1) * C_BITS - 1;
+          v_low_index                 := (i + j * C_KSIZE) * C_BITS;
+          a_ram_weights(kernel)(i, j) := a_ram(kernel)(v_high_index downto v_low_index);
         end loop;
       end loop;
-    end if;
+    end loop;
 
     return a_ram_weights;
   end function;
