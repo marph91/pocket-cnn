@@ -75,6 +75,7 @@ architecture behavioral of top is
                          C_CONV_STRIDE(i - 1) + 1;
 
       assert C_POOL_STRIDE(i - 1) >= 0;
+
       if (C_POOL_STRIDE(i - 1) /= 0) then
         v_a_size(i) := (v_int_size_conv - C_POOL_KSIZE(i - 1)) /
                        C_POOL_STRIDE(i - 1) + 1;

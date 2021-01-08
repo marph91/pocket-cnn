@@ -118,8 +118,9 @@ begin
     )
     port map (
       isl_clk     => isl_clk,
-      isl_reset   => '0', -- isl_start
-      isl_valid   => sl_win_valid_out, -- weight addresses depend on window control
+      isl_reset   => '0',
+      -- weight addresses depend on window control
+      isl_valid   => sl_win_valid_out,
       oint_count  => int_addr_cnt,
       osl_maximum => open
     );

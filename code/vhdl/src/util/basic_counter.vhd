@@ -21,6 +21,7 @@ entity basic_counter is
 end entity basic_counter;
 
 -- Counting up is useful for debugging.
+
 architecture up of basic_counter is
 
   signal usig_count : unsigned(log2(C_MAX) - 1 downto 0) := (others => '0');
@@ -89,6 +90,7 @@ begin
 end architecture up;
 
 -- Counting down should use less resources.
+
 architecture down of basic_counter is
 
   signal usig_count : unsigned(log2(C_MAX) - 1 downto 0) := (others => '0');

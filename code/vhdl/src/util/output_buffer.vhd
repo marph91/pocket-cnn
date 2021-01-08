@@ -51,7 +51,7 @@ begin
     )
     port map (
       isl_clk     => isl_clk,
-      isl_reset   => sl_buffer_rdy,
+      isl_reset   => '0',
       isl_valid   => isl_valid,
       oint_count  => open,
       osl_maximum => sl_buffer_rdy

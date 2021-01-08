@@ -48,6 +48,7 @@ begin
       oint_count  => int_ch_cnt,
       osl_maximum => open
     );
+
   -- synthesis translate on
 
   proc_shift_data : process (isl_clk) is

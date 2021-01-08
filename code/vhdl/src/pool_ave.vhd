@@ -96,7 +96,7 @@ begin
                         to_sfixed(islv_data,
                         C_INT_BITS - 1, - C_FRAC_BITS),
                         v_sfix_sum, fixed_wrap, fixed_truncate);
-          a_ch_buffer     <= v_sfix_sum & a_ch_buffer(0 to a_ch_buffer'HIGH - 1);
+          a_ch_buffer <= v_sfix_sum & a_ch_buffer(0 to a_ch_buffer'HIGH - 1);
         end if;
 
         ------------------------DIVIDE OPTIONS---------------------------
