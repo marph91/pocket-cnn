@@ -29,6 +29,7 @@ entity conv is
   );
   port (
     isl_clk    : in    std_logic;
+    isl_start  : in    std_logic;
     isl_valid  : in    std_logic;
     ia_data    : in    t_kernel_array(0 to C_PARALLEL_CH - 1)(0 to C_KSIZE - 1, 0 to C_KSIZE - 1);
     ia_weights : in    t_kernel_array(0 to C_PARALLEL_CH - 1)(0 to C_KSIZE - 1, 0 to C_KSIZE - 1);
@@ -72,26 +73,27 @@ architecture behavioral of conv is
 begin
 
   -- synthesis translate off
-  i_pixel_counter_in : entity util.basic_counter(down)
+  i_pixel_counter_in : entity util.basic_counter
     generic map (
       C_MAX => C_CH_IN,
       C_INCREMENT => C_PARALLEL_CH
     )
     port map (
       isl_clk     => isl_clk,
-      isl_reset   => '0',
+      isl_reset   => isl_start,
       isl_valid   => isl_valid,
       oint_count  => int_ch_in_cnt,
       osl_maximum => open
     );
 
-  i_pixel_counter_out : entity util.basic_counter(down)
+  i_pixel_counter_out : entity util.basic_counter
     generic map (
-      C_MAX => C_CH_OUT
+      C_MAX => C_CH_OUT,
+      C_COUNT_DOWN => 0
     )
     port map (
       isl_clk     => isl_clk,
-      isl_reset   => '0',
+      isl_reset   => isl_start,
       isl_valid   => osl_valid,
       oint_count  => int_ch_out_cnt,
       osl_maximum => open
@@ -132,7 +134,7 @@ begin
     )
     port map (
       isl_clk      => isl_clk,
-      isl_reset    => '0',
+      isl_reset    => isl_start,
       isl_valid    => sl_mm_valid_out(0),
       oint_pixel   => int_addr_cnt_b,
       oint_row     => open,

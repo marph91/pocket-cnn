@@ -14,6 +14,7 @@ entity output_buffer is
   port (
     isl_clk   : in    std_logic;
     isl_get   : in    std_logic;
+    isl_start : in    std_logic;
     isl_valid : in    std_logic;
     islv_data : in    std_logic_vector(C_TOTAL_BITS - 1 downto 0);
     oslv_data : out   std_logic_vector(C_TOTAL_BITS - 1 downto 0);
@@ -44,14 +45,13 @@ architecture behavioral of output_buffer is
 
 begin
 
-  i_channel_counter : entity util.basic_counter(up)
+  i_channel_counter : entity util.basic_counter
     generic map (
-      C_MAX => C_CH,
-      C_INCREMENT => 1
+      C_MAX => C_CH
     )
     port map (
       isl_clk     => isl_clk,
-      isl_reset   => '0',
+      isl_reset   => isl_start,
       isl_valid   => isl_valid,
       oint_count  => open,
       osl_maximum => sl_buffer_rdy

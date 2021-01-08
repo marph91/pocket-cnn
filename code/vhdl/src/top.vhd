@@ -185,14 +185,13 @@ begin
   --------------------------------------------------------------
   -- Process: Generate finish signal for interrupt
   --------------------------------------------------------------
-  i_finish_generator : entity util.basic_counter(up)
+  i_finish_generator : entity util.basic_counter
     generic map (
-      C_MAX => C_CH(C_CH'RIGHT),
-      C_INCREMENT => 1
+      C_MAX => C_CH(C_CH'RIGHT)
     )
     port map (
       isl_clk     => isl_clk,
-      isl_reset   => '0',
+      isl_reset   => isl_start,
       isl_valid   => sl_output_valid(C_PE + 1),
       oint_count  => open,
       osl_maximum => sl_output_finish

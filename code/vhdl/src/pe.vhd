@@ -236,6 +236,7 @@ begin
     port map (
       isl_clk   => isl_clk,
       isl_get   => isl_get,
+      isl_start => isl_start,
       isl_valid => sl_output_buffer_valid_in,
       islv_data => slv_output_buffer_data_in,
       oslv_data => oslv_data,

@@ -100,6 +100,7 @@ begin
     )
     port map (
       isl_clk    => isl_clk,
+      isl_start  => isl_start,
       isl_valid  => sl_win_valid_out,
       ia_data    => a_win_data_out,
       ia_weights => a_weights,
@@ -111,10 +112,11 @@ begin
     a_weights(ch_in) <= C_WEIGHTS(int_addr_cnt + ch_in);
   end generate gen_weights;
 
-  i_address_counter : entity util.basic_counter(up)
+  i_address_counter : entity util.basic_counter
     generic map (
       C_MAX => C_CH_IN * C_CH_OUT,
-      C_INCREMENT => C_PARALLEL_CH
+      C_INCREMENT => C_PARALLEL_CH,
+      C_COUNT_DOWN => 0
     )
     port map (
       isl_clk     => isl_clk,

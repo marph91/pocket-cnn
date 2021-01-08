@@ -36,10 +36,10 @@ architecture behavior of window_buffer is
 begin
 
   -- synthesis translate off
-  i_channel_counter : entity util.basic_counter(up)
+  i_channel_counter : entity util.basic_counter
     generic map (
       C_MAX => C_CH,
-      C_INCREMENT => 1
+      C_COUNT_DOWN => 0
     )
     port map (
       isl_clk     => isl_clk,

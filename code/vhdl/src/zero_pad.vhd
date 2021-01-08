@@ -70,7 +70,7 @@ begin
 
   sl_padding_valid <= '1' when state = PAD_PIXEL and sl_pixel_padded = '0' else
                       '0';
-  i_channel_counter_out : entity util.basic_counter(down)
+  i_channel_counter_out : entity util.basic_counter
     generic map (
       C_MAX => C_CH
     )
