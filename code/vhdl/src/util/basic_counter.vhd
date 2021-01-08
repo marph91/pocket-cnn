@@ -88,7 +88,7 @@ begin
 
 end architecture up;
 
--- Counting down uses less resources.
+-- Counting down should use less resources.
 architecture down of basic_counter is
 
   signal usig_count : unsigned(log2(C_MAX) - 1 downto 0) := (others => '0');

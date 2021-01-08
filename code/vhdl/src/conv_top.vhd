@@ -111,20 +111,17 @@ begin
     a_weights(ch_in) <= C_WEIGHTS(int_addr_cnt + ch_in);
   end generate gen_weights;
 
-  proc_data : process (isl_clk) is
-  begin
-
-    if (rising_edge(isl_clk)) then
-      -- weight addresses depend on window control
-      if (sl_win_valid_out = '1') then
-        if (int_addr_cnt /= C_CH_IN * C_CH_OUT - C_PARALLEL_CH) then
-          int_addr_cnt <= int_addr_cnt + C_PARALLEL_CH;
-        else
-          int_addr_cnt <= 0;
-        end if;
-      end if;
-    end if;
-
-  end process proc_data;
+  i_address_counter : entity util.basic_counter(up)
+    generic map (
+      C_MAX => C_CH_IN * C_CH_OUT,
+      C_INCREMENT => C_PARALLEL_CH
+    )
+    port map (
+      isl_clk     => isl_clk,
+      isl_reset   => '0', -- isl_start
+      isl_valid   => sl_win_valid_out, -- weight addresses depend on window control
+      oint_count  => int_addr_cnt,
+      osl_maximum => open
+    );
 
 end architecture behavioral;

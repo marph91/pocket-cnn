@@ -114,7 +114,7 @@ begin
               int_column <= int_column + 1;
             else
               int_column <= 0;
-              if (int_row < C_HEIGHT - 1) then
+              if (int_row /= C_HEIGHT - 1) then
                 int_row <= int_row + 1;
               else
                 int_row <= 0;

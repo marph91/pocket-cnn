@@ -35,6 +35,21 @@ architecture behavior of window_buffer is
 
 begin
 
+  -- synthesis translate off
+  i_channel_counter : entity util.basic_counter(up)
+    generic map (
+      C_MAX => C_CH,
+      C_INCREMENT => 1
+    )
+    port map (
+      isl_clk     => isl_clk,
+      isl_reset   => '0',
+      isl_valid   => isl_valid,
+      oint_count  => int_ch_cnt,
+      osl_maximum => open
+    );
+  -- synthesis translate on
+
   proc_shift_data : process (isl_clk) is
   begin
 
@@ -69,13 +84,6 @@ begin
   begin
 
     if (rising_edge(isl_clk)) then
-      if (isl_valid = '1') then
-        if (int_ch_cnt /= C_CH - 1) then
-          int_ch_cnt <= int_ch_cnt + 1;
-        else
-          int_ch_cnt <= 0;
-        end if;
-      end if;
       sl_valid_out <= isl_valid;
     end if;
 

@@ -108,7 +108,7 @@ begin
         end if;
       end if;
 
-      if (int_pixel_to_pad > 0 and isl_get = '1' and state = PAD) then
+      if (int_pixel_to_pad /= 0 and isl_get = '1' and state = PAD) then
         assert isl_valid = '0';
         int_pixel_to_pad <= int_pixel_to_pad - 1;
       end if;
