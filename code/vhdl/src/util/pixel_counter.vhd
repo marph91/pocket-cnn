@@ -32,7 +32,7 @@ architecture submodules of pixel_counter is
 
 begin
 
-  i_channel_count : entity util.basic_counter
+  i_channel_count : entity util.basic_counter(down)
     generic map (
       C_MAX       => C_CHANNEL,
       C_INCREMENT => C_CHANNEL_INCREMENT
@@ -45,7 +45,7 @@ begin
       osl_maximum => sl_channel_maximum
     );
 
-  i_column_count : entity util.basic_counter
+  i_column_count : entity util.basic_counter(down)
     generic map (
       C_MAX       => C_WIDTH
     )
@@ -57,7 +57,7 @@ begin
       osl_maximum => sl_column_maximum
     );
 
-  i_row_count : entity util.basic_counter
+  i_row_count : entity util.basic_counter(down)
     generic map (
       C_MAX       => C_HEIGHT
     )
@@ -70,7 +70,7 @@ begin
     );
 
   -- TODO: function to convert between rows/cols and pixel
-  i_pixel_count : entity util.basic_counter
+  i_pixel_count : entity util.basic_counter(down)
     generic map (
       C_MAX       => C_HEIGHT * C_WIDTH
     )

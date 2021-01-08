@@ -72,7 +72,7 @@ architecture behavioral of conv is
 begin
 
   -- synthesis translate off
-  i_pixel_counter_in : entity util.basic_counter
+  i_pixel_counter_in : entity util.basic_counter(down)
     generic map (
       C_MAX => C_CH_IN,
       C_INCREMENT => C_PARALLEL_CH
@@ -85,7 +85,7 @@ begin
       osl_maximum => open
     );
 
-  i_pixel_counter_out : entity util.basic_counter
+  i_pixel_counter_out : entity util.basic_counter(down)
     generic map (
       C_MAX => C_CH_OUT
     )

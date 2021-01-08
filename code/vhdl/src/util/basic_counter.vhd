@@ -20,7 +20,8 @@ entity basic_counter is
   );
 end entity basic_counter;
 
-architecture behavioral of basic_counter is
+-- Counting up is useful for debugging.
+architecture up of basic_counter is
 
   signal usig_count : unsigned(log2(C_MAX) - 1 downto 0) := (others => '0');
 
@@ -85,4 +86,74 @@ begin
 
   end generate gen_no_count;
 
-end architecture behavioral;
+end architecture up;
+
+-- Counting down uses less resources.
+architecture down of basic_counter is
+
+  signal usig_count : unsigned(log2(C_MAX) - 1 downto 0) := (others => '0');
+
+begin
+
+  gen_no_count : if C_MAX = 1 generate
+
+    -- There is no counting if the maximum is 1.
+
+    proc_count : process (isl_clk) is
+    begin
+
+      if (rising_edge(isl_clk)) then
+        osl_maximum <= isl_valid;
+      end if;
+
+    end process proc_count;
+
+  else generate
+
+    assert C_MAX mod C_INCREMENT = 0;
+
+    gen_counter : if is_power_of_two(C_MAX) generate
+
+      proc_count : process (isl_clk) is
+      begin
+
+        if (rising_edge(isl_clk)) then
+          osl_maximum <= '0';
+          if (isl_reset = '1') then
+            usig_count <= to_unsigned(C_MAX / C_INCREMENT - 1, usig_count'LENGTH);
+          elsif (isl_valid = '1') then
+            usig_count  <= usig_count - 1;
+            osl_maximum <= '1' when (usig_count = 0) else '0';
+          end if;
+        end if;
+
+      end process proc_count;
+
+    else generate
+
+      proc_count : process (isl_clk) is
+      begin
+
+        if (rising_edge(isl_clk)) then
+          osl_maximum <= '0';
+          if (isl_reset = '1') then
+            usig_count <= to_unsigned(C_MAX / C_INCREMENT - 1, usig_count'LENGTH);
+          elsif (isl_valid = '1') then
+            if (usig_count /= 0) then
+              usig_count <= usig_count - 1;
+            else
+              usig_count  <= to_unsigned(C_MAX / C_INCREMENT - 1, usig_count'LENGTH);
+              osl_maximum <= '1';
+            end if;
+          end if;
+        end if;
+
+      end process proc_count;
+
+    end generate gen_counter;
+
+    oint_count <= to_integer(usig_count);
+
+  end generate gen_no_count;
+
+end architecture down;
