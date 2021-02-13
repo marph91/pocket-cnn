@@ -31,7 +31,7 @@ Another branch in the workflow is to create ONNX models manually. This doesn't h
 
 | Layer | Properties | Limitations |
 | :---: | :--- | :--- |
-| Convolution | <ul><li>Kernel: 1x1, 2x2, 3x3, 5x5</li><li>Stride: 1, 2, 3</li></ul> | Quantization of the activations and weights: Scale has to be power of two, zero point has to be zero. |
+| Convolution | <ul><li>Kernel: 1x1, 2x2, 3x3, 5x5</li><li>Stride: 1, 2, 3</li></ul> | Quantization of the activations and weights: Scale has to be power-of-two, zero point has to be zero. |
 | Maximum Pooling | <ul><li>Kernel: 2x2, 3x3</li><li>Stride: 1, 2, 3</li></ul> | - |
 | Global Average Pooling | - | The averaging factor is quantized to the 16 bit fixed point value of `1 / height * width`. |
 | Zero Padding | - | The padding has to be the same at each edge. |
