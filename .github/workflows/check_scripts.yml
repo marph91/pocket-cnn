@@ -16,7 +16,7 @@ jobs:
         sudo apt update
         sudo apt install --yes shellcheck libpython3.8-dev python3-dev python3-numpy
     - name: install pip packets
-      run: pip install onnx==1.7.0 fpbinary==1.5.2 pylint==2.4.4 flake8==3.7.9 mypy==0.782
+      run: pip install onnx==1.7.0 fpbinary==1.5.3 pylint==2.6.0 flake8==3.8.4 mypy==0.800
     - name: run_checks
       run: |
         export PYTHONPATH="$(pwd)/code/python_tools"

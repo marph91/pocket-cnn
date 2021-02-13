@@ -71,7 +71,7 @@ def to_fixedint(number: FpBinary):
 
 def v_to_fixedint(array):
     """Vectorized float2fixedint function for usage on numpy arrays."""
-    vector_float2fixedint = np.vectorize(to_fixedint, otypes=[np.int])
+    vector_float2fixedint = np.vectorize(to_fixedint, otypes=[np.int32])
     return vector_float2fixedint(array)
 
 
@@ -129,7 +129,7 @@ def is_power_of_two(val: Union[int, float]) -> bool:
 
 def v_is_power_of_two(val: Union[int, float]):
     """Vectorized version of "is_power_of_two()"."""
-    vector_is_power_of_two = np.vectorize(is_power_of_two, otypes=[np.int])
+    vector_is_power_of_two = np.vectorize(is_power_of_two, otypes=[np.int32])
     return vector_is_power_of_two(val)
 
 
@@ -190,7 +190,7 @@ def power_of_two(value: int, bitwidth: int = 8) -> int:
 
 def v_power_of_two(val: Union[int, float]):
     """Vectorized version of "power_of_two()"."""
-    vector_power_of_two = np.vectorize(power_of_two, otypes=[np.int])
+    vector_power_of_two = np.vectorize(power_of_two, otypes=[np.int32])
     return vector_power_of_two(val)
 
 
@@ -199,7 +199,7 @@ def random_fixed_array(size: tuple, bitwidth: Bitwidth,
     """Create an array of random fixed point numbers."""
     if bitwidth.total_bits is not None:
         arr = np.random.randint(
-            2 ** bitwidth.total_bits, size=size, dtype=np.int)
+            2 ** bitwidth.total_bits, size=size, dtype=np.int32)
     return to_fixed_point_array(
         arr, from_value=False, int_bits=bitwidth.int_bits,
         frac_bits=bitwidth.frac_bits, signed=signed)
