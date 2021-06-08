@@ -8,6 +8,8 @@
 
 pocket-cnn is a framework to map small Convolutional Neural Networks (CNN) fully on a FPGA. There is no communication outside the FPGA needed, except of providing the image and reading the result.
 
+Note that weights and activations are fixed to 8 bit, due to ONNX limitations. For binary neural networks in hardware, you can check out [pocket-bnn](https://github.com/marph91/pocket-bnn).
+
 ## Installation and Usage
 
 Before using the framework, the `PYTHONPATH` has to be extended by `path/to/pocket-cnn/code/python_tools`. A complete end-to-end example can be found at the [example folder](examples/end_to_end/README.md).
